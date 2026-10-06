@@ -2,6 +2,8 @@
 
 O código de `SqlServerLocalIT` é compilado pela verificação comum, mas executado somente com `-Psqlserver-it` (Failsafe). H2 não substitui nenhum resultado deste ensaio. Não há Testcontainers/Docker automático, criação de banco, migration, grant, limpeza, restauração ou fallback de TLS.
 
+Complemento recebido: endereço confirmado **TCP 127.0.0.1:1433**. `sa/master` é exclusivo da criação administrativa WMS_DEV/WMS_PROD pelo procedimento Prumo/Farol; não usar no runtime, migrations ou neste ensaio. Identidades limitadas próprias, identidade real/TLS e estado do WMS_DEV ainda precisam ser comprovados. Opt-in permanece desligado, sem conexão SQL. Não executar com credencial ausente ou de terceiros. Não migrar/carregar PROD nem alterar configuração global SQL.
+
 ## Pré-condições
 
 - Alvo e acesso inequivocamente confirmados para este ensaio fictício local. Host **127.0.0.1**, porta explícita e banco exatamente **WMS_DEV**; nenhuma conexão de empresa/servidor remoto/PROD. Não inferir autorização do serviço instalado ou de SQLCMD disponível.
@@ -30,4 +32,4 @@ Não ativar o perfil Maven migrations junto desse comando. A inicialização Spr
 6. Chave idempotente duplicada recusada pela unicidade real; transação revertida.
 7. Duas transações/conexões, lock PESSIMISTIC_WRITE do repository e LOCK_TIMEOUT na segunda; reset do timeout em finally. Uma fixture de cliente precisa ser confirmada antes do confronto e **permanece** no alvo isolado. Não apagar histórico. Para repetir a bateria inteira, preparar outro WMS_DEV vazio em instância isolada autorizada; o ensaio não provisiona nem remove nada.
 
-O confronto de duas transações usa latch/pré-lock e timeout do SQL Server, não espera cega do teste. Falha de qualquer guarda/DDL/schema/permissão/constraint não autoriza alterar instância, compatibilidade/collation, migrations ou grants. Registrar logs e XMLs Failsafe reais, versões/identidade lógica e falhas sem segredos. Os 396 testes comuns esperados da D20 (resultado a conferir no build final) e o SQL preparado sem JDBC não comprovam estes sete testes; nenhuma execução SQL Server ocorreu até este registro.
+O confronto de duas transações usa latch/pré-lock e timeout do SQL Server, não espera cega do teste. Falha de qualquer guarda/DDL/schema/permissão/constraint não autoriza alterar instância, compatibilidade/collation, migrations ou grants. Registrar logs e XMLs Failsafe reais, versões/identidade lógica e falhas sem segredos. O [clean verify comum D20](d20-resumo.json) terminou com 396/0/0/0 em 06/10/2026 às 12:32:28 -03:00; esses testes e o SQL preparado sem JDBC não comprovam os sete ITs. Nenhuma execução SQL Server ocorreu nesta entrega.

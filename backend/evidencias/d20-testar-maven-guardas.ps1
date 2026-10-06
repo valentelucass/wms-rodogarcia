@@ -2,13 +2,17 @@
 $ErrorActionPreference = 'Stop'
 $backend = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 $wrapper = Join-Path $backend 'mvnw.cmd'
+. (Join-Path $backend '../database/d20-guardas.ps1')
+$sqlFicticio = Get-WmsD20FlywayInitSql "SQL'FICTICIO" "mig'FICTICIO"
 $cases = @(
     @{id='sem-marker'; bank='WMS_DEV'; marker=$null; sql=$null; goal='validate'; expected=1},
     @{id='prod-recusa'; bank='WMS_PROD'; marker='D20_WMS_DEV_VERIFICADO'; sql="THROW 51002, 'Fixture offline.', 1;"; goal='validate'; expected=1},
     @{id='fonte-ausente'; bank='WMS_DEV'; marker='D20_WMS_DEV_VERIFICADO'; sql=$null; goal='validate'; expected=1},
-    @{id='validacao-ficticia'; bank='WMS_DEV'; marker='D20_WMS_DEV_VERIFICADO'; sql="THROW 51002, 'Fixture offline.', 1;"; goal='validate'; expected=0},
+    @{id='validacao-ficticia'; bank='WMS_DEV'; marker='D20_WMS_DEV_VERIFICADO'; sql=$sqlFicticio; goal='validate'; expected=0},
     @{id='default-init'; bank='WMS_DEV'; marker=$null; sql=$null; goal='help:evaluate -Dexpression=wms.migrations.initSql -q -DforceStdout'; expected=0},
-    @{id='marker-divergente'; bank='WMS_DEV'; marker='OUTRO'; sql="THROW 51002, 'Fixture offline.', 1;"; goal='help:evaluate -Dexpression=wms.migrations.initSql -q -DforceStdout'; expected=0}
+    @{id='marker-divergente'; bank='WMS_DEV'; marker='OUTRO'; sql=$sqlFicticio; goal='help:evaluate -Dexpression=wms.migrations.initSql -q -DforceStdout'; expected=0},
+    @{id='sem-marker-com-fonte'; bank='WMS_DEV'; marker=$null; sql=$sqlFicticio; goal='help:evaluate -Dexpression=wms.migrations.initSql -q -DforceStdout'; expected=0},
+    @{id='fonte-wrapper-escapada'; bank='WMS_DEV'; marker='D20_WMS_DEV_VERIFICADO'; sql=$sqlFicticio; goal='help:evaluate -Dexpression=wms.migrations.initSql -q -DforceStdout'; expected=0}
 )
 $results = @()
 foreach($case in $cases) {
@@ -41,7 +45,12 @@ foreach($case in $cases) {
     $log = Join-Path $PSScriptRoot ('d20-maven-' + $case.id + '.log')
     [IO.File]::WriteAllText($log, $output, [Text.UTF8Encoding]::new($false))
     $ok = ($process.ExitCode -eq $case.expected)
-    if($case.id -in @('default-init','marker-divergente')) { $ok = $ok -and $output.Contains('THROW 51002') -and !$output.Contains('Fixture offline.') }
+    if($case.id -in @('default-init','marker-divergente','sem-marker-com-fonte')) { $ok = $ok -and $output.Contains('THROW 51002') -and !$output.Contains('SERVERPROPERTY') }
+    if($case.id -eq 'fonte-wrapper-escapada') {
+        foreach($part in @("SQL''FICTICIO", "mig''FICTICIO", 'SERVERPROPERTY', 'ORIGINAL_LOGIN', 'WMS_DEV', 'ARITHABORT ON', 'NUMERIC_ROUNDABORT OFF')) {
+            $ok = $ok -and $output.Contains($part)
+        }
+    }
     $results += [pscustomobject]@{id=$case.id;exitCode=$process.ExitCode;expected=$case.expected;passed=$ok;goal=$case.goal;log=[IO.Path]::GetFileName($log)}
     Write-Output "$($case.id): exit=$($process.ExitCode), passou=$ok"
     $process.Dispose()

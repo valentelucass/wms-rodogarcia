@@ -1,0 +1,9 @@
+# Launcher automático e credencial protegida — D22
+
+Incremento autorizado do fluxo D21, sem duplicar migrations/runner/modelo. Lucas solicita que iniciar-bancos.bat normal faça bootstrap/upgrade WMS_DEV depois WMS_PROD sem senha nem confirmação repetida. Operador executa SQL; agentes não acessam segredo real ou SQL. [D22](06-decisoes-e-pendencias.md) e [states](../states.md) são fontes correntes; [37](37-bootstrap-e-upgrade-manual-database.md) permanece histórico.
+
+Padrão público verificado: Avaliação database/README.md106–108 e scripts/solicitar-autenticacao-sql.ps1 usam PSCredential Export/Import-Clixml DPAPI Windows por usuário/máquina, fora Git e ACL restrita, sem prompt no executor. WMS adotará armazenamento exclusivo LOCALAPPDATA/Rodogarcia/WMS/database-runner, sem importar arquivos/credenciais/config.local/.env/trust/controles de outros projetos. [Microsoft Export-Clixml](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/export-clixml?view=powershell-5.1) documenta a proteção Windows por conta/máquina.
+
+Prumo implementa leitor automático e configurar-credencial.bat auxiliar oculto UMA VEZ, owner/ACL exclusivos e testes DPAPI fictícios isolados; Vigia revisa. Ausência/erro do canal interrompe rapidamente, sem perguntar senha. Inspeção/allowlist/identidade/TLS/Flyway/checksum/catálogo e DEV antes PROD continuam obrigatórios; segredo somente memória/SecureString/filho efêmero. Nenhuma mudança backend/servidor/sa/global/trust/terceiros.
+
+**Em implementação:** metadados iniciais mostram diretório protegido WMS ausente; nenhuma credencial real lida/provisionada. Provisão inicial é do operador, distinta do launcher automático pronto. Evidências/resultado D22 serão registrados após fixtures cmd.exe offline/leitura protegida/ausência/SID/ACL/erro/sem prompts e revisão, sem suites completas ou SQL real. Sem callback Hermes/ETL.

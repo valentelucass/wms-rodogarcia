@@ -35,6 +35,8 @@ O JAR final de D13 foi executado separadamente em perfil local padrão, porta al
 
 `database/migrate.ps1` passou pela análise sintática do PowerShell, sem execução do script. Artefatos Flyway 12.4.0 e seu módulo SQL Server foram encontrados no Maven Central. V1 foi preparada e revisada junto aos mapeamentos; **não foi executada** em SQL Server ou em H2. H2 cria sua estrutura somente para testes a partir do JPA.
 
+**Caminho atualizado pela organização D20:** o executor corrente fica em [database/scripts/migrate.ps1](../database/scripts/migrate.ps1). O nome no registro acima descreve a execução histórica; comandos atuais no [README](../database/README.md). Migrations SQL e evidências originais preservadas.
+
 Conferidos UTF-8 e referências locais de 26 documentos de trabalho, codificação de 64 arquivos Java e 6 properties (incluindo o wrapper), ausência de imports Java com `*` e de YAML em resources. São 16 IDs BE e 13 FE únicos; BE16 foi acrescentado após BE15, preservando os anteriores. As fontes originais foram preservadas.
 
 ## Limites

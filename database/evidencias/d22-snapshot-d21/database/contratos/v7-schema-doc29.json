@@ -1,0 +1,1771 @@
+{
+  "fonte": "docs/29-cadastros-servicos-e-calculo.md",
+  "fonteSha256": "DF9C92A474A0617CC6AD2EF2D7BB6E149DB78F23B887F64070F33802A772581C",
+  "natureza": "Transcricao tecnica do schema29 para leitura estatica V7; nomes de constraints/indices sao escolhas locais, JPA aguarda freeze. Nenhum dado real/default/backfill.",
+  "extensoes": {
+    "cliente": [
+      {
+        "nome": "razao_social",
+        "tipo": "nvarchar(160)",
+        "nulo": true
+      },
+      {
+        "nome": "inscricao_estadual",
+        "tipo": "varchar(30)",
+        "nulo": true
+      },
+      {
+        "nome": "logradouro",
+        "tipo": "nvarchar(160)",
+        "nulo": true
+      },
+      {
+        "nome": "numero_endereco",
+        "tipo": "varchar(20)",
+        "nulo": true
+      },
+      {
+        "nome": "complemento",
+        "tipo": "nvarchar(80)",
+        "nulo": true
+      },
+      {
+        "nome": "bairro",
+        "tipo": "nvarchar(80)",
+        "nulo": true
+      },
+      {
+        "nome": "cidade",
+        "tipo": "nvarchar(100)",
+        "nulo": true
+      },
+      {
+        "nome": "uf",
+        "tipo": "varchar(2)",
+        "nulo": true
+      },
+      {
+        "nome": "cep",
+        "tipo": "varchar(16)",
+        "nulo": true
+      },
+      {
+        "nome": "pais",
+        "tipo": "varchar(2)",
+        "nulo": true
+      },
+      {
+        "nome": "contato_nome",
+        "tipo": "nvarchar(120)",
+        "nulo": true
+      },
+      {
+        "nome": "contato_email",
+        "tipo": "varchar(160)",
+        "nulo": true
+      },
+      {
+        "nome": "contato_telefone",
+        "tipo": "varchar(30)",
+        "nulo": true
+      },
+      {
+        "nome": "faturamento_email",
+        "tipo": "varchar(160)",
+        "nulo": true
+      },
+      {
+        "nome": "faturamento_referencia",
+        "tipo": "nvarchar(500)",
+        "nulo": true
+      }
+    ],
+    "armazem": [
+      {
+        "nome": "razao_social",
+        "tipo": "nvarchar(160)",
+        "nulo": true
+      },
+      {
+        "nome": "inscricao_estadual",
+        "tipo": "varchar(30)",
+        "nulo": true
+      },
+      {
+        "nome": "logradouro",
+        "tipo": "nvarchar(160)",
+        "nulo": true
+      },
+      {
+        "nome": "numero_endereco",
+        "tipo": "varchar(20)",
+        "nulo": true
+      },
+      {
+        "nome": "complemento",
+        "tipo": "nvarchar(80)",
+        "nulo": true
+      },
+      {
+        "nome": "bairro",
+        "tipo": "nvarchar(80)",
+        "nulo": true
+      },
+      {
+        "nome": "cep",
+        "tipo": "varchar(16)",
+        "nulo": true
+      },
+      {
+        "nome": "pais",
+        "tipo": "varchar(2)",
+        "nulo": true
+      },
+      {
+        "nome": "contato_nome",
+        "tipo": "nvarchar(120)",
+        "nulo": true
+      },
+      {
+        "nome": "contato_email",
+        "tipo": "varchar(160)",
+        "nulo": true
+      },
+      {
+        "nome": "contato_telefone",
+        "tipo": "varchar(30)",
+        "nulo": true
+      }
+    ]
+  },
+  "tabelas": [
+    {
+      "nome": "referencia_fiscal_produto",
+      "colunas": [
+        {
+          "nome": "id",
+          "tipo": "bigint",
+          "nulo": false,
+          "identity": true
+        },
+        {
+          "nome": "produto_id",
+          "tipo": "bigint",
+          "nulo": false,
+          "referencia": "produto"
+        },
+        {
+          "nome": "armazem_id",
+          "tipo": "bigint",
+          "nulo": false,
+          "referencia": "armazem"
+        },
+        {
+          "nome": "operacao",
+          "tipo": "varchar(40)",
+          "nulo": false
+        },
+        {
+          "nome": "ncm",
+          "tipo": "varchar(8)",
+          "nulo": true
+        },
+        {
+          "nome": "cfop",
+          "tipo": "varchar(4)",
+          "nulo": true
+        },
+        {
+          "nome": "cest",
+          "tipo": "varchar(7)",
+          "nulo": true
+        },
+        {
+          "nome": "enquadramento",
+          "tipo": "nvarchar(500)",
+          "nulo": true
+        },
+        {
+          "nome": "aliquota_icms",
+          "tipo": "decimal(9,6)",
+          "nulo": true
+        },
+        {
+          "nome": "aliquota_ipi",
+          "tipo": "decimal(9,6)",
+          "nulo": true
+        },
+        {
+          "nome": "fonte",
+          "tipo": "nvarchar(200)",
+          "nulo": false
+        },
+        {
+          "nome": "conferida_por",
+          "tipo": "nvarchar(200)",
+          "nulo": true
+        },
+        {
+          "nome": "conferida_em",
+          "tipo": "datetime2(6)",
+          "nulo": true
+        },
+        {
+          "nome": "versao",
+          "tipo": "bigint",
+          "nulo": false
+        },
+        {
+          "nome": "criada_em",
+          "tipo": "datetime2(6)",
+          "nulo": false
+        },
+        {
+          "nome": "alterada_em",
+          "tipo": "datetime2(6)",
+          "nulo": false
+        }
+      ],
+      "unicas": [
+        {
+          "nome": "uk_referencia_fiscal_produto_1",
+          "colunas": [
+            "produto_id",
+            "armazem_id",
+            "operacao"
+          ]
+        }
+      ],
+      "checks": {
+        "ck_referencia_fiscal_produto_icms": "aliquota_icms IS NULL OR aliquota_icms BETWEEN 0 AND 100",
+        "ck_referencia_fiscal_produto_ipi": "aliquota_ipi IS NULL OR aliquota_ipi BETWEEN 0 AND 100",
+        "ck_referencia_fiscal_produto_conferencia": "(conferida_por IS NULL AND conferida_em IS NULL) OR (conferida_por IS NOT NULL AND conferida_em IS NOT NULL)",
+        "ck_referencia_fiscal_produto_versao": "versao >= 0"
+      }
+    },
+    {
+      "nome": "importacao_endereco",
+      "colunas": [
+        {
+          "nome": "id",
+          "tipo": "bigint",
+          "nulo": false,
+          "identity": true
+        },
+        {
+          "nome": "armazem_id",
+          "tipo": "bigint",
+          "nulo": false,
+          "referencia": "armazem"
+        },
+        {
+          "nome": "arquivo_hash",
+          "tipo": "varchar(64)",
+          "nulo": false
+        },
+        {
+          "nome": "layout_versao",
+          "tipo": "int",
+          "nulo": false
+        },
+        {
+          "nome": "quantidade_linhas",
+          "tipo": "int",
+          "nulo": false
+        },
+        {
+          "nome": "situacao",
+          "tipo": "varchar(16)",
+          "nulo": false
+        },
+        {
+          "nome": "linhas_json",
+          "tipo": "nvarchar(max)",
+          "nulo": false
+        },
+        {
+          "nome": "erros_json",
+          "tipo": "nvarchar(max)",
+          "nulo": false
+        },
+        {
+          "nome": "versao",
+          "tipo": "bigint",
+          "nulo": false
+        },
+        {
+          "nome": "criada_em",
+          "tipo": "datetime2(6)",
+          "nulo": false
+        },
+        {
+          "nome": "confirmada_em",
+          "tipo": "datetime2(6)",
+          "nulo": true
+        },
+        {
+          "nome": "usuario",
+          "tipo": "nvarchar(200)",
+          "nulo": false
+        }
+      ],
+      "unicas": [],
+      "checks": {
+        "ck_importacao_endereco_layout": "layout_versao >= 1",
+        "ck_importacao_endereco_linhas": "quantidade_linhas BETWEEN 1 AND 5000",
+        "ck_importacao_endereco_situacao": "situacao IN ('PREVIA','COM_ERROS','CONFIRMADA')",
+        "ck_importacao_endereco_confirmacao": "(situacao IN ('PREVIA','COM_ERROS') AND confirmada_em IS NULL) OR (situacao = 'CONFIRMADA' AND confirmada_em IS NOT NULL AND REPLACE(REPLACE(REPLACE(REPLACE(erros_json, N' ', N''), NCHAR(9), N''), NCHAR(10), N''), NCHAR(13), N'') = N'[]')",
+        "ck_importacao_endereco_versao": "versao >= 0",
+        "ck_importacao_endereco_linhas_json": "ISJSON(linhas_json) = 1",
+        "ck_importacao_endereco_erros_json": "ISJSON(erros_json) = 1"
+      }
+    },
+    {
+      "nome": "operacao_administrativa",
+      "colunas": [
+        {
+          "nome": "id",
+          "tipo": "bigint",
+          "nulo": false,
+          "identity": true
+        },
+        {
+          "nome": "operacao_id",
+          "tipo": "varchar(36)",
+          "nulo": false
+        },
+        {
+          "nome": "tipo",
+          "tipo": "varchar(32)",
+          "nulo": false
+        },
+        {
+          "nome": "cliente_id",
+          "tipo": "bigint",
+          "nulo": true,
+          "referencia": "cliente"
+        },
+        {
+          "nome": "armazem_id",
+          "tipo": "bigint",
+          "nulo": true,
+          "referencia": "armazem"
+        },
+        {
+          "nome": "recurso_id",
+          "tipo": "bigint",
+          "nulo": true
+        },
+        {
+          "nome": "conteudo_hash",
+          "tipo": "varchar(64)",
+          "nulo": false
+        },
+        {
+          "nome": "resultado",
+          "tipo": "nvarchar(max)",
+          "nulo": false
+        },
+        {
+          "nome": "usuario",
+          "tipo": "nvarchar(200)",
+          "nulo": false
+        },
+        {
+          "nome": "registrada_em",
+          "tipo": "datetime2(6)",
+          "nulo": false
+        }
+      ],
+      "unicas": [
+        {
+          "nome": "uk_operacao_administrativa_1",
+          "colunas": [
+            "operacao_id"
+          ]
+        }
+      ],
+      "checks": {
+        "ck_operacao_administrativa_tipo": "tipo IN ('CRIACAO_SERVICO','CRIACAO_TABELA','CRIACAO','COMPLEMENTO_FISCAL','REFERENCIA_FISCAL','PREVIA_ENDERECOS','IMPORTACAO_ENDERECOS','ENCERRAMENTO_VIGENCIA','CONFIGURACAO','REGISTRO_SERVICO','ANULACAO_SERVICO','MARCO_AVARIA','CALCULO','VINCULO_TABELA')",
+        "ck_operacao_administrativa_resultado": "ISJSON(resultado) = 1"
+      }
+    },
+    {
+      "nome": "servico_cobranca",
+      "colunas": [
+        {
+          "nome": "id",
+          "tipo": "bigint",
+          "nulo": false,
+          "identity": true
+        },
+        {
+          "nome": "codigo",
+          "tipo": "varchar(40)",
+          "nulo": false
+        },
+        {
+          "nome": "descricao",
+          "tipo": "nvarchar(160)",
+          "nulo": false
+        },
+        {
+          "nome": "tipo",
+          "tipo": "varchar(16)",
+          "nulo": false
+        },
+        {
+          "nome": "unidade",
+          "tipo": "varchar(24)",
+          "nulo": false
+        },
+        {
+          "nome": "situacao",
+          "tipo": "varchar(24)",
+          "nulo": false
+        },
+        {
+          "nome": "versao",
+          "tipo": "bigint",
+          "nulo": false
+        },
+        {
+          "nome": "criado_em",
+          "tipo": "datetime2(6)",
+          "nulo": false
+        },
+        {
+          "nome": "alterado_em",
+          "tipo": "datetime2(6)",
+          "nulo": false
+        }
+      ],
+      "unicas": [
+        {
+          "nome": "uk_servico_cobranca_1",
+          "colunas": [
+            "codigo"
+          ]
+        }
+      ],
+      "checks": {
+        "ck_servico_cobranca_tipo": "tipo IN ('ENTRADA','SAIDA','ARMAZENAGEM','ADICIONAL')",
+        "ck_servico_cobranca_unidade": "unidade IN ('UNIDADE_LOGISTICA','QUANTIDADE_PRODUTO','POSICAO_DIA','VEICULO','CONTEINER','PERCENTUAL')",
+        "ck_servico_cobranca_situacao": "situacao IN ('ATIVO','ENCERRAMENTO_PENDENTE','INATIVO')",
+        "ck_servico_cobranca_armazenagem": "tipo <> 'ARMAZENAGEM' OR unidade = 'POSICAO_DIA'",
+        "ck_servico_cobranca_percentual": "unidade <> 'PERCENTUAL' OR tipo = 'ADICIONAL'",
+        "ck_servico_cobranca_versao": "versao >= 0"
+      }
+    },
+    {
+      "nome": "tabela_cobranca",
+      "colunas": [
+        {
+          "nome": "id",
+          "tipo": "bigint",
+          "nulo": false,
+          "identity": true
+        },
+        {
+          "nome": "armazem_id",
+          "tipo": "bigint",
+          "nulo": false,
+          "referencia": "armazem"
+        },
+        {
+          "nome": "cliente_id",
+          "tipo": "bigint",
+          "nulo": true,
+          "referencia": "cliente"
+        },
+        {
+          "nome": "codigo",
+          "tipo": "varchar(40)",
+          "nulo": false
+        },
+        {
+          "nome": "descricao",
+          "tipo": "nvarchar(160)",
+          "nulo": false
+        },
+        {
+          "nome": "tipo",
+          "tipo": "varchar(16)",
+          "nulo": false
+        },
+        {
+          "nome": "vigencia_inicio",
+          "tipo": "date",
+          "nulo": false
+        },
+        {
+          "nome": "vigencia_fim",
+          "tipo": "date",
+          "nulo": true
+        },
+        {
+          "nome": "situacao",
+          "tipo": "varchar(16)",
+          "nulo": false
+        },
+        {
+          "nome": "versao",
+          "tipo": "bigint",
+          "nulo": false
+        },
+        {
+          "nome": "criada_em",
+          "tipo": "datetime2(6)",
+          "nulo": false
+        },
+        {
+          "nome": "alterada_em",
+          "tipo": "datetime2(6)",
+          "nulo": false
+        }
+      ],
+      "unicas": [
+        {
+          "nome": "uk_tabela_cobranca_1",
+          "colunas": [
+            "armazem_id",
+            "codigo"
+          ]
+        }
+      ],
+      "checks": {
+        "ck_tabela_cobranca_tipo": "tipo IN ('PADRAO','ESPECIFICA')",
+        "ck_tabela_cobranca_situacao": "situacao IN ('ATIVA','ENCERRADA')",
+        "ck_tabela_cobranca_vigencia": "vigencia_fim IS NULL OR vigencia_fim > vigencia_inicio",
+        "ck_tabela_cobranca_contexto": "(tipo = 'PADRAO' AND cliente_id IS NULL) OR (tipo = 'ESPECIFICA' AND cliente_id IS NOT NULL)",
+        "ck_tabela_cobranca_versao": "versao >= 0"
+      }
+    },
+    {
+      "nome": "item_tabela_cobranca",
+      "colunas": [
+        {
+          "nome": "id",
+          "tipo": "bigint",
+          "nulo": false,
+          "identity": true
+        },
+        {
+          "nome": "tabela_id",
+          "tipo": "bigint",
+          "nulo": false,
+          "referencia": "tabela_cobranca"
+        },
+        {
+          "nome": "servico_id",
+          "tipo": "bigint",
+          "nulo": false,
+          "referencia": "servico_cobranca"
+        },
+        {
+          "nome": "categoria",
+          "tipo": "varchar(40)",
+          "nulo": false
+        },
+        {
+          "nome": "preco",
+          "tipo": "decimal(19,6)",
+          "nulo": true
+        },
+        {
+          "nome": "percentual",
+          "tipo": "decimal(9,6)",
+          "nulo": true
+        }
+      ],
+      "unicas": [
+        {
+          "nome": "uk_item_tabela_cobranca_1",
+          "colunas": [
+            "tabela_id",
+            "servico_id",
+            "categoria"
+          ]
+        }
+      ],
+      "checks": {
+        "ck_item_tabela_cobranca_preco": "preco IS NULL OR preco >= 0",
+        "ck_item_tabela_cobranca_percentual": "percentual IS NULL OR percentual BETWEEN 0 AND 100",
+        "ck_item_tabela_cobranca_parametro": "(preco IS NOT NULL AND percentual IS NULL) OR (preco IS NULL AND percentual IS NOT NULL)"
+      }
+    },
+    {
+      "nome": "vinculo_tabela_cliente",
+      "colunas": [
+        {
+          "nome": "id",
+          "tipo": "bigint",
+          "nulo": false,
+          "identity": true
+        },
+        {
+          "nome": "cliente_id",
+          "tipo": "bigint",
+          "nulo": false,
+          "referencia": "cliente"
+        },
+        {
+          "nome": "armazem_id",
+          "tipo": "bigint",
+          "nulo": false,
+          "referencia": "armazem"
+        },
+        {
+          "nome": "tabela_id",
+          "tipo": "bigint",
+          "nulo": false,
+          "referencia": "tabela_cobranca"
+        },
+        {
+          "nome": "vigencia_inicio",
+          "tipo": "date",
+          "nulo": false
+        },
+        {
+          "nome": "vigencia_fim",
+          "tipo": "date",
+          "nulo": true
+        },
+        {
+          "nome": "versao",
+          "tipo": "bigint",
+          "nulo": false
+        },
+        {
+          "nome": "criado_em",
+          "tipo": "datetime2(6)",
+          "nulo": false
+        },
+        {
+          "nome": "alterado_em",
+          "tipo": "datetime2(6)",
+          "nulo": false
+        }
+      ],
+      "unicas": [
+        {
+          "nome": "uk_vinculo_tabela_cliente_1",
+          "colunas": [
+            "cliente_id",
+            "armazem_id",
+            "vigencia_inicio"
+          ]
+        }
+      ],
+      "checks": {
+        "ck_vinculo_tabela_cliente_vigencia": "vigencia_fim IS NULL OR vigencia_fim > vigencia_inicio",
+        "ck_vinculo_tabela_cliente_versao": "versao >= 0"
+      }
+    },
+    {
+      "nome": "contrato_cobranca",
+      "colunas": [
+        {
+          "nome": "id",
+          "tipo": "bigint",
+          "nulo": false,
+          "identity": true
+        },
+        {
+          "nome": "cliente_id",
+          "tipo": "bigint",
+          "nulo": false,
+          "referencia": "cliente"
+        },
+        {
+          "nome": "armazem_id",
+          "tipo": "bigint",
+          "nulo": false,
+          "referencia": "armazem"
+        },
+        {
+          "nome": "vigencia_inicio",
+          "tipo": "date",
+          "nulo": false
+        },
+        {
+          "nome": "vigencia_fim",
+          "tipo": "date",
+          "nulo": true
+        },
+        {
+          "nome": "fuso",
+          "tipo": "varchar(60)",
+          "nulo": false
+        },
+        {
+          "nome": "moeda",
+          "tipo": "varchar(3)",
+          "nulo": false
+        },
+        {
+          "nome": "modalidade_ciclo",
+          "tipo": "varchar(20)",
+          "nulo": false
+        },
+        {
+          "nome": "dia_corte",
+          "tipo": "int",
+          "nulo": true
+        },
+        {
+          "nome": "duracao_dias",
+          "tipo": "int",
+          "nulo": true
+        },
+        {
+          "nome": "minimo_modo",
+          "tipo": "varchar(16)",
+          "nulo": false
+        },
+        {
+          "nome": "gris_modo",
+          "tipo": "varchar(16)",
+          "nulo": false
+        },
+        {
+          "nome": "minimo_valor",
+          "tipo": "decimal(19,2)",
+          "nulo": true
+        },
+        {
+          "nome": "minimo_proporcao",
+          "tipo": "varchar(20)",
+          "nulo": true
+        },
+        {
+          "nome": "gris_percentual",
+          "tipo": "decimal(9,6)",
+          "nulo": true
+        },
+        {
+          "nome": "gris_base",
+          "tipo": "varchar(24)",
+          "nulo": true
+        },
+        {
+          "nome": "gris_periodicidade",
+          "tipo": "varchar(16)",
+          "nulo": true
+        },
+        {
+          "nome": "gris_proporcao",
+          "tipo": "varchar(20)",
+          "nulo": true
+        },
+        {
+          "nome": "versao",
+          "tipo": "bigint",
+          "nulo": false
+        },
+        {
+          "nome": "criada_em",
+          "tipo": "datetime2(6)",
+          "nulo": false
+        },
+        {
+          "nome": "alterada_em",
+          "tipo": "datetime2(6)",
+          "nulo": false
+        }
+      ],
+      "unicas": [
+        {
+          "nome": "uk_contrato_cobranca_1",
+          "colunas": [
+            "cliente_id",
+            "armazem_id",
+            "vigencia_inicio"
+          ]
+        }
+      ],
+      "checks": {
+        "ck_contrato_cobranca_vigencia": "vigencia_fim IS NULL OR vigencia_fim > vigencia_inicio",
+        "ck_contrato_cobranca_moeda": "moeda = 'BRL'",
+        "ck_contrato_cobranca_modalidade": "modalidade_ciclo IN ('MES_DIA_FIXO','DIAS_CORRIDOS')",
+        "ck_contrato_cobranca_ciclo": "(modalidade_ciclo = 'MES_DIA_FIXO' AND dia_corte IS NOT NULL AND dia_corte BETWEEN 1 AND 31 AND duracao_dias IS NULL) OR (modalidade_ciclo = 'DIAS_CORRIDOS' AND duracao_dias IS NOT NULL AND duracao_dias BETWEEN 1 AND 366 AND dia_corte IS NULL)",
+        "ck_contrato_cobranca_minimo_modo": "minimo_modo IN ('NAO_INFORMADO','NAO_APLICAVEL','APLICAVEL')",
+        "ck_contrato_cobranca_gris_modo": "gris_modo IN ('NAO_INFORMADO','NAO_APLICAVEL','APLICAVEL')",
+        "ck_contrato_cobranca_minimo_valor": "minimo_valor IS NULL OR minimo_valor >= 0",
+        "ck_contrato_cobranca_minimo_proporcao": "minimo_proporcao IS NULL OR minimo_proporcao IN ('INTEGRAL','PROPORCIONAL_DIAS')",
+        "ck_contrato_cobranca_minimo_config": "(minimo_modo = 'APLICAVEL' AND minimo_valor IS NOT NULL AND minimo_proporcao IS NOT NULL) OR (minimo_modo IN ('NAO_INFORMADO','NAO_APLICAVEL') AND minimo_valor IS NULL AND minimo_proporcao IS NULL)",
+        "ck_contrato_cobranca_gris_percentual": "gris_percentual IS NULL OR gris_percentual BETWEEN 0 AND 100",
+        "ck_contrato_cobranca_gris_base": "gris_base IS NULL OR gris_base IN ('VALOR_ESTOQUE_PICO','VALOR_ESTOQUE_MEDIO')",
+        "ck_contrato_cobranca_gris_periodicidade": "gris_periodicidade IS NULL OR gris_periodicidade IN ('DIARIA','POR_CICLO')",
+        "ck_contrato_cobranca_gris_proporcao": "gris_proporcao IS NULL OR gris_proporcao IN ('INTEGRAL','PROPORCIONAL_DIAS')",
+        "ck_contrato_cobranca_gris_config": "(gris_modo = 'APLICAVEL' AND gris_percentual IS NOT NULL AND gris_base IS NOT NULL AND gris_periodicidade IS NOT NULL AND gris_proporcao IS NOT NULL) OR (gris_modo IN ('NAO_INFORMADO','NAO_APLICAVEL') AND gris_percentual IS NULL AND gris_base IS NULL AND gris_periodicidade IS NULL AND gris_proporcao IS NULL)",
+        "ck_contrato_cobranca_versao": "versao >= 0"
+      }
+    },
+    {
+      "nome": "servico_minimo_contrato",
+      "colunas": [
+        {
+          "nome": "id",
+          "tipo": "bigint",
+          "nulo": false,
+          "identity": true
+        },
+        {
+          "nome": "contrato_id",
+          "tipo": "bigint",
+          "nulo": false,
+          "referencia": "contrato_cobranca"
+        },
+        {
+          "nome": "servico_id",
+          "tipo": "bigint",
+          "nulo": false,
+          "referencia": "servico_cobranca"
+        }
+      ],
+      "unicas": [
+        {
+          "nome": "uk_servico_minimo_contrato_1",
+          "colunas": [
+            "contrato_id",
+            "servico_id"
+          ]
+        }
+      ],
+      "checks": {}
+    },
+    {
+      "nome": "fato_servico",
+      "colunas": [
+        {
+          "nome": "id",
+          "tipo": "bigint",
+          "nulo": false,
+          "identity": true
+        },
+        {
+          "nome": "cliente_id",
+          "tipo": "bigint",
+          "nulo": false,
+          "referencia": "cliente"
+        },
+        {
+          "nome": "armazem_id",
+          "tipo": "bigint",
+          "nulo": false,
+          "referencia": "armazem"
+        },
+        {
+          "nome": "servico_id",
+          "tipo": "bigint",
+          "nulo": false,
+          "referencia": "servico_cobranca"
+        },
+        {
+          "nome": "pedido_entrada_id",
+          "tipo": "bigint",
+          "nulo": true,
+          "referencia": "pedido_entrada"
+        },
+        {
+          "nome": "pedido_saida_id",
+          "tipo": "bigint",
+          "nulo": true,
+          "referencia": "pedido_saida"
+        },
+        {
+          "nome": "unidade_id",
+          "tipo": "bigint",
+          "nulo": true,
+          "referencia": "unidade_logistica"
+        },
+        {
+          "nome": "produto_id",
+          "tipo": "bigint",
+          "nulo": true,
+          "referencia": "produto"
+        },
+        {
+          "nome": "chave_fato",
+          "tipo": "varchar(160)",
+          "nulo": false
+        },
+        {
+          "nome": "origem",
+          "tipo": "varchar(16)",
+          "nulo": false
+        },
+        {
+          "nome": "referencia_execucao",
+          "tipo": "varchar(80)",
+          "nulo": true
+        },
+        {
+          "nome": "executado_em",
+          "tipo": "datetime2(6)",
+          "nulo": false
+        },
+        {
+          "nome": "registrado_em",
+          "tipo": "datetime2(6)",
+          "nulo": false
+        },
+        {
+          "nome": "quantidade",
+          "tipo": "decimal(19,6)",
+          "nulo": false
+        },
+        {
+          "nome": "categoria",
+          "tipo": "varchar(40)",
+          "nulo": false
+        },
+        {
+          "nome": "valor_base",
+          "tipo": "decimal(19,2)",
+          "nulo": true
+        },
+        {
+          "nome": "criterio_rateio",
+          "tipo": "nvarchar(200)",
+          "nulo": false
+        },
+        {
+          "nome": "situacao",
+          "tipo": "varchar(16)",
+          "nulo": false
+        },
+        {
+          "nome": "anulado_em",
+          "tipo": "datetime2(6)",
+          "nulo": true
+        },
+        {
+          "nome": "versao",
+          "tipo": "bigint",
+          "nulo": false
+        },
+        {
+          "nome": "usuario",
+          "tipo": "nvarchar(200)",
+          "nulo": false
+        }
+      ],
+      "unicas": [
+        {
+          "nome": "uk_fato_servico_1",
+          "colunas": [
+            "cliente_id",
+            "armazem_id",
+            "servico_id",
+            "chave_fato"
+          ]
+        }
+      ],
+      "checks": {
+        "ck_fato_servico_origem": "origem IN ('MANUAL','SUGESTAO')",
+        "ck_fato_servico_situacao": "situacao IN ('CONFIRMADO','ANULADO')",
+        "ck_fato_servico_quantidade": "quantidade > 0",
+        "ck_fato_servico_valor_base": "valor_base IS NULL OR valor_base >= 0",
+        "ck_fato_servico_anulacao": "(situacao = 'CONFIRMADO' AND anulado_em IS NULL) OR (situacao = 'ANULADO' AND anulado_em IS NOT NULL)",
+        "ck_fato_servico_versao": "versao >= 0"
+      }
+    },
+    {
+      "nome": "rateio_fato_servico",
+      "colunas": [
+        {
+          "nome": "id",
+          "tipo": "bigint",
+          "nulo": false,
+          "identity": true
+        },
+        {
+          "nome": "fato_id",
+          "tipo": "bigint",
+          "nulo": false,
+          "referencia": "fato_servico"
+        },
+        {
+          "nome": "nota_id",
+          "tipo": "bigint",
+          "nulo": false,
+          "referencia": "nota_entrada"
+        },
+        {
+          "nome": "cota",
+          "tipo": "decimal(19,6)",
+          "nulo": false
+        }
+      ],
+      "unicas": [
+        {
+          "nome": "uk_rateio_fato_servico_1",
+          "colunas": [
+            "fato_id",
+            "nota_id"
+          ]
+        }
+      ],
+      "checks": {
+        "ck_rateio_fato_servico_cota": "cota > 0"
+      }
+    },
+    {
+      "nome": "marco_financeiro_avaria",
+      "colunas": [
+        {
+          "nome": "id",
+          "tipo": "bigint",
+          "nulo": false,
+          "identity": true
+        },
+        {
+          "nome": "avaria_id",
+          "tipo": "bigint",
+          "nulo": false,
+          "referencia": "avaria_estoque"
+        },
+        {
+          "nome": "fato_permanencia_id",
+          "tipo": "bigint",
+          "nulo": false,
+          "referencia": "fato_permanencia"
+        },
+        {
+          "nome": "quantidade_afetada",
+          "tipo": "decimal(19,6)",
+          "nulo": false
+        },
+        {
+          "nome": "quantidade_base",
+          "tipo": "decimal(19,6)",
+          "nulo": false
+        },
+        {
+          "nome": "equivalencia_base",
+          "tipo": "decimal(19,6)",
+          "nulo": false
+        },
+        {
+          "nome": "usuario",
+          "tipo": "nvarchar(200)",
+          "nulo": false
+        },
+        {
+          "nome": "validado_em",
+          "tipo": "datetime2(6)",
+          "nulo": false
+        },
+        {
+          "nome": "motivo",
+          "tipo": "nvarchar(500)",
+          "nulo": false
+        }
+      ],
+      "unicas": [
+        {
+          "nome": "uk_marco_financeiro_avaria_1",
+          "colunas": [
+            "avaria_id",
+            "fato_permanencia_id"
+          ]
+        }
+      ],
+      "checks": {
+        "ck_marco_financeiro_avaria_quantidade": "quantidade_afetada >= 0 AND quantidade_base >= 0 AND quantidade_afetada <= quantidade_base",
+        "ck_marco_financeiro_avaria_equivalencia": "equivalencia_base >= 0"
+      }
+    },
+    {
+      "nome": "calculo_cobranca",
+      "colunas": [
+        {
+          "nome": "id",
+          "tipo": "bigint",
+          "nulo": false,
+          "identity": true
+        },
+        {
+          "nome": "cliente_id",
+          "tipo": "bigint",
+          "nulo": false,
+          "referencia": "cliente"
+        },
+        {
+          "nome": "armazem_id",
+          "tipo": "bigint",
+          "nulo": false,
+          "referencia": "armazem"
+        },
+        {
+          "nome": "contrato_id",
+          "tipo": "bigint",
+          "nulo": true,
+          "referencia": "contrato_cobranca"
+        },
+        {
+          "nome": "periodo_inicio",
+          "tipo": "date",
+          "nulo": false
+        },
+        {
+          "nome": "periodo_fim",
+          "tipo": "date",
+          "nulo": false
+        },
+        {
+          "nome": "fuso",
+          "tipo": "varchar(60)",
+          "nulo": true
+        },
+        {
+          "nome": "moeda",
+          "tipo": "varchar(3)",
+          "nulo": true
+        },
+        {
+          "nome": "situacao",
+          "tipo": "varchar(16)",
+          "nulo": false
+        },
+        {
+          "nome": "regra_versao",
+          "tipo": "int",
+          "nulo": false
+        },
+        {
+          "nome": "entradas_hash",
+          "tipo": "varchar(64)",
+          "nulo": false
+        },
+        {
+          "nome": "memoria_json",
+          "tipo": "nvarchar(max)",
+          "nulo": false
+        },
+        {
+          "nome": "pendencias_json",
+          "tipo": "nvarchar(max)",
+          "nulo": false
+        },
+        {
+          "nome": "subtotal_conhecido",
+          "tipo": "decimal(19,2)",
+          "nulo": false
+        },
+        {
+          "nome": "minimo_calculado",
+          "tipo": "decimal(19,2)",
+          "nulo": true
+        },
+        {
+          "nome": "gris_calculado",
+          "tipo": "decimal(19,2)",
+          "nulo": true
+        },
+        {
+          "nome": "total",
+          "tipo": "decimal(19,2)",
+          "nulo": true
+        },
+        {
+          "nome": "calculado_em",
+          "tipo": "datetime2(6)",
+          "nulo": false
+        },
+        {
+          "nome": "usuario",
+          "tipo": "nvarchar(200)",
+          "nulo": false
+        }
+      ],
+      "unicas": [],
+      "checks": {
+        "ck_calculo_cobranca_periodo": "periodo_fim > periodo_inicio",
+        "ck_calculo_cobranca_moeda": "moeda IS NULL OR moeda = 'BRL'",
+        "ck_calculo_cobranca_situacao": "situacao IN ('COMPLETO','PENDENTE')",
+        "ck_calculo_cobranca_regra": "regra_versao >= 1",
+        "ck_calculo_cobranca_subtotal": "subtotal_conhecido >= 0",
+        "ck_calculo_cobranca_minimo": "minimo_calculado IS NULL OR minimo_calculado >= 0",
+        "ck_calculo_cobranca_gris": "gris_calculado IS NULL OR gris_calculado >= 0",
+        "ck_calculo_cobranca_total": "total IS NULL OR total >= 0",
+        "ck_calculo_cobranca_completo": "situacao <> 'COMPLETO' OR (contrato_id IS NOT NULL AND fuso IS NOT NULL AND moeda IS NOT NULL AND minimo_calculado IS NOT NULL AND gris_calculado IS NOT NULL AND total IS NOT NULL AND REPLACE(REPLACE(REPLACE(REPLACE(pendencias_json, N' ', N''), NCHAR(9), N''), NCHAR(10), N''), NCHAR(13), N'') = N'[]')",
+        "ck_calculo_cobranca_memoria_json": "ISJSON(memoria_json) = 1",
+        "ck_calculo_cobranca_pendencias_json": "ISJSON(pendencias_json) = 1"
+      }
+    },
+    {
+      "nome": "memoria_diaria",
+      "colunas": [
+        {
+          "nome": "id",
+          "tipo": "bigint",
+          "nulo": false,
+          "identity": true
+        },
+        {
+          "nome": "calculo_id",
+          "tipo": "bigint",
+          "nulo": false,
+          "referencia": "calculo_cobranca"
+        },
+        {
+          "nome": "data",
+          "tipo": "date",
+          "nulo": false
+        },
+        {
+          "nome": "tabela_id",
+          "tipo": "bigint",
+          "nulo": true,
+          "referencia": "tabela_cobranca"
+        },
+        {
+          "nome": "item_tabela_id",
+          "tipo": "bigint",
+          "nulo": true,
+          "referencia": "item_tabela_cobranca"
+        },
+        {
+          "nome": "pico_cobravel",
+          "tipo": "decimal(19,6)",
+          "nulo": false
+        },
+        {
+          "nome": "equivalencia_suspensa",
+          "tipo": "decimal(19,6)",
+          "nulo": false
+        },
+        {
+          "nome": "valor_estoque",
+          "tipo": "decimal(19,2)",
+          "nulo": true
+        },
+        {
+          "nome": "tarifa",
+          "tipo": "decimal(19,6)",
+          "nulo": true
+        },
+        {
+          "nome": "valor",
+          "tipo": "decimal(19,2)",
+          "nulo": true
+        },
+        {
+          "nome": "segmentos_json",
+          "tipo": "nvarchar(max)",
+          "nulo": false
+        }
+      ],
+      "unicas": [
+        {
+          "nome": "uk_memoria_diaria_1",
+          "colunas": [
+            "calculo_id",
+            "data"
+          ]
+        }
+      ],
+      "checks": {
+        "ck_memoria_diaria_equivalencias": "pico_cobravel >= 0 AND equivalencia_suspensa >= 0",
+        "ck_memoria_diaria_valor_estoque": "valor_estoque IS NULL OR valor_estoque >= 0",
+        "ck_memoria_diaria_tarifa": "tarifa IS NULL OR tarifa >= 0",
+        "ck_memoria_diaria_valor": "valor IS NULL OR valor >= 0",
+        "ck_memoria_diaria_segmentos_json": "ISJSON(segmentos_json) = 1"
+      }
+    },
+    {
+      "nome": "memoria_servico",
+      "colunas": [
+        {
+          "nome": "id",
+          "tipo": "bigint",
+          "nulo": false,
+          "identity": true
+        },
+        {
+          "nome": "calculo_id",
+          "tipo": "bigint",
+          "nulo": false,
+          "referencia": "calculo_cobranca"
+        },
+        {
+          "nome": "fato_id",
+          "tipo": "bigint",
+          "nulo": false,
+          "referencia": "fato_servico"
+        },
+        {
+          "nome": "item_tabela_id",
+          "tipo": "bigint",
+          "nulo": true,
+          "referencia": "item_tabela_cobranca"
+        },
+        {
+          "nome": "quantidade",
+          "tipo": "decimal(19,6)",
+          "nulo": false
+        },
+        {
+          "nome": "preco",
+          "tipo": "decimal(19,6)",
+          "nulo": true
+        },
+        {
+          "nome": "percentual",
+          "tipo": "decimal(9,6)",
+          "nulo": true
+        },
+        {
+          "nome": "valor_base",
+          "tipo": "decimal(19,2)",
+          "nulo": true
+        },
+        {
+          "nome": "valor",
+          "tipo": "decimal(19,2)",
+          "nulo": true
+        },
+        {
+          "nome": "parcelas_json",
+          "tipo": "nvarchar(max)",
+          "nulo": false
+        }
+      ],
+      "unicas": [
+        {
+          "nome": "uk_memoria_servico_1",
+          "colunas": [
+            "calculo_id",
+            "fato_id"
+          ]
+        }
+      ],
+      "checks": {
+        "ck_memoria_servico_quantidade": "quantidade > 0",
+        "ck_memoria_servico_preco": "preco IS NULL OR preco >= 0",
+        "ck_memoria_servico_percentual": "percentual IS NULL OR percentual BETWEEN 0 AND 100",
+        "ck_memoria_servico_valor_base": "valor_base IS NULL OR valor_base >= 0",
+        "ck_memoria_servico_valor": "valor IS NULL OR valor >= 0",
+        "ck_memoria_servico_parcelas_json": "ISJSON(parcelas_json) = 1"
+      }
+    }
+  ],
+  "auditoria": {
+    "tiposAnteriores": [
+      "CLIENTE",
+      "ARMAZEM",
+      "PRODUTO",
+      "EMBALAGEM",
+      "ENDERECO",
+      "PEDIDO_ENTRADA",
+      "CONJUNTO_POSICOES",
+      "PEDIDO_SAIDA"
+    ],
+    "tiposNovos": [
+      "SERVICO_COBRANCA",
+      "TABELA_COBRANCA",
+      "CONTRATO_COBRANCA",
+      "FATO_SERVICO",
+      "AVARIA_FINANCEIRA",
+      "CALCULO_COBRANCA"
+    ],
+    "acoesAnteriores": [
+      "CRIACAO",
+      "ALTERACAO",
+      "SOLICITAR_ENCERRAMENTO",
+      "REATIVACAO",
+      "NOTA_INCLUIDA",
+      "XML_VINCULADO",
+      "CONFERENCIA_INICIADA",
+      "CHEGADA_REGISTRADA",
+      "CHEGADA_ESTORNADA",
+      "ENTRADA_EFETIVADA",
+      "PEDIDO_CANCELADO",
+      "UNIDADES_CRIADAS",
+      "UNIDADE_DIVIDIDA",
+      "UNIDADES_REAGRUPADAS",
+      "CONFIGURAR_CAPACIDADE",
+      "ENDERECAMENTO",
+      "MOVIMENTACAO",
+      "BLOQUEIO_ESTOQUE",
+      "LIBERACAO_ESTOQUE",
+      "CRIACAO_SAIDA",
+      "JUSTIFICATIVA_FIFO",
+      "RESERVA_SAIDA",
+      "CANCELAMENTO_SAIDA",
+      "REVERSAO_RESERVA",
+      "AVARIA_ESTOQUE",
+      "LEITURA_SAIDA",
+      "SEPARACAO_SAIDA",
+      "DOCUMENTO_SAIDA",
+      "CANCELAMENTO_DOCUMENTO",
+      "RETIRADA_FISICA",
+      "RETORNO_INTERNO",
+      "DEVOLUCAO_SAIDA",
+      "DEVOLUCAO_ENTRADA",
+      "AVARIA_DETALHADA",
+      "RESPONSABILIDADE_AVARIA",
+      "REPARO_AVARIA"
+    ],
+    "acoesNovas": [
+      "COMPLEMENTO_FISCAL",
+      "REFERENCIA_FISCAL",
+      "PREVIA_ENDERECOS",
+      "IMPORTACAO_ENDERECOS",
+      "ENCERRAMENTO_VIGENCIA",
+      "CONFIGURACAO",
+      "REGISTRO_SERVICO",
+      "ANULACAO_SERVICO",
+      "MARCO_AVARIA",
+      "CALCULO",
+      "VINCULO_TABELA"
+    ],
+    "paresNovos": {
+      "COMPLEMENTO_FISCAL": [
+        "CLIENTE",
+        "ARMAZEM"
+      ],
+      "REFERENCIA_FISCAL": [
+        "PRODUTO"
+      ],
+      "PREVIA_ENDERECOS": [
+        "ARMAZEM"
+      ],
+      "IMPORTACAO_ENDERECOS": [
+        "ARMAZEM"
+      ],
+      "ENCERRAMENTO_VIGENCIA": [
+        "TABELA_COBRANCA"
+      ],
+      "CONFIGURACAO": [
+        "CONTRATO_COBRANCA"
+      ],
+      "REGISTRO_SERVICO": [
+        "FATO_SERVICO"
+      ],
+      "ANULACAO_SERVICO": [
+        "FATO_SERVICO"
+      ],
+      "MARCO_AVARIA": [
+        "AVARIA_FINANCEIRA"
+      ],
+      "CALCULO": [
+        "CALCULO_COBRANCA"
+      ],
+      "VINCULO_TABELA": [
+        "CONTRATO_COBRANCA"
+      ]
+    },
+    "paresTiposNovos": {
+      "SERVICO_COBRANCA": [
+        "CRIACAO"
+      ],
+      "TABELA_COBRANCA": [
+        "CRIACAO",
+        "ENCERRAMENTO_VIGENCIA"
+      ],
+      "CONTRATO_COBRANCA": [
+        "CONFIGURACAO",
+        "VINCULO_TABELA"
+      ],
+      "FATO_SERVICO": [
+        "REGISTRO_SERVICO",
+        "ANULACAO_SERVICO"
+      ],
+      "AVARIA_FINANCEIRA": [
+        "MARCO_AVARIA"
+      ],
+      "CALCULO_COBRANCA": [
+        "CALCULO"
+      ]
+    },
+    "checkFinanceiro": "(acao NOT IN ('COMPLEMENTO_FISCAL','REFERENCIA_FISCAL','PREVIA_ENDERECOS','IMPORTACAO_ENDERECOS','ENCERRAMENTO_VIGENCIA','CONFIGURACAO','REGISTRO_SERVICO','ANULACAO_SERVICO','MARCO_AVARIA','CALCULO','VINCULO_TABELA')\n        OR (acao = 'COMPLEMENTO_FISCAL' AND tipo IN ('CLIENTE','ARMAZEM'))\n        OR (acao = 'REFERENCIA_FISCAL' AND tipo IN ('PRODUTO'))\n        OR (acao = 'PREVIA_ENDERECOS' AND tipo IN ('ARMAZEM'))\n        OR (acao = 'IMPORTACAO_ENDERECOS' AND tipo IN ('ARMAZEM'))\n        OR (acao = 'ENCERRAMENTO_VIGENCIA' AND tipo IN ('TABELA_COBRANCA'))\n        OR (acao = 'CONFIGURACAO' AND tipo IN ('CONTRATO_COBRANCA'))\n        OR (acao = 'REGISTRO_SERVICO' AND tipo IN ('FATO_SERVICO'))\n        OR (acao = 'ANULACAO_SERVICO' AND tipo IN ('FATO_SERVICO'))\n        OR (acao = 'MARCO_AVARIA' AND tipo IN ('AVARIA_FINANCEIRA'))\n        OR (acao = 'CALCULO' AND tipo IN ('CALCULO_COBRANCA'))\n        OR (acao = 'VINCULO_TABELA' AND tipo IN ('CONTRATO_COBRANCA')))\n    AND (tipo NOT IN ('SERVICO_COBRANCA','TABELA_COBRANCA','CONTRATO_COBRANCA','FATO_SERVICO','AVARIA_FINANCEIRA','CALCULO_COBRANCA')\n        OR (tipo = 'SERVICO_COBRANCA' AND acao IN ('CRIACAO'))\n        OR (tipo = 'TABELA_COBRANCA' AND acao IN ('CRIACAO','ENCERRAMENTO_VIGENCIA'))\n        OR (tipo = 'CONTRATO_COBRANCA' AND acao IN ('CONFIGURACAO','VINCULO_TABELA'))\n        OR (tipo = 'FATO_SERVICO' AND acao IN ('REGISTRO_SERVICO','ANULACAO_SERVICO'))\n        OR (tipo = 'AVARIA_FINANCEIRA' AND acao IN ('MARCO_AVARIA'))\n        OR (tipo = 'CALCULO_COBRANCA' AND acao IN ('CALCULO')))",
+    "tipoOperacaoAdministrativa": [
+      "CRIACAO_SERVICO",
+      "CRIACAO_TABELA",
+      "CRIACAO",
+      "COMPLEMENTO_FISCAL",
+      "REFERENCIA_FISCAL",
+      "PREVIA_ENDERECOS",
+      "IMPORTACAO_ENDERECOS",
+      "ENCERRAMENTO_VIGENCIA",
+      "CONFIGURACAO",
+      "REGISTRO_SERVICO",
+      "ANULACAO_SERVICO",
+      "MARCO_AVARIA",
+      "CALCULO",
+      "VINCULO_TABELA"
+    ],
+    "restricaoV6Mantida": "ck_auditoria_saida_tipo_acao",
+    "movimentoV6Intocado": true
+  },
+  "baselineV1V6": [
+    {
+      "arquivo": "database/migrations/V1__cadastros_e_auditoria.sql",
+      "sha256": "41346740B1D9FC60291908F82190722F9C004F5B04DBA6B68CE57E898B4E3D58"
+    },
+    {
+      "arquivo": "database/migrations/V2__recebimento_e_entradas_conferidas.sql",
+      "sha256": "E17AD30B1D8BACF1409FE3083661DE09A2602563776CA747449E0F0764470052"
+    },
+    {
+      "arquivo": "database/migrations/V3__unidades_logisticas_e_origens.sql",
+      "sha256": "B16CD6507AC256D4757385A9C98C984CFDF86918CDBBCBE2BE11DF40FCE6B6DD"
+    },
+    {
+      "arquivo": "database/migrations/V4__enderecamento_capacidade_e_movimentos.sql",
+      "sha256": "CE6C77238777EC87DDDF05A72D925CCAFA1C784CA16883242238E45935221A05"
+    },
+    {
+      "arquivo": "database/migrations/V5__pedidos_saida_fifo_e_reservas.sql",
+      "sha256": "57EA2766C4170159CB4CCD2C210481E63FA13D976BFD932D6E711A734DCFFF88"
+    },
+    {
+      "arquivo": "database/migrations/V6__separacao_retirada_retornos_e_avaria.sql",
+      "sha256": "EE0EEBAF5D7EA5B7329C182039A274EBE46DAFCB561EAEF5DF8846381A897D39"
+    }
+  ],
+  "regrasNoServico": [
+    "Autorizacao/Gestor/Supervisor e alcance antes de replay; idempotencia/hash por alvo/tipo; atomico com auditoria.",
+    "CONFIRMADA sem erros e criacao integral de enderecos somente apos revalidacao; COM_ERROS nunca cria endereco.",
+    "Sobreposicao de vigencias, contexto cliente/armazem/tabela/contrato e fronteira de ciclo.",
+    "Unidade do catalogo versus preco/percentual; parametro presente nao significa preco real aprovado; categoria vazia explicita sem DEFAULT.",
+    "Minimo aplicavel tem lista nao vazia; GRIS/configuracao/fuso reais explicitos sem inventar regra.",
+    "Chave canonica da execucao e rateio/notas/cotas/conservacao em centavos; nenhuma nova movimentacao fisica.",
+    "Marco avaria mesma unidade/instante/base/cadeia; snapshot imutavel; calculos completos sem pendencias financeiras necessarias.",
+    "Integridade entre memorias/item/tabela/calculo/contexto e imutabilidade de fatos historicos/snapshots.",
+    "Doc29 formaliza memoria_diaria UNIQUE(calculo_id,data), segmentos/picos/valores por regra/categoria; tabela/item/tarifa NULL quando nao unicos. Item exato PALLET/BOBINA precede geral explicito, varios servicos de armazenagem aplicaveis geram pendencia; GRIS DIARIA somente dias incluidos sem segunda proporcao, POR_CICLO com proporcao configurada. Sem DDL novo."
+  ],
+  "escolhasRotineiras": [
+    "Moeda BRL conforme recorte expresso; nenhum DEFAULT.",
+    "Erros/pendencias vazios representados por array JSON [] com espaco/tab/CR/LF tolerados no CHECK.",
+    "CRIACAO reutilizada em operacao_administrativa para servico/tabela; alvo/tipo contextual fazem parte do hash.",
+    "CHECKs locais: parametro exclusivo preco OU percentual no item; anulacao/confirmacao coerentes com data; minimo/GRIS aplicaveis exigem parametros, outros modos todos NULL.",
+    "Colunas cadastro existentes ficam NULL por ausencia, sem preencher fatos ou fiscal; cidade/uf de armazem nao duplicadas.",
+    "situacao de servico varchar(24) formalmente confirmada; enums passam verificacao de tamanho. Tarifas multiplas nao ganham tabela extra."
+  ],
+  "ajusteFormalSolicitado": "Ajuste confirmado por Farol no ask e publicado por Cedro em doc29 lido: servico_cobranca.situacao VARCHAR(24), preservando ENCERRAMENTO_PENDENTE de 21 caracteres e Java24.",
+  "indices": [
+    {
+      "nome": "ix_referencia_fiscal_produto_armazem",
+      "tabela": "referencia_fiscal_produto",
+      "colunas": [
+        "armazem_id",
+        "id"
+      ]
+    },
+    {
+      "nome": "ix_importacao_endereco_armazem",
+      "tabela": "importacao_endereco",
+      "colunas": [
+        "armazem_id",
+        "criada_em",
+        "id"
+      ]
+    },
+    {
+      "nome": "ix_operacao_administrativa_cliente",
+      "tabela": "operacao_administrativa",
+      "colunas": [
+        "cliente_id",
+        "id"
+      ]
+    },
+    {
+      "nome": "ix_operacao_administrativa_armazem",
+      "tabela": "operacao_administrativa",
+      "colunas": [
+        "armazem_id",
+        "id"
+      ]
+    },
+    {
+      "nome": "ix_tabela_cobranca_cliente",
+      "tabela": "tabela_cobranca",
+      "colunas": [
+        "cliente_id",
+        "id"
+      ]
+    },
+    {
+      "nome": "ix_item_tabela_cobranca_servico",
+      "tabela": "item_tabela_cobranca",
+      "colunas": [
+        "servico_id",
+        "id"
+      ]
+    },
+    {
+      "nome": "ix_vinculo_tabela_cliente_armazem",
+      "tabela": "vinculo_tabela_cliente",
+      "colunas": [
+        "armazem_id",
+        "id"
+      ]
+    },
+    {
+      "nome": "ix_vinculo_tabela_cliente_tabela",
+      "tabela": "vinculo_tabela_cliente",
+      "colunas": [
+        "tabela_id",
+        "id"
+      ]
+    },
+    {
+      "nome": "ix_contrato_cobranca_armazem",
+      "tabela": "contrato_cobranca",
+      "colunas": [
+        "armazem_id",
+        "id"
+      ]
+    },
+    {
+      "nome": "ix_servico_minimo_contrato_servico",
+      "tabela": "servico_minimo_contrato",
+      "colunas": [
+        "servico_id",
+        "id"
+      ]
+    },
+    {
+      "nome": "ix_fato_servico_armazem",
+      "tabela": "fato_servico",
+      "colunas": [
+        "armazem_id",
+        "executado_em",
+        "id"
+      ]
+    },
+    {
+      "nome": "ix_fato_servico_servico",
+      "tabela": "fato_servico",
+      "colunas": [
+        "servico_id",
+        "id"
+      ]
+    },
+    {
+      "nome": "ix_fato_servico_pedido_entrada",
+      "tabela": "fato_servico",
+      "colunas": [
+        "pedido_entrada_id",
+        "id"
+      ]
+    },
+    {
+      "nome": "ix_fato_servico_pedido_saida",
+      "tabela": "fato_servico",
+      "colunas": [
+        "pedido_saida_id",
+        "id"
+      ]
+    },
+    {
+      "nome": "ix_fato_servico_unidade",
+      "tabela": "fato_servico",
+      "colunas": [
+        "unidade_id",
+        "id"
+      ]
+    },
+    {
+      "nome": "ix_fato_servico_produto",
+      "tabela": "fato_servico",
+      "colunas": [
+        "produto_id",
+        "id"
+      ]
+    },
+    {
+      "nome": "ix_rateio_fato_servico_nota",
+      "tabela": "rateio_fato_servico",
+      "colunas": [
+        "nota_id",
+        "id"
+      ]
+    },
+    {
+      "nome": "ix_marco_financeiro_avaria_fato_permanencia",
+      "tabela": "marco_financeiro_avaria",
+      "colunas": [
+        "fato_permanencia_id",
+        "id"
+      ]
+    },
+    {
+      "nome": "ix_calculo_cobranca_cliente",
+      "tabela": "calculo_cobranca",
+      "colunas": [
+        "cliente_id",
+        "id"
+      ]
+    },
+    {
+      "nome": "ix_calculo_cobranca_armazem",
+      "tabela": "calculo_cobranca",
+      "colunas": [
+        "armazem_id",
+        "periodo_inicio",
+        "id"
+      ]
+    },
+    {
+      "nome": "ix_calculo_cobranca_contrato",
+      "tabela": "calculo_cobranca",
+      "colunas": [
+        "contrato_id",
+        "id"
+      ]
+    },
+    {
+      "nome": "ix_memoria_diaria_tabela",
+      "tabela": "memoria_diaria",
+      "colunas": [
+        "tabela_id",
+        "id"
+      ]
+    },
+    {
+      "nome": "ix_memoria_diaria_item_tabela",
+      "tabela": "memoria_diaria",
+      "colunas": [
+        "item_tabela_id",
+        "id"
+      ]
+    },
+    {
+      "nome": "ix_memoria_servico_fato",
+      "tabela": "memoria_servico",
+      "colunas": [
+        "fato_id",
+        "id"
+      ]
+    },
+    {
+      "nome": "ix_memoria_servico_item_tabela",
+      "tabela": "memoria_servico",
+      "colunas": [
+        "item_tabela_id",
+        "id"
+      ]
+    }
+  ],
+  "alinhamentoFinanceiro": {
+    "fonte": "docs/29-cadastros-servicos-e-calculo.md atualizado e relido inclusive complementos JSON/API recebidos durante a conferencia de06/10; teste/freeze ainda pendentes.",
+    "semAlteracaoSchema": true,
+    "snapshotTranscricaoAnterior": "database/evidencias/d19-v7-schema-doc29-2026-10-06-antes-financeiros.json",
+    "regras": [
+      "Doc29/API: diarias[].regras[] e segmentos[] cobráveis separados de intervalosValor[] fisicos, com unidade/quantidade/avarias/fatos/origens de nota e entradas nao unitizadas sem duplicacao de estoque. Servicos[]/ajustes mantêm base/valor/arredondamento/parcelas/ciclo/mínimo/GRIS em JSON existente; mesma data pode ter valor fisico e diaria zero.",
+      "Dano sem origem identificada e precos unitarios diferentes gera pendencia, sem desconto uniforme; precos comprovadamente iguais permitem agregado exato com memoria das origens.",
+      "Marcos avaliados em ordem fisica inclusive insercao fora de ordem; quantidade afetada nao cresce de0para20 e reducao afetada nao excede retirada fisica possivel. Avarias reparadas/retroativas agregadas por unidade/intervalo, pendencia quando acima da base ou incompatíveis; sem clamp.",
+      "Chave adicional deriva servico/contexto/pedido entrada/referencia estavel. Unidade/saida opcionais sao vinculos, nao nova execucao. Tarifa e da data civil do executado, independente do registro.",
+      "Sugestao SAIDA por quantidade e individual por retirada/SKU, mantendo SKUs ainda nao confirmados.",
+      "Memoria por data com segmentos por regra/categoria, campos singulares NULL se nao unicos; PALLET/BOBINA exato antes do geral; varios servicos aplicaveis geram pendencia. GRIS DIARIA sem fator adicional de duracao/dias, POR_CICLO usa proporcao configurada."
+    ],
+    "limite": "Regras de servico/documento, nao aceitas/testadas pelo leitor estrutural. Cedro ainda corrige testes; JPA final somente apos freeze.",
+    "atualizacaoDuranteConferencia": "Doc29 mudou deB18487AA01C64B3BAB95C212BF4C245A058233AAA61484EFBE0CFE9840F810DB para753ACAC640FF18F5A1DA4DF47CB4BD47A71061F081F48E5FAC96365D6A302511 durante QA. Redacao da memoria/API/importacao foi relida; colunas/tipos/nulos/chaves/pares inalterados. Nao e igualdade textual integral do trecho schema, cujo texto da memoria foi esclarecido."
+  }
+}

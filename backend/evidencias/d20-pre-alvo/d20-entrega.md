@@ -1,0 +1,11 @@
+# D20 — entrega backend BE03/BE15 para check
+
+Integração local concluída, somente `backend/**`. `sqlserver-dev` e migrations aceitam exclusivamente WMS_DEV. Guardas recusam alternativas JPA de DDL/conexão antes do pool; cada conexão Hikari recebe SETs, identidade exata do servidor/banco e recusa de privilégios administrativos/DDL, mantendo TLS validado. Flyway usa credenciais separadas e initSql padrão THROW; somente marcador exato seleciona a fonte transitória escapada do wrapper Prumo, exigida não vazia em validate. O POM depende das recusas de overrides do wrapper, sem promessa contra bypass malicioso.
+
+Corrigidos seis models com `updatable=false` nos campos originais imutáveis. Não houve DynamicUpdate, alteração de negócio/schema, grant ou nova migration. Os [34 UPDATEs preparados pelo Hibernate](d20-hibernate-update-sql.json) coincidem com a matriz de Prumo nas [64 entidades](d20-confronto-update.json); SQL anterior e teste que revelou a divergência foram preservados. Esse SQL não foi executado no SQL Server.
+
+Validação final: **clean verify BUILD SUCCESS, 396 testes, zero falhas/erros/ignorados**, 19 XMLs, 4min09s, 06/10/2026 às 12:32:28 -03:00. Formatação passou; oito fixtures Maven offline passaram. [Log completo](d20-clean-verify.log), [resumo](d20-resumo.json), [XMLs](d20-xml-clean-verify/), [freeze SHA-256](d20-freeze.sha256). JAR final SHA-256 `03BFE49B70E7F119324ED21AAA065F590473BF7275232C83EB1B57D26B1AEBB4`.
+
+[D19/JAR/XMLs/hashes e V1–V9 preservados](d20-preservacao.json). A primeira tentativa com captura incompleta ficou em `d20-pre-final`; somente a execução final tem código de saída zero comprovado. Foi mantido o complemento concorrente BE16/editor em evidência preexistente, sem sobrescrevê-lo. Não foram encerrados processos alheios.
+
+Pendente: check Farol/Vigia/Prumo e [ensaio optativo de sete testes SQL Server](d20-ensaio-sqlserver.md), preparado e compilado, **não executado**. Alvo/acesso local ainda não confirmados; nenhuma conexão foi feita. PROD não é aceito neste recorte. Não houve commit/push, deploy, callback ou escrita em área alheia. [Plano/contrato compartilhado](d20-plano.md) e [auditoria/fontes oficiais](d20-auditoria-integracao.md) delimitam o próximo encaminhamento.

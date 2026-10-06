@@ -64,7 +64,8 @@ public class SqlServerConfig {
                 "SET ANSI_NULLS ON; SET ANSI_PADDING ON; SET ANSI_WARNINGS ON; "
                         + "SET ARITHABORT ON; SET CONCAT_NULL_YIELDS_NULL ON; "
                         + "SET QUOTED_IDENTIFIER ON; SET NUMERIC_ROUNDABORT OFF; "
-                        + "IF CONVERT(nvarchar(128), SERVERPROPERTY('ServerName')) "
+                        + "IF SERVERPROPERTY('ServerName') IS NULL OR DB_NAME() IS NULL OR "
+                        + "CONVERT(nvarchar(128), SERVERPROPERTY('ServerName')) "
                         + "COLLATE Latin1_General_100_BIN2 <> N'"
                         + properties.confirmedServer().replace("'", "''")
                         + "' OR DB_NAME() COLLATE Latin1_General_100_BIN2 <> N'"

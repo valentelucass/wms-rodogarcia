@@ -1,4 +1,4 @@
-# Diagnostico final de PREPARACAO: somente arquivos conhecidos. Nao resolve env ou URL.
+﻿# Diagnostico final de PREPARACAO: somente arquivos conhecidos. Nao resolve env ou URL.
 [CmdletBinding()]
 param([ValidatePattern('^target(?:-[A-Za-z0-9-]+)?$')][string]$DiretorioArtefato)
 $ErrorActionPreference='Stop'
@@ -19,7 +19,7 @@ try {
     if($identidades.divergencias.Count){throw 'BLOQUEADO_IDENTIDADES_CICLOS_DIVERGENTES'}
     if($DiretorioArtefato -and $c.freezeFinal.estado -cne 'ATUAL_AUTORIZADO') {throw 'FREEZE_HISTORICO_RECONFERENCIA_PENDENTE'}
     if($DiretorioArtefato) {
-        . (Join-Path $raiz 'database/leitores/v9-java-arquivos.ps1')
+        . (Join-Path $raiz 'database/scripts/leitores/v9-java-arquivos.ps1')
         $gateFreeze=V9Freeze $raiz $c.freezeFinal.arquivo
         if($gateFreeze.sha256 -cne $c.freezeFinal.sha256 -or (Hash 'docs/31-fechamento-contagem-e-contingencia.md') -cne $c.freezeFinal.doc31Sha256){throw 'BLOQUEADO_FREEZE_TECNICO_DIVERGENTE'}
         foreach($s in $c.fontesTecnicas){if($s.arquivo.StartsWith('backend/') -and (-not $gateFreeze.mapa.ContainsKey($s.arquivo) -or (Hash $s.arquivo) -cne $gateFreeze.mapa[$s.arquivo])){throw 'BLOQUEADO_FONTE_TECNICA_FORA_FREEZE'}}
@@ -54,7 +54,7 @@ try {
         $numero++
     }
     Check 'inventario.64_tabelas_sem_duplicar' ($todas.Count -eq 64 -and @($todas|Group-Object|Where-Object {$_.Count -gt 1}).Count -eq 0)
-    $permissoes=Ler 'database/permissoes-minimas.md'
+    $permissoes=Ler 'database/docs/permissoes-minimas.md'
     foreach ($t in $todas) {Check ('permissoes.tabela_documentada.'+$t) ($permissoes -match ('\b'+[regex]::Escape($t)+'\b'))}
     Check 'permissoes.identidades_separadas_sem_grant_aplicado' ($permissoes -match 'Aplica' -and $permissoes -match 'Migration WMS' -and $permissoes -match 'DBA/recupera' -and $permissoes -match 'Nenhum usu')
     Check 'permissoes.menor_privilegio_sem_writer_owner' ($permissoes -match 'db_datawriter' -and $permissoes -match 'db_owner' -and $permissoes -match 'Sem DELETE de hist')
@@ -79,7 +79,7 @@ try {
     Check 'ensaio.restauracao_mais_que_VERIFYONLY' ($ensaio -match 'VERIFYONLY' -and $ensaio -match 'n[^.]+restaura')
     Check 'ensaio.sem_repair_clean_baseline_automaticos' ($ensaio -match 'repair' -and $ensaio -match 'baseline' -and $ensaio -match 'clean' -and $ensaio -match 'automatic')
     Check 'ensaio.donos_SQL_operacao_fiscal_equipamentos' ($ensaio -match 'Lucas/TI' -and $ensaio -match 'Caio' -and $ensaio -match 'Natalina' -and $ensaio -match 'Mickael')
-    $wrapper=Ler 'database/migrate.ps1'
+    $wrapper=Ler 'database/scripts/migrate.ps1'
     Check 'wrapper.Info_Validate_conectam_nao_executado' ($wrapper.Contains("'Info', 'Validate', 'Migrate'") -and $wrapper.Contains('$connection.Open()') -and $wrapper.IndexOf('$connection.Open()') -lt $wrapper.IndexOf('& ./mvnw.cmd'))
     Check 'wrapper.erro_driver_sem_dump' ($wrapper.Contains('Nao expor a string de conexao') -and $wrapper.Contains('Nenhuma migracao foi solicitada'))
     foreach ($doc in $c.documentos) {Check ('documento.existe.'+$doc) (Test-Path -LiteralPath (Join-Path $raiz $doc) -PathType Leaf);$hashes+=[pscustomobject]@{arquivo=$doc;sha256=Hash $doc}}
@@ -92,7 +92,7 @@ try {
         $a=$c.artefatoFinal
         Check 'final.diretorio_explicito_conforme_contrato' ($DiretorioArtefato -ceq $a.diretorio)
         if(-not $checks['final.diretorio_explicito_conforme_contrato']){throw 'DIRETORIO_ARTEFATO_NAO_CONTRATADO'}
-        . (Join-Path $raiz 'database/leitores/v9-java-arquivos.ps1')
+        . (Join-Path $raiz 'database/scripts/leitores/v9-java-arquivos.ps1')
         $freeze=V9Freeze $raiz $c.freezeFinal.arquivo
         Check 'final.manifesto_hash_explicito' ($freeze.sha256 -ceq $c.freezeFinal.sha256)
         Check 'final.manifesto_289_fontes' ($freeze.mapa.Count -eq 289)

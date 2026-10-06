@@ -1,0 +1,1477 @@
+{
+    "fonte":  "docs/31-fechamento-contagem-e-contingencia.md",
+    "fonteSha256":  "3284E984538781CEB01C332DF64BDDF59325D1C809CF6114EF1774E367F90933",
+    "fonteRefinadaAnteriorSha256":  "BC3224A6FC4E75ECB83C177EA348C37BFA0D34FDA7F5E7C6770A3E35E682BDBA",
+    "natureza":  "Transcricao tecnica doc31/quadro e complemento formal p2-origem. Freeze333/251 explicitamente solicitado por Farol; comparacao final somente anotações/literais/trechos, sem Java/JPA/SQL/H2/build. Preparacao469/470 e freeze historico490/132 preservados; nenhuma homologacao SQL Server.",
+    "extensoes":  {
+
+                  },
+    "ampliacoesChecks":  [
+                             {
+                                 "tabela":  "cliente",
+                                 "nome":  "ck_cliente_situacao",
+                                 "model":  "Cliente",
+                                 "origem":  "database/migrations/V1__cadastros_e_auditoria.sql",
+                                 "coluna":  "situacao",
+                                 "tipo":  "varchar(24)",
+                                 "nulo":  false,
+                                 "enumJava":  "SituacaoCadastro",
+                                 "valoresAnteriores":  [
+                                                           "ATIVO",
+                                                           "ENCERRAMENTO_PENDENTE"
+                                                       ],
+                                 "valores":  [
+                                                 "ATIVO",
+                                                 "ENCERRAMENTO_PENDENTE",
+                                                 "INATIVO"
+                                             ]
+                             },
+                             {
+                                 "tabela":  "armazem",
+                                 "nome":  "ck_armazem_situacao",
+                                 "model":  "Armazem",
+                                 "origem":  "database/migrations/V1__cadastros_e_auditoria.sql",
+                                 "coluna":  "situacao",
+                                 "tipo":  "varchar(24)",
+                                 "nulo":  false,
+                                 "enumJava":  "SituacaoCadastro",
+                                 "valoresAnteriores":  [
+                                                           "ATIVO",
+                                                           "ENCERRAMENTO_PENDENTE"
+                                                       ],
+                                 "valores":  [
+                                                 "ATIVO",
+                                                 "ENCERRAMENTO_PENDENTE",
+                                                 "INATIVO"
+                                             ]
+                             },
+                             {
+                                 "tabela":  "produto",
+                                 "nome":  "ck_produto_situacao",
+                                 "model":  "Produto",
+                                 "origem":  "database/migrations/V1__cadastros_e_auditoria.sql",
+                                 "coluna":  "situacao",
+                                 "tipo":  "varchar(24)",
+                                 "nulo":  false,
+                                 "enumJava":  "SituacaoCadastro",
+                                 "valoresAnteriores":  [
+                                                           "ATIVO",
+                                                           "ENCERRAMENTO_PENDENTE"
+                                                       ],
+                                 "valores":  [
+                                                 "ATIVO",
+                                                 "ENCERRAMENTO_PENDENTE",
+                                                 "INATIVO"
+                                             ]
+                             },
+                             {
+                                 "tabela":  "embalagem",
+                                 "nome":  "ck_embalagem_situacao",
+                                 "model":  "Embalagem",
+                                 "origem":  "database/migrations/V1__cadastros_e_auditoria.sql",
+                                 "coluna":  "situacao",
+                                 "tipo":  "varchar(24)",
+                                 "nulo":  false,
+                                 "enumJava":  "SituacaoCadastro",
+                                 "valoresAnteriores":  [
+                                                           "ATIVO",
+                                                           "ENCERRAMENTO_PENDENTE"
+                                                       ],
+                                 "valores":  [
+                                                 "ATIVO",
+                                                 "ENCERRAMENTO_PENDENTE",
+                                                 "INATIVO"
+                                             ]
+                             },
+                             {
+                                 "tabela":  "endereco",
+                                 "nome":  "ck_endereco_situacao",
+                                 "model":  "Endereco",
+                                 "origem":  "database/migrations/V1__cadastros_e_auditoria.sql",
+                                 "coluna":  "situacao",
+                                 "tipo":  "varchar(24)",
+                                 "nulo":  false,
+                                 "enumJava":  "SituacaoCadastro",
+                                 "valoresAnteriores":  [
+                                                           "ATIVO",
+                                                           "ENCERRAMENTO_PENDENTE"
+                                                       ],
+                                 "valores":  [
+                                                 "ATIVO",
+                                                 "ENCERRAMENTO_PENDENTE",
+                                                 "INATIVO"
+                                             ]
+                             },
+                             {
+                                 "tabela":  "conjunto_posicoes",
+                                 "nome":  "ck_conjunto_situacao",
+                                 "model":  "ConjuntoPosicoes",
+                                 "origem":  "database/migrations/V4__enderecamento_capacidade_e_movimentos.sql",
+                                 "coluna":  "situacao",
+                                 "tipo":  "varchar(24)",
+                                 "nulo":  false,
+                                 "enumJava":  "SituacaoCadastro",
+                                 "valoresAnteriores":  [
+                                                           "ATIVO",
+                                                           "ENCERRAMENTO_PENDENTE"
+                                                       ],
+                                 "valores":  [
+                                                 "ATIVO",
+                                                 "ENCERRAMENTO_PENDENTE",
+                                                 "INATIVO"
+                                             ]
+                             }
+                         ],
+    "tabelas":  [
+                    {
+                        "nome":  "fechamento_cobranca",
+                        "model":  "FechamentoCobranca",
+                        "colunas":  [
+                                        {
+                                            "nome":  "id",
+                                            "tipo":  "bigint",
+                                            "nulo":  false,
+                                            "identity":  true
+                                        },
+                                        {
+                                            "nome":  "cliente_id",
+                                            "tipo":  "bigint",
+                                            "nulo":  false,
+                                            "referencia":  "cliente"
+                                        },
+                                        {
+                                            "nome":  "armazem_id",
+                                            "tipo":  "bigint",
+                                            "nulo":  false,
+                                            "referencia":  "armazem"
+                                        },
+                                        {
+                                            "nome":  "contrato_id",
+                                            "tipo":  "bigint",
+                                            "nulo":  false,
+                                            "referencia":  "contrato_cobranca"
+                                        },
+                                        {
+                                            "nome":  "periodo_inicio",
+                                            "tipo":  "date",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "periodo_fim",
+                                            "tipo":  "date",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "situacao",
+                                            "tipo":  "varchar(24)",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "versao_atual",
+                                            "tipo":  "int",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "versao",
+                                            "tipo":  "bigint",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "criado_em",
+                                            "tipo":  "datetime2(6)",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "alterado_em",
+                                            "tipo":  "datetime2(6)",
+                                            "nulo":  false
+                                        }
+                                    ],
+                        "unicas":  [
+                                       {
+                                           "nome":  "uk_fechamento_contexto_inicio",
+                                           "nomeJpa":  "uk_fechamento_cobranca_1",
+                                           "colunas":  [
+                                                           "cliente_id",
+                                                           "armazem_id",
+                                                           "periodo_inicio"
+                                                       ]
+                                       }
+                                   ],
+                        "checks":  {
+                                       "ck_fechamento_periodo":  "periodo_fim \u003e periodo_inicio",
+                                       "ck_fechamento_situacao":  "situacao IN (\u0027EM_REVISAO\u0027,\u0027APROVADO\u0027,\u0027REJEITADO\u0027,\u0027EMITIDO\u0027,\u0027FINALIZADO_SEM_EMISSAO\u0027,\u0027CONFLITO_EXTERNO\u0027)",
+                                       "ck_fechamento_versoes":  "versao_atual \u003e= 1 AND versao \u003e= 0"
+                                   },
+                        "mutaveis":  [
+                                         "situacao",
+                                         "versao_atual",
+                                         "versao",
+                                         "alterado_em"
+                                     ],
+                        "imutaveisMarcador":  [
+
+                                              ]
+                    },
+                    {
+                        "nome":  "versao_fechamento",
+                        "model":  "VersaoFechamento",
+                        "colunas":  [
+                                        {
+                                            "nome":  "id",
+                                            "tipo":  "bigint",
+                                            "nulo":  false,
+                                            "identity":  true
+                                        },
+                                        {
+                                            "nome":  "fechamento_id",
+                                            "tipo":  "bigint",
+                                            "nulo":  false,
+                                            "referencia":  "fechamento_cobranca"
+                                        },
+                                        {
+                                            "nome":  "calculo_id",
+                                            "tipo":  "bigint",
+                                            "nulo":  false,
+                                            "referencia":  "calculo_cobranca"
+                                        },
+                                        {
+                                            "nome":  "numero",
+                                            "tipo":  "int",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "situacao",
+                                            "tipo":  "varchar(24)",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "estado_externo",
+                                            "tipo":  "varchar(24)",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "saldo",
+                                            "tipo":  "decimal(19,2)",
+                                            "nulo":  true
+                                        },
+                                        {
+                                            "nome":  "natureza",
+                                            "tipo":  "varchar(8)",
+                                            "nulo":  true
+                                        },
+                                        {
+                                            "nome":  "memoria_json",
+                                            "tipo":  "nvarchar(max)",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "conteudo_hash",
+                                            "tipo":  "varchar(64)",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "criada_em",
+                                            "tipo":  "datetime2(6)",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "decidida_em",
+                                            "tipo":  "datetime2(6)",
+                                            "nulo":  true
+                                        },
+                                        {
+                                            "nome":  "decisor",
+                                            "tipo":  "nvarchar(200)",
+                                            "nulo":  true
+                                        },
+                                        {
+                                            "nome":  "motivo_decisao",
+                                            "tipo":  "nvarchar(500)",
+                                            "nulo":  true
+                                        },
+                                        {
+                                            "nome":  "versao",
+                                            "tipo":  "bigint",
+                                            "nulo":  false
+                                        }
+                                    ],
+                        "unicas":  [
+                                       {
+                                           "nome":  "uk_versao_fechamento_numero",
+                                           "nomeJpa":  "uk_versao_fechamento_1",
+                                           "colunas":  [
+                                                           "fechamento_id",
+                                                           "numero"
+                                                       ]
+                                       }
+                                   ],
+                        "checks":  {
+                                       "ck_versao_fechamento_numeros":  "numero \u003e= 1 AND versao \u003e= 0",
+                                       "ck_versao_fechamento_situacao":  "situacao IN (\u0027PENDENTE_REVISAO\u0027,\u0027APROVADA\u0027,\u0027REJEITADA\u0027,\u0027SUPERADA\u0027,\u0027EMITIDA\u0027,\u0027FINALIZADA_SEM_EMISSAO\u0027)",
+                                       "ck_versao_fechamento_externo":  "estado_externo IN (\u0027NAO_ENVIADO\u0027,\u0027DESCONHECIDO\u0027,\u0027NAO_EMITIDO_CONFIRMADO\u0027,\u0027EMITIDO\u0027)",
+                                       "ck_versao_fechamento_saldo":  "(saldo IS NULL AND natureza IS NULL) OR (saldo IS NOT NULL AND natureza IS NOT NULL AND ((saldo \u003e 0 AND natureza = \u0027DEBITO\u0027) OR (saldo = 0 AND natureza = \u0027ZERO\u0027) OR (saldo \u003c 0 AND natureza = \u0027CREDITO\u0027)))",
+                                       "ck_versao_fechamento_saldo_final":  "situacao NOT IN (\u0027APROVADA\u0027,\u0027EMITIDA\u0027,\u0027FINALIZADA_SEM_EMISSAO\u0027) OR (saldo IS NOT NULL AND natureza IS NOT NULL)",
+                                       "ck_versao_fechamento_decisao":  "((decidida_em IS NULL AND decisor IS NULL AND motivo_decisao IS NULL) OR (decidida_em IS NOT NULL AND decisor IS NOT NULL AND motivo_decisao IS NOT NULL)) AND (situacao NOT IN (\u0027APROVADA\u0027,\u0027REJEITADA\u0027,\u0027EMITIDA\u0027,\u0027FINALIZADA_SEM_EMISSAO\u0027) OR (decidida_em IS NOT NULL AND decisor IS NOT NULL AND motivo_decisao IS NOT NULL)) AND (situacao \u003c\u003e \u0027PENDENTE_REVISAO\u0027 OR (decidida_em IS NULL AND decisor IS NULL AND motivo_decisao IS NULL))",
+                                       "ck_versao_fechamento_json":  "ISJSON(memoria_json) = 1",
+                                       "ck_versao_fechamento_hash":  "LEN(conteudo_hash) = 64"
+                                   },
+                        "mutaveis":  [
+                                         "situacao",
+                                         "estado_externo",
+                                         "decidida_em",
+                                         "decisor",
+                                         "motivo_decisao",
+                                         "versao"
+                                     ],
+                        "imutaveisMarcador":  [
+                                                  "calculo_id",
+                                                  "saldo",
+                                                  "natureza",
+                                                  "memoria_json",
+                                                  "conteudo_hash"
+                                              ]
+                    },
+                    {
+                        "nome":  "dia_fechamento",
+                        "model":  "DiaFechamento",
+                        "colunas":  [
+                                        {
+                                            "nome":  "id",
+                                            "tipo":  "bigint",
+                                            "nulo":  false,
+                                            "identity":  true
+                                        },
+                                        {
+                                            "nome":  "fechamento_id",
+                                            "tipo":  "bigint",
+                                            "nulo":  false,
+                                            "referencia":  "fechamento_cobranca"
+                                        },
+                                        {
+                                            "nome":  "cliente_id",
+                                            "tipo":  "bigint",
+                                            "nulo":  false,
+                                            "referencia":  "cliente"
+                                        },
+                                        {
+                                            "nome":  "armazem_id",
+                                            "tipo":  "bigint",
+                                            "nulo":  false,
+                                            "referencia":  "armazem"
+                                        },
+                                        {
+                                            "nome":  "data",
+                                            "tipo":  "date",
+                                            "nulo":  false
+                                        }
+                                    ],
+                        "unicas":  [
+                                       {
+                                           "nome":  "uk_dia_fechamento_contexto_data",
+                                           "nomeJpa":  "uk_dia_fechamento_1",
+                                           "colunas":  [
+                                                           "cliente_id",
+                                                           "armazem_id",
+                                                           "data"
+                                                       ]
+                                       },
+                                       {
+                                           "nome":  "uk_dia_fechamento_data",
+                                           "nomeJpa":  "uk_dia_fechamento_2",
+                                           "colunas":  [
+                                                           "fechamento_id",
+                                                           "data"
+                                                       ]
+                                       }
+                                   ],
+                        "checks":  {
+
+                                   },
+                        "mutaveis":  [
+
+                                     ],
+                        "imutaveisMarcador":  [
+
+                                              ]
+                    },
+                    {
+                        "nome":  "fato_fechamento",
+                        "model":  "FatoFechamento",
+                        "colunas":  [
+                                        {
+                                            "nome":  "id",
+                                            "tipo":  "bigint",
+                                            "nulo":  false,
+                                            "identity":  true
+                                        },
+                                        {
+                                            "nome":  "fechamento_id",
+                                            "tipo":  "bigint",
+                                            "nulo":  false,
+                                            "referencia":  "fechamento_cobranca"
+                                        },
+                                        {
+                                            "nome":  "fato_id",
+                                            "tipo":  "bigint",
+                                            "nulo":  false,
+                                            "referencia":  "fato_servico"
+                                        },
+                                        {
+                                            "nome":  "registrado_em",
+                                            "tipo":  "datetime2(6)",
+                                            "nulo":  false
+                                        }
+                                    ],
+                        "unicas":  [
+                                       {
+                                           "nome":  "uk_fato_fechamento_fato",
+                                           "nomeJpa":  "uk_fato_fechamento_1",
+                                           "colunas":  [
+                                                           "fato_id"
+                                                       ]
+                                       }
+                                   ],
+                        "checks":  {
+
+                                   },
+                        "mutaveis":  [
+
+                                     ],
+                        "imutaveisMarcador":  [
+
+                                              ]
+                    },
+                    {
+                        "nome":  "ajuste_fechamento",
+                        "model":  "AjusteFechamento",
+                        "colunas":  [
+                                        {
+                                            "nome":  "id",
+                                            "tipo":  "bigint",
+                                            "nulo":  false,
+                                            "identity":  true
+                                        },
+                                        {
+                                            "nome":  "origem_versao_id",
+                                            "tipo":  "bigint",
+                                            "nulo":  false,
+                                            "referencia":  "versao_fechamento"
+                                        },
+                                        {
+                                            "nome":  "destino_fechamento_id",
+                                            "tipo":  "bigint",
+                                            "nulo":  false,
+                                            "referencia":  "fechamento_cobranca"
+                                        },
+                                        {
+                                            "nome":  "calculo_base_id",
+                                            "tipo":  "bigint",
+                                            "nulo":  false,
+                                            "referencia":  "calculo_cobranca"
+                                        },
+                                        {
+                                            "nome":  "calculo_corrigido_id",
+                                            "tipo":  "bigint",
+                                            "nulo":  false,
+                                            "referencia":  "calculo_cobranca"
+                                        },
+                                        {
+                                            "nome":  "aplicado_versao_id",
+                                            "tipo":  "bigint",
+                                            "nulo":  true,
+                                            "referencia":  "versao_fechamento"
+                                        },
+                                        {
+                                            "nome":  "tipo",
+                                            "tipo":  "varchar(24)",
+                                            "nulo":  false,
+                                            "formalNoComplemento":  true,
+                                            "default":  "CORRECAO_CALCULO",
+                                            "constraintDefault":  "df_ajuste_fechamento_tipo"
+                                        },
+                                        {
+                                            "nome":  "tratativa_origem_id",
+                                            "tipo":  "bigint",
+                                            "nulo":  true,
+                                            "referencia":  "tratativa_externa_fechamento",
+                                            "formalNoComplemento":  true,
+                                            "fkPosterior":  "fk_ajuste_fechamento_tratativa_origem"
+                                        },
+                                        {
+                                            "nome":  "hash_correcao",
+                                            "tipo":  "varchar(64)",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "valor_base",
+                                            "tipo":  "decimal(19,2)",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "valor_corrigido",
+                                            "tipo":  "decimal(19,2)",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "diferenca",
+                                            "tipo":  "decimal(19,2)",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "situacao",
+                                            "tipo":  "varchar(16)",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "motivo",
+                                            "tipo":  "nvarchar(500)",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "evidencia",
+                                            "tipo":  "nvarchar(500)",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "usuario",
+                                            "tipo":  "nvarchar(200)",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "registrado_em",
+                                            "tipo":  "datetime2(6)",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "aplicado_em",
+                                            "tipo":  "datetime2(6)",
+                                            "nulo":  true
+                                        },
+                                        {
+                                            "nome":  "versao",
+                                            "tipo":  "bigint",
+                                            "nulo":  false
+                                        }
+                                    ],
+                        "unicas":  [
+                                       {
+                                           "nome":  "uk_ajuste_fechamento_origem_hash",
+                                           "nomeJpa":  "uk_ajuste_fechamento_1",
+                                           "colunas":  [
+                                                           "origem_versao_id",
+                                                           "hash_correcao"
+                                                       ]
+                                       }
+                                   ],
+                        "checks":  {
+                                       "ck_ajuste_fechamento_valores":  "valor_base \u003e= 0 AND valor_corrigido \u003e= 0 AND diferenca = valor_corrigido - valor_base",
+                                       "ck_ajuste_fechamento_versao":  "versao \u003e= 0",
+                                       "ck_ajuste_fechamento_situacao":  "situacao IN (\u0027VALIDADO\u0027,\u0027APLICADO\u0027)",
+                                       "ck_ajuste_fechamento_aplicacao":  "(situacao = \u0027VALIDADO\u0027 AND aplicado_em IS NULL AND aplicado_versao_id IS NULL) OR (situacao = \u0027APLICADO\u0027 AND aplicado_em IS NOT NULL AND aplicado_versao_id IS NOT NULL)",
+                                       "ck_ajuste_fechamento_hash":  "LEN(hash_correcao) = 64",
+                                       "ck_ajuste_fechamento_tipo":  "tipo IN (\u0027CORRECAO_CALCULO\u0027,\u0027REGULARIZACAO_ORIGEM\u0027)",
+                                       "ck_ajuste_fechamento_tratativa_origem":  "(tipo = \u0027CORRECAO_CALCULO\u0027 AND tratativa_origem_id IS NULL) OR (tipo = \u0027REGULARIZACAO_ORIGEM\u0027 AND tratativa_origem_id IS NOT NULL)"
+                                   },
+                        "mutaveis":  [
+                                         "destino_fechamento_id",
+                                         "situacao",
+                                         "aplicado_versao_id",
+                                         "aplicado_em",
+                                         "versao"
+                                     ],
+                        "imutaveisMarcador":  [
+                                                  "tipo",
+                                                  "tratativa_origem_id"
+                                              ]
+                    },
+                    {
+                        "nome":  "ajuste_versao_fechamento",
+                        "model":  "AjusteVersaoFechamento",
+                        "colunas":  [
+                                        {
+                                            "nome":  "id",
+                                            "tipo":  "bigint",
+                                            "nulo":  false,
+                                            "identity":  true
+                                        },
+                                        {
+                                            "nome":  "versao_id",
+                                            "tipo":  "bigint",
+                                            "nulo":  false,
+                                            "referencia":  "versao_fechamento"
+                                        },
+                                        {
+                                            "nome":  "ajuste_id",
+                                            "tipo":  "bigint",
+                                            "nulo":  false,
+                                            "referencia":  "ajuste_fechamento"
+                                        }
+                                    ],
+                        "unicas":  [
+                                       {
+                                           "nome":  "uk_ajuste_versao_fechamento",
+                                           "nomeJpa":  "uk_ajuste_versao_fechamento_1",
+                                           "colunas":  [
+                                                           "versao_id",
+                                                           "ajuste_id"
+                                                       ]
+                                       }
+                                   ],
+                        "checks":  {
+
+                                   },
+                        "mutaveis":  [
+
+                                     ],
+                        "imutaveisMarcador":  [
+
+                                              ]
+                    },
+                    {
+                        "nome":  "entrega_esl",
+                        "model":  "EntregaEsl",
+                        "colunas":  [
+                                        {
+                                            "nome":  "id",
+                                            "tipo":  "bigint",
+                                            "nulo":  false,
+                                            "identity":  true
+                                        },
+                                        {
+                                            "nome":  "versao_id",
+                                            "tipo":  "bigint",
+                                            "nulo":  false,
+                                            "referencia":  "versao_fechamento"
+                                        },
+                                        {
+                                            "nome":  "sequencia",
+                                            "tipo":  "int",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "layout_versao",
+                                            "tipo":  "int",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "arquivo_hash",
+                                            "tipo":  "varchar(64)",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "destino_referencia",
+                                            "tipo":  "nvarchar(200)",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "entregue_em",
+                                            "tipo":  "datetime2(6)",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "registrada_em",
+                                            "tipo":  "datetime2(6)",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "usuario",
+                                            "tipo":  "nvarchar(200)",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "motivo",
+                                            "tipo":  "nvarchar(500)",
+                                            "nulo":  false
+                                        }
+                                    ],
+                        "unicas":  [
+                                       {
+                                           "nome":  "uk_entrega_esl_versao_sequencia",
+                                           "nomeJpa":  "uk_entrega_esl_1",
+                                           "colunas":  [
+                                                           "versao_id",
+                                                           "sequencia"
+                                                       ]
+                                       }
+                                   ],
+                        "checks":  {
+                                       "ck_entrega_esl_sequencia_layout":  "sequencia \u003e= 1 AND layout_versao \u003e= 1",
+                                       "ck_entrega_esl_hash":  "LEN(arquivo_hash) = 64"
+                                   },
+                        "mutaveis":  [
+
+                                     ],
+                        "imutaveisMarcador":  [
+
+                                              ]
+                    },
+                    {
+                        "nome":  "confirmacao_externa_fechamento",
+                        "model":  "ConfirmacaoExternaFechamento",
+                        "colunas":  [
+                                        {
+                                            "nome":  "id",
+                                            "tipo":  "bigint",
+                                            "nulo":  false,
+                                            "identity":  true
+                                        },
+                                        {
+                                            "nome":  "versao_id",
+                                            "tipo":  "bigint",
+                                            "nulo":  false,
+                                            "referencia":  "versao_fechamento"
+                                        },
+                                        {
+                                            "nome":  "entrega_id",
+                                            "tipo":  "bigint",
+                                            "nulo":  true,
+                                            "referencia":  "entrega_esl"
+                                        },
+                                        {
+                                            "nome":  "situacao",
+                                            "tipo":  "varchar(24)",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "fonte",
+                                            "tipo":  "nvarchar(500)",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "confirmada_por",
+                                            "tipo":  "nvarchar(200)",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "confirmada_em",
+                                            "tipo":  "datetime2(6)",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "registrada_em",
+                                            "tipo":  "datetime2(6)",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "usuario",
+                                            "tipo":  "nvarchar(200)",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "motivo",
+                                            "tipo":  "nvarchar(500)",
+                                            "nulo":  false
+                                        }
+                                    ],
+                        "unicas":  [
+
+                                   ],
+                        "checks":  {
+                                       "ck_confirmacao_externa_fechamento_situacao":  "situacao IN (\u0027NAO_EMITIDO_CONFIRMADO\u0027)"
+                                   },
+                        "mutaveis":  [
+
+                                     ],
+                        "imutaveisMarcador":  [
+
+                                              ]
+                    },
+                    {
+                        "nome":  "referencia_nfse",
+                        "model":  "ReferenciaNfse",
+                        "colunas":  [
+                                        {
+                                            "nome":  "id",
+                                            "tipo":  "bigint",
+                                            "nulo":  false,
+                                            "identity":  true
+                                        },
+                                        {
+                                            "nome":  "versao_id",
+                                            "tipo":  "bigint",
+                                            "nulo":  false,
+                                            "referencia":  "versao_fechamento"
+                                        },
+                                        {
+                                            "nome":  "emissor_documento",
+                                            "tipo":  "varchar(20)",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "referencia_externa",
+                                            "tipo":  "varchar(200)",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "numero",
+                                            "tipo":  "varchar(80)",
+                                            "nulo":  true
+                                        },
+                                        {
+                                            "nome":  "serie",
+                                            "tipo":  "varchar(20)",
+                                            "nulo":  true
+                                        },
+                                        {
+                                            "nome":  "emitida_em",
+                                            "tipo":  "datetime2(6)",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "registrada_em",
+                                            "tipo":  "datetime2(6)",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "fonte",
+                                            "tipo":  "nvarchar(500)",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "conferida_por",
+                                            "tipo":  "nvarchar(200)",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "usuario",
+                                            "tipo":  "nvarchar(200)",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "motivo",
+                                            "tipo":  "nvarchar(500)",
+                                            "nulo":  false
+                                        }
+                                    ],
+                        "unicas":  [
+                                       {
+                                           "nome":  "uk_referencia_nfse_identidade",
+                                           "nomeJpa":  "uk_referencia_nfse_2",
+                                           "colunas":  [
+                                                           "emissor_documento",
+                                                           "referencia_externa"
+                                                       ]
+                                       }
+                                   ],
+                        "checks":  {
+
+                                   },
+                        "mutaveis":  [
+
+                                     ],
+                        "imutaveisMarcador":  [
+
+                                              ]
+                    },
+                    {
+                        "nome":  "resolucao_financeira_fechamento",
+                        "model":  "ResolucaoFinanceiraFechamento",
+                        "colunas":  [
+                                        {
+                                            "nome":  "id",
+                                            "tipo":  "bigint",
+                                            "nulo":  false,
+                                            "identity":  true
+                                        },
+                                        {
+                                            "nome":  "versao_id",
+                                            "tipo":  "bigint",
+                                            "nulo":  false,
+                                            "referencia":  "versao_fechamento"
+                                        },
+                                        {
+                                            "nome":  "tipo",
+                                            "tipo":  "varchar(24)",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "referencia_externa",
+                                            "tipo":  "nvarchar(200)",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "confirmada_por",
+                                            "tipo":  "nvarchar(200)",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "confirmada_em",
+                                            "tipo":  "datetime2(6)",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "registrada_em",
+                                            "tipo":  "datetime2(6)",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "fonte",
+                                            "tipo":  "nvarchar(500)",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "usuario",
+                                            "tipo":  "nvarchar(200)",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "motivo",
+                                            "tipo":  "nvarchar(500)",
+                                            "nulo":  false
+                                        }
+                                    ],
+                        "unicas":  [
+                                       {
+                                           "nome":  "uk_resolucao_financeira_fechamento_versao",
+                                           "nomeJpa":  "uk_resolucao_financeira_fechamento_1",
+                                           "colunas":  [
+                                                           "versao_id"
+                                                       ]
+                                       }
+                                   ],
+                        "checks":  {
+                                       "ck_resolucao_financeira_fechamento_tipo":  "tipo IN (\u0027SALDO_CREDOR\u0027,\u0027SALDO_ZERO\u0027)"
+                                   },
+                        "mutaveis":  [
+
+                                     ],
+                        "imutaveisMarcador":  [
+
+                                              ]
+                    },
+                    {
+                        "nome":  "tratativa_externa_fechamento",
+                        "model":  "TratativaExternaFechamento",
+                        "colunas":  [
+                                        {
+                                            "nome":  "id",
+                                            "tipo":  "bigint",
+                                            "nulo":  false,
+                                            "identity":  true
+                                        },
+                                        {
+                                            "nome":  "fechamento_id",
+                                            "tipo":  "bigint",
+                                            "nulo":  false,
+                                            "referencia":  "fechamento_cobranca"
+                                        },
+                                        {
+                                            "nome":  "versao_resultado_id",
+                                            "tipo":  "bigint",
+                                            "nulo":  false,
+                                            "referencia":  "versao_fechamento"
+                                        },
+                                        {
+                                            "nome":  "versao_base_anterior_id",
+                                            "tipo":  "bigint",
+                                            "nulo":  true,
+                                            "referencia":  "versao_fechamento",
+                                            "formalNoComplemento":  true
+                                        },
+                                        {
+                                            "nome":  "dependencias_origem_json",
+                                            "tipo":  "nvarchar(max)",
+                                            "nulo":  true,
+                                            "formalNoComplemento":  true
+                                        },
+                                        {
+                                            "nome":  "resultado",
+                                            "tipo":  "varchar(24)",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "referencias_json",
+                                            "tipo":  "nvarchar(max)",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "fonte",
+                                            "tipo":  "nvarchar(500)",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "conferida_por",
+                                            "tipo":  "nvarchar(200)",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "conferida_em",
+                                            "tipo":  "datetime2(6)",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "registrada_em",
+                                            "tipo":  "datetime2(6)",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "usuario",
+                                            "tipo":  "nvarchar(200)",
+                                            "nulo":  false
+                                        },
+                                        {
+                                            "nome":  "motivo",
+                                            "tipo":  "nvarchar(500)",
+                                            "nulo":  false
+                                        }
+                                    ],
+                        "unicas":  [
+
+                                   ],
+                        "checks":  {
+                                       "ck_tratativa_externa_fechamento_resultado":  "resultado IN (\u0027EMITIDO\u0027,\u0027NAO_EMITIDO_CONFIRMADO\u0027)",
+                                       "ck_tratativa_externa_fechamento_json":  "ISJSON(referencias_json) = 1",
+                                       "ck_tratativa_externa_fechamento_base_origem":  "(versao_base_anterior_id IS NULL AND dependencias_origem_json IS NULL) OR (versao_base_anterior_id IS NOT NULL AND dependencias_origem_json IS NOT NULL)",
+                                       "ck_tratativa_externa_fechamento_dependencias_json":  "dependencias_origem_json IS NULL OR ISJSON(dependencias_origem_json) = 1"
+                                   },
+                        "mutaveis":  [
+
+                                     ],
+                        "imutaveisMarcador":  [
+                                                  "fechamento_id",
+                                                  "versao_resultado_id",
+                                                  "resultado",
+                                                  "referencias_json",
+                                                  "versao_base_anterior_id",
+                                                  "dependencias_origem_json"
+                                              ]
+                    }
+                ],
+    "baselineV1V7":  [
+                         {
+                             "arquivo":  "database/migrations/V1__cadastros_e_auditoria.sql",
+                             "sha256":  "41346740B1D9FC60291908F82190722F9C004F5B04DBA6B68CE57E898B4E3D58"
+                         },
+                         {
+                             "arquivo":  "database/migrations/V2__recebimento_e_entradas_conferidas.sql",
+                             "sha256":  "E17AD30B1D8BACF1409FE3083661DE09A2602563776CA747449E0F0764470052"
+                         },
+                         {
+                             "arquivo":  "database/migrations/V3__unidades_logisticas_e_origens.sql",
+                             "sha256":  "B16CD6507AC256D4757385A9C98C984CFDF86918CDBBCBE2BE11DF40FCE6B6DD"
+                         },
+                         {
+                             "arquivo":  "database/migrations/V4__enderecamento_capacidade_e_movimentos.sql",
+                             "sha256":  "CE6C77238777EC87DDDF05A72D925CCAFA1C784CA16883242238E45935221A05"
+                         },
+                         {
+                             "arquivo":  "database/migrations/V5__pedidos_saida_fifo_e_reservas.sql",
+                             "sha256":  "57EA2766C4170159CB4CCD2C210481E63FA13D976BFD932D6E711A734DCFFF88"
+                         },
+                         {
+                             "arquivo":  "database/migrations/V6__separacao_retirada_retornos_e_avaria.sql",
+                             "sha256":  "EE0EEBAF5D7EA5B7329C182039A274EBE46DAFCB561EAEF5DF8846381A897D39"
+                         },
+                         {
+                             "arquivo":  "database/migrations/V7__cadastros_servicos_e_calculo.sql",
+                             "sha256":  "3193D8436D360BA0D1D36E290112F39F76AB3A300AC2C2AD931208B6745B8940"
+                         }
+                     ],
+    "indices":  [
+                    {
+                        "nome":  "ix_fechamento_armazem_contexto",
+                        "tabela":  "fechamento_cobranca",
+                        "colunas":  [
+                                        "armazem_id",
+                                        "cliente_id",
+                                        "periodo_inicio"
+                                    ]
+                    },
+                    {
+                        "nome":  "ix_fechamento_contrato",
+                        "tabela":  "fechamento_cobranca",
+                        "colunas":  [
+                                        "contrato_id",
+                                        "id"
+                                    ]
+                    },
+                    {
+                        "nome":  "ix_versao_fechamento_calculo",
+                        "tabela":  "versao_fechamento",
+                        "colunas":  [
+                                        "calculo_id",
+                                        "id"
+                                    ]
+                    },
+                    {
+                        "nome":  "ix_dia_fechamento_armazem",
+                        "tabela":  "dia_fechamento",
+                        "colunas":  [
+                                        "armazem_id",
+                                        "data",
+                                        "cliente_id"
+                                    ]
+                    },
+                    {
+                        "nome":  "ix_fato_fechamento_fechamento",
+                        "tabela":  "fato_fechamento",
+                        "colunas":  [
+                                        "fechamento_id",
+                                        "fato_id"
+                                    ]
+                    },
+                    {
+                        "nome":  "ix_ajuste_fechamento_destino",
+                        "tabela":  "ajuste_fechamento",
+                        "colunas":  [
+                                        "destino_fechamento_id",
+                                        "situacao",
+                                        "id"
+                                    ]
+                    },
+                    {
+                        "nome":  "ix_ajuste_fechamento_base",
+                        "tabela":  "ajuste_fechamento",
+                        "colunas":  [
+                                        "calculo_base_id",
+                                        "id"
+                                    ]
+                    },
+                    {
+                        "nome":  "ix_ajuste_fechamento_corrigido",
+                        "tabela":  "ajuste_fechamento",
+                        "colunas":  [
+                                        "calculo_corrigido_id",
+                                        "id"
+                                    ]
+                    },
+                    {
+                        "nome":  "ix_ajuste_fechamento_aplicado",
+                        "tabela":  "ajuste_fechamento",
+                        "colunas":  [
+                                        "aplicado_versao_id",
+                                        "id"
+                                    ]
+                    },
+                    {
+                        "nome":  "ix_ajuste_versao_fechamento_ajuste",
+                        "tabela":  "ajuste_versao_fechamento",
+                        "colunas":  [
+                                        "ajuste_id",
+                                        "versao_id"
+                                    ]
+                    },
+                    {
+                        "nome":  "ix_confirmacao_externa_fechamento_versao",
+                        "tabela":  "confirmacao_externa_fechamento",
+                        "colunas":  [
+                                        "versao_id",
+                                        "confirmada_em",
+                                        "id"
+                                    ]
+                    },
+                    {
+                        "nome":  "ix_confirmacao_externa_fechamento_entrega",
+                        "tabela":  "confirmacao_externa_fechamento",
+                        "colunas":  [
+                                        "entrega_id",
+                                        "id"
+                                    ]
+                    },
+                    {
+                        "nome":  "ix_referencia_nfse_versao",
+                        "tabela":  "referencia_nfse",
+                        "colunas":  [
+                                        "versao_id",
+                                        "id"
+                                    ]
+                    },
+                    {
+                        "nome":  "ix_tratativa_externa_fechamento_fechamento",
+                        "tabela":  "tratativa_externa_fechamento",
+                        "colunas":  [
+                                        "fechamento_id",
+                                        "id"
+                                    ]
+                    },
+                    {
+                        "nome":  "ix_tratativa_externa_fechamento_versao",
+                        "tabela":  "tratativa_externa_fechamento",
+                        "colunas":  [
+                                        "versao_resultado_id",
+                                        "id"
+                                    ]
+                    },
+                    {
+                        "nome":  "ix_tratativa_externa_fechamento_base_anterior",
+                        "tabela":  "tratativa_externa_fechamento",
+                        "colunas":  [
+                                        "versao_base_anterior_id",
+                                        "id"
+                                    ]
+                    }
+                ],
+    "regrasNoServico":  [
+                            "INATIVO representa historico e resolucao financeira identificada BE13 nos seis cadastros. Ampliar CHECK nao autoriza inativacao definitiva BE05 antes de BE14, ativacao/desativacao comum nem compromisso fisico novo; Gestor/escopo/servico preservam essas recusas. Nenhuma permissao nova ou mudanca de dados por esta migration.",
+                            "Contexto cliente/armazem/contrato/calculo/periodo e lock CLIENTE -\u003e ARMAZEM -\u003e fechamentos por ID. FK isolada nao garante contexto/ciclo/pertencimento.",
+                            "Ciclo derivado do contrato e ultimo fim, com inicio inclusivo/fim exclusivo, dias/fatos atomicos; corte nominal 29/30/31 preservado/bissexto, dias corridos ancorados. Nenhum cutoff real presumido.",
+                            "Versao aponta calculo imutavel completo para aprovar/finalizar; memoria_json e SHA256 de seus bytes UTF8 exatos separados de estado/decisao/entregas/documentos. ALTER de metadados nao reserializa snapshot.",
+                            "NFS-e existente tardia permanece na versao anterior SUPERADA com estado externo EMITIDO; fechamento CONFLITO_EXTERNO bloqueia novas finalizacoes incompatíveis. Nenhuma emissao/cancelamento/envio externo.",
+                            "ZERO/CREDITO exigem resolucao financeira e declaracao fiscal de nao emissao da mesma versao apos ultima entrega; resolucao nao presume dispensa fiscal.",
+                            "Ajuste VALIDADO integra composicao mas APLICADO somente na finalizacao comprovada da versao destino, junto do vinculo/aplicado_em/auditoria/saldo/resposta. CHECK local nao prova status ou destino de outra tabela.",
+                            "Correcao comum por TODO fechamento e todas as versoes de origem, excluindo REGULARIZACAO_ORIGEM; base cronologica anterior validada atualmente reconciliada.100-\u003e80-\u003e70 produz -20/-10. Nao repetir hash comum em outra versao de origem; UNIQUE SQL por versao/hash e garantia local, nao substitui guarda de cadeia no service. Destino posterior apto mesmo contexto, fatos antigos mantidos, delta zero permitido.",
+                            "Gestor/escopo antes do replay. Resolucao opcional identificada por compromisso existente em encerramento/INATIVO historico, conforme extensao29, sem DDL BE12 extra e sem novos compromissos fisicos.",
+                            "Imutabilidade/historico por mapeamento, servicos e minimo privilegio; FK/UNIQUE/CHECK nao substituem transacao, permissoes nem revalidacao. BE14 sem schema, nenhuma coluna presumida.",
+                            "Complemento31: varias NFS-e por versao, identidade emissor/referencia global unica. Tratativa imutavel enumera TODAS as referencias conhecidas do fechamento com IDs distintos e MANTIDO/CANCELAMENTO_COMPROVADO. EMITIDO exige exatamente1mantida da versao indicada com aprovacao historica; NAO_EMITIDO_CONFIRMADO exige todas canceladas declaradas e versao vigente. Sem cancelamento/emissao real.",
+                            "SUPERADA/EMITIDO reconciliada a sua versao pode originar ajuste. Tratativa nao cria titulo/versao financeira; ajustes RECEBIDOS ja APLICADOS da composicao conservam a mesma versao resultado. ORIGINADOS seguem complemento p2-origem de regularizacao identificada sem alterar deltas antigos. Emissao tardia apos FINALIZADA_SEM_EMISSAO altera metadados externos conservando estado financeiro e aplicado_versao_id/data; nunca reaplicar/desfazer/transferir ajustes.",
+                            "P2 Vigia/doc31: confronte todos os ajustes do destino com a composicao externa reconciliada. VALIDADO ausente deixa CONFLITO_EXTERNO salvo redirecionamento identificado ao primeiro ciclo posterior apto do mesmo contexto, em revisao/rejeitado; destinoAjustesId+versaoDestinoAjustes opcionais juntos, locks/versao de ambos fechamentos, nova versao integral do destino e reconciliacao original atomicas.",
+                            "destino_fechamento_id atualizavel SOMENTE VALIDADO por TRATATIVA_EXTERNA, com atribuicao anterior/nova e versoes nos snapshots/auditoria. Vínculos de versoes antigas conservam atribuicao historica comprovada; nao se exige que o FK historico aponte o destino atual depois desse redirecionamento autorizado. So composicao vigente do destino atual pode aplicar. APLICADOS nunca mudam destino/versao/data nem sao repetidos; origem/base/correcao/delta imutaveis.",
+                            "Segunda reconciliação confronta também cada vínculo histórico da versão escolhida com destino e aplicação atuais. Ajuste redirecionado a outro fechamento ou aplicado em outra versão impede reconciliar/aplicar aquela composição antiga; CONFLITO_EXTERNO permanece, exigindo comprovação externa/versão financeira compatível. Não usar o snapshot como autorização de mover novamente o ajuste nem retirar efeito já comprometido no outro ciclo. Guarda repetida no model e no service impede aplicação em fechamento diferente do destino atual; rollback conserva referência tardia, pendência e marca de aplicação, sem cobrança duplicada. Nenhum schema adicional neste reforço.",
+                            "P2-origem: comparar base financeira anterior com versao selecionada e conferir lista exata de TODOS os ajustes originados em TODAS as versoes, VALIDADO/APLICADO, IDs/tipos/valores/destinos/aplicacoes. Sem dependencia nao presumir regularizacao. Captura imutavel em dependencias_origem_json e versao_base_anterior_id. Contexto/pertencimento/conjunto JSON e valor esperado cruzados no servico/model; ISJSON so valida sintaxe.",
+                            "Regularizacao explicita conserva deltas anteriores: base anterior100 - selecionada80 = +20, mantendo -20 VALIDADO/APLICADO. Calculo selecionado como base, anterior como corrigido; diferenca=valor_corrigido-valor_base. -20 aplicado em B nao se reverte/transfere: +20 segue primeiro ciclo posterior apto C e permanece pendente ate aplicacao comprovada. Regularizacao tem tipo/tratativa/hash especificos e uma por tratativa, excluida da cadeia comum.",
+                            "Periodo/contexto validado antes do replay e auditoria identificada da resolucao usam JSON existente. Mesmas dez acoes/tipos BE13, TRATATIVA_EXTERNA cobre regularizacao; nenhum literal administrativo novo, coluna BE12 ou schema29 extra. Implementacao e testes p2-origem com Cedro; preparacao DDL nao comprova correcao financeira ou aceite."
+                        ],
+    "escolhasRotineiras":  [
+                               "Nomes SQL de constraints/indices locais; comparar depois com nomes JPA do freeze. Tipos/campos/nulos/FKs/dominios sao do quadro31.",
+                               "Checks locais de versao/numero/periodo, saldo/natureza com NULLs completos, decisao completa ou ausente e exigida para estado decidido, JSON e tamanho SHA256; nao acrescentam estado ou coluna.",
+                               "SUPERADA admite decisao conservada ou nenhuma quando versao anterior pendente; estado externo independente permite SUPERADA/EMITIDO. Nenhum CHECK associa EMITIDO exclusivamente a situacao EMITIDA.",
+                               "16 indices nao unicos explicitos para FK/consulta, mais1 indice unico filtrado formal em tratativa_origem_id NOT NULL; nao confundir com10 constraints UNIQUE de tabela. Sem collation/alvo inventados.",
+                               "Unico DEFAULT novo explicitamente formal: ajuste_fechamento.tipo=\u0027CORRECAO_CALCULO\u0027 em tabela nova V8 nao aplicada. Sem seed/DML/GRANT/trigger, backfill/recalculo historico ou nova coluna de cadastro/estoque. Seis CHECKs INATIVO preservam VARCHAR24/NOT NULL.",
+                               "Complemento formal substitui UNIQUE(versao_id) da referencia_nfse por indice nao unico e acrescenta tratativa_externa_fechamento sem UNIQUE por fechamento. Literal TRATATIVA_EXTERNA lido no rodape, nao inferido.",
+                               "FK ajuste-\u003etratativa adicionada por ALTER TABLE WITH CHECK depois de CREATE das11tabelas, resolvendo dependencia ciclica sem cascata/adiar integridade de dados. Sem banco ou DDL executado."
+                           ],
+    "auditoria":  {
+                      "tiposAnteriores":  [
+                                              "CLIENTE",
+                                              "ARMAZEM",
+                                              "PRODUTO",
+                                              "EMBALAGEM",
+                                              "ENDERECO",
+                                              "PEDIDO_ENTRADA",
+                                              "CONJUNTO_POSICOES",
+                                              "PEDIDO_SAIDA",
+                                              "SERVICO_COBRANCA",
+                                              "TABELA_COBRANCA",
+                                              "CONTRATO_COBRANCA",
+                                              "FATO_SERVICO",
+                                              "AVARIA_FINANCEIRA",
+                                              "CALCULO_COBRANCA"
+                                          ],
+                      "tiposNovos":  [
+                                         "FECHAMENTO_COBRANCA"
+                                     ],
+                      "acoesAnteriores":  [
+                                              "CRIACAO",
+                                              "ALTERACAO",
+                                              "SOLICITAR_ENCERRAMENTO",
+                                              "REATIVACAO",
+                                              "NOTA_INCLUIDA",
+                                              "XML_VINCULADO",
+                                              "CONFERENCIA_INICIADA",
+                                              "CHEGADA_REGISTRADA",
+                                              "CHEGADA_ESTORNADA",
+                                              "ENTRADA_EFETIVADA",
+                                              "PEDIDO_CANCELADO",
+                                              "UNIDADES_CRIADAS",
+                                              "UNIDADE_DIVIDIDA",
+                                              "UNIDADES_REAGRUPADAS",
+                                              "CONFIGURAR_CAPACIDADE",
+                                              "ENDERECAMENTO",
+                                              "MOVIMENTACAO",
+                                              "BLOQUEIO_ESTOQUE",
+                                              "LIBERACAO_ESTOQUE",
+                                              "CRIACAO_SAIDA",
+                                              "JUSTIFICATIVA_FIFO",
+                                              "RESERVA_SAIDA",
+                                              "CANCELAMENTO_SAIDA",
+                                              "REVERSAO_RESERVA",
+                                              "AVARIA_ESTOQUE",
+                                              "LEITURA_SAIDA",
+                                              "SEPARACAO_SAIDA",
+                                              "DOCUMENTO_SAIDA",
+                                              "CANCELAMENTO_DOCUMENTO",
+                                              "RETIRADA_FISICA",
+                                              "RETORNO_INTERNO",
+                                              "DEVOLUCAO_SAIDA",
+                                              "DEVOLUCAO_ENTRADA",
+                                              "AVARIA_DETALHADA",
+                                              "RESPONSABILIDADE_AVARIA",
+                                              "REPARO_AVARIA",
+                                              "COMPLEMENTO_FISCAL",
+                                              "REFERENCIA_FISCAL",
+                                              "PREVIA_ENDERECOS",
+                                              "IMPORTACAO_ENDERECOS",
+                                              "ENCERRAMENTO_VIGENCIA",
+                                              "CONFIGURACAO",
+                                              "REGISTRO_SERVICO",
+                                              "ANULACAO_SERVICO",
+                                              "MARCO_AVARIA",
+                                              "CALCULO",
+                                              "VINCULO_TABELA"
+                                          ],
+                      "acoesNovas":  [
+                                         "PREPARACAO_FECHAMENTO",
+                                         "APROVACAO_FECHAMENTO",
+                                         "REJEICAO_FECHAMENTO",
+                                         "REABERTURA_FECHAMENTO",
+                                         "ENTREGA_ESL",
+                                         "CONFIRMACAO_EXTERNA",
+                                         "REFERENCIA_NFSE",
+                                         "RESOLUCAO_FINANCEIRA",
+                                         "AJUSTE_FECHAMENTO",
+                                         "TRATATIVA_EXTERNA"
+                                     ],
+                      "tiposOperacaoAnteriores":  [
+                                                      "CRIACAO_SERVICO",
+                                                      "CRIACAO_TABELA",
+                                                      "CRIACAO",
+                                                      "COMPLEMENTO_FISCAL",
+                                                      "REFERENCIA_FISCAL",
+                                                      "PREVIA_ENDERECOS",
+                                                      "IMPORTACAO_ENDERECOS",
+                                                      "ENCERRAMENTO_VIGENCIA",
+                                                      "CONFIGURACAO",
+                                                      "REGISTRO_SERVICO",
+                                                      "ANULACAO_SERVICO",
+                                                      "MARCO_AVARIA",
+                                                      "CALCULO",
+                                                      "VINCULO_TABELA"
+                                                  ],
+                      "tipoOperacaoAdministrativa":  [
+                                                         "CRIACAO_SERVICO",
+                                                         "CRIACAO_TABELA",
+                                                         "CRIACAO",
+                                                         "COMPLEMENTO_FISCAL",
+                                                         "REFERENCIA_FISCAL",
+                                                         "PREVIA_ENDERECOS",
+                                                         "IMPORTACAO_ENDERECOS",
+                                                         "ENCERRAMENTO_VIGENCIA",
+                                                         "CONFIGURACAO",
+                                                         "REGISTRO_SERVICO",
+                                                         "ANULACAO_SERVICO",
+                                                         "MARCO_AVARIA",
+                                                         "CALCULO",
+                                                         "VINCULO_TABELA",
+                                                         "PREPARACAO_FECHAMENTO",
+                                                         "APROVACAO_FECHAMENTO",
+                                                         "REJEICAO_FECHAMENTO",
+                                                         "REABERTURA_FECHAMENTO",
+                                                         "ENTREGA_ESL",
+                                                         "CONFIRMACAO_EXTERNA",
+                                                         "REFERENCIA_NFSE",
+                                                         "RESOLUCAO_FINANCEIRA",
+                                                         "AJUSTE_FECHAMENTO",
+                                                         "TRATATIVA_EXTERNA"
+                                                     ],
+                      "paresNovos":  {
+                                         "PREPARACAO_FECHAMENTO":  [
+                                                                       "FECHAMENTO_COBRANCA"
+                                                                   ],
+                                         "APROVACAO_FECHAMENTO":  [
+                                                                      "FECHAMENTO_COBRANCA"
+                                                                  ],
+                                         "REJEICAO_FECHAMENTO":  [
+                                                                     "FECHAMENTO_COBRANCA"
+                                                                 ],
+                                         "REABERTURA_FECHAMENTO":  [
+                                                                       "FECHAMENTO_COBRANCA"
+                                                                   ],
+                                         "ENTREGA_ESL":  [
+                                                             "FECHAMENTO_COBRANCA"
+                                                         ],
+                                         "CONFIRMACAO_EXTERNA":  [
+                                                                     "FECHAMENTO_COBRANCA"
+                                                                 ],
+                                         "REFERENCIA_NFSE":  [
+                                                                 "FECHAMENTO_COBRANCA"
+                                                             ],
+                                         "RESOLUCAO_FINANCEIRA":  [
+                                                                      "FECHAMENTO_COBRANCA"
+                                                                  ],
+                                         "AJUSTE_FECHAMENTO":  [
+                                                                   "FECHAMENTO_COBRANCA"
+                                                               ],
+                                         "TRATATIVA_EXTERNA":  [
+                                                                   "FECHAMENTO_COBRANCA"
+                                                               ]
+                                     },
+                      "paresTiposNovos":  {
+                                              "FECHAMENTO_COBRANCA":  [
+                                                                          "PREPARACAO_FECHAMENTO",
+                                                                          "APROVACAO_FECHAMENTO",
+                                                                          "REJEICAO_FECHAMENTO",
+                                                                          "REABERTURA_FECHAMENTO",
+                                                                          "ENTREGA_ESL",
+                                                                          "CONFIRMACAO_EXTERNA",
+                                                                          "REFERENCIA_NFSE",
+                                                                          "RESOLUCAO_FINANCEIRA",
+                                                                          "AJUSTE_FECHAMENTO",
+                                                                          "TRATATIVA_EXTERNA"
+                                                                      ]
+                                          },
+                      "checkFechamento":  "(acao NOT IN (\u0027PREPARACAO_FECHAMENTO\u0027,\u0027APROVACAO_FECHAMENTO\u0027,\u0027REJEICAO_FECHAMENTO\u0027,\u0027REABERTURA_FECHAMENTO\u0027,\u0027ENTREGA_ESL\u0027,\u0027CONFIRMACAO_EXTERNA\u0027,\u0027REFERENCIA_NFSE\u0027,\u0027RESOLUCAO_FINANCEIRA\u0027,\u0027AJUSTE_FECHAMENTO\u0027,\u0027TRATATIVA_EXTERNA\u0027) OR tipo = \u0027FECHAMENTO_COBRANCA\u0027) AND (tipo \u003c\u003e \u0027FECHAMENTO_COBRANCA\u0027 OR acao IN (\u0027PREPARACAO_FECHAMENTO\u0027,\u0027APROVACAO_FECHAMENTO\u0027,\u0027REJEICAO_FECHAMENTO\u0027,\u0027REABERTURA_FECHAMENTO\u0027,\u0027ENTREGA_ESL\u0027,\u0027CONFIRMACAO_EXTERNA\u0027,\u0027REFERENCIA_NFSE\u0027,\u0027RESOLUCAO_FINANCEIRA\u0027,\u0027AJUSTE_FECHAMENTO\u0027,\u0027TRATATIVA_EXTERNA\u0027))",
+                      "restricoesMantidas":  [
+                                                 "ck_auditoria_saida_tipo_acao",
+                                                 "ck_auditoria_financeira_tipo_acao"
+                                             ],
+                      "movimentoIntocado":  true
+                  },
+    "historicoFonte":  [
+                           {
+                               "sha256":  "BC3224A6FC4E75ECB83C177EA348C37BFA0D34FDA7F5E7C6770A3E35E682BDBA",
+                               "situacao":  "Fonte refinada anterior lida, schema10 antes complemento; SHA preservado"
+                           },
+                           {
+                               "sha256":  "0F26623C68B2E48ACB187140860389F906C9B560645F084A35D486B0423EEA9B",
+                               "situacao":  "Sincronizacao somente API; fonte copiada exata; draft10 e355/355 preservados"
+                           },
+                           {
+                               "sha256":  "799FC5655963F9F9D3F5904FAA02A20343B6455DD18513FEE3E11BDA6663A949",
+                               "situacao":  "Hash informado por Farol para complemento11 antes do rodape literal; nao foi esta a revisao observada na leitura posterior"
+                           },
+                           {
+                               "sha256":  "7BB17AE79F943FC31C298D9A7F64469EE58E7890521FB3C27E0952EDCF0C9815",
+                               "situacao":  "Fonte atual lida inteira e copiada, incluindo literal formal TRATATIVA_EXTERNA"
+                           },
+                           {
+                               "sha256":  "F7ABE244AE6843321FF25E8296D8035E680F8378D1FEBEF268E21C1E7DCB1307",
+                               "situacao":  "P2 Vigia formalizado: somente mutabilidade condicional destino VALIDADO e guardas/snapshots, quadro SQL inalterado. Fonte inteira lida/copied antes ajustar metadata/leitor."
+                           },
+                           {
+                               "sha256":  "E88FAFEF57CA9AAD166A7BF9AFEC63E5977DD866DB1684D3DF47E0F739220A76",
+                               "situacao":  "Fonte lida inteira durante finalizacao do preparo: apenas guarda repetida de reconciliacao; quadro SQL exatamente igual ao F7. Sem JPA/DDL novo; freeze ainda pendente."
+                           },
+                           {
+                               "sha256":  "6E845638C8D69238BF1C3D06363A4E8D6F86DCDD324ABC794DB9018D9B72F939",
+                               "situacao":  "Complemento formal lido inteiro e copiado antes de editar: seis CHECKs cadastrais incluem INATIVO, VARCHAR24/NOT NULL mantidos, sem coluna nova. SQL/contrato/leitor394 anteriores preservados. JPA final/freeze pendentes; erro da fixture enum informado por Farol, nao executado aqui."
+                           },
+                           {
+                               "sha256":  "03005CFBCCB039A057FCC8609ABE4AD8CBBB6AADDA51A5A39DC82ACBA30DA8F2",
+                               "situacao":  "Freeze explicito BE13: fonte lida integralmente e copiada, manifesto251 conferido antes. Duas redacoes do schema esclarecem vinculos historicos e guardas INATIVO; nenhum novo tipo/coluna/FK/CHECK/unicidade. Conferencia final JPA/literais solicitada somente em arquivos;328 testes informados por Farol, nao executados por Prumo."
+                           },
+                           {
+                               "sha256":  "6645532119DC4269717877B9695BBD4FE965466DFE85916D3628333E1E90FAB7",
+                               "situacao":  "Complemento formal p2-origem lido integralmente e copiado antes da edicao: quatro campos, duas FKs, quatro CHECKs, um indice nao unico e um unico filtrado. Copias V8/JSON/leitores/freeze251/outputs490/132 preservadas. Java em ajuste; pareamento JPA final aguarda novo freeze."
+                           },
+                           {
+                               "sha256":  "F3E2DCFDE370D5ADE2E71F59E45E82901111CC00224C60509ADB6211C6BA1392",
+                               "situacao":  "Fonte relida integralmente e copiada: sincroniza paragrafo antigo da cadeia comum por fechamento inteiro, exclui regularizacoes e hash entre todas versoes. Quadro/complemento V8 exatamente iguais a664. Sem DDL adicional, V8 SQL inalterada; nao e novo freeze Java."
+                           },
+                           {
+                               "sha256":  "8E8416EDBFD43E683DEEEFE2930048BAFA6CB02633BCB801942A7BAD7E75F8DF",
+                               "situacao":  "Fonte integral relida e copiada: as linhas ajuste/tratativa do quadro agora repetem quatro campos do complemento p2-origem ja preparado. Sem novo DDL/literal. Falha468/469 de hash da fonte viva preservada; captura literal permite conferencia do instante sem inferir novo freeze Java."
+                           },
+                           {
+                               "sha256":  "3284E984538781CEB01C332DF64BDDF59325D1C809CF6114EF1774E367F90933",
+                               "situacao":  "Fonte integral relida/copied no fechamento: quadro/complemento exatamente iguais a8E; acrescenta registro de entrega/freeze333 de Cedro. Somente preparacao contrato/SQL reconferida; manifesto backend/JPA/literais finais nao solicitados nesta etapa independente. Outputs/hash8E anteriores preservados."
+                           },
+                           {
+                               "sha256":  "3284E984538781CEB01C332DF64BDDF59325D1C809CF6114EF1774E367F90933",
+                               "situacao":  "Freeze333/251 explicitamente comunicado: doc31 hash3284 e doc29D436 conferidos pelo novo manifesto628A,251 hashes iguais antes. Sem novo DDL; primeira leitura118 campos JPA compativeis, quatro coberturas de helper Resolucao no leitor a atualizar; outputs anteriores preservados."
+                           }
+                       ],
+    "indicesFiltrados":  [
+                             {
+                                 "nome":  "ux_ajuste_fechamento_tratativa_origem",
+                                 "tabela":  "ajuste_fechamento",
+                                 "colunas":  [
+                                                 "tratativa_origem_id"
+                                             ],
+                                 "unico":  true,
+                                 "filtro":  "tratativa_origem_id IS NOT NULL",
+                                 "limiteJpa":  "Observado @jakarta.persistence.Index unique=true na FK opcional, sem predicado expresso. Chave/nulo comparados; V8 filtro SQL Server formal preservado, sem executar ou presumir DDL Hibernate/H2/SQL Server.",
+                                 "nomeJpa":  "uk_ajuste_tratativa_origem"
+                             }
+                         ]
+}

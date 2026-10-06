@@ -99,6 +99,8 @@ class SqlServerConfigTest {
                         "SET QUOTED_IDENTIFIER ON",
                         "SET NUMERIC_ROUNDABORT OFF",
                         "SERVERPROPERTY('ServerName')",
+                        "SERVERPROPERTY('ServerName') IS NULL",
+                        "DB_NAME() IS NULL",
                         "DB_NAME()",
                         "THROW 50001")
                 .doesNotContain("usuario-ficticio", "senha-ficticia");

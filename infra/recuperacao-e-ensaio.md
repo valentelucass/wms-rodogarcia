@@ -1,4 +1,4 @@
-# Recuperação, contingência e ensaio SQL Server — BE15
+﻿# Recuperação, contingência e ensaio SQL Server — BE15
 
 ## Atualização local do pareamento complementar V9 — 06/10
 
@@ -11,7 +11,7 @@ Plano local D19, não executado. Fontes: Q27 no [documento 10](../docs/10-respos
 
 ## Complemento BE14/V9 — ensaio futuro, somente planejado
 
-[V9/matriz](../database/contratos/v9-matriz-cobertura.md) parte do complemento31 SHA996750EA…, com resolver-cancelamento/carga_id e efeitoRegistradoNoWms formalizados. JPA/guardas aguardam freeze. Sem SQL/restore/conexão/rotina executados. V1–V8 e provas aceitas localmente preservadas, sem repetir revisão333. [Procedimento V9](../database/procedimento-v9.md) separa preparação/ensaio/autorização, [acessos](../database/permissoes-minimas.md) são proposta.
+[V9/matriz](../database/contratos/v9-matriz-cobertura.md) parte do complemento31 SHA996750EA…, com resolver-cancelamento/carga_id e efeitoRegistradoNoWms formalizados. JPA/guardas aguardam freeze. Sem SQL/restore/conexão/rotina executados. V1–V8 e provas aceitas localmente preservadas, sem repetir revisão333. [Procedimento V9](../database/docs/procedimento-v9.md) separa preparação/ensaio/autorização, [acessos](../database/docs/permissoes-minimas.md) são proposta.
 
 Após autorização específica, Lucas/TI/DBA ensaiam destino isolado, sequência incremental, constraints confiáveis/custos WITH CHECK, sessão do índice filtrado e identidade global conforme collation definida. Caio/Supervisor/Gestor conciliam físico/reservas/origens/pendências; parâmetros/documentos reais continuam com responsáveis externos. Sucesso H2 não comprova dialeto/locks/permissões/índice NULL filtrado/desempenho/restauração SQL Server.
 

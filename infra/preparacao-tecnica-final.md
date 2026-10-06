@@ -1,4 +1,4 @@
-# Preparação técnica integrada — BE03/BE04/BE15, V1–V9
+﻿# Preparação técnica integrada — BE03/BE04/BE15, V1–V9
 
 ## Correção documental posterior ao456 — 06/10/2026
 
@@ -43,7 +43,7 @@ Comando autorizado nesta rodada, na raiz WMS:
 
 Quem coleta a evidência escolhe sufixo novo, verifica que destino não existe e guarda output integral/AST/comando/início/fim/hashes e resultado PowerShell/LASTEXITCODE imediatamente após invocação. LASTEXITCODE nulo não prova saída0 nativa. Não alterar política/confiança para executar script bloqueado; informar o bloqueio seguro e encaminhar a TI/Farol. Não usar raw, outro terminal/env/identidade ou leitura de segredo para diagnóstico. Fontes técnicas podem mudar enquanto Cedro implementa: registrar diferença/hash, sem presumir freeze ou alterar backend.
 
-[Configuração externa](configuracao-externa.md), [permissões](../database/permissoes-minimas.md), [migrations](../database/migrations/README.md), [ensaio/recuperação](recuperacao-e-ensaio.md) e [doc33](../docs/33-preparacao-tecnica-local-backend.md) são os procedimentos detalhados. Nenhum valor sensível deverá ser colocado neste pacote/evidência.
+[Configuração externa](configuracao-externa.md), [permissões](../database/docs/permissoes-minimas.md), [migrations](../database/migrations/README.md), [ensaio/recuperação](recuperacao-e-ensaio.md) e [doc33](../docs/33-preparacao-tecnica-local-backend.md) são os procedimentos detalhados. Nenhum valor sensível deverá ser colocado neste pacote/evidência.
 
 ## BE03 — alvo e mínimo privilégio
 

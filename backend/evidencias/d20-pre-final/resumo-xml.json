@@ -1,0 +1,135 @@
+﻿[
+    {
+        "file":  "TEST-br.com.rodogarcia.wms.ApiHttpIntegrationTest.xml",
+        "tests":  4,
+        "failures":  0,
+        "errors":  0,
+        "skipped":  0
+    },
+    {
+        "file":  "TEST-br.com.rodogarcia.wms.ArquiteturaTest.xml",
+        "tests":  5,
+        "failures":  0,
+        "errors":  0,
+        "skipped":  0
+    },
+    {
+        "file":  "TEST-br.com.rodogarcia.wms.CadastrosIntegrationTest.xml",
+        "tests":  28,
+        "failures":  0,
+        "errors":  0,
+        "skipped":  0
+    },
+    {
+        "file":  "TEST-br.com.rodogarcia.wms.CobrancaIntegrationTest.xml",
+        "tests":  52,
+        "failures":  0,
+        "errors":  0,
+        "skipped":  0
+    },
+    {
+        "file":  "TEST-br.com.rodogarcia.wms.config.AmbienteConfigTest.xml",
+        "tests":  3,
+        "failures":  0,
+        "errors":  0,
+        "skipped":  0
+    },
+    {
+        "file":  "TEST-br.com.rodogarcia.wms.config.ConfiguracaoPropertiesTest.xml",
+        "tests":  2,
+        "failures":  0,
+        "errors":  0,
+        "skipped":  0
+    },
+    {
+        "file":  "TEST-br.com.rodogarcia.wms.config.SqlServerConfigTest.xml",
+        "tests":  26,
+        "failures":  0,
+        "errors":  0,
+        "skipped":  0
+    },
+    {
+        "file":  "TEST-br.com.rodogarcia.wms.config.SqlServerEnsaioLocalGuardTest.xml",
+        "tests":  6,
+        "failures":  0,
+        "errors":  0,
+        "skipped":  0
+    },
+    {
+        "file":  "TEST-br.com.rodogarcia.wms.ContingenciaIntegrationTest.xml",
+        "tests":  19,
+        "failures":  0,
+        "errors":  0,
+        "skipped":  0
+    },
+    {
+        "file":  "TEST-br.com.rodogarcia.wms.EstoqueIntegrationTest.xml",
+        "tests":  31,
+        "failures":  0,
+        "errors":  0,
+        "skipped":  0
+    },
+    {
+        "file":  "TEST-br.com.rodogarcia.wms.exceptions.ApiExceptionHandlerTest.xml",
+        "tests":  6,
+        "failures":  0,
+        "errors":  0,
+        "skipped":  0
+    },
+    {
+        "file":  "TEST-br.com.rodogarcia.wms.ExpedicaoIntegrationTest.xml",
+        "tests":  43,
+        "failures":  0,
+        "errors":  0,
+        "skipped":  0
+    },
+    {
+        "file":  "TEST-br.com.rodogarcia.wms.FechamentoIntegrationTest.xml",
+        "tests":  43,
+        "failures":  0,
+        "errors":  0,
+        "skipped":  0
+    },
+    {
+        "file":  "TEST-br.com.rodogarcia.wms.JornadaBackendIntegrationTest.xml",
+        "tests":  13,
+        "failures":  0,
+        "errors":  0,
+        "skipped":  0
+    },
+    {
+        "file":  "TEST-br.com.rodogarcia.wms.PedidoSaidaIntegrationTest.xml",
+        "tests":  44,
+        "failures":  0,
+        "errors":  0,
+        "skipped":  0
+    },
+    {
+        "file":  "TEST-br.com.rodogarcia.wms.RecebimentoIntegrationTest.xml",
+        "tests":  28,
+        "failures":  0,
+        "errors":  0,
+        "skipped":  0
+    },
+    {
+        "file":  "TEST-br.com.rodogarcia.wms.services.NfeXmlServiceTest.xml",
+        "tests":  6,
+        "failures":  0,
+        "errors":  0,
+        "skipped":  0
+    },
+    {
+        "file":  "TEST-br.com.rodogarcia.wms.SqlServerUpdateMappingTest.xml",
+        "tests":  1,
+        "failures":  0,
+        "errors":  0,
+        "skipped":  0
+    },
+    {
+        "file":  "TEST-br.com.rodogarcia.wms.UnidadeLogisticaIntegrationTest.xml",
+        "tests":  36,
+        "failures":  0,
+        "errors":  0,
+        "skipped":  0
+    }
+]
