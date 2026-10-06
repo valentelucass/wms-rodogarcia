@@ -98,11 +98,13 @@ Caso 'AST normal nao possui ReadHost Confirmar pause parentenv senha' {
     $bat=[IO.File]::ReadAllText((Join-Path $Db 'iniciar-bancos.bat'))
     Exigir ($s -notmatch 'Read-Host|Adaptadores\.Confirmar' -and $c -notmatch 'GetNetworkCredential|SetEnvironmentVariable' -and $bat -notmatch 'pause|Read-Host|Bypass|ExecutionPolicy' -and $bat.Contains('-NonInteractive'))
 }
-Caso 'D21 Flyway guardas catalogo e SQL intocados no snapshot' {
+Caso 'Historicos D21, migrations e manifestos preservados apos integracao D24' {
     $snap=Get-Content -LiteralPath (Join-Path $Db 'evidencias/d22-snapshot-d21.json') -Raw -Encoding UTF8|ConvertFrom-Json
     $raiz=Split-Path $Db -Parent
     foreach($f in $snap.copias){Exigir ((Get-FileHash -LiteralPath (Join-Path $raiz $f.copia) -Algorithm SHA256).Hash -ceq $f.sha256)}
-    foreach($f in $snap.copias|Where-Object {$_.arquivo -match '(d21-(flyway|guardas|catalogo)\.ps1$|^database/migrations/.*\.sql$|^database/evidencias/.*manifesto)'}){
+    # D24 altera os adaptadores TLS/Flyway e a normalizacao do catalogo.
+    # Suas copias historicas acima e todas as migrations continuam imutaveis.
+    foreach($f in $snap.copias|Where-Object {$_.arquivo -match '(^database/migrations/.*\.sql$|^database/evidencias/.*manifesto)'}){
         Exigir ((Get-FileHash -LiteralPath (Join-Path $raiz $f.arquivo) -Algorithm SHA256).Hash -ceq $f.sha256)
     }
 }

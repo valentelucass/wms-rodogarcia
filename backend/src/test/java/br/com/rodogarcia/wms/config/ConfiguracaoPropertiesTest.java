@@ -40,6 +40,9 @@ class ConfiguracaoPropertiesTest {
                         "WMS_DB_PASSWORD=senha-ficticia",
                         "WMS_DB_CONFIRMED_TARGET=sql.test.invalid:1433/WMS_DEV",
                         "WMS_DB_CONFIRMED_SERVER=SQL-FICTICIO",
+                        "WMS_DB_CERTIFICATE_HOST=CERTIFICADO_FICTICIO",
+                        "WMS_DB_TRUST_STORE=certificado-ficticio.p12",
+                        "WMS_DB_TRUST_STORE_PASSWORD=integridade-ficticia",
                         "WMS_OIDC_ISSUER=https://identidade.test.invalid",
                         "WMS_OIDC_JWK_SET_URI=https://identidade.test.invalid/jwks",
                         "WMS_OIDC_AUDIENCE=wms-testes")
@@ -63,6 +66,13 @@ class ConfiguracaoPropertiesTest {
                             assertThat(database.host()).isEqualTo("sql.test.invalid");
                             assertThat(database.port()).isEqualTo(1433);
                             database.validarAlvo();
+                            var jdbc = new SqlServerConfig().configuracao(database, env);
+                            assertThat(jdbc.getDataSourceProperties())
+                                    .containsEntry("hostNameInCertificate", "CERTIFICADO_FICTICIO")
+                                    .containsEntry("trustStore", "certificado-ficticio.p12")
+                                    .containsEntry("trustStorePassword", "integridade-ficticia");
+                            assertThat(env.getProperty("logging.level.com.zaxxer.hikari"))
+                                    .isEqualTo("OFF");
                             var identity =
                                     Binder.get(env)
                                             .bind(

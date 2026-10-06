@@ -1,12 +1,16 @@
 # Backend do WMS Rodogarcia
 
-## Integração local D20 — BE03/BE15
+## Integração local atual D24/D25 — BE03/BE15
 
-O perfil `sqlserver-dev` aceita somente **WMS_DEV** nesta rodada. Exige `WMS_DB_CONFIRMED_SERVER`, além de host/porta/banco/usuário/senha e confirmação do destino. Cada conexão Hikari fixa os SETs de índices filtrados, confirma ServerName/DB_NAME e recusa credencial administrativa/DDL; TLS valida o certificado. Alternativas JPA de criação de esquema/conexão são recusadas antes do pool. Segredos continuam externos.
+O perfil `sqlserver-dev` aceita somente **WMS_DEV** nesta rodada. Exige `WMS_DB_CONFIRMED_SERVER`, além de host/porta/banco/usuário/senha e confirmação do destino. Cada conexão Hikari fixa os SETs de índices filtrados, confirma ServerName/DB_NAME e recusa os privilégios administrativos/DDL enumerados no initSQL; TLS valida o certificado. Essa guarda não substitui a atestação completa de mínimo privilégio (VIG07). Alternativas JPA de criação de esquema/conexão são recusadas antes do pool. Segredos continuam externos. Nunca usar `sa`/administrador na API ou no IT.
 
-Flyway é externo à inicialização/build e desabilitado por padrão (`wms.migrations.skip=true`). A fonte padrão de initSql é um THROW; marcador ausente/divergente não ativa a fonte do wrapper. Execução autorizada deve usar somente o wrapper de Prumo, com identidade de migration distinta (`WMS_DB_MIGRATION_USER`/`WMS_DB_MIGRATION_PASSWORD`), guardas de configuração e SQL transitório escapado. Não habilitar um goal direto nem fornecer overrides Flyway. [Contrato D20 para Prumo/Farol](evidencias/d20-plano.md) detalha o marcador/fonte transitórios; POM sozinho não substitui a recusa de overrides pelo wrapper.
+Flyway é externo à inicialização/build e desabilitado por padrão (`wms.migrations.skip=true`). A fonte padrão de initSql é um THROW; marcador ausente/divergente não ativa a fonte do wrapper. O launcher manual administrativo de Prumo, perfil Maven `bootstrap-local`, executou V1–V9 em DEV e PROD na D24, sob a autorização específica registrada no [documento39](../docs/39-conexao-compartilhada-e-sql-real.md). Essa identidade administrativa permanece separada do runtime. Não habilitar um goal direto nem fornecer overrides Flyway. Os [contratos D20](evidencias/d20-plano.md) e [D21](evidencias/d21-contrato-flyway.md) preservam a evolução das guardas; POM sozinho não substitui a recusa de overrides pelo wrapper.
 
 [Ensaio SQL Server optativo](evidencias/d20-ensaio-sqlserver.md) exige alvo loopback isolado, vazio e previamente migrado V1–V9 com conta restrita. Sua preparação não representa execução. D19/367 e evidências anteriores permanecem históricas. D20 usa `target-d20`, com logs/XMLs/resumo/hashes próprios em `evidencias/d20-*`.
+
+D25 usa builds e evidências novos, separados dos históricos. A leitura administrativa de Prumo confirmou ausência de identidade/credencial próprias de aplicação no DEV; API/JPA/IT SQL continuam sem execução. O ensaio do JAR em `local` verifica apenas status e recusas HTTP, sem persistência/SQL/H2. A decisão externa restante é provisionar identidade própria restrita somente DEV; D23 não representa mais bloqueio da conexão administrativa. O teste SQL de lock preservará a fixture confirmada quando efetivamente executado e recusará reexecução sobre banco não vazio, sem limpeza automática.
+
+O [relatório D25](evidencias/d25-cedro.md) separa396 testes novos iniciais,408 finais, regressão POST anterior ao patch e seis checks HTTP do JAR final. Logs/XMLs/tentativas/hashes ficam em `evidencias/d25-*`; isso não comprova runtime SQL Server.
 
 Backend Java/Spring com MVC convencional por camadas. Além da base, cadastros, recebimento e unidades, implementa **BE08** (capacidade, endereçamento, movimentos, bloqueios e consultas de estoque), **BE09** (pedido integral/FIFO/reserva), **BE10/BE11** (leitura/separação, documentos existentes, retirada integral, retornos e avaria), o recorte local **BE05/BE12** (Excel, complemento fiscal, configuração, fatos e cálculo), **BE13** (fechamento integral por versão, demonstrativo imutável, referências externas locais e ajustes) e **BE14/BE05 final** (contagem, carga inicial, contingência temporal, indicadores/avisos e encerramento específico). Usa JPA, JWT, auditoria, revisão e repetição segura. Contratos em [cadastros](../docs/14-cadastros-acesso-e-persistencia.md), [recebimento](../docs/18-recebimento-e-conferencia.md), [unidades](../docs/20-unidades-logisticas-e-etiquetas.md), [estoque](../docs/22-enderecamento-movimentacao-e-estoque.md), [saída/reserva](../docs/24-pedido-saida-fifo-e-reserva.md), [expedição/retornos/avaria](../docs/27-separacao-retirada-retornos-e-avaria.md), [cadastros/serviços/cálculo](../docs/29-cadastros-servicos-e-calculo.md) e [fechamento](../docs/31-fechamento-contagem-e-contingencia.md); andamento oficial no [states.md](../states.md). BE13 foi aceito localmente por Farol após revisão Vigia/Prumo com333 testes; BE14 aguarda revisão final própria. Outputs333/251 e anteriores permanecem históricos.
 
@@ -50,13 +54,13 @@ Para outra porta, definir `$env:WMS_PORT = '8081'` antes de iniciar. Encerrar co
 & "$env:JAVA_HOME/bin/java.exe" -jar target/wms-backend-0.0.1-SNAPSHOT.jar
 ```
 
-Perfis aceitos, isoladamente: `local`, `test` e `sqlserver-dev`. No padrão `local`, apenas status está habilitado, sem conexão/persistência. H2 é exclusivo dos testes e não acompanha o JAR. Homologação/produção ainda não foram preparados.
+Perfis aceitos, isoladamente: `local`, `test` e `sqlserver-dev`. No padrão `local`, apenas status está habilitado, sem conexão/persistência. As demais rotas, inclusive escrita no status, são negadas; a cadeia local não cria token CSRF em sessão. H2 é exclusivo dos testes e não acompanha o JAR. Homologação/produção ainda não foram preparados.
 
 ## SQL Server de desenvolvimento
 
-Após definir e conferir o alvo exclusivo do WMS, seguir o [procedimento de migrations](../database/migrations/README.md). V1 a V8 foram conferidas em leitura nos blocos locais aceitos. V9 está preparada somente em arquivos por Prumo e aguarda comparação final com o JPA/contrato31 do BE14. Nenhuma migration foi executada em SQL Server. Hibernate usa `validate`; a configuração recusa DDL/scripts automáticos antes de abrir conexão.
+V1–V9 foram aplicadas administrativamente em WMS_DEV e WMS_PROD na D24; o [documento39](../docs/39-conexao-compartilhada-e-sql-real.md) registra o SQL real e seus limites. Consultar o [procedimento atual de database](../database/README.md). A aplicação desta fase aceita exclusivamente WMS_DEV com identidade própria restrita e alvo conferido; a preparação administrativa não comprova compatibilidade JPA, permissões por coluna nem concorrência. Hibernate usa `validate`; a configuração recusa DDL/scripts automáticos antes de abrir conexão.
 
-As variáveis externas necessárias são `WMS_DB_HOST`, `WMS_DB_PORT` (1433 por padrão na aplicação), `WMS_DB_NAME`, `WMS_DB_USER`, `WMS_DB_PASSWORD`, `WMS_DB_CONFIRMED_TARGET` (`host:porta/banco`) e `WMS_OIDC_ISSUER`, `WMS_OIDC_JWK_SET_URI`, `WMS_OIDC_AUDIENCE`. O procedimento de migração exige também confirmação do nome real do servidor. Usar credenciais separadas para aplicação e migration, fornecidas fora dos arquivos versionados.
+As variáveis externas necessárias são `WMS_DB_HOST`, `WMS_DB_PORT` (1433 por padrão na aplicação), `WMS_DB_NAME`, `WMS_DB_USER`, `WMS_DB_PASSWORD`, `WMS_DB_CONFIRMED_TARGET` (`host:porta/banco`), `WMS_DB_CONFIRMED_SERVER` e `WMS_OIDC_ISSUER`, `WMS_OIDC_JWK_SET_URI`, `WMS_OIDC_AUDIENCE`. Fornecer a credencial própria restrita somente no processo-filho protegido, fora de arquivos/argumentos/logs/ambiente persistente. Não importar a credencial administrativa para esse processo.
 
 Com banco preparado, identidade configurada e alvo confirmado:
 
@@ -64,7 +68,7 @@ Com banco preparado, identidade configurada e alvo confirmado:
 & "$env:JAVA_HOME/bin/java.exe" -jar target/wms-backend-0.0.1-SNAPSHOT.jar --spring.profiles.active=sqlserver-dev
 ```
 
-TLS valida o certificado SQL Server. Configurar o provedor real conforme o contrato de claims no documento 14. Nenhum host, banco ou usuário real está predefinido.
+TLS mantém `encrypt=true` e `trustServerCertificate=false`. Para a confiança privada do runtime local, consumir somente os metadados de `Get-ProjetosSqlProfile` e fornecer `certificateHost` em `WMS_DB_CERTIFICATE_HOST`, o arquivo PKCS12 em `WMS_DB_TRUST_STORE` e sua integridade em `WMS_DB_TRUST_STORE_PASSWORD`, no processo-filho protegido. São propriedades explícitas do driver, separadas da URL; não copiar URL livre, credencial administrativa ou alterar o truststore global. O certificado local tem nome diferente de `127.0.0.1`: Prumo comprovou na D25 a recusa TLS sem `hostNameInCertificate`. As propriedades omitidas mantêm a validação padrão do driver; isso não fornece automaticamente a confiança privada. Não habilitar DEBUG do pool/driver nem imprimir essas propriedades. Configurar o provedor real conforme o contrato de claims no documento 14. Nenhum host, banco, nome de certificado ou usuário real está predefinido no código.
 
 ## Acesso e falhas
 

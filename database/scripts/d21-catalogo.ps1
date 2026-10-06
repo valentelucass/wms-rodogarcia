@@ -1,7 +1,20 @@
 # Expectativa derivada da fonte SQL canonica; Flyway continua unico executor/versionador.
 . (Join-Path $PSScriptRoot 'leitores/d20-schema-efetivo.ps1')
 function D21No([string]$Op,[object[]]$Filhos){
+    # SQL Server reescreve NOT IN como NOT (a=x OR a=y). De Morgan
+    # preserva tambem UNKNOWN/NULL; normalizar sem ignorar nenhum predicado.
+    if($Op -ceq 'not' -and $Filhos.Count -eq 1){
+        $f=$Filhos[0]
+        if($f.op -ceq 'not'){return $f.filhos[0]}
+        if($f.op -in @('=','<>')){$inverso=if($f.op -ceq '='){'<>'}else{'='};return D21No $inverso $f.filhos}
+        if($f.op -in @('and','or')){
+            $inverso=if($f.op -ceq 'and'){'or'}else{'and'}
+            $negados=@($f.filhos|ForEach-Object {D21No 'not' @($_)})
+            return D21No $inverso $negados
+        }
+    }
     $val=@();foreach($f in $Filhos){if($Op -in @('and','or') -and $f.op -ceq $Op){$val+=@($f.filhos)}else{$val+=$f}}
+    if($Op -in @('and','or') -and $val.Count -eq 1){return $val[0]}
     if($Op -in @('and','or','=','<>')){$val=@($val|Sort-Object texto)}
     [pscustomobject]@{op=$Op;filhos=$val;texto=$Op+'('+(@($val|ForEach-Object {$_.texto}) -join ',')+')'}
 }

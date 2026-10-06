@@ -61,6 +61,9 @@ Uma proposta não se torna regra aprovada por estar escrita aqui. O silêncio do
 | [Bootstrap e upgrade manual da database](37-bootstrap-e-upgrade-manual-database.md) | D21: BAT único, Flyway dinâmico, DEV antes de PROD, testes locais e limites do ensaio real |
 | [Launcher automático e credencial protegida](38-launcher-automatico-e-credencial-protegida.md) | D22: incremento D21, DPAPI exclusiva WMS, configuração UMA VEZ e execução normal sem perguntas |
 
+| [Conexão compartilhada e SQL real](39-conexao-compartilhada-e-sql-real.md) | D24: bootstrap/upgrade reais, catálogo/histórico e reexecução; sa administrativo separado da aplicação |
+| [Testes backend e leitura SQL DEV](40-testes-backend-e-leitura-sql-dev.md) | D25: build408, JAR6/6, correções locais e leitura JDBC DEV; aplicação SQL condicionada à identidade restrita |
+
 ## Atualização da documentação
 
 Quando houver uma resposta ou decisão, registrar sua data, origem e consequência em `06-decisoes-e-pendencias.md`. Em seguida, atualizar os documentos afetados e o contexto de continuidade.
@@ -73,7 +76,11 @@ Não copiar senhas, certificados, chaves de acesso ou dados reais de produção 
 
 ## Ponto atual em 06 de outubro
 
-**D22 vigente em implementação no [38](38-launcher-automatico-e-credencial-protegida.md):** execução normal sem senha/confirmação, credencial WMS exclusiva DPAPI por usuário/máquina, auxiliar oculto UMA VEZ. Diretório WMS inicialmente ausente; provisionamento pelo operador pendente. Fluxo completo D21 preservado; nenhum segredo real/SQL pelo agente. D21/D20 abaixo são históricos.
+**D25 no [40](40-testes-backend-e-leitura-sql-dev.md):** 408 testes finais e JAR6/6; JDBC administrativo de leitura WMS_DEV/catálogo/vazio comprovados. API/JPA/IT SQL aguardam identidade própria restrita; somente DEV, conforme regra AGENTS preservada. Revisão Vigia favorável; pacote local encerrado, sem homologação SQL da aplicação.
+
+**D24 concluída no [39](39-conexao-compartilhada-e-sql-real.md):** conexão compartilhada e execução real DEV/PROD pelo BAT, com nove migrations e catálogos completos. SQL Server 2022 Standard preservado. Fonte protegida já provisionada. Registros D20–D23 abaixo são históricos; aplicação e homologação continuam separadas.
+
+**Histórico D22 concluído localmente no [38](38-launcher-automatico-e-credencial-protegida.md):** execução normal automática sem senha/confirmação, credencial DPAPI WMS exclusiva e [configurador UMA VEZ](../database/configurar-credencial.bat). 18/18 fixtures DPAPI fictícias, 5/5 fixtures de console e 9/9 casos cmd.exe independentes; 818/818 hashes database, 84/84 backend, 73 snapshots D21 e V1–V9 intactas; Vigia favorável. Credencial real AUSENTE, provisionamento do operador pendente; SQL/TLS reais não executados pelo agente. Fluxo completo D21 e seus históricos preservados. [Recibo WMS](../orchestracao/.runtime/d22-resultado-final.md). D21/D20 abaixo são históricos.
 
 **D21 concluída localmente no [37](37-bootstrap-e-upgrade-manual-database.md):** [BAT único](../database/iniciar-bancos.bat) e [README curto](../database/README.md), bootstrap/upgrade completo DEV depois PROD, fonte Flyway dinâmica.41/41 fixtures,672/672 checks,25/25 Maven,675/84 hashes e revisão favorável; SQL real não executado. Interação anterior de senha/confirmação substituída por D22: configurar UMA VEZ e executar normalmente sem perguntas. D20 abaixo é histórico; a entrega atual inclui schema e pendentes também PROD pelo operador.
 

@@ -1,20 +1,34 @@
-﻿# Banco WMS — D21 manual
+# Bancos WMS — conexão compartilhada
 
-Duplo clique em **`database/iniciar-bancos.bat`**, ou CMD na raiz:
+O executor usa o padrão de [conexão dos projetos](../../.runtime/sql-server/README.md), já configurado para o usuário Windows `suporte`. Execute:
 
 ```bat
 database\iniciar-bancos.bat
-database\iniciar-bancos.bat --offline
 ```
 
-Alvo fixo **TCP127.0.0.1:1433, sa/master**. Senha oculta, somente memória; inspeção TLS de master mostra ServerName e bancos existentes. Digite o endpoint no console para confirmar **bootstrap/upgrade de WMS_DEV e WMS_PROD**.
+**Validado em 06/10/2026:** execução real e reexecução concluídas pelo BAT. WMS_DEV e WMS_PROD ONLINE, cada um com nove migrations, 64 tabelas e 687 colunas; histórico e catálogo conferidos. [Resultado D24](../docs/39-conexao-compartilhada-e-sql-real.md).
 
-**DEV completo primeiro:** criar ausente ou conferir existente, Flyway validate → migrate pendentes → validate estrito → info → confrontar catálogo real com a expectativa das migrations. Só então repetir em PROD. Qualquer erro/checksum/queda/metadado/catalogo divergente em DEV bloqueia PROD. Existentes não são recriados; dados/histórico permanecem. Reexecutar após corrigir a causa: Flyway determina pendentes, incluindo futuras V10+. Sem clean/repair/baseline automático, DROP, grants ou configurações globais.
+O modo normal não pede senha nem confirmação repetida. Obtém a credencial administrativa DPAPI de `%LOCALAPPDATA%\Rodogarcia\SqlServer\admin.clixml`, confere a instância local e usa TLS com confiança privada. A conexão salva no VS Code não é uma dependência do launcher.
 
-Requisitos: Windows PowerShell/política existente, JDK 21 e distribuição/dependências Maven já disponíveis em cache (execução `-o`, sem instalação/download), perfil backend `bootstrap-local` integrado; credencial sa autorizada e certificados compatíveis com 127.0.0.1 já confiáveis no SqlClient/Windows **e JDBC/JDK**. TLS exige encrypt=true/trustServerCertificate=false; nenhuma validação real é alegada pelo modo offline, nenhum pin/perfil privado/trust de referência é herdado.
+**Alvo fixo:** SQL Server 2022 Standard 16.0.1000.6, `127.0.0.1:1433`, SQL auth `sa`, bancos exclusivos `WMS_DEV` e `WMS_PROD`. Nenhuma versão/edição/configuração do servidor é alterada. O sa serve ao bootstrap; o backend precisa de identidade própria com permissões limitadas.
 
-Senha vai somente no ambiente do filho efêmero, nunca argumento/arquivo/log/ambiente pai/User/Machine. Saída bruta Maven stdout/stderr é descartada; resultado/fase/código sanitizados ficam em `evidencias/d21-manual-*.json`. Console permanece aberto ao terminar. Exit 0 sucesso/offline; 1 falha; 2 argumento inválido/confirmação recusada. `--offline` não lê segredo, ambiente de conexão nem conecta.
+**DEV completo antes de PROD:** criar somente se ausente; conferir e preservar existente; validar histórico/checksums; aplicar apenas migrations pendentes; validar novamente; confrontar catálogo real com as fontes. Falha DEV bloqueia PROD. Sem DROP, clean, repair, baseline automático, grants ou cargas de teste. As migrations V1–V9 permanecem intactas; a descoberta continua aceitando futuras versões.
 
-Parser estrutural acompanha a fonte canônica; sintaxe não suportada interrompe antes de conectar. A comparação cobre tabelas/colunas/tipos/nulos/identity/chaves/FKs/CHECKs/defaults/índices, não drift universal, permissões ou propriedades físicas. Nenhuma carga fictícia é feita. Conta sa serve ao bootstrap administrativo; identidade do backend continua distinta/restrita.
+PowerShell usa o Microsoft.Data.SqlClient já instalado no SSMS, com correspondência exata de certificado. Java/Flyway usa o truststore privado do runtime, com `encrypt=true` e `trustServerCertificate=false`. O JDK 21 é selecionado somente no processo do launcher; JAVA_HOME global permanece intacto. O BAT também seleciona apenas para seus filhos os módulos do Windows PowerShell 5.1.
 
-[Contrato Flyway](docs/d21-contrato-flyway.md), [resultado/testes/freeze](evidencias/d21-relatorio-final.md). Fontes SQL únicas em migrations/, PS1 em scripts/, XML em config/. [Snapshot D20](evidencias/d21-snapshot-d20.json) e manifestos anteriores preservados; os limites D20 de PROD vazio e migration DEV separada são históricos, supersedidos por D21. Nenhum SQL pelo agente.
+O Maven continua offline. Em 06/10/2026 foi preparado o cache do plugin Flyway 12.4.0 e de suas dependências já declaradas no POM; a execução normal não baixa nem instala ferramentas. Não foi alterada a versão do projeto, JDBC declarado, Flyway declarado ou SQL Server.
+
+Diagnóstico sem SQL:
+
+```bat
+database\iniciar-bancos.bat --offline
+database\iniciar-bancos.bat --fixture
+```
+
+`--offline` descreve o fluxo sem ler segredo/conectar; `--fixture` usa credenciais fictícias e adaptadores isolados. Esses modos não comprovam schema real. O teste da fonte compartilhada é `..\.runtime\sql-server\testar-conexao.bat`.
+
+A configuração inicial já está feita. `database\configurar-credencial.bat` permanece como auxiliar explícito para uma troca autorizada da cópia administrativa compartilhada: entrada local oculta, DPAPI, sem mudar a senha no SQL. Como a fonte é comum, a atualização atende também aos demais executores que a adotarem. Não usar esse auxiliar como etapa obrigatória antes de cada execução.
+
+Resultados reais ficam em `evidencias/d22-automatico-*.json`, com fase/código e sem saída bruta de credenciais/Maven. Exit code: 0 concluído; 1 falha; 2 argumento inválido. No duplo clique pelo Explorer, o console existente mantém o resultado visível.
+
+O estado D24 em `../STATES.md` e suas evidências registram o resultado operacional atual. Documentos D20–D23 e manifestos anteriores permanecem históricos; suas afirmações de credencial exclusiva ausente não descrevem o launcher integrado.

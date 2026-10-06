@@ -29,6 +29,8 @@ public class SegurancaConfig {
                                         .denyAll())
                 .sessionManagement(
                         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                // Local só oferece GET status; as demais rotas seguem denyAll, sem sessão CSRF.
+                .csrf(AbstractHttpConfigurer::disable)
                 .requestCache(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)

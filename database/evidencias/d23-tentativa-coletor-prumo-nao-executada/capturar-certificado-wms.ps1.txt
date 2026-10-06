@@ -1,0 +1,61 @@
+[CmdletBinding()]
+param([ValidateSet('Plan','Compile','Capture')][string]$Action='Plan')
+$ErrorActionPreference='Stop'
+$db=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
+. (Join-Path $PSScriptRoot 'd22-credencial.ps1')
+function Get-WmsD23SqlLocal {
+    $s=Get-CimInstance Win32_Service -Filter "Name='MSSQLSERVER'" -Property Name,State,ProcessId,PathName
+    if($s.State -cne 'Running' -or $s.ProcessId -le 0){throw 'D23_SQL_SERVICE_RECUSADO'}
+    $p=Get-CimInstance Win32_Process -Filter ('ProcessId='+$s.ProcessId) -Property ProcessId,ExecutablePath,CreationDate
+    if($null -eq $p -or [string]::IsNullOrWhiteSpace($p.ExecutablePath)){throw 'D23_SQL_PROCESSO_INSUFICIENTE'}
+    $exe=[IO.Path]::GetFullPath($p.ExecutablePath)
+    if([IO.Path]::GetFileName($exe) -ine 'sqlservr.exe' -or (Get-Item -LiteralPath $exe).Attributes -band [IO.FileAttributes]::ReparsePoint){throw 'D23_SQL_EXECUTAVEL_RECUSADO'}
+    $serviceExe=if($s.PathName -match '^"([^"]+)"'){$Matches[1]}elseif($s.PathName -match '^(.+?\.exe)(?:\s|$)'){$Matches[1]}else{throw 'D23_SQL_SERVICE_PATH_RECUSADO'}
+    if([IO.Path]::GetFullPath($serviceExe) -ine $exe){throw 'D23_SQL_SERVICE_PROCESSO_DIVERGENTE'}
+    $sig=Get-AuthenticodeSignature -LiteralPath $exe
+    if($sig.Status -ne 'Valid' -or $sig.SignerCertificate.Subject -notmatch '^CN=Microsoft Corporation,'){throw 'D23_SQL_ASSINATURA_RECUSADA'}
+    $listeners=@(Get-NetTCPConnection -LocalPort 1433 -State Listen)
+    $local=@($listeners|Where-Object {$_.LocalAddress -in @('0.0.0.0','127.0.0.1','::','::1') -and $_.OwningProcess -eq $s.ProcessId})
+    if($local.Count -eq 0 -or @($listeners|Where-Object {$_.OwningProcess -ne $s.ProcessId}).Count -gt 0){throw 'D23_SQL_LISTENER_RECUSADO'}
+    [pscustomobject]@{pidSql=[int]$s.ProcessId;inicio=$p.CreationDate.ToUniversalTime().ToString('o');exeSha=(Get-FileHash -LiteralPath $exe -Algorithm SHA256).Hash}
+}
+if($Action -eq 'Plan'){
+    [pscustomobject]@{codigo='D23_CAPTURE_PLAN_OFFLINE';alvo='127.0.0.1:1433';autenticacao=$false;consultas=0;ddl=0;
+        exige='MSSQLSERVER_RUNNING_PID_MICROSOFT_LISTENER_IDENTICOS_ANTES_DEPOIS';executorReal='FAROL';trust='NUNCA_ACEITA_TLS_APENAS_CERTIFICADO_PUBLICO'}|ConvertTo-Json
+    return
+}
+$pasta=Join-Path $db 'evidencias/d23-tls-publico'
+$sid=[Security.Principal.WindowsIdentity]::GetCurrent().User.Value
+$javaDir=Join-Path ([Environment]::GetFolderPath('LocalApplicationData')) 'Programs/Eclipse Adoptium/jdk-21/bin'
+$java=Join-Path $javaDir 'java.exe';$javac=Join-Path $javaDir 'javac.exe'
+$driver=Join-Path $env:USERPROFILE '.m2/repository/com/microsoft/sqlserver/mssql-jdbc/12.8.1.jre11/mssql-jdbc-12.8.1.jre11.jar'
+$codigo='D23_CAPTURE_PREPARACAO_RECUSADA';$publico=$null
+try{
+    foreach($f in @($java,$javac,$driver)){if(-not (Test-Path -LiteralPath $f -PathType Leaf)){throw 'D23_ARTEFATO_EXISTENTE_NECESSARIO_SEM_INSTALL'}}
+    if(Test-Path -LiteralPath $pasta){
+        if((Get-Item -LiteralPath $pasta).Attributes -band [IO.FileAttributes]::ReparsePoint -or -not (Get-WmsD22AclMetadata $pasta $sid $true).valida){throw 'D23_CAPTURE_PASTA_PRIVADA_RECUSADA'}
+    }else{$null=[IO.Directory]::CreateDirectory($pasta,(New-WmsD22Security $sid $true))}
+    $classes=Join-Path $pasta 'classes'
+    if(-not (Test-Path -LiteralPath $classes)){$null=[IO.Directory]::CreateDirectory($classes)}
+    if((Get-Item -LiteralPath $classes).Attributes -band [IO.FileAttributes]::ReparsePoint){throw 'D23_CAPTURE_CLASSES_RECUSADAS'}
+    $saida=& $javac '-encoding' 'UTF-8' '-d' $classes (Join-Path $PSScriptRoot 'tls/WmsTlsPublicCapture.java') 2>&1
+    $exitCompile=$LASTEXITCODE;$saida=$null
+    if($exitCompile -ne 0){throw 'D23_CAPTURE_COMPILE_FALHOU'}
+    if($Action -eq 'Compile'){[pscustomobject]@{codigo='D23_CAPTURE_COMPILE_OK_SEM_REDE';autenticacao=$false;consultas=0;ddl=0}|ConvertTo-Json;return}
+    $antes=Get-WmsD23SqlLocal
+    $publico=Join-Path $pasta ('sql-publico-'+[Guid]::NewGuid().ToString('N')+'.pem')
+    $saida=& $java '-cp' ($classes+';'+$driver) 'WmsTlsPublicCapture' '--capture' $publico 2>&1
+    $exitCapture=$LASTEXITCODE;$texto=$saida -join [Environment]::NewLine;$saida=$null
+    $depois=Get-WmsD23SqlLocal
+    if($antes.pidSql -ne $depois.pidSql -or $antes.inicio -cne $depois.inicio -or $antes.exeSha -cne $depois.exeSha){throw 'D23_CAPTURE_IDENTIDADE_LOCAL_MUDOU_PRESERVAR_NAO_USAR'}
+    if($exitCapture -ne 0 -or $texto -cne 'D23_CAPTURE_PUBLICA_REJEITADA_ANTES_LOGIN7' -or -not (Test-Path -LiteralPath $publico -PathType Leaf)){throw 'D23_CAPTURE_TLS_PUBLICO_NAO_COMPROVADO'}
+    [IO.File]::SetAccessControl($publico,(New-WmsD22Security $sid $false))
+    if(-not (Get-WmsD22AclMetadata $publico $sid $false).valida){throw 'D23_CAPTURE_ACL_RECUSADA'}
+    $codigo='D23_CAPTURE_PUBLICO_SQL_LOCAL_VERIFICADO_SEM_LOGIN'
+    [pscustomobject]@{codigo=$codigo;arquivoPublico=$publico;sha256Arquivo=(Get-FileHash -LiteralPath $publico -Algorithm SHA256).Hash;
+        pidSql=$antes.pidSql;identidadeLocalAntesDepois=$true;autenticacao=$false;consultas=0;ddl=0;trustGlobalAlterado=$false}|ConvertTo-Json
+}catch{
+    $codigo=if($_.Exception.Message -cmatch '^D23_[A-Z0-9_]+$'){$_.Exception.Message}else{'D23_CAPTURE_RECUSADO_SEM_DETALHES_PRIVADOS'}
+    [pscustomobject]@{codigo=$codigo;publicoCapturadoNaoAprovado=(if($null -ne $publico){Test-Path -LiteralPath $publico}else{$false});autenticacao=$false;consultas=0;ddl=0;naoUsarPin=$true}|ConvertTo-Json
+    exit 1
+}

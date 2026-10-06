@@ -1,0 +1,88 @@
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.util.Base64;
+import java.util.Properties;
+import javax.net.ssl.X509TrustManager;
+
+/** Coleta publica: nunca aceita TLS, nunca envia credencial nem executa consulta. */
+public final class WmsTlsPublicCapture {
+    public static final class RejectingTrustManager implements X509TrustManager {
+        private final Path destination;
+        public RejectingTrustManager(String destination) { this.destination = Path.of(destination); }
+        public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+            throw new CertificateException("D23_CAPTURE_CLIENT_RECUSADO");
+        }
+        public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+            if (chain == null || chain.length == 0 || chain[0] == null) {
+                throw new CertificateException("D23_CAPTURE_CHAIN_AUSENTE");
+            }
+            try {
+                String pem = "-----BEGIN CERTIFICATE-----\n"
+                    + Base64.getMimeEncoder(64, new byte[] {10}).encodeToString(chain[0].getEncoded())
+                    + "\n-----END CERTIFICATE-----\n";
+                Files.writeString(destination, pem, StandardCharsets.US_ASCII, StandardOpenOption.CREATE_NEW);
+            } catch (Exception e) {
+                throw new CertificateException("D23_CAPTURE_ARQUIVO_RECUSADO");
+            }
+            // Obrigatorio: a falha ocorre na validacao TLS, antes de LOGIN7/autenticacao.
+            throw new CertificateException("D23_CAPTURE_REJEITADO_ANTES_LOGIN7");
+        }
+        public X509Certificate[] getAcceptedIssuers() { return new X509Certificate[0]; }
+    }
+
+    private static boolean captureRejected(Throwable failure) {
+        for (Throwable e = failure; e != null; e = e.getCause()) {
+            if (e instanceof CertificateException
+                && "D23_CAPTURE_REJEITADO_ANTES_LOGIN7".equals(e.getMessage())) { return true; }
+        }
+        return false;
+    }
+
+    public static void main(String[] args) {
+        try {
+            if (args.length == 3 && "--fixture".equals(args[0])) {
+                X509Certificate cert = (X509Certificate) CertificateFactory.getInstance("X.509")
+                    .generateCertificate(new ByteArrayInputStream(Files.readAllBytes(Path.of(args[1]))));
+                try { new RejectingTrustManager(args[2]).checkServerTrusted(new X509Certificate[] {cert}, "RSA"); }
+                catch (CertificateException e) {
+                    if (captureRejected(e) && Files.exists(Path.of(args[2]))) {
+                        System.out.println("D23_CAPTURE_FIXTURE_PUBLICA_REJEITADA_SEM_REDE"); return;
+                    }
+                    throw e;
+                }
+                throw new CertificateException("D23_CAPTURE_FIXTURE_ACEITE_INDEVIDO");
+            }
+            if (args.length != 2 || !"--capture".equals(args[0])) { throw new IllegalArgumentException(); }
+            Path output = Path.of(args[1]);
+            if (Files.exists(output)) { throw new IllegalArgumentException(); }
+            Properties p = new Properties();
+            p.setProperty("encrypt", "true");
+            p.setProperty("trustServerCertificate", "false");
+            p.setProperty("loginTimeout", "8");
+            p.setProperty("applicationName", "WMS-D23-PUBLIC-CERTIFICATE-NO-LOGIN");
+            p.setProperty("trustManagerClass", "WmsTlsPublicCapture$RejectingTrustManager");
+            p.setProperty("trustManagerConstructorArg", output.toAbsolutePath().toString());
+            // Sem user/password, SSPI, SQL ou alvo livre. Nunca deve obter Connection.
+            try (Connection c = DriverManager.getConnection("jdbc:sqlserver://127.0.0.1:1433;databaseName=master", p)) {
+                throw new CertificateException("D23_CAPTURE_ACEITE_INDEVIDO");
+            } catch (Exception e) {
+                if (captureRejected(e) && Files.exists(output)) {
+                    System.out.println("D23_CAPTURE_PUBLICA_REJEITADA_ANTES_LOGIN7"); return;
+                }
+                throw e;
+            }
+        } catch (Exception e) {
+            // Nunca imprimir driver exception, connection string, SQL ou certificado.
+            System.out.println("D23_CAPTURE_FALHOU_SEM_AUTENTICAR");
+            System.exit(1);
+        }
+    }
+}

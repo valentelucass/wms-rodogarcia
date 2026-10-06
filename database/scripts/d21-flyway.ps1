@@ -3,6 +3,7 @@ param([ValidateSet('Plan')][string]$Action='Plan')
 $WmsD21Database=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 . (Join-Path $PSScriptRoot 'd21-guardas.ps1')
 . (Join-Path $PSScriptRoot 'd21-catalogo.ps1')
+. (Join-Path $PSScriptRoot 'd24-runtime.ps1')
 
 function Assert-WmsD21Ferramentas([string]$DatabaseRoot){
     $backend=[IO.Path]::GetFullPath((Join-Path $DatabaseRoot '../backend'))
@@ -24,11 +25,13 @@ function New-WmsD21StartInfo([string]$DatabaseRoot,[string]$Banco,[string]$Servi
     Assert-WmsD21Banco $Banco
     $backend=[IO.Path]::GetFullPath((Join-Path $DatabaseRoot '../backend'))
     $settings=[IO.Path]::GetFullPath((Join-Path $DatabaseRoot 'config/flyway-settings-vazias.xml'))
+    $flywayConfig=[IO.Path]::GetFullPath((Join-Path $DatabaseRoot 'config/flyway-vazio.conf'))
+    if(-not (Test-Path -LiteralPath $flywayConfig -PathType Leaf) -or (Get-Item -LiteralPath $flywayConfig).Length -ne 0){throw 'D24_FLYWAY_CONFIG_VAZIA_NECESSARIA'}
     $goal=if($Etapa -eq 'Migrate'){'migrate'}elseif($Etapa -eq 'Info'){'info'}else{'validate'}
     $ignorar=if($Etapa -eq 'PreValidate'){'*:pending'}else{''}
     $psi=New-Object Diagnostics.ProcessStartInfo
     $psi.FileName=Join-Path $env:SystemRoot 'System32/cmd.exe'
-    $psi.Arguments='/d /s /c ""'+(Join-Path $backend 'mvnw.cmd')+'" -B -ntp -o -s "'+$settings+'" -gs "'+$settings+'" -Pbootstrap-local -Dwms.bootstrap.skip=false -Dflyway.configFiles= -Dflyway.ignoreMigrationPatterns='+$ignorar+' validate flyway:'+$goal+'"'
+    $psi.Arguments='/d /s /c ""'+(Join-Path $backend 'mvnw.cmd')+'" -B -ntp -o -s "'+$settings+'" -gs "'+$settings+'" -Pbootstrap-local -Dwms.bootstrap.skip=false "-Dflyway.configFiles='+$flywayConfig+'" -Dflyway.ignoreMigrationPatterns='+$ignorar+' validate flyway:'+$goal+'"'
     $psi.WorkingDirectory=$backend;$psi.UseShellExecute=$false;$psi.CreateNoWindow=$true
     $psi.RedirectStandardOutput=$true;$psi.RedirectStandardError=$true
     $psi.EnvironmentVariables.Clear()
@@ -72,15 +75,16 @@ function Invoke-WmsD21Processo([Diagnostics.ProcessStartInfo]$Info,[Security.Sec
 }
 function Invoke-WmsD21Flyway([string]$Banco,[string]$Servidor,[Security.SecureString]$Senha,[string]$Etapa){
     $psi=New-WmsD21StartInfo $WmsD21Database $Banco $Servidor $Etapa
+    $profile=Get-ProjetosSqlProfile
+    if($profile.server -cne $Servidor){throw 'D24_RUNTIME_SERVIDOR_DIVERGENTE'}
+    $psi.EnvironmentVariables['WMS_DB_BOOTSTRAP_TRUSTSTORE']=$profile.truststore
+    $psi.EnvironmentVariables['WMS_DB_BOOTSTRAP_CERTIFICATE_HOST']=$profile.certificateHost
     Invoke-WmsD21Processo $psi $Senha
 }
 function Read-WmsD21Schema([string]$Banco,[string]$Servidor,[Security.SecureString]$Senha){
     Assert-WmsD21Banco $Banco
-    $b=New-Object Data.SqlClient.SqlConnectionStringBuilder
-    $b.DataSource='127.0.0.1,1433';$b.InitialCatalog=$Banco;$b.Encrypt=$true;$b.TrustServerCertificate=$false
-    $b.Pooling=$false;$b.ConnectTimeout=10;$b.ApplicationName='WMS-D21-SCHEMA-LEITURA'
     $cred=Get-WmsD20CredencialCriacao -SenhaLocal $Senha
-    $c=New-Object Data.SqlClient.SqlConnection($b.ConnectionString,$cred)
+    $c=New-WmsRuntimeConnection $Banco $cred 'WMS-D24-SCHEMA-LEITURA'
     try{
         $c.Open();$cmd=$c.CreateCommand();$cmd.CommandTimeout=30
         $cmd.CommandText=(Get-WmsD21InitSql $Banco $Servidor)+[IO.File]::ReadAllText((Join-Path $WmsD21Database 'validacao/d21-schema-real.sql'))

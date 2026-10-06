@@ -8,6 +8,7 @@ $WmsD20Pathcriarbancos=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 $ErrorActionPreference='Stop'
 . (Join-Path $WmsD20Pathcriarbancos 'scripts/d20-guardas.ps1')
 . (Join-Path $WmsD20Pathcriarbancos 'scripts/criacao/ler-vazio.ps1')
+. (Join-Path $PSScriptRoot 'd24-runtime.ps1')
 if ($Database -cnotin @('WMS_DEV','WMS_PROD')) {throw 'D20_BANCO_NAO_AUTORIZADO'}
 if ($Action -eq 'Plan') {
     [pscustomobject]@{natureza='PLANO_OFFLINE_SEM_AMBIENTE_SEM_CONEXAO';banco=$Database;
@@ -23,12 +24,8 @@ $v=@{WMS_DB_HOST='127.0.0.1';WMS_DB_PORT='1433';WMS_DB_CONFIRMED_TARGET=$AlvoCon
      WMS_DB_CONFIRMED_SERVER=$ServidorConfirmado;WMS_DB_CONFIRMED_LOGIN='sa'}
 $acao=if($Database -ceq 'WMS_DEV'){'CriarDev'}else{'CriarProd'}
 Assert-WmsD20Alvo $v.WMS_DB_HOST $v.WMS_DB_PORT $Database $v.WMS_DB_CONFIRMED_TARGET $v.WMS_DB_CONFIRMED_SERVER $acao
-$b=New-Object System.Data.SqlClient.SqlConnectionStringBuilder
-$b.DataSource="$($v.WMS_DB_HOST),$($v.WMS_DB_PORT)";$b.InitialCatalog='master'
-$b.Encrypt=$true;$b.TrustServerCertificate=$false;$b.ConnectTimeout=10;$b.ApplicationName='WMS-D20-CREATE'
-$b.Pooling=$false
 $credencial=Get-WmsD20CredencialCriacao $CredencialLocal $SenhaLocal
-$c=New-Object System.Data.SqlClient.SqlConnection($b.ConnectionString,$credencial)
+$c=New-WmsRuntimeConnection 'master' $credencial 'WMS-D24-CREATE'
 $acaoSolicitada=$Action
 $fase='CONEXAO';$codigo=$null;$resultado='FALHA';$dev=$false;$ddlSolicitado=$false;$metadados=$null
 try {
@@ -83,7 +80,7 @@ try {
     # Somente codigo, nunca ConnectionString, senha/login real ou mensagem de driver.
     $e=$_.Exception
     while($e.InnerException){$e=$e.InnerException}
-    $codigo=if($e -is [System.Data.SqlClient.SqlException]){$e.Number}elseif($e.Message -cmatch '^D20_[A-Z0-9_]+$'){$e.Message}else{'GUARDA_OU_CONFIRMACAO'}
+    $codigo=if($e.GetType().Name -eq 'SqlException'){$e.Number}elseif($e.Message -cmatch '^D20_[A-Z0-9_]+$'){$e.Message}else{'GUARDA_OU_CONFIRMACAO'}
 } finally { $c.Dispose();$credencial.Password.Dispose() }
 $evidencia=[pscustomobject]@{utc=[DateTime]::UtcNow.ToString('o');banco=$Database;acaoSolicitada=$acaoSolicitada;acao=$Action;
     fase=$fase;resultado=$resultado;codigo=$codigo;devOnlineComprovado=$dev;ddlSolicitado=$ddlSolicitado;

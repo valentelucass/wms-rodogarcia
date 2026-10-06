@@ -1,5 +1,6 @@
 @echo off
 setlocal EnableExtensions DisableDelayedExpansion
+set "PSModulePath=%SystemRoot%\System32\WindowsPowerShell\v1.0\Modules;%ProgramFiles%\WindowsPowerShell\Modules;%USERPROFILE%\Documents\WindowsPowerShell\Modules"
 title WMS - Bancos locais
 echo WMS - D22 bootstrap/upgrade automatico
 echo Alvo fixo: TCP127.0.0.1:1433 - SQL auth sa - master

@@ -5,6 +5,7 @@ $WmsD20Pathverificaralvocriacao=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot 
 
 $ErrorActionPreference='Stop'
 . (Join-Path $WmsD20Pathverificaralvocriacao 'scripts/d20-guardas.ps1')
+. (Join-Path $PSScriptRoot 'd24-runtime.ps1')
 if($Action -eq 'Plan'){
     [pscustomobject]@{natureza='PLANO_OFFLINE_SEM_CONEXAO';hostConfirmado='127.0.0.1';porta=1433;
         autenticacao='SQL';identidadeCriacao='sa';bancoInicial='master';
@@ -14,12 +15,8 @@ if($Action -eq 'Plan'){
 # Bootstrap autorizado: endpoint exato Lucas. Nao inventa ServerName nem muda SQL Server.
 # SecureString/PSCredential somente no console local. Sem senha em env/argumento literal.
 $credencial=Get-WmsD20CredencialCriacao $CredencialLocal $SenhaLocal
-$b=New-Object System.Data.SqlClient.SqlConnectionStringBuilder
-$b.DataSource='127.0.0.1,1433';$b.InitialCatalog='master'
-$b.Encrypt=$true;$b.TrustServerCertificate=$false;$b.ConnectTimeout=10;$b.ApplicationName='WMS-D20-IDENTIDADE-LEITURA'
-$b.Pooling=$false
 try{
-    $c=New-Object System.Data.SqlClient.SqlConnection($b.ConnectionString,$credencial)
+    $c=New-WmsRuntimeConnection 'master' $credencial 'WMS-D24-IDENTIDADE-LEITURA'
     try{
         $c.Open();$cmd=$c.CreateCommand();$cmd.CommandTimeout=15
         $cmd.CommandText="SELECT CONVERT(nvarchar(128),SERVERPROPERTY('ServerName')),DB_NAME(),ORIGINAL_LOGIN(),CONVERT(varchar(30),SERVERPROPERTY('ProductVersion')); SELECT name,state FROM sys.databases WHERE name IN(N'WMS_DEV',N'WMS_PROD');"

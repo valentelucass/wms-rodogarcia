@@ -61,6 +61,9 @@ class ApiHttpIntegrationTest {
     void negaEscritaMesmoNaRotaPublica() throws Exception {
         var response = enviar("POST", "/api/v1/status");
         assertThat(response.statusCode()).isEqualTo(403);
+        assertThat(response.headers().firstValue("Set-Cookie").isPresent())
+                .as("POST recusado não cria sessão")
+                .isFalse();
         assertThat(mapper.readTree(response.body()).get("codigo").asString())
                 .isEqualTo("ACESSO_NEGADO");
     }

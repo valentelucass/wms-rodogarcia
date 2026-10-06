@@ -1,0 +1,9 @@
+﻿{
+    "codigo":  "D23_COLETOR_PRUMO_PREPARADO_ARQUIVADO_NAO_EXECUTADO",
+    "compilado":  false,
+    "capturaExecutada":  false,
+    "queries":  0,
+    "ddl":  0,
+    "coletorAtivo":  "SOMENTE_FAROL_RUNTIME_WMS",
+    "motivo":  "aviso Farol assumiu captura publica na mesma etapa"
+}

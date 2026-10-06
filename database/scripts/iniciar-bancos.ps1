@@ -15,13 +15,13 @@ function Invoke-WmsD22InicioAutomatico {
     }
     if($null -eq $Adaptadores){
         $Adaptadores=@{
-            Ferramentas={Assert-WmsD21Ferramentas $WmsD21InicioRoot}
+            Ferramentas={$runtimeProfile=Get-ProjetosSqlProfile;$env:JAVA_HOME=$runtimeProfile.javaHome;Assert-WmsD21Ferramentas $WmsD21InicioRoot}
             Fontes={Get-WmsD21Fontes $WmsD21InicioRoot}
             Expectativa={param($Fontes)
                 $fs=@($Fontes|ForEach-Object {[pscustomobject]@{arquivo=$_.arquivo;texto=[IO.File]::ReadAllText((Join-Path $WmsD21InicioRoot $_.arquivo))}})
                 Get-WmsD21CatalogoEsperado $fs
             }
-            Senha={Read-WmsD22Credencial (Get-WmsD22Contexto)}
+            Senha={Read-WmsRuntimeSenha}
             Inspecao={param($Senha) & (Join-Path $WmsD21InicioRoot 'scripts/verificar-alvo-criacao.ps1') -Action Inspect -SenhaLocal $Senha|ConvertFrom-Json}
             Banco={param($Acao,$Banco,$Servidor,$Alvo,$Senha)
                 & (Join-Path $WmsD21InicioRoot 'scripts/criar-bancos.ps1') -Action $Acao -Database $Banco -ServidorConfirmado $Servidor -AlvoConfirmado $Alvo -SenhaLocal $Senha|ConvertFrom-Json

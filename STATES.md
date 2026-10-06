@@ -1,6 +1,17 @@
 # Estado e trilha de implementação do WMS Rodogarcia
 
-**Incremento vigente em 06/10/2026:** D22 BE03/BE15 em implementação local: normal sem senha/confirmação, DPAPI WMS por usuário/máquina e configuração auxiliar UMA VEZ; incremento do launcher completo D21. Diretório protegido WMS inicialmente ausente por metadados; provisionamento pelo operador pendente. Nenhum segredo real/SQL pelo agente. D21/41/672/25 e seus manifestos são históricos preservados; checks D22 próprios antes do fecho.
+**D26 em execução — API com persistência SQL real DEV, 06/10/2026:** Lucas autorizou identidade própria WMSDEV restrita, credencial protegida, atestação, JPA validate e jornadas HTTP reais populando WMS_DEV com dados fictícios rastreáveis. Toda escrita de negócio por API; IT de banco vazio planejado antes da população. Somente DEV; nenhum reset/DELETE/schema/grant amplo/PROD/sa na aplicação. Cedro roteiro/API, Prumo acesso e persistência, Vigia revisão, Farol registros. [D26](docs/06-decisoes-e-pendencias.md) supersede exclusivamente a pendência administrativa da D25; regra permanente Hermes AGENTS:55 preservada.
+
+**D25 — entrega local e leituras DEV concluídas, 06/10/2026:** clean verify atual com **408 testes/0 falhas/0 erros/0 skips em 20 XMLs**, JAR atual com **6/6 verificações HTTP** em loopback, processo encerrado e porta liberada. Correções de TLS cliente, critério de lock, perfil do IT e cookie de sessão local revisadas por Vigia. SQL Server real WMS_DEV por SqlClient/JDBC administrativo somente SELECT: 64 tabelas vazias/687 colunas, 1.295 itens de catálogo, nove migrations/histórico iguais à D24. **API/JPA validate e sete ITs SQL não executados: identidade própria restrita ausente.** Nenhum DDL/DML/grant/SQL PROD. Regra AGENTS.md:55 de Hermes preservada. [Resultado40](docs/40-testes-backend-e-leitura-sql-dev.md) e [recibo WMS](orchestracao/.runtime/d25-resultado-final.md). BE03/BE15 continuam em validação externa; D22/D23 são históricos.
+
+**D24 concluída no escopo SQL administrativo, 06/10/2026:** conexão compartilhada em `../.runtime/sql-server` provisionada e BAT real concluído DEV → PROD. Ambos ONLINE, 64 tabelas, 687 colunas, nove migrations e 1.295 itens de catálogo conferidos por banco. SQL Server 2022 Standard 16.0.1000.6 preservado, mesmo processo, sem reinício. [Resultado e limites](docs/39-conexao-compartilhada-e-sql-real.md); [leitura autenticada](database/evidencias/d24-resultado-real.json). Backend/piloto continuam separados. D20–D23 abaixo são históricos, superados quanto ao bloqueio de autenticação e à exigência de fonte exclusiva WMS.
+
+
+**Continuação focal D23, 06/10/2026:** padrão de autenticação dos runners públicos comparado; fonte administrativa SQL compartilhada não localizada/documentada nos guias/metadados autorizados de ../.runtime. 33/33 booleanos de presença dos canais consultados ausentes; configs de referência existem sem leitura do conteúdo, DPAPI WMS ausente. O caminho fixo D22 não recebe a configuração como os demais. Menor integração: somente aquisição de credencial no launcher existente, após fonte administrativa protegida explicitamente disponibilizada ao WMS; sem novo configurador ou credencial alheia. Nenhuma conexão nova/DDL; servidor indisponível não comprovado. [Comparação e resultado](orchestracao/.runtime/d23-comparacao-fontes-autenticacao.md).
+
+**Histórico D23 — acesso então bloqueado em 06/10/2026:** Lucas autorizou bootstrap/upgrade real DEV → PROD pelo agente, sem configurador/prompts, com identidade Windows corrente ou fonte protegida WMS existente. Probe SqlClient confirmou TLS -2146893019; pin público privado WMS verificado resolveu esse bloqueio no sqlcmd Go. SQL Server então recusou logon de ROD-SRVW-001\suporte. Credencial protegida WMS AUSENTE. Nenhuma leitura sys.databases/histórico/schema ou DDL concluída; permissões não determinadas. Única ação indispensável: disponibilizar autenticação SQL válida já autorizada em canal protegido exclusivo WMS, fora do chat, sem grants ou alterações globais. D22 abaixo é histórico local, não conclusão da execução real D23.
+
+**Histórico D22 em 06/10/2026:** D22 BE03/BE15 concluído localmente: BAT normal automático sem senha/confirmação, DPAPI WMS exclusiva e configurador UMA VEZ. 18/18 fixtures DPAPI fictícias, 5/5 fixtures de console e 9/9 casos cmd.exe independentes; 818/818 hashes database, 84/84 backend, 73 snapshots D21 e V1–V9 intactas; revisão Vigia favorável. Credencial real AUSENTE por metadados, provisionamento pelo operador pendente; nenhum segredo real/SQL pelo agente. [Resultado38](docs/38-launcher-automatico-e-credencial-protegida.md) e [recibo WMS](database/evidencias/d22-relatorio-final.md). D20/D21 abaixo são históricos preservados.
 
 Atualizado em06/10/2026. **D21 BE03/BE15 concluída localmente:** BAT de bootstrap/upgrade completo WMS_DEV e WMS_PROD, DEV primeiro, pela sequência vigente do Flyway. 41/41 fixtures,672/672 checks de pacote,25/25 fixtures Maven,cmd.exe real offline0/0 e inválidos2/2;675 hashes database e84 backend conferidos, revisão Vigia favorável. V1–V9 e históricos D20 preservados. Nenhum SQL pelo agente; ensaio real será manual pelo operador. [Resultado37](docs/37-bootstrap-e-upgrade-manual-database.md) e [recibo WMS](orchestracao/.runtime/d21-resultado-final.md).
 
@@ -9,11 +20,11 @@ Atualizado em06/10/2026. **D21 BE03/BE15 concluída localmente:** BAT de bootstr
 | Frente | Situação comprovada |
 | --- | --- |
 | Documentação | PDF e Word preservados; respostas e regras consolidadas; arquitetura e cenários documentados |
-| Backend | D19/D20 preservados;396 testes e JAR são histórico D20. D21 alterou somente POM/evidências,25/25 fixtures Maven offline e84 hashes; Java/resources/perfis anteriores preservados. Nenhum novo build integral ou integração SQL real |
+| Backend | D26 em execução: jornadas HTTP autenticadas com SQL DEV, matriz de cobertura e correções proporcionais. D25 preservada: 408/0/0/0 e JAR local 6/6; esses resultados não substituem a persistência SQL/API D26. |
 | Frontend | Somente orientação de estrutura; sem aplicação React/TypeScript, dependências, build ou testes executados |
-| Banco | D21 manual completo entregue: cria ausente e aplica toda sequência vigente, existente recebe só pendentes. DEV completo antes de PROD, erro DEV bloqueia PROD;41/41 fixtures incluindo quedas parciais/retomada/V10,672/672 checks,675 hashes e cmd.exe0/0/2/2. Raiz README/BAT; V1–V9 intactas. SQL Server real não ensaiado |
+| Banco | D24 executada no SQL Server real: WMS_DEV e WMS_PROD criados/migrados, nove migrations, 64 tabelas, 687 colunas e catálogo completo por banco. Credencial comum protegida; SQL Server 2022 Standard preservado. [Evidência](docs/39-conexao-compartilhada-e-sql-real.md) |
 | Ambiente e piloto | Sem aplicação publicada; equipamentos, infraestrutura e recuperação ainda sem validação no WMS |
-| Escopo autorizado agora | D22 incrementa D21: launcher automático sem senha/confirmação, DPAPI exclusiva WMS e configurador auxiliar UMA VEZ; D21 mantém bootstrap manual de bootstrap/migrations completos DEV e PROD, admin sa local permitido nesse fluxo, DEV primeiro e erro DEV bloqueia PROD; fonte Flyway dinâmica, sem DROP/clean/repair/baseline automático. Prumo database, Cedro somente POM/config necessário, Vigia revisão focal, Farol registros/recibo. Agente não executa SQL/PROD nem grants, muda servidor/global/terceiros, publica app, frontend, fiscal/cobrança, commit/push, rotinas, perfis Hermes ou ETL |
+| Escopo autorizado agora | D26: provisionamento restrito WMSDEV/credencial protegida exclusiva e ensaio HTTP real populando apenas WMS_DEV com dados fictícios; atestação antes API/IT. Toda escrita de negócio via API. Matriz de requisitos/endpoints/perfis e provas GET/SQL/auditoria; lacunas explícitas. Sem PROD/reset/DELETE/DDL da aplicação/sa API/sharedruntime/servidor/terceiros/publicação/frontend. |
 
 Base definida: React/TypeScript, Java/Spring com MVC convencional e SQL Server existente. Primeiro piloto em Osasco, depois Castro/Tigre; Caio valida a operação. A necessidade informada de iniciar em 13/10/2026 não representa estimativa técnica nem promessa de entrega.
 
@@ -25,15 +36,28 @@ Base definida: React/TypeScript, Java/Spring com MVC convencional e SQL Server e
 - [Arquitetura](docs/02-arquitetura.md), [fluxos](docs/04-fluxos-operacionais.md) e [cenários](docs/08-cenarios-de-validacao.md): responsabilidades, sequência operacional e verificações V01 a V48.
 - [Plano geral](docs/07-plano-de-entregas.md) e [continuidade](docs/09-continuidade.md): visão da entrega e contexto resumido.
 
-Escopo local autorizado **D19 concluído**, com evidência nos [28](docs/28-validacao-separacao-retirada-retornos.md), [30](docs/30-validacao-servicos-e-calculo.md) e [32](docs/32-validacao-fechamento-e-contingencia.md), matriz BE01–BE16 no [34](docs/34-matriz-e-validacao-final-backend.md) e modelo integrado no [35](docs/35-modelo-integrado-e-jornadas-backend.md). Base D18/197 preservada. Próxima etapa: definir insumos e autorizar ensaios externos pelo [preparo33](docs/33-preparacao-tecnica-local-backend.md); nenhuma conexão, homologação, publicação ou frontend executados.
+Escopo local autorizado **D19 concluído**, com evidência nos [28](docs/28-validacao-separacao-retirada-retornos.md), [30](docs/30-validacao-servicos-e-calculo.md) e [32](docs/32-validacao-fechamento-e-contingencia.md), matriz BE01–BE16 no [34](docs/34-matriz-e-validacao-final-backend.md) e modelo integrado no [35](docs/35-modelo-integrado-e-jornadas-backend.md). Base D18/197 preservada. D24 comprovou conexão e migrations; D25 executou testes novos e leitura JDBC DEV. Próximo ensaio da aplicação depende da identidade restrita, como detalhado no [40](docs/40-testes-backend-e-leitura-sql-dev.md); homologação, publicação e frontend permanecem pendentes.
 
-**Próximo passo D22 — após fecho local:** configurar uma vez com [configurar-credencial.bat](database/configurar-credencial.bat) no próprio Windows; depois abrir [iniciar-bancos.bat](database/iniciar-bancos.bat), conforme [README curto](database/README.md), sem senha/confirmação. DPAPI exclusiva do mesmo usuário/máquina, fora Git; ausência/erro falha rapidamente e orienta configurar. Mantém bootstrap/upgrade completo DEV e depois PROD, inclusive recriação de um banco previamente excluído manualmente pelo usuário. TLS/identidade/schema/histórico reais serão comprovados pelo operador, com ferramentas/cache/confiança existentes. Pacote local encerrado; não iniciar SQL ou novo trabalho autonomamente.
+**Próximo passo vigente D26:** executar o provisionamento mínimo de WMSDEV e atestar seus direitos; ensaiar sqlserver-it antes da população se precondições respeitadas, então JAR/HTTP/SQL com matriz de cobertura real. A pendência de autorização registrada na D25 foi resolvida por Lucas na D26; identidade administrativa continua separada da aplicação. D25/40 mantêm a evidência histórica.
 
 **Histórico D20, substituído por D21 no launcher:** alvo confirmado TCP `127.0.0.1:1433`, SQL auth `sa`, conexão inicial `master`. Lucas passou à execução **manual**: `iniciar-bancos.bat` deve criar ambos os nomes ausentes, DEV primeiro, preservar/conferir existentes e permitir retomada; PROD sem migrations/cargas. Senha oculta local em memória e confirmação de identidade/alvo na interação. Nenhum SQL pelo agente; TCP alcançável/MSSQLSERVER Running não comprovam identidade SQL. Regra imutável do servidor em AGENTS/D20; guia compartilhado sem senha autorizado, sem ler `.env`/credenciais/dados/ETL nem alterar terceiros. Falta de credencial no canal do agente é observação histórica, sem impedir o launcher.
 
 **Organização da mesma D20 entregue:**34 movimentos byte a byte,489 originais preservados, raiz database somente README curto e BAT. Scripts/docs/config nas pastas próprias; históricos, fontes e manifestos anteriores intactos; V1–V9 sem renomeação/alteração. Caminhos/BATs/links e testes conferidos após os movimentos, manifesto corrente722 hashes e revisão Vigia favorável ao layout/launcher. Sem SQL pelo agente ou novo build backend integral.
 
 **Ressalva VIG07 do runtime:** guarda enumera recusas, não certifica mínimo privilégio geral. Antes do uso/ensaio do backend, exigir atestação completa das identidades/permissões próprias. Java/JAR396/404 são histórico D20; nenhuma atestação SQL executada. Não condiciona o bootstrap/migrations administrativo manual D21 com sa a novos grants/conta de aplicação.
+
+### Conferência histórica D25 — BE03/BE15/BE16
+
+- [x] Preservar a regra permanente de Hermes em AGENTS.md:55: testes SQL apenas WMS_DEV, recusar PROD/outros/fallback.
+- [x] Inspecionar alvo real, integridade, catálogo, vazio, histórico e existência de identidade da aplicação por leitura administrativa DEV.
+- [x] Executar clean verify novo e corrigir achados locais; 408/0/0/0, 20 XMLs finais conferidos por Cedro, Vigia e Farol.
+- [x] Executar JAR atual com seis checks HTTP locais, encerrar a própria JVM e conferir porta liberada.
+- [x] Comprovar TLS/JDBC standalone com dois SELECTs administrativos DEV; não equivale a pool/JPA da aplicação.
+- [x] Obter revisão independente favorável, registrar evidências e fechar o pacote sem callback Hermes/ETL.
+- [ ] Disponibilizar e atestar identidade própria/credencial protegida restrita exclusivamente WMS_DEV — operação administrativa ainda não autorizada/executada.
+- [ ] Executar API/JPA validate e sete sqlserver-it no DEV com essa identidade; nenhum fixture SQL criado na D25.
+
+Escopo local concluído; os dois últimos itens impedem o ensaio SQL da aplicação e não anulam os testes independentes. [Resultado e proposta40](docs/40-testes-backend-e-leitura-sql-dev.md).
 
 ## Convenções do acompanhamento
 
@@ -121,14 +145,16 @@ As entregas desta trilha ficam em `backend` e, quando necessário, `database` e 
 
 ### BE03 Estrutura SQL Server e migrações
 
-**Status:** Em validação externa; D19/D20/D21 históricos preservados; incremento D22 do launcher em implementação local. **Dependências:** BE01, BE02; inspeção/ensaio real para aceitar SQL. Identidades próprias/atestação exigidas para runtime, não para DDL administrativo manual D21.
+**Status:** Em validação externa; D24 concluiu conexão, criação, migrations e catálogo real DEV/PROD. **Dependências:** BE01, BE02; faltam identidade própria/atestação do backend, operações com dados, concorrência e recuperação. Administração sa autorizada para o bootstrap.
 
 - [x] Definir esquema WMS, ferramenta/procedimento de migrations, proteção de alvo e separação de ambientes em arquivos.
 - [x] Lucas informar nomes WMS_DEV/WMS_PROD e alvo TCP127.0.0.1:1433, sa/master administrativo; execução manual definida na D20.
-- [ ] Conferir identidade/TLS/defaults/versão/collation reais e identidades WMS de aplicação/migration com permissões efetivas.
+- [x] Conferir identidade/TLS/defaults/versão/collation reais no bootstrap administrativo D24.
+- [ ] Definir e atestar identidades WMS próprias da aplicação e suas permissões efetivas.
 - [x] Preparar V1–V9, vínculos, restrições, histórico e procedimentos em arquivos, sem aplicar SQL.
 - [x] Entregar launcher manual, organizar database com preservação e conferir fixtures/cmd.exe/caminhos/manifesto/revisão local D20.
-- [ ] Verificar criação e evolução no SQL Server de desenvolvimento, registrando aplicação, falhas e recuperação.
+- [x] Verificar criação, aplicação V1–V9 e retomada do BAT no SQL Server real, com DEV antes de PROD (D24).
+- [ ] Ensaiar evolução com dados, falhas de operação e recuperação por backup/restauração.
 - [x] Preparar o recorte cadastral: seis tabelas, mapeamentos JPA, V1, ferramenta/procedimento de migrations e proteção contra DDL automático.
 - [x] Preparar V2 e seis modelos de recebimento, vínculos, restrições, índices e ampliação da auditoria, preservando V1.
 - [x] Preparar V3, três modelos de unidades/composição/repetição e marcador de unitização, preservando V1/V2 e os fatos conferidos.
@@ -147,6 +173,12 @@ As entregas desta trilha ficam em `backend` e, quando necessário, `database` e 
 **Fecho local D20:** auditoria efetiva64 tabelas/687 colunas/130 FKs/200 CHECKs/61 UNIQUE/83 índices e0 divergências JPA em arquivos;34 UPDATEs Hibernate preparados, sem JDBC. Sem novo índice/migration/modelo de negócio. BAT pronto/testado, V1–V9 iguais9/9,34 movimentos/489 originais e722 hashes conferidos; revisão favorável ao launcher/organização. Integração backend396/19/404 preservada. Limite VIG07 e atestação externa obrigatória explícitos no [36](docs/36-database-local-engenharia-e-validacao.md). SQL real não executado.
 
 **Fecho local D21 de BE03:** [BAT](database/iniciar-bancos.bat) pronto para bootstrap/upgrade completo manual dos dois nomes exatos. Migrations canônicas dinâmicas, V1–V9 intactas, V10 em fixture isolada; checksum/schema divergente e falha DEV impedem PROD.675 hashes database,84 backend, revisão favorável e evidências no [37](docs/37-bootstrap-e-upgrade-manual-database.md). Criar/aplicar/validar SQL real permanece externo.
+
+**Fecho local D22 de BE03:** execução normal automática sem senha/confirmação, canal DPAPI WMS exclusivo por usuário/máquina, auxiliar [configurar-credencial.bat](database/configurar-credencial.bat) UMA VEZ. 18/18 fixtures DPAPI fictícias, 5/5 fixtures de console e 9/9 casos cmd.exe independentes; 818/818 hashes database, 84/84 backend, 73 snapshots D21 e V1–V9 intactas; revisão favorável. Diretório/arquivo real ausente: operador configura, depois executa BAT; nenhuma provisão/importação real/SQL pelo agente. [38](docs/38-launcher-automatico-e-credencial-protegida.md). D21 permanece histórico, mesmos IDs/modelo/migrations.
+
+**Evidência atual D24 de BE03:** [resultado real39](docs/39-conexao-compartilhada-e-sql-real.md); ambos os catálogos conferidos com a fonte e histórico Flyway validado. Os parágrafos D12–D22 anteriores descrevem o estado de cada entrega histórica.
+
+**Evidência D25 de BE03:** catálogo e histórico DEV reobservados por leitura SqlClient/JDBC protegida: 1.295/1.295 itens, 64 tabelas/687 colunas, 64 vazias e nove migrations iguais à D24. Nenhum DDL/DML/migration/reparo; identidade própria ausente, JPA validate não executado. [Resultado40](docs/40-testes-backend-e-leitura-sql-dev.md).
 
 ### BE04 Identidade, permissões e auditoria
 
@@ -310,12 +342,13 @@ As entregas desta trilha ficam em `backend` e, quando necessário, `database` e 
 
 ### BE15 Validação técnica e preparação do piloto
 
-**Status:** Em validação externa; D19/D20/D21 históricos preservados; incremento D22 em implementação local. **Dependências:** BE02 a BE14 para validação integrada final; frontend para validação conjunta. **Autorização:** D19/D20/D21/D22 nos respectivos escopos.
+**Status:** Em validação externa; D24 concluiu conexão administrativa, migrations e catálogo SQL real, incluindo reexecução do BAT. **Dependências:** BE02 a BE14 para validação integrada final; identidade própria da aplicação, recuperação e frontend para validação conjunta. **Autorização:** D19–D25 nos respectivos escopos; testes SQL D25 exclusivamente DEV.
 
 **Preparação D19 observada:** Prumo preparou [configuração externa, diagnóstico e planos de recuperação/ensaio](docs/33-preparacao-tecnica-local-backend.md) em arquivos. O diagnóstico final real conferiu194/194 condições estáticas, incluindo as56 originais; fecho22/22,307 hashes e240 links conferidos por Farol. Vigia favorável às06:09, sem achado material no novo pacote; preparo local em arquivos aceito. Não consulta ambiente, rede ou SQL nem executa JVM/build. Testes integrados finais de367 cenários, artefato e revisão local concluídos no32; ensaios externos continuam pendentes.
 
 - [x] Conferir regras, permissões, concorrência, repetições, falhas fiscais e cálculo nos testes locais adequados.
-- [ ] Validar SQL Server no alvo de desenvolvimento/homologação definido.
+- [x] Validar conexão administrativa, migrations e catálogo no SQL Server existente (D24).
+- [ ] Validar operações integradas e concorrência da aplicação no SQL Server com identidade própria.
 - [x] Preparar execução, configuração, diagnóstico, cópias de segurança e recuperação em arquivos.
 - [ ] Ensaiar backup/restauração, recuperação e desempenho com Lucas/DBA, medindo critérios reais.
 - [x] Registrar artefato construído, verificações, limites e plano de recuperação para a liberação conjunta; publicação é um registro separado.
@@ -329,7 +362,15 @@ As entregas desta trilha ficam em `backend` e, quando necessário, `database` e 
 
 **Fecho local D21 de BE15:**41/41 fixtures do fluxo,672/672 checks de pacote,25/25 Maven e cmd.exe offline0/0/2/2;675 hashes database e84 backend conferidos. Quedas parciais/reexecução e versão futura verificadas por mocks, não SQL Server. Perfil manual administrativo permite DEV/PROD sem novos grants, runtime continua restrito. Revisão Vigia favorável; [37](docs/37-bootstrap-e-upgrade-manual-database.md) e recibo WMS. Não repetir396/build por launcher; nenhum SQL real pelo agente.
 
+**Fecho local D22 de BE15:** 18/18 fixtures DPAPI fictícias, 5/5 fixtures de console e 9/9 casos cmd.exe independentes; 818/818 hashes database, 84/84 backend, 73 snapshots D21 e V1–V9 intactas; revisão independente favorável. Ausência, SID/owner/ACL, erro DPAPI/tipo/login e descarte de cópias verificados com fixtures isoladas; console Explorer/FOR-F/filho sem recursão por metadados simulados. Sem duplo clique visual ou SQL real. Backend/POM sem alterações, nenhuma suíte integral/Maven repetida. Provisionamento real e ensaio SQL/TLS permanecem do operador, conforme [38](docs/38-launcher-automatico-e-credencial-protegida.md).
+
+**Evidência atual D24 de BE15:** conexão e BAT real DEV/PROD concluídos; 18 testes D22 e nove testes D24 aprovados. [Resultado39](docs/39-conexao-compartilhada-e-sql-real.md). Homologação operacional, permissões da aplicação e recuperação continuam pendentes.
+
+**Evidência D25 de BE15:** build atual 408/0/0/0 e JAR 6/6 HTTP reais; SqlClient/JDBC administrativo DEV com TLS validado. Vigia favorável; sa nunca API/IT. Operações/concorrência SQL e sete ITs não executados por falta de identidade própria; backup/restauração e homologação permanecem externos. Nenhuma fixture SQL criada. [Resultado40](docs/40-testes-backend-e-leitura-sql-dev.md).
+
 ### BE16 Padrões e verificações de engenharia
+
+**Evidência atual D25:** JDK 21.0.12.1/Maven 3.9.16, formatação e clean verify atual com 408/0/0/0 em 20 suítes; HTTP/arquitetura/serviços/regressão executados. Correções focais de TLS cliente, critério/perfil do IT e sessão local, sem alteração POM/MVC/models/migrations. JAR final conferido e encerrado após 6/6 checks; revisão Vigia favorável. [Resultado40](docs/40-testes-backend-e-leitura-sql-dev.md).
 
 **Status:** Concluído. **Dependências:** BE02; recorte cadastral de BE03/BE04/BE05 disponível.
 
@@ -512,7 +553,7 @@ São dependências das etapas afetadas, não um bloqueio geral do projeto nem ou
 
 | Item | Responsável de referência | Etapa afetada | Situação atual |
 | --- | --- | --- | --- |
-| Banco/esquema WMS, acesso e ambientes SQL Server | Lucas/TI | BE03, BE15 | A levantar; nenhuma conexão executada |
+| Banco/esquema WMS, acesso e ambientes SQL Server | Lucas/TI | BE03, BE15 | D24 validou conexão administrativa e schemas DEV/PROD; identidade da aplicação e recuperação pendentes |
 | Forma de autenticação, hospedagem e operação | Equipe técnica com Lucas | BE02, BE04, BE15, FE03/FE13 | A definir; não copiar configuração de outro projeto |
 | Cliente, limites, embalagens, endereços e eventual estoque inicial | Caio/operação | BE05/BE06/BE14, FE04/FE12 | Preparar dados; razão social resolve grafia Brasel/Bracel |
 | Preços, unidades de cobrança, mínimo, corte e eventual GRIS | Gestor/comercial | BE12/BE13, FE11 | Parâmetros reais a cadastrar; tabela Tigre é referência |

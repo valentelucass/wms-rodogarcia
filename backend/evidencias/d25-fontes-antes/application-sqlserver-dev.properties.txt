@@ -1,0 +1,13 @@
+# Ativar somente apos definir e conferir o alvo exclusivo de desenvolvimento.
+spring.autoconfigure.exclude=
+wms.cadastros.enabled=true
+wms.database.host=${WMS_DB_HOST}
+wms.database.port=${WMS_DB_PORT:1433}
+wms.database.name=${WMS_DB_NAME}
+wms.database.user=${WMS_DB_USER}
+wms.database.password=${WMS_DB_PASSWORD}
+wms.database.confirmed-target=${WMS_DB_CONFIRMED_TARGET}
+wms.database.confirmed-server=${WMS_DB_CONFIRMED_SERVER}
+wms.identity.issuer=${WMS_OIDC_ISSUER}
+wms.identity.jwk-set-uri=${WMS_OIDC_JWK_SET_URI}
+wms.identity.audience=${WMS_OIDC_AUDIENCE}

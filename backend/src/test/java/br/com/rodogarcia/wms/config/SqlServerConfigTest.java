@@ -107,6 +107,58 @@ class SqlServerConfigTest {
     }
 
     @Test
+    void entregaTlsPrivadoAoDriverSemUrlLivreOuConexao() throws SQLException {
+        String trustStore =
+                java.nio.file.Path.of("certificado-ficticio.p12").toAbsolutePath().toString();
+        var env =
+                ambienteSeguro()
+                        .withProperty("wms.database.tls.certificate-host", "CERTIFICADO_FICTICIO")
+                        .withProperty("wms.database.tls.trust-store", trustStore)
+                        .withProperty(
+                                "wms.database.tls.trust-store-password", "integridade-ficticia");
+        var config = new SqlServerConfig().configuracao(propriedades(), env);
+        var info =
+                new com.microsoft.sqlserver.jdbc.SQLServerDriver()
+                        .getPropertyInfo(config.getJdbcUrl(), config.getDataSourceProperties());
+        var efetivas = new java.util.HashMap<String, String>();
+        for (var propriedade : info) {
+            efetivas.put(propriedade.name, propriedade.value);
+        }
+        assertThat(efetivas)
+                .containsEntry("hostNameInCertificate", "CERTIFICADO_FICTICIO")
+                .containsEntry("trustStore", trustStore)
+                .containsEntry("trustStoreType", "PKCS12")
+                .containsEntry("encrypt", "true")
+                .containsEntry("trustServerCertificate", "false");
+        assertThat(config.getDataSourceProperties().getProperty("trustStorePassword"))
+                .isEqualTo("integridade-ficticia");
+        assertThat(config.getJdbcUrl())
+                .doesNotContain("CERTIFICADO_FICTICIO", trustStore, "integridade-ficticia")
+                .endsWith(";encrypt=true;trustServerCertificate=false");
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+            strings = {
+                "wms.database.tls.certificate-host=cert;trustServerCertificate=true",
+                "wms.database.tls.certificate-host=*.ficticio",
+                "wms.database.tls.trust-store=certificado-ficticio.p12",
+                "wms.database.tls.trust-store-password=integridade-ficticia"
+            })
+    void recusaCanalTlsMalformadoOuIncompletoAntesDoPool(String propriedade) {
+        var partes = propriedade.split("=", 2);
+        assertThatThrownBy(
+                        () ->
+                                new SqlServerConfig()
+                                        .dataSource(
+                                                propriedades(),
+                                                ambienteSeguro()
+                                                        .withProperty(partes[0], partes[1])))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("Configuração TLS privada incompleta ou inválida.");
+    }
+
+    @Test
     void escapaNomeConfirmadoSemPermitirSqlAdicional() {
         var p =
                 new SqlServerProperties(

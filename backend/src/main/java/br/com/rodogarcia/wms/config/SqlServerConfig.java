@@ -58,6 +58,7 @@ public class SqlServerConfig {
                         + ";encrypt=true;trustServerCertificate=false");
         config.setUsername(properties.user());
         config.setPassword(properties.password());
+        configurarTls(config, environment);
         config.setMaximumPoolSize(5);
         config.setPoolName("wms-dev");
         config.setConnectionInitSql(
@@ -80,6 +81,28 @@ public class SqlServerConfig {
                         + "OR ISNULL(HAS_PERMS_BY_NAME('wms','SCHEMA','ALTER'),1) <> 0 "
                         + "THROW 50002, 'Identidade da aplicacao exige privilegios restritos sem DDL.', 1;");
         return config;
+    }
+
+    private static void configurarTls(HikariConfig config, Environment environment) {
+        String certificado = environment.getProperty("wms.database.tls.certificate-host", "");
+        String trustStore = environment.getProperty("wms.database.tls.trust-store", "");
+        String password = environment.getProperty("wms.database.tls.trust-store-password", "");
+        if ((!certificado.isEmpty()
+                        && (certificado.length() > 253 || !certificado.matches("[A-Za-z0-9._-]+")))
+                || trustStore.chars().anyMatch(Character::isISOControl)
+                || trustStore.isEmpty() != password.isEmpty()
+                || (!trustStore.isEmpty() && trustStore.isBlank())) {
+            throw new IllegalStateException("Configuração TLS privada incompleta ou inválida.");
+        }
+        // Propriedades do driver, sem interpolação na URL ou alteração da confiança global.
+        if (!certificado.isEmpty()) {
+            config.addDataSourceProperty("hostNameInCertificate", certificado);
+        }
+        if (!trustStore.isEmpty()) {
+            config.addDataSourceProperty("trustStore", trustStore);
+            config.addDataSourceProperty("trustStorePassword", password);
+            config.addDataSourceProperty("trustStoreType", "PKCS12");
+        }
     }
 
     private static boolean substituiAlvoOuAcao(String chave) {

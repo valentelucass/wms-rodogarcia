@@ -1,0 +1,24 @@
+# D22 — pacote local automático
+
+[Guia vigente](../README.md): configurar credencial pelo operador em [configurar-credencial.bat](../configurar-credencial.bat), uma vez/quando necessário; depois [iniciar-bancos.bat](../iniciar-bancos.bat) automático, sem senha nem confirmação de alvo. PowerShell normal NonInteractive; ausência/invalidez orienta configurar e encerra antes das ferramentas/SQL. Leitor retorna SecureString read-only, cópias por etapa e dispose; segredo no filho Maven efêmero, sem texto/argumentos/log/ambiente pai persistente. Configurador é separado e não conecta.
+
+Caminho exclusivo `%LOCALAPPDATA%/Rodogarcia/WMS/database-runner/credencial-sa.clixml`; owner SID corrente, DACL protegida, usuário+SYSTEM somente. No Windows, Export-Clixml protege credenciais por DPAPI para o usuário/máquina atuais. [Microsoft Export-Clixml](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/export-clixml?view=powershell-7.4), [proteção da DACL](https://learn.microsoft.com/en-us/dotnet/api/system.security.accesscontrol.objectsecurity.setaccessruleprotection?view=netframework-4.8.1). [Duas referências públicas autorizadas e diferenças](d22-referencias-publicas.json): reutilizada organização DPAPI, sem copiar credenciais/config/pin/TLS permissivo/ambiente pai. Nenhuma configuração privada de referência lida.
+
+Fluxo D21 permanece único: DEV completo antes de PROD; CREATE ausente/Check existente preservado; validate pré só pending, migrate pendentes, validate/info estritos, catálogo real confrontado com expectativa da fonte filesystem dinâmica. V10 futura descoberta por Flyway, V1–V9 intactas. TLS strict SqlClient/JDBC; identidade real por conexão. Sem clean/repair/baseline/DROP/GRANT/config global. Helpers/contrato D21 e backend não alterados; nenhuma suíte D21 repetida nem Maven/build executado pelo Prumo.
+
+| Verificação real local | Evidência |
+| --- | --- |
+| DPAPI fictício + orquestração: 18/18, exit 0 | [resultados](d22-testes-final.json), [execução](d22-testes-final-execucao.json): ausência, ACL/herança/terceiro SID, owner/SID divergente, conteúdo/tipo/login/DPAPI inválido, substituição atômica, sem prompts, DEV bloqueia PROD, identidade, ordem e dispose |
+| Console: 5/5, exit 0 | [fixtures](d22-console-fixtures-final.json), [execução](d22-console-fixtures-final-execucao.json): Explorer via FOR/F, caller, filho /k sem recursão, metadados incompletos/PIDs divergentes |
+| CMD real FOR/F: CALLER, exit 0 | [resultado](d22-console-forf-caller-final.json): metadados de processos apenas Name/PID/ParentPID, sem ler CommandLine |
+| CMD real após correção: 7/7 | [offline](d22-bat-final-offline.json), [outro cwd](d22-bat-final-outro-cwd.json), [fixture fictícia](d22-bat-final-fixture.json), [inválido](d22-bat-final-invalido.json), [extra](d22-bat-final-extra.json), [setup offline](d22-bat-final-setup-offline.json), [setup inválido](d22-bat-final-setup-invalido.json); códigos nativos 0/0/0/2/2/0/2, sem bloqueio/prompt |
+| Sintaxe/links/organização/preservação | [check do pacote](d22-pacote-final.json), [comando e exit](d22-pacote-final-execucao.json) |
+| 73 cópias D21 pré-alteração e manifestos antigos | [snapshot](d22-snapshot-d21.json); bytes/SHA das cópias conferidos, guardas/Flyway/catalogo/SQL/manifestos originais preservados |
+
+A detecção considera exatamente PowerShell → cmd FOR/F → cmd BAT → Explorer. O filho `/k` tem cmd externo na última posição e retorna CALLER, sem relançamento. Janela é mantida por `/k` apenas no duplo clique normal; callers/modos retornam sem pause. **Duplo clique visual não executado pelo agente**; pronto para conferência Vigia. Fixtures de SID incorreto recusam metadados antes do Import; criptografia sob outro usuário/máquina não foi executada, sem alegar esse ensaio.
+
+[Metadados reais finais](d22-provisionamento-metadados-final.json): **AUSENTE**, conteúdo não lido. Nenhuma importação/provisionamento real; o operador precisa usar o configurador antes da execução SQL. BAT normal contra caminho real não executado. Testes DPAPI somente arquivos fictícios isolados, ignorados pelo Git; não são credenciais de operação. TLS/provider/schema SQL reais permanecem sem ensaio.
+
+[Falhas/tentativas preservadas](d22-falhas-resultados.json): Set-Acl/SeSecurityPrivilege corrigido por API .NET Owner/DACL; Replace/null por NullString; profundidade FOR/F corrigida. Recheck inicial capturou status do shell PowerShell para casos negativos; finais capturam LASTEXITCODE nativo 2. Snapshot do helper anterior preservado. Nenhum resultado anterior foi convertido em sucesso.
+
+[Manifesto corrente D22](d22-manifesto-final.json). Estado: **PACOTE_LOCAL_CONCLUIDO_PARA_REVISAO_FAROL_VIGIA**; **EXECUCAO_AUTOMATICA_PELO_OPERADOR_NAO_EXECUTADA_PELO_AGENTE**. Escrita somente database; raiz README e dois BATs. Manifestos/históricos D20/D21 intactos. Sem SQL, Maven, backend build, callback ou alteração global. Entrega local encerrada.

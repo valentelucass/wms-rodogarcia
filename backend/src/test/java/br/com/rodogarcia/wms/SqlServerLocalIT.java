@@ -19,6 +19,7 @@ import br.com.rodogarcia.wms.repositories.NotaEntradaRepository;
 import br.com.rodogarcia.wms.repositories.OperacaoAdministrativaRepository;
 import br.com.rodogarcia.wms.repositories.PedidoEntradaRepository;
 import jakarta.persistence.EntityManagerFactory;
+import java.sql.SQLException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -28,6 +29,7 @@ import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -43,11 +45,13 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
 /** Nunca incluído pelo Surefire; exige -Psqlserver-it e guardas antes do DataSource. */
-@ActiveProfiles({"sqlserver-dev", "sqlserver-it"})
+@ActiveProfiles("sqlserver-dev")
+@TestPropertySource("classpath:application-sqlserver-it.properties")
 @Import(IdentidadeTesteConfig.class)
 @ContextConfiguration(initializers = SqlServerLocalIT.Guarda.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -303,6 +307,7 @@ class SqlServerLocalIT {
                                                     }));
             assertThat(bloqueado.await(10, TimeUnit.SECONDS)).isTrue();
             try {
+                var falhaBusca = new AtomicReference<DataAccessException>();
                 var segundo =
                         executor.submit(
                                 () ->
@@ -312,12 +317,15 @@ class SqlServerLocalIT {
                                                             jdbc.execute("SET LOCK_TIMEOUT 1000");
                                                             try {
                                                                 clientes.buscarParaAtualizar(id);
+                                                            } catch (DataAccessException e) {
+                                                                falhaBusca.set(e);
+                                                                throw e;
                                                             } finally {
                                                                 jdbc.execute("SET LOCK_TIMEOUT -1");
                                                             }
                                                         }));
                 assertThatThrownBy(() -> segundo.get(10, TimeUnit.SECONDS))
-                        .hasCauseInstanceOf(DataAccessException.class);
+                        .satisfies(falha -> exigirTimeoutDeLock(falha, falhaBusca.get()));
             } finally {
                 liberar.countDown();
             }
@@ -326,6 +334,21 @@ class SqlServerLocalIT {
             liberar.countDown();
         }
         // A fixture confirmada fica no alvo isolado: não excluir histórico nem limpar banco.
+    }
+
+    static void exigirTimeoutDeLock(Throwable falhaTarefa, DataAccessException falhaBusca) {
+        assertThat(falhaBusca).as("Falha deve vir da busca com lock").isNotNull();
+        assertThat(falhaTarefa.getCause())
+                .as("Reset/conexão/transação não podem substituir a falha da busca")
+                .isSameAs(falhaBusca);
+        Throwable causa = falhaBusca;
+        while (causa != null && !(causa instanceof SQLException)) {
+            causa = causa.getCause();
+        }
+        assertThat(causa).as("Busca deve produzir SQLException nativa").isNotNull();
+        assertThat(((SQLException) causa).getErrorCode())
+                .as("SQL Server deve identificar timeout de lock, código 1222")
+                .isEqualTo(1222);
     }
 
     private static void aguardar(CountDownLatch latch) {

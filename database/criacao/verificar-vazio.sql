@@ -11,7 +11,9 @@ SELECT DB_NAME() AS banco,
          N'db_datawriter',N'db_denydatareader',N'db_denydatawriter')) AS schemas,
     (SELECT COUNT_BIG(*) FROM sys.database_principals
         WHERE principal_id>4 AND is_fixed_role=0) AS principais,
-    (SELECT COUNT_BIG(*) FROM sys.database_role_members) AS membros,
+    -- dbo em db_owner e o vinculo padrao observado em model; outros membros continuam bloqueados.
+    (SELECT COUNT_BIG(*) FROM sys.database_role_members
+        WHERE NOT (role_principal_id=16384 AND member_principal_id=1)) AS membros,
     (SELECT COUNT_BIG(*) FROM sys.database_permissions WHERE NOT (
         (class=1 AND major_id<0 AND grantee_principal_id=0 AND state=N'G')
         OR (class=0 AND grantee_principal_id=1 AND permission_name=N'CONNECT' AND state=N'G')
