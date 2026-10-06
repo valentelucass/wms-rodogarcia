@@ -1,0 +1,83 @@
+# Build Java/Maven, inclusive diretórios alternativos usados nas validações.
+**/target/
+/backend/target-*/
+*.class
+*.jar
+*.jar.original
+*.war
+*.ear
+!**/.mvn/wrapper/maven-wrapper.jar
+
+# Dependências e saídas do frontend; manifests e lockfiles permanecem versionáveis.
+node_modules/
+/frontend/dist/
+/frontend/build/
+/frontend/.vite/
+coverage/
+*.tsbuildinfo
+
+# Configuração local, segredos e logs.
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.log
+*.log.*
+/backend/config/
+
+# IDEs, sistema operacional e temporários.
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+.DS_Store
+Thumbs.db
+desktop.ini
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+*.bak
+*.bak-*
+
+# Ferramentas de IA, habilidades instaladas e orquestração desta máquina.
+# AGENTS.md, STATES.md e docs/ continuam como documentação do projeto.
+.agents/
+.codex/
+.maestri/
+/orchestracao/
+/.ai-memory.toml
+/.graphifyignore
+.graphify/
+/graphify-out/
+
+# Ambientes e caches das ferramentas locais.
+__pycache__/
+*.py[cod]
+.venv/
+.tools/
+*.mcp-tools.tmp
+
+# Evidências brutas geradas localmente: JSONs, XMLs e cópias de arquivos.
+# Preservar os arquivos no disco; relatórios, manifestos SHA-256 e scripts de
+# conferência atuais seguem versionáveis. As migrations oficiais ficam em
+# database/migrations, fora destas regras.
+/backend/evidencias/*.json
+/backend/evidencias/*-xml-*/
+/database/evidencias/*.json
+/database/evidencias/*.sql
+# Cópia histórica da V8 salva sem extensão.
+/database/evidencias/d19-v8-2026-10-06-p2-origem-final
+/infra/evidencias/*.json
+/docs/evidencias/*.json
+/database/evidencias/*-antes*.ps1
+/database/evidencias/*-antes*.md
+/database/evidencias/*-fonte-*.md
+/infra/evidencias/*-antes*.ps1
+/infra/evidencias/*-antes-*.md
+
+# Relatos de falhas anteriores são evidências escritas, não cópias dos fontes.
+!/database/evidencias/*-antes-correcao.md
+!/infra/evidencias/*-relato-antes-fecho.md

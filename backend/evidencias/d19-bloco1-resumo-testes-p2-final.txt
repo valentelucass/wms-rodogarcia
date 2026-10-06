@@ -1,0 +1,27 @@
+﻿D19 bloco1 — correção P2 — resultado final conferido nos 13 XMLs Surefire
+clean verify: BUILD SUCCESS; término 2026-10-06T00:35:36-03:00; duração 02:35 min
+Total: 240 testes; falhas 0; erros 0; ignorados 0
+197 anteriores preservados + 43 expedição/retornos/avaria (36 iniciais + 6 P2 + 1 fronteira de datas)
+
+Suítes:
+br.com.rodogarcia.wms.ApiHttpIntegrationTest: testes=4, falhas=0, erros=0, ignorados=0
+br.com.rodogarcia.wms.ArquiteturaTest: testes=5, falhas=0, erros=0, ignorados=0
+br.com.rodogarcia.wms.CadastrosIntegrationTest: testes=28, falhas=0, erros=0, ignorados=0
+br.com.rodogarcia.wms.config.AmbienteConfigTest: testes=3, falhas=0, erros=0, ignorados=0
+br.com.rodogarcia.wms.config.ConfiguracaoPropertiesTest: testes=2, falhas=0, erros=0, ignorados=0
+br.com.rodogarcia.wms.config.SqlServerConfigTest: testes=4, falhas=0, erros=0, ignorados=0
+br.com.rodogarcia.wms.EstoqueIntegrationTest: testes=31, falhas=0, erros=0, ignorados=0
+br.com.rodogarcia.wms.exceptions.ApiExceptionHandlerTest: testes=6, falhas=0, erros=0, ignorados=0
+br.com.rodogarcia.wms.ExpedicaoIntegrationTest: testes=43, falhas=0, erros=0, ignorados=0
+br.com.rodogarcia.wms.PedidoSaidaIntegrationTest: testes=44, falhas=0, erros=0, ignorados=0
+br.com.rodogarcia.wms.RecebimentoIntegrationTest: testes=28, falhas=0, erros=0, ignorados=0
+br.com.rodogarcia.wms.services.NfeXmlServiceTest: testes=6, falhas=0, erros=0, ignorados=0
+br.com.rodogarcia.wms.UnidadeLogisticaIntegrationTest: testes=36, falhas=0, erros=0, ignorados=0
+
+JDK: Temurin 21.0.12.1+1-LTS
+spotless:apply: BUILD SUCCESS; 2026-10-06T00:32:55-03:00; 5.157 s
+Bateria p2-final: 78/0/0/0; 2026-10-06T00:32:17-03:00; 01:38 min (antes do caso adicional de datas conferido no build completo)
+Artefato local: target/wms-backend-0.0.1-SNAPSHOT.jar; 58660403 bytes
+SHA-256 JAR: 43931196E390A48323FF37A20434F698B1D6E26FBB7BF4F13EC63CC15B72E1C9
+Logs finais: d19-bloco1-clean-verify-p2-final.log, d19-bloco1-spotless-p2-final.log, d19-bloco1-testes-p2-final.log
+Resultados/logs D19 anteriores preservados. Sem SQL Server/fiscal real/publicação/frontend/commit/push.

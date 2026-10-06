@@ -1,0 +1,98 @@
+D19 — Cedro — BE01/BE05/BE12 — entrega local e freeze para revisão
+Projeto: C:/Users/suporte/Documents/projetos/wms-rodogarcia
+Data do build final: 06/10/2026, 01:45:30 -03:00.
+
+RESULTADO OBSERVADO
+BUILD SUCCESS. 286 testes / 0 falhas / 0 erros / 0 ignorados, em 14 XMLs.
+240 testes anteriores preservados; CobrancaIntegrationTest acrescenta 46 cenários.
+194 fontes Java principais e 16 fontes Java de teste compiladas.
+JAR: target/wms-backend-0.0.1-SNAPSHOT.jar, 78.220.106 bytes.
+SHA-256: DCA2708F9A8143F4D99203ABAD662A3FECBC881020F73F2620F3A5F1AD069BFE.
+JDK Temurin 21.0.12.1+1; Maven Wrapper 3.9.16.
+
+COMANDOS REAIS NA PASTA BACKEND
+mvnw.cmd -B -ntp spotless:apply test -Dtest=CobrancaIntegrationTest
+  d19-bloco2-testes-fronteiras-finais.log: SUCCESS,42/0/0/0,01:05min,01:33:35.
+mvnw.cmd -B -ntp spotless:apply
+  d19-bloco2-spotless-parser-final.log: SUCCESS,210 Java,4.193s,01:42:37.
+mvnw.cmd -B -ntp clean verify
+  d19-bloco2-clean-verify-parser-final.log: SUCCESS,286/0/0/0,02:47min,01:45:30.
+mvnw.cmd -v
+  d19-bloco2-ambiente-parser-final.log: Maven3.9.16/JDK21.0.12.1/UTF-8.
+JAVA_HOME usado: C:/Users/suporte/AppData/Local/Programs/Eclipse Adoptium/jdk-21.
+Redirecionamento cmd /d /c para evidencias/*.log, fora de target.
+Resumo dos XMLs e hash do artefato: d19-bloco2-resumo-parser-final.json.
+
+IMPLEMENTAÇÃO E ARQUIVOS
+Contrato/schema em docs/29-cadastros-servicos-e-calculo.md antes do Java/V7.
+backend/README.md atualizado com comportamento/output final; doc27 somente rodapé
+de aceite local no28, preservando a evidência anterior.
+MVC: controllers/dto/services/repositories/models; resources .properties.
+ComplementoFiscal em cliente/armazém e referência por produto/armazém/operação:
+identidade imutável, revisão/auditoria, cidade obrigatória e referências opcionais.
+Importação XLSX: POI5.5.1, prévia com erros, confirmação inteira sob lock do armazém,
+revalidação de duplicidade, replay/rollback, posição01, capacidade não configurada
+distinta de ilimitada. Multipart habilitado5MiB/6MiB; linhas até5000, ZIP50MiB/1000partes.
+Hyperlinks/fórmulas/macros/links externos recusados; cabeçalho inválido400;
+identidade numérica1.5 em formato00 não pode ser arredondada para02.
+Configuração: serviços, tabelas/itens/vigências, vínculos explícitos e contrato,
+contexto/locks/escopo/Gestor/replay, sem valores comerciais padrão inventados.
+Fatos: entrada/saída existentes e execução adicional identificada; tarifa executada,
+chave única independente de vínculos opcionais; sugestões SAIDA por retirada/SKU;
+parcelas por nota conservam o total, inclusive0.01 distribuído0/0.01.
+Cálculo: snapshot COMPLETO/PENDENTE, memória diária por regra/categoria/intervalo,
+precedência PALLET/BOBINA sobre geral sem duplicar posições, singular NULL se não
+único, pico simultâneo, triagem distinta de início de armazenagem, duas posições,
+remanescente parcial, mínimo diferença/proporção e GRIS explícitos10de30.
+Valor físico tem calendário próprio, inclui retirada/passagem na mesma data,
+entrada não unitizada e transição conservada sem somar entrada+unidade.
+Avaria: agregado histórico por unidade/intervalo; sobreposição inconsistente vira
+pendência sem160%/negativo/clamp. Origem desconhecida com preços distintos vira
+pendência; histórico/destino insuficientes não são estimativas. Marco Gestor valida
+continuidade cronológica/quantitativa também inserido fora de ordem. Memória antiga
+permanece imutável; financeiro não movimenta estoque, reserva ou fiscal.
+Lista exata de arquivos/hash: d19-bloco2-freeze-parser-final.sha256.
+Schema V7: mesmas15 tabelas e extensões já comunicadas, situacao do serviço24;
+intervalosValor/origens detalhadas usam JSON existente. Nenhuma coluna nova.
+Prumo é dono exclusivo da migration; comparação final V7/JPA pendente.
+
+FRONTEIRAS TESTADAS
+HTTP real: multipart prévia/consulta/confirmação;401/403/400/409; revisão e replay;
+perfis/escopos; complemento fiscal não troca identidade; fórmula/número cabeçalho;
+hyperlink em descrição e linha aparentemente vazia; identidade fracionária formatada.
+H2: prévia vs criação com latch/lock compartilhado, vínculo concorrente sobreposto,
+rollback de auditoria em segunda linha/calculo e repetição após rollback.
+Financeiro: execução antiga após nova tarifa; parcelas/categorias/0.01; opcional
+unidade não duplica adicional; A lançado mantém B sugerido/paginado, anulação não
+recria execução; pico por regra/categoria/duas posições e calendário civil;
+parcial/separação/quarentena; triagem/valor físico; não dupla soma na unitização;
+configuração ausente e zero explícito; mínimo/GRIS DIARIA e POR_CICLO10de30;
+avaria antes/depois de baixa, marco ausente/presente, preços diferentes/iguais,
+sobreposição/reparo na fronteira, continuidade0->20 recusada nas duas ordens,
+remoção afetada acima da baixa recusada; snapshot e GET monetário estáveis.
+Todos os36 testes de unidades/BE07 e43 de expedição anteriores passaram.
+Auditoria instrumentada por alvo tipado fora do proxy; EnderecoService anterior
+já usa alvo tipado. Nenhuma validação ou transação de produção foi suprimida.
+
+HISTÓRICO PRESERVADO
+Build283: d19-bloco2-clean-verify-final.log,01:37:56,02:42min.
+Build284: d19-bloco2-clean-verify-centavos.log,01:41:40,02:54min;
+resumo-centavos.json conserva14 XMLs e hash/bytes daquele artefato.
+Compilações intermediárias, erros de fixture/Mockito/import e39/4/0/0 preservados.
+Outputs D18/197, D19/233, P2-final240 e respectivas entregas não sobrescritos.
+Git main, sem commits; conteúdo não rastreado preexistente preservado.
+
+FREEZE E CONTINUIDADE
+Backend e contrato29 congelados para Vigia/Prumo; código do próximo bloco aguarda
+aceite local desta revisão. Mudança necessária será informada antes da edição e
+exigirá repetição pertinente. Farol mantém states/decisões/continuidade/índice/mapa.
+Preparar somente contrato/schema31 BE13/BE14 durante a revisão. D19 contínua,
+sem nova autorização por macrobloco; inativação definitiva depois deBE13/BE14.
+
+LIMITES
+Teste/build local não é homologação comercial, piloto ou versão publicada.
+H2 não comprova dialeto/CHECKs/índices/locks/migrations SQL Server; V7 somente arquivo.
+Preços/corte/mínimo/GRIS reais, layout operacional, fiscal externo, provedor,
+equipamento e ambiente têm validação própria. Configuração faltante é pendência.
+Não houve SQL real, fiscal/NFS-e/cobrança real, publicação, commit/push, rotina,
+perfis Hermes/ETL, frontend ou Graphify por Cedro.

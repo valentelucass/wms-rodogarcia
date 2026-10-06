@@ -1,0 +1,52 @@
+﻿ENTREGA CEDRO — D18 / BE01-BE09 — 05/10/2026
+
+Bloco local autorizado concluído. Contrato/schema/API/validação: docs/24-pedido-saida-fifo-e-reserva.md.
+
+Novos arquivos (relativos a backend/src/main/java/br/com/rodogarcia/wms):
+models/PedidoSaida.java
+models/ItemPedidoSaida.java
+models/ReservaSaida.java
+models/OperacaoSaida.java
+models/SituacaoPedidoSaida.java
+models/SituacaoReservaSaida.java
+repositories/PedidoSaidaRepository.java
+repositories/ItemPedidoSaidaRepository.java
+repositories/ReservaSaidaRepository.java
+repositories/OperacaoSaidaRepository.java
+dto/PedidoSaidaDto.java
+services/PedidoSaidaService.java
+controllers/PedidoSaidaController.java
+Novo teste: backend/src/test/java/br/com/rodogarcia/wms/PedidoSaidaIntegrationTest.java.
+
+Alterados (relativos ao mesmo pacote principal):
+models/UnidadeLogistica.java
+repositories/UnidadeLogisticaRepository.java
+dto/EstoqueDto.java
+services/EstoqueService.java
+services/MovimentacaoEstoqueService.java
+services/AuditoriaService.java
+services/EnderecoService.java
+controllers/EstoqueController.java
+config/CadastrosSegurancaConfig.java
+Outros: backend/README.md e docs/24-pedido-saida-fifo-e-reserva.md.
+
+Comandos executados na pasta backend com JAVA_HOME=C:/Users/suporte/AppData/Local/Programs/Eclipse Adoptium/jdk-21 (Temurin 21.0.12.1):
+./mvnw.cmd -B -ntp spotless:apply -> BUILD SUCCESS, 129 arquivos Java limpos.
+./mvnw.cmd -B -ntp -Dtest=PedidoSaidaIntegrationTest test -> BUILD SUCCESS, 44 testes, zero falhas/erros/ignorados; 59.917s.
+./mvnw.cmd -B -ntp clean verify -> BUILD SUCCESS, 197 testes, zero falhas/erros/ignorados; 02:01min; JAR empacotado.
+
+Outputs fora de target, relativos a backend:
+evidencias/d18-spotless-final.log
+evidencias/d18-testes-saida-ajustes.log
+evidencias/d18-clean-verify.log
+evidencias/d18-jdk21.log
+evidencias/d18-resumo-testes.txt
+Tentativa inicial com falhas de escala decimal/instrumentação do spy preservada em evidencias/d18-testes-saida-inicial.log. Corrigida sem remover testes. Nenhuma alteração Java depois de clean verify.
+
+Cobertura nova: transações HTTP/H2 concorrentes disputando saldo e unidade; repetição/chaves divergentes; pedido multiitem integral e rollback real de linhas/ponte/estado/versão/auditoria por falha de CHECK; falha de registro idempotente; FIFO/desempate, exceção por perfil e alcance, revisão e justificativa antiga; bloqueios/triagem/quarentena/avaria/cadastros encerrados; ocorrência posterior mantendo reserva e impedindo prosseguimento; reserva x avaria e reserva x encerramento determinístico; conservação/etiqueta/origem; cancelamento/reversão/re-reserva/sem vencimento. Os 153 testes anteriores, incluindo 31 de BE08, também passaram.
+
+Achados1/2/3 de Vigia corrigidos: Q07 valida saldo na criação; bobinas4/6,pedido6 admite selecionar integralmente bobina6 por exceção justificada/autorizada, sem fracionar e sem prefixo parcial; encerramento/reativação de endereço trava armazém antes de endereço usando projeção escalar. O teste determinístico pausa a reserva após ler candidatas e demonstra que encerramento aguarda commit, depois sinaliza pedido impedido com reserva ativa.
+
+Schema JPA conferido com V5 preparada por Prumo. Índice SQL filtrado, CHECK de JSON e restrições adicionais de V5 não foram executados no H2. AC10/AC11 permanecem identificadas como propostas. Cancelamento/reversão do recorte não inventam fiscal/retirada BE10. Reparo/ajuste de avaria permanece BE11.
+
+Limites: sem SQL Server real/migration aplicada, provedor real, operação/equipamentos, fiscal/cobrança, frontend, publicação, commit/push, rotinas, perfis Hermes ou ETL. Git rev-list --all --count=0; conteúdo preexistente não rastreado preservado. H2 não comprova dialeto/locks/isolation SQL Server. Farol mantém registros centrais/evidência e Graphify; não os editei. Farol informou parecer favorável de Vigia sem novos achados materiais. Relatório enviado via maestri ask WMS - Farol; arquivo local permite consulta mesmo enquanto o terminal recebe mensagem extensa.

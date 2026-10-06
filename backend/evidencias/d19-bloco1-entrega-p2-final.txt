@@ -1,0 +1,43 @@
+D19 bloco1 — BE01/BE10/BE11 — entrega após correção P2 temporal BE07
+Cedro, 06/10/2026. Novo freeze de backend/** e docs/27 após o build aprovado e a atualização documental solicitada por Farol. Nenhuma alteração de Java depois do clean verify. Revisão local Vigia/Prumo pendente; homologação comercial/externa não declarada.
+
+Resultado final observado
+mvnw.cmd -B -ntp spotless:apply: BUILD SUCCESS, 5.157 s, 00:32:55 -03:00; d19-bloco1-spotless-p2-final.log.
+mvnw.cmd -B -ntp clean verify: BUILD SUCCESS, 240 testes, 0 falhas/erros/ignorados, 02:35 min, 06/10/2026 00:35:36 -03:00; d19-bloco1-clean-verify-p2-final.log.
+13 XMLs Surefire somados: 197 casos anteriores preservados + 43 de expedição/retornos/avaria (36 iniciais, seis fronteiras do P2 e um caso de datas inválidas com invariantes transacionais). Resumo em d19-bloco1-resumo-testes-p2-final.txt, fora de target.
+JDK21: Temurin 21.0.12.1+1-LTS; JAVA_HOME=C:/Users/suporte/AppData/Local/Programs/Eclipse Adoptium/jdk-21.
+JAR local: target/wms-backend-0.0.1-SNAPSHOT.jar; 58.660.403 bytes; SHA-256 43931196E390A48323FF37A20434F698B1D6E26FBB7BF4F13EC63CC15B72E1C9.
+
+Correção P2
+LinhaTemporalEstoqueService consulta operações imutáveis BE07 de divisão/reagrupamento do pedido e identifica o último snapshot que inclui a identidade. Esse resultado comprova quantidade após a confirmação; ocorrência anterior retorna HISTORICO_AVARIA_INSUFICIENTE, sem atribuir o saldo resultante ao passado. Nova identidade não existia antes de criadaEm. Para instante posterior, quantidade do snapshot ancora a cadeia RETIRADA/AJUSTE_ESTOQUE, que deve coincidir até o saldo atual. Snapshot inválido ou cadeia divergente não é presumido.
+Exemplo 50+50→100: dano datado antes de reagrupar recebe 409 de insuficiência; após confirmação, a base comprovada é 100. Divisão 100→50+50: antes da transformação não se usa 50 como denominador; após confirmação, base 50 para remanescente/nova identidade, conforme instante físico. Não se reescreve história BE07.
+Não mudou tabela, coluna, tipo, enum, CHECK, FK ou índice da V6. OperacaoUnidade ganhou somente getter de registradaEm; repository ganhou consulta pelo pedido/tipos ordenada por registradaEm/id. Mapeamento JPA existente permanece.
+
+Diferenças desde o build233 (prefixo backend/src/main/java/br/com/rodogarcia/wms/)
+services/LinhaTemporalEstoqueService.java: guarda temporal/ancoragem BE07 e leitura do resultado original.
+repositories/OperacaoUnidadeRepository.java: consulta histórica ordenada, sem lock novo.
+models/OperacaoUnidade.java: getter de timestamp existente, sem novo campo JPA.
+backend/src/test/java/br/com/rodogarcia/wms/ExpedicaoIntegrationTest.java: seis casos HTTP reais antes/depois de divisão/reagrupamento/nova identidade; conservação de unidade/composição/operações e reconhecimento da base posterior. Acrescenta datas inválidas (avaria e devolução) sem efeito em estoque/reserva/entrada.
+backend/src/test/java/br/com/rodogarcia/wms/config/RelogioExpedicaoTesteConfig.java: Clock UTC monotônico @Primary exclusivo do contexto Expedição. Fixtures de dados e serviços compartilham a ordem em microssegundos; datas de JWT continuam no relógio real. Nenhuma validação de serviço/perfil foi relaxada; Clock de produção não foi alterado.
+Fixture de devolução usa retiradaEm confirmada +1 microssegundo como chegada fictícia; getters do estado atual continuam sendo consultas reais HTTP.
+backend/README.md e docs/27-separacao-retirada-retornos-e-avaria.md: contrato/resultados finais e rotas/DTOs/limites atualizados após aprovação do build, conforme ordem expressa de Farol. Removida redação preparatória desatualizada, mantendo revisão externa/local separada do build.
+Evidências novas: este arquivo, d19-bloco1-resumo-testes-p2-final.txt, logs p2/p2-ajuste/p2-final e manifesto d19-bloco1-p2-final.sha256.
+Correção de indicação na entrega anterior: enums existentes são models/SituacaoPedidoSaida.java e models/SituacaoReservaSaida.java; não há subpasta models/enums. A entrega histórica foi preservada.
+
+Preservação e testes
+d19-bloco1-clean-verify.log (233/0/0/0), d19-bloco1-entrega.txt e d19-bloco1-resumo-testes.txt preservados sem sobrescrita. Todas as tentativas intermediárias permanecem.
+d19-bloco1-testes-p2.log: 78 testes, uma falha no fixture de chegada da devolução; os seis novos P2 e os 36 antigos BE07 passaram.
+d19-bloco1-testes-p2-ajuste.log: 78/0/0/0, BUILD SUCCESS às 00:24:48, 01:31 min.
+d19-bloco1-spotless-p2.log: BUILD SUCCESS às 00:25:12, 1.817 s.
+d19-bloco1-clean-verify-p2.log: 239 testes, uma falha no fixture de data da avaria; preservado, não é aprovação final.
+d19-bloco1-testes-p2-final.log: 78/0/0/0, BUILD SUCCESS às 00:32:17, 01:38 min; com Clock de teste compartilhado, antes da inclusão do caso negativo de datas validado no clean verify completo de 240.
+Comandos de testes seletivos: mvnw.cmd -B -ntp spotless:apply test -Dtest=ExpedicaoIntegrationTest,UnidadeLogisticaIntegrationTest.
+Nenhum teste BE07/D18 preexistente foi editado. Conservação/origens/FIFO/etiquetas, locks de armazém, auditoria/replay/escopo e resources .properties preservados. Resultado completo conferido também pela leitura dos XMLs, sem repetir build após mudanças somente documentais.
+
+Cobertura do bloco preservada
+Leitura/separação das reservas, conjunto SEPARACAO de duas posições, cobertura por NOTAZZ/XML existentes, retirada física integral por Supervisor/Gestor, parcial pallet com remanescente protegido/etiqueta/origem/equivalência, retorno interno sem nova entrada, devolução após retirada com nova entrada vinculada/FIFO original e quantidade limitada, avaria estruturada/reparo/responsabilidade Gestor/fatos datados. Retorno efetivo de reparo inicial e bloqueio só do ciclo vigente. 201 reservas retornam integralmente ou fazem rollback integral. Gestor antes de replay resolverPendentes=true e snapshot imutável por ciclo mantidos.
+Auditoria e schema seguem os pares exatos da entrega anterior e doc27. Reparo inicial não reescreve condição original, não libera reserva silenciosamente; predicado de retirada SEPARACAO mantém proteções e ponte do pedido sem tornar separado disponível a outro pedido.
+
+Limites e próximo passo
+HTTP/serviço/H2 isolado, JWT/chaves efêmeros, dados fictícios. Não comprova SQL Server/V6 aplicada, assinatura fiscal/XSD completo/SEFAZ, configuração de provedor real, impressão/equipamento/frontend/piloto ou aceite comercial. Fiscal/valores reais não inventados; sem emissão, NFS-e, cobrança a clientes, SQL real, publicação, commit/push, rotinas, perfis Hermes ou ETL.
+Farol registra centrais/evidência/Graphify; Prumo reconfere estrutura V6/doc27; Vigia reconfere P2 e diferenças novas. Freeze estável até achados/release de Farol. Após fechar esse bloco, BE05/BE12 e demais D19 já autorizados; não pedir nova autorização ao usuário. Durante revisão retomada SOMENTE docs/29/schema, sem Java seguinte até aceite local atual de Farol.

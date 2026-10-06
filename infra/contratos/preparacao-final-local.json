@@ -1,0 +1,227 @@
+{
+    "natureza":  "Preparo tecnico local final BE03/BE04/BE15, freeze p2-locks367 e referencias JPA em arquivos; nao aceita regras de negocio nem homologa SQL Server/ambiente externo.",
+    "baselineV1V9":  [
+                         {
+                             "arquivo":  "database/migrations/V1__cadastros_e_auditoria.sql",
+                             "sha256":  "41346740B1D9FC60291908F82190722F9C004F5B04DBA6B68CE57E898B4E3D58"
+                         },
+                         {
+                             "arquivo":  "database/migrations/V2__recebimento_e_entradas_conferidas.sql",
+                             "sha256":  "E17AD30B1D8BACF1409FE3083661DE09A2602563776CA747449E0F0764470052"
+                         },
+                         {
+                             "arquivo":  "database/migrations/V3__unidades_logisticas_e_origens.sql",
+                             "sha256":  "B16CD6507AC256D4757385A9C98C984CFDF86918CDBBCBE2BE11DF40FCE6B6DD"
+                         },
+                         {
+                             "arquivo":  "database/migrations/V4__enderecamento_capacidade_e_movimentos.sql",
+                             "sha256":  "CE6C77238777EC87DDDF05A72D925CCAFA1C784CA16883242238E45935221A05"
+                         },
+                         {
+                             "arquivo":  "database/migrations/V5__pedidos_saida_fifo_e_reservas.sql",
+                             "sha256":  "57EA2766C4170159CB4CCD2C210481E63FA13D976BFD932D6E711A734DCFFF88"
+                         },
+                         {
+                             "arquivo":  "database/migrations/V6__separacao_retirada_retornos_e_avaria.sql",
+                             "sha256":  "EE0EEBAF5D7EA5B7329C182039A274EBE46DAFCB561EAEF5DF8846381A897D39"
+                         },
+                         {
+                             "arquivo":  "database/migrations/V7__cadastros_servicos_e_calculo.sql",
+                             "sha256":  "3193D8436D360BA0D1D36E290112F39F76AB3A300AC2C2AD931208B6745B8940"
+                         },
+                         {
+                             "arquivo":  "database/migrations/V8__fechamento_e_versoes.sql",
+                             "sha256":  "B67580F64ED8C8558E25FF9D4FD545C923E193BBFD6A749DA45052CE1D9DB017"
+                         },
+                         {
+                             "arquivo":  "database/migrations/V9__contagem_carga_contingencia_e_encerramento.sql",
+                             "sha256":  "17C6C2F9FB5B362242CF54AB2CD615B5646011EB7AB81D052C8FCE6833DF88B8"
+                         }
+                     ],
+    "fontesTecnicas":  [
+                           {
+                               "arquivo":  "backend/src/main/resources/application.properties",
+                               "sha256":  "BCB3033CF0ED86FBA370AFD3F794FA05452707CE774019523D75E522692CB4EF"
+                           },
+                           {
+                               "arquivo":  "backend/src/main/resources/application-local.properties",
+                               "sha256":  "48121A8D3ACEE9D7179649DF51976A1F330664B77ACDDCC2F7A864AFF5948816"
+                           },
+                           {
+                               "arquivo":  "backend/src/main/resources/application-sqlserver-dev.properties",
+                               "sha256":  "E32B18637DFEFA11481538BD7367C0714C308D9EDF00CD32DA5B1E774F9668F0"
+                           },
+                           {
+                               "arquivo":  "backend/src/main/java/br/com/rodogarcia/wms/config/SqlServerConfig.java",
+                               "sha256":  "1A1F328BFEE47F8B66F8298488A0B2124E1DC4E4CFF4B5CB4E586CB99B7CB9DC"
+                           },
+                           {
+                               "arquivo":  "backend/src/main/java/br/com/rodogarcia/wms/config/SqlServerProperties.java",
+                               "sha256":  "872031C6A1806D62F52520529F73F2CB5CFB9D41E20AC9EDDAA3DBD9DFF712C0"
+                           },
+                           {
+                               "arquivo":  "backend/src/main/java/br/com/rodogarcia/wms/config/IdentidadeProperties.java",
+                               "sha256":  "9751C17FB30379B6C228BE02F1A8E46CF0B30F2F5EDC972CDDC7C969956A5D49"
+                           },
+                           {
+                               "arquivo":  "backend/src/main/java/br/com/rodogarcia/wms/config/CadastrosSegurancaConfig.java",
+                               "sha256":  "E9A68FA79B3F11E4BE8F8073C7F9476033E9E8D1FA93084E1C001CC9116EDD43"
+                           },
+                           {
+                               "arquivo":  "backend/src/main/java/br/com/rodogarcia/wms/config/JwtWmsValidator.java",
+                               "sha256":  "903F93C38D90653B49C8FB1C3B1B2EDAD6A5E6BDB5FAD7286B1A3B4756835683"
+                           },
+                           {
+                               "arquivo":  "backend/pom.xml",
+                               "sha256":  "B25C5E149B740305B71EC3B13ECB731D804903AD996DD48D0293D69DCF01AA4C"
+                           },
+                           {
+                               "arquivo":  "database/migrate.ps1",
+                               "sha256":  "4BE632D56B51E4B79E5E914E871E6AE10DFFAA4A44ADCEC93B21C96E1AEFEBE7"
+                           }
+                       ],
+    "leitor56":  {
+                     "arquivo":  "infra/verificar-preparacao-local.ps1",
+                     "sha256":  "A72FB6BD00EDB3758D3782BD362FA178F7DB1449EAD8B2A8A514DF1532708E86",
+                     "output":  "infra/evidencias/d19-diagnostico-local.json",
+                     "outputSha256":  "D2FDA69E5C12BFF253B3BDE2AD8D3F89A396E5781F10DEE8CAA9691C258B4C65"
+                 },
+    "documentos":  [
+                       "infra/preparacao-tecnica-final.md",
+                       "infra/configuracao-externa.md",
+                       "infra/recuperacao-e-ensaio.md",
+                       "database/permissoes-minimas.md",
+                       "database/migrations/README.md",
+                       "docs/33-preparacao-tecnica-local-backend.md"
+                   ],
+    "limites":  [
+                    "Somente arquivos locais, sem valores de ambiente/segredos, rede/SQL/Flyway/JVM/H2/build.",
+                    "Comparacao p2-locks367 estrutural/lexical nao e aceite de regras/locks reais; Vigia revisa semantica e Farol decide aceite local.",
+                    "JAR FINAL367 hasheado, log e XML de Cedro lidos sem repetir clean verify; H2 nao aplica migrations SQL Server.",
+                    "Original194/56/fontesTecnicas e freeze360 preservados como historicos; hash divergente da baseline antiga nao e divergencia do freeze atual.",
+                    "Provedor/contas/renovacao/revogacao/TLS/alvo/privilegios/backup/restauracao/equipamentos reais dependem dos donos externos; nao inventar RPO/RTO/volumetria/precos."
+                ],
+    "dmlTecnicoExistente":  {
+                                "database/migrations/V4__enderecamento_capacidade_e_movimentos.sql":  [
+                                                                                                          "UPDATE wms.unidade_logistica SET revisao_conteudo = versao;"
+                                                                                                      ]
+                            },
+    "historicoV9":  {
+                        "anterior":  "518596FB9AEE595E54EDBE13A8E6A1837354EC050AD9F7845A297B6473123CF5",
+                        "atual":  "17C6C2F9FB5B362242CF54AB2CD615B5646011EB7AB81D052C8FCE6833DF88B8",
+                        "copiaAnterior":  "database/evidencias/d19-v9-preparacao-2026-10-06-pareamento-complementar-antes-v9.sql",
+                        "fonte":  "database/evidencias/d19-v9-preparacao-2026-10-06-pareamento-complementar-fonte-doc31.md",
+                        "fonteSha256":  "0A4D40A89EDBA6E3CCD124379F818C2813DF55ED992C478A798E76C093F6217C",
+                        "autorizacao":  "Complemento formal Farol/Cedro anteriorJava; V9 unica migration em atualizacao autorizada. V1-V8 preservadas."
+                    },
+    "freezeFinal":  {
+                        "arquivo":  "backend/evidencias/d19-bloco4-freeze-p2-locks.sha256",
+                        "sha256":  "A257476BCC711BCB14A42A27FAE72C092E68F85460700D758B8BC9C70CE38233",
+                        "doc31Sha256":  "0C57C902AF67645A3949CF136993B0FE1EBADDDAA4CEC2DD3173CC637E96D879",
+                        "estado":  "ATUAL_AUTORIZADO",
+                        "fonteSnapshot":  "database/evidencias/d19-v9-2026-10-06-p2-locks-final-fonte-doc31.md"
+                    },
+    "artefatoFinal":  {
+                          "diretorio":  "target-be14",
+                          "nome":  "wms-backend-0.0.1-SNAPSHOT.jar",
+                          "bytes":  78526951,
+                          "sha256":  "352211B7A38EFE0E80A034656B41D40CEEDDE0D988FE5AF130E56BF2C1FA13E5",
+                          "resumo":  "backend/evidencias/d19-bloco4-resumo-p2-locks.json",
+                          "log":  "backend/evidencias/d19-bloco4-clean-verify-p2-locks.log",
+                          "xmls":  "backend/evidencias/d19-bloco4-xml-p2-locks",
+                          "natureza":  "Artefato FINAL367 do freeze explicitamente recebido; conferir bytes/hash/log/XML, sem executar JAR; aceite Farol e revisao Vigia independentes.",
+                          "testes":  367,
+                          "finalizado":  "2026-10-06T07:49:48-03:00",
+                          "snapshot":  "infra/evidencias/d19-preparacao-p2-locks367-2026-10-06-jar-snapshot.jar"
+                      },
+    "evidenciasJpaFinal":  [
+                               {
+                                   "tipo":  "principal",
+                                   "arquivo":  "database/evidencias/d19-v9-2026-10-06-p2-locks-final-leitor-final.json",
+                                   "total":  904,
+                                   "estado":  "FREEZE_ATUAL_PARECER_ESTATICO"
+                               },
+                               {
+                                   "tipo":  "suplemento",
+                                   "arquivo":  "database/evidencias/d19-v9-2026-10-06-p2-locks-final-suplemento-final.json",
+                                   "total":  129,
+                                   "estado":  "FREEZE_ATUAL_LEXICAL"
+                               }
+                           ],
+    "historicoArtefatos":  [
+                               {
+                                   "id":  "BE14-360",
+                                   "freeze":  {
+                                                  "arquivo":  "backend/evidencias/d19-bloco4-freeze-final.sha256",
+                                                  "sha256":  "42284559254B36C42806E9DC461E9A3A6C49A654984D9D1B332B745226ED3486",
+                                                  "doc31Sha256":  "B45954EF4E79346657F9406BF788FF5CB3432B951F37BF817381E30C36180E7B",
+                                                  "estado":  "HISTORICO_ACEITE_RETIDO_P2_LOCKS",
+                                                  "fonteSnapshot":  "database/evidencias/d19-v9-freeze-2026-10-06-final-fonte-doc31.md"
+                                              },
+                                   "artefato":  {
+                                                    "diretorio":  "target-be14",
+                                                    "nome":  "wms-backend-0.0.1-SNAPSHOT.jar",
+                                                    "bytes":  78524597,
+                                                    "sha256":  "829A59B6CA60AF314089D1A0D303603FF3CACEEDAB4076F47608D7B513B3BA13",
+                                                    "resumo":  "backend/evidencias/d19-bloco4-resumo-final.json",
+                                                    "log":  "backend/evidencias/d19-bloco4-clean-verify-final-camadas.log",
+                                                    "xmls":  "backend/evidencias/d19-bloco4-xml-final",
+                                                    "natureza":  "Artefato360 HISTORICO; nao executar nem atribuir ao futuro p2-locks.",
+                                                    "snapshot":  "infra/evidencias/d19-be14-360-historico-2026-10-06-jar-snapshot.jar",
+                                                    "testes":  360
+                                                },
+                                   "evidenciasJpa":  [
+                                                         {
+                                                             "tipo":  "principal",
+                                                             "arquivo":  "database/evidencias/d19-v9-freeze-2026-10-06-final-leitor-reconciliado-final.json",
+                                                             "total":  904,
+                                                             "estado":  "HISTORICO"
+                                                         },
+                                                         {
+                                                             "tipo":  "suplemento",
+                                                             "arquivo":  "database/evidencias/d19-v9-freeze-2026-10-06-final-suplemento-guardas-final.json",
+                                                             "total":  122,
+                                                             "estado":  "HISTORICO"
+                                                         }
+                                                     ],
+                                   "origem":  "database/evidencias/d19-v9-2026-10-06-p2-locks-final-antes-infra-contratos-preparacao-final-local.json",
+                                   "origemSha256":  "598AD025E46AC4F6CD4130BB7041AE23D7063E6506187172BB999E829759320B",
+                                   "natureza":  "Historico360/904/122/52/411 restaurado por copia profunda da origem preservada; aceite360 retido. Registro incorreto do456 preservado no snapshot anterior desta correcao."
+                               }
+                           ],
+    "identidadeCiclos":  {
+                             "versao":  1,
+                             "atual":  {
+                                           "origem":  "infra/evidencias/d19-correcao-identidade-ciclos-2026-10-06-antes-infra-contratos-preparacao-final-local.json",
+                                           "origemSha256":  "02C917BE39D15FB40C6825448202FD1A084D1402D7066B0E74DC0E29E4EE2917",
+                                           "jarSnapshot":  "infra/evidencias/d19-preparacao-p2-locks367-2026-10-06-jar-snapshot.jar",
+                                           "testes":  367,
+                                           "evidencias":  [
+                                                              {
+                                                                  "arquivo":  "database/evidencias/d19-v9-2026-10-06-p2-locks-final-leitor-final.json",
+                                                                  "sha256":  "A67E8237935E9A3136B155823F94FB55DF384676884E973F0BCEDBF305CFC40B"
+                                                              },
+                                                              {
+                                                                  "arquivo":  "database/evidencias/d19-v9-2026-10-06-p2-locks-final-suplemento-final.json",
+                                                                  "sha256":  "D7E0C7259B1DF769CBB231988F024234F8F052B2E864E38A42AD720912DB636E"
+                                                              }
+                                                          ]
+                                       },
+                             "historico":  {
+                                               "origem":  "database/evidencias/d19-v9-2026-10-06-p2-locks-final-antes-infra-contratos-preparacao-final-local.json",
+                                               "origemSha256":  "598AD025E46AC4F6CD4130BB7041AE23D7063E6506187172BB999E829759320B",
+                                               "jarSnapshot":  "infra/evidencias/d19-be14-360-historico-2026-10-06-jar-snapshot.jar",
+                                               "testes":  360,
+                                               "evidencias":  [
+                                                                  {
+                                                                      "arquivo":  "database/evidencias/d19-v9-freeze-2026-10-06-final-leitor-reconciliado-final.json",
+                                                                      "sha256":  "3EDA384708EC0F5BBF10F508651B259E2698E5EE0EC6708FDADCE45C2B1EE236"
+                                                                  },
+                                                                  {
+                                                                      "arquivo":  "database/evidencias/d19-v9-freeze-2026-10-06-final-suplemento-guardas-final.json",
+                                                                      "sha256":  "195375D4AC61517715F2527B6664A16174C47BC26FAFCFC9460208DD1BA2C826"
+                                                                  }
+                                                              ]
+                                           }
+                         }
+}

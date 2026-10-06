@@ -1,0 +1,24 @@
+﻿D19 bloco 1 — resultado conferido nos relatórios XML e output real
+clean verify: BUILD SUCCESS; término 2026-10-06T00:09:18-03:00; duração 02:34 min
+Total: 233 testes; falhas 0; erros 0; ignorados 0
+
+Suítes:
+br.com.rodogarcia.wms.ApiHttpIntegrationTest: testes=4, falhas=0, erros=0, ignorados=0
+br.com.rodogarcia.wms.ArquiteturaTest: testes=5, falhas=0, erros=0, ignorados=0
+br.com.rodogarcia.wms.CadastrosIntegrationTest: testes=28, falhas=0, erros=0, ignorados=0
+br.com.rodogarcia.wms.config.AmbienteConfigTest: testes=3, falhas=0, erros=0, ignorados=0
+br.com.rodogarcia.wms.config.ConfiguracaoPropertiesTest: testes=2, falhas=0, erros=0, ignorados=0
+br.com.rodogarcia.wms.config.SqlServerConfigTest: testes=4, falhas=0, erros=0, ignorados=0
+br.com.rodogarcia.wms.EstoqueIntegrationTest: testes=31, falhas=0, erros=0, ignorados=0
+br.com.rodogarcia.wms.exceptions.ApiExceptionHandlerTest: testes=6, falhas=0, erros=0, ignorados=0
+br.com.rodogarcia.wms.ExpedicaoIntegrationTest: testes=36, falhas=0, erros=0, ignorados=0
+br.com.rodogarcia.wms.PedidoSaidaIntegrationTest: testes=44, falhas=0, erros=0, ignorados=0
+br.com.rodogarcia.wms.RecebimentoIntegrationTest: testes=28, falhas=0, erros=0, ignorados=0
+br.com.rodogarcia.wms.services.NfeXmlServiceTest: testes=6, falhas=0, erros=0, ignorados=0
+br.com.rodogarcia.wms.UnidadeLogisticaIntegrationTest: testes=36, falhas=0, erros=0, ignorados=0
+
+JDK: Temurin 21.0.12.1+1-LTS
+spotless:apply: BUILD SUCCESS; 2026-10-06T00:06:39-03:00; 4.547 s
+Artefato local: target/wms-backend-0.0.1-SNAPSHOT.jar; 58657964 bytes
+Logs completos: d19-bloco1-clean-verify.log, d19-bloco1-spotless.log, d19-bloco1-testes-quatro-achados.log
+Sem SQL Server, fiscal real, publicação, commit/push ou frontend.

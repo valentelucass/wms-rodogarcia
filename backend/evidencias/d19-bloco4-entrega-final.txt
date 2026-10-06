@@ -1,0 +1,126 @@
+D19 — Cedro — entrega BE01/BE14/BE05 final — 06/10/2026
+
+FREEZE de backend/código/README e docs/31 para revisão final Vigia/Prumo/Farol.
+Nenhum aceite BE14 antecipado. BE13/333/251 aceito anteriormente permanece
+histórico; não repetir sua revisão. Escrita ficou em backend/** e contrato31.
+Sem edição de centrais/database/infra/Graphify/frontend por Cedro.
+
+Resultado real
+- clean verify final-camadas: BUILD SUCCESS,360/0/0/0,17 XMLs/JAR,
+  03:47min,2026-10-06T07:12:12-03:00. Compilou257 fontes principais/19 teste.
+- spotless final-camadas: BUILD SUCCESS,276 Java,1.986s,07:08:18.
+- integração físico-financeira:117/0/0/0,02:34min,06:46:08.
+- jornada/fronteiras:13/0/0/0,01:22min,06:53:08.
+- camadas/consultas-import:17/0/0/0,01:41min,07:07:50.
+- 333 anteriores preservados;27 novos (Contingencia12/Jornada13/Fechamento2).
+  Jornada não contém testes copiados do arquivo Contingencia original.
+
+Comandos exatos na pasta backend
+JAVA_HOME=C:/Users/suporte/AppData/Local/Programs/Eclipse Adoptium/jdk-21
+MAVEN_OPTS=-Xmx384m
+mvnw.cmd -B -ntp -Dwms.build.directory=target-be14 spotless:apply
+mvnw.cmd -B -ntp -Dwms.build.directory=target-be14 -DargLine=-Xmx768m clean verify
+mvnw.cmd -B -ntp -Dwms.build.directory=target-be14 spotless:apply -Dtest=ArquiteturaTest,ContingenciaIntegrationTest -DargLine=-Xmx768m test
+mvnw.cmd -B -ntp -Dwms.build.directory=target-be14 spotless:apply -Dtest=JornadaBackendIntegrationTest -DargLine=-Xmx384m test
+mvnw.cmd -B -ntp -Dwms.build.directory=target-be14 spotless:apply -Dtest=JornadaBackendIntegrationTest,ContingenciaIntegrationTest,FechamentoIntegrationTest,CobrancaIntegrationTest -DargLine=-Xmx384m test
+./evidencias/d19-bloco4-conferir-final.ps1
+Ferramentas reais: Temurin21.0.12.1+1 e Maven Wrapper3.9.16.
+target-be14 isola a saída disputada com o editor; pom conserva target padrão.
+
+Artefato/evidência preservada fora de target
+- JAR backend/target-be14/wms-backend-0.0.1-SNAPSHOT.jar,78.524.597bytes,
+  SHA256829A59B6CA60AF314089D1A0D303603FF3CACEEDAB4076F47608D7B513B3BA13.
+- d19-bloco4-resumo-final.json:17 suites, contagens, hashes XMLs/JAR/comando.
+- d19-bloco4-xml-final/:17 cópias dos relatórios integrais, com hashes conferidos.
+- d19-bloco4-freeze-final.sha256:289 arquivos de fonte/config/contratos,
+  SHA25642284559254B36C42806E9DC461E9A3A6C49A654984D9D1B332B745226ED3486.
+- d19-bloco4-preservacao-final.json:251 anteriores,225 iguais/26 alterados no
+  recorte BE14/38 novos/zero ausentes. Lista exata por arquivo/hash no JSON.
+- docs31 SHA256B45954EF4E79346657F9406BF788FF5CB3432B951F37BF817381E30C36180E7B.
+- docs29 D4365689A0A0A3A2A75FC84B01609EE14EF3563164A1E24CD3A42A265DD242EB
+  e docs27 06029503B073817962288EDFB6C794FCB6981772C423BEAD65B7B197851DD774
+  permanecem byte a byte. Manifesto333/251628A2B45... intacto.
+- logs d19-bloco4-*.log e diagnóstico-tentativas.txt classificam todos os outputs;
+  333/328/292/286/240/233/197 e seus freezes anteriores não sobrescritos.
+
+Entregue e conferido
+1) Contagem: identidade por unidade/revisões imutáveis; instante antigo ou mesmo
+   instante divergente recusados. Impedimento próprio central BE08 bloqueia novos
+   pedidos/expedição sem soltar reserva.100/80/70 permanece pendente até resolver
+   pedido inteiro; recontagem substitui diferença antiga sem apagar bloqueio.
+   Aplicação por Supervisor, versão/capacidade/origem/causa/destino/prova, conserva
+   nota/FIFO/condição. Redução/recomposição datadas e zero têm fatos/movimento;
+   auditoria tardia reverte conteúdo/fato/movimento/replay. Aumento não recupera
+   quantidade já retirada ou outra origem/condição; teste positivo e dois excessos.
+2) Carga inicial: estágio com ausências explícitas, sem origem/nota/FIFO/valor
+   fictícios de produção. Preparação única produz etiquetas e entrada; confirmação
+   posterior lê todas as etiquetas, sem recriar saldo. PREPARADA indisponível;
+   cancelamento só após zero físico comprovado por contagem ou pedido identificado
+   retirado integral, mantendo entrada/FK/história. Testes zero e RR20 por duas
+   unidades10, replay/403/rollback e cancelamento ainda físico recusado.
+3) Contingência: identidade global/hash/JSON original entre UUIDs/rotas/ações;
+   dependência ausente conserva identidade em JSON e materializa FK depois.
+   Efeito já REGISTRADO no WMS somente VINCULAR, sem reexecutar; registro repetido
+   devolve PENDENTE original, GET mostra CONCILIADA atual. Contexto precede linha
+   e dependências sob locks compartilhados; teste registroA->B x conciliaçãoB.
+   ENTRADA/AJUSTE/REMANEJAMENTO/RETIRADA têm comandos temporais tipados locais;
+   prova/identidade/hash e snapshots físicos datados conferidos. História insuficiente
+   fica pendência. Snapshot SEPARACAO/RETORNO precisa mesmo instante comprovado;
+   ciclo antigo não satisfaz outro. Data física02/09 e registro05/09 são distintos.
+4) Consultas: detalhes/listas/revisões atuais, filtros concretos e0/20/100/escopo;
+   SKU é unidade da página de indicador e UUID é da página de estoque. Estágio/
+   entrada/conteúdo não duplicam soma; reservado/protegido/bloqueado distintos.
+   Valor por origem fornecida, desconhecido NULL com pendência. Aviso de validade
+   configurado por Gestor, sem bloquear disponível automaticamente; HTTP403/replay.
+5) Encerramento: solicitação auditada ATIVO->ENCERRAMENTO_PENDENTE e confirmação
+   específica dos sete tipos por Gestor/alcance/versão/revalidação física-financeira.
+   Sem reativar INATIVO/operação comum. Retirada RR não libera estoque geral.
+   Configuração contrato/tabela/vínculo corta dependências reais de fatos/memórias;
+   tabela padrão clienteNULL possui caminho identificado e alcance integral.
+   SUPERADA/EMITIDO reconciliada é histórica resolvida somente com tratativa e
+   composição/ajustes atuais coerentes. Fato/externo desconhecido/deltas pendentes
+   continuam impedimentos. Duas ordens HTTP encerramento x recebimento preservam
+   pedido/história e fazem a confirmação incompatível perder, sem SQL real.
+6) Jornada BE01 própria: nota100/valor1000 fornecidos, chegadas50+50, unidade/
+   duas etiquetas/armazenagem, pedido integral60 por50+10, separação/documento
+   fornecido/retirada/remanescente40 com UUID/FIFO/origens/espaço; fato único60,
+   contagem a zero, cálculo COMPLETO122 (tarifas fictícias2 e1 explicitamente
+   configuradas), demonstrativo/hash imutáveis, fechamento e inativação integrada.
+   Registro local de NFS-e fictícia não emite, envia ou cancela fiscal real.
+
+Achados e diferenças materiais classificados
+- Seis preventivos Vigia: cronologia contagem; instante vínculo; reconciliação
+  financeira histórica; dependência de tabela/vínculo; tabela padrão; ordem locks.
+- Lume: preparação/leitura todas etiquetas; dependências originais sem FK falsa;
+  temporal remanejamento/retirada; cancelamento estágio e resolução PREPARADA;
+  efeitoRegistradoNoWms explícito; quadro de consultas/filtros/página.
+- Jornada encontrou integrações reais: ENTRADA DTO/hash, data de efetivação do
+  pedido, confirmação original global, vínculo temporal/escala decimal, ajuste
+  zero no financeiro, reconstrução por origem no total/memória e predicado RR
+  de unidade de uma posição. Corrigidas preservando guarda/reserva/história.
+- Primeiro clean360 não concluiu:290 executados/2 falhas arquitetura e OOM384;
+  log/XMLs parciais preservados. Controllers não podem usar enums models. DTOs
+  de filtro e conversão no serviço corrigem produção. Importador ArchUnit agora
+  lê todo CodeSource da aplicação, incluindo classes BE14, sem test-classes.
+  Cinco regras originais mantidas. Heap768 resolveu a execução integral; nenhum
+  cenário removido. Import de serviço ausente no preparo corrigido e log salvo.
+
+Schema/contratos
+- Desenho no31 precedeu Java e todos os complementos JPA. V9: oito tabelas/
+  79 colunas/18 FKs/oito UNIQUE, PREPARADA, REMANEJAMENTO, carga_id opcional,
+  pares/literais cumulativos PREPARACAO_CARGA/ENTRADA_CONTINGENCIA/etc já enviados.
+  Novas correções de jornada/camadas não exigiram coluna/CHECK/literal SQL novo.
+- Contratos27/29 não editados; extensões compatíveis de cálculo/encerramento
+  documentadas31 antes do código. API conserva JSON/hash/replays históricos.
+- Pareamento final JPA/V9 e parecer BE14 aguardam Prumo/Vigia via Farol; estatística
+  do preparo424/424 não é execução SQL ou aceite de serviço.
+
+Limites e continuidade
+H2/HTTP/JWT efêmero provam somente as fronteiras locais executadas. Não validam
+SQL Server/dialeto/índices/CHECKs/locks/recuperação reais; nenhum SQL real, provedor
+real, fiscal/NFS-e/ESL/cobrança real, preço/tributo presumido, equipamento, frontend,
+publicação, commit/push, rotina, Hermes ou ETL. AC01-AC16 propostas identificadas.
+Centrais e Graphify ficam com Farol; database/infra/doc33 com Prumo.
+Após revisão local deste freeze, segue integração/preparação final BE03/BE04/BE15
+e remanescentes D19 já autorizados. Durante revisão, apenas leitura/planejamento;
+nenhuma escrita Java congelada. Não pedir nova autorização por macrobloco.

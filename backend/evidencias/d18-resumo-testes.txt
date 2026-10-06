@@ -1,0 +1,18 @@
+﻿
+Suite                                                    Tests Failures Errors Skipped
+-----                                                    ----- -------- ------ -------
+br.com.rodogarcia.wms.ApiHttpIntegrationTest                 4        0      0       0
+br.com.rodogarcia.wms.ArquiteturaTest                        5        0      0       0
+br.com.rodogarcia.wms.CadastrosIntegrationTest              28        0      0       0
+br.com.rodogarcia.wms.config.AmbienteConfigTest              3        0      0       0
+br.com.rodogarcia.wms.config.ConfiguracaoPropertiesTest      2        0      0       0
+br.com.rodogarcia.wms.config.SqlServerConfigTest             4        0      0       0
+br.com.rodogarcia.wms.EstoqueIntegrationTest                31        0      0       0
+br.com.rodogarcia.wms.exceptions.ApiExceptionHandlerTest     6        0      0       0
+br.com.rodogarcia.wms.PedidoSaidaIntegrationTest            44        0      0       0
+br.com.rodogarcia.wms.RecebimentoIntegrationTest            28        0      0       0
+br.com.rodogarcia.wms.services.NfeXmlServiceTest             6        0      0       0
+br.com.rodogarcia.wms.UnidadeLogisticaIntegrationTest       36        0      0       0
+
+
+

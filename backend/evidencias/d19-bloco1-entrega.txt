@@ -1,0 +1,62 @@
+D19 — entrega local do bloco 1 BE01/BE10/BE11 — Cedro
+Data: 06/10/2026. Backend e docs/27 congelados após clean verify, conforme orientação expressa de Farol/usuário. Escrita durante revisão limitada a esta evidência e ao próximo contrato docs/29; Java seguinte aguarda fechamento da revisão local atual.
+
+Resultado
+Leitura por UUID/revisão e separação de reservas; documentos de mercadoria existentes NOTAZZ/XML e cobertura integral; retirada física integral por Supervisor/Gestor separada do fiscal; parcial pallet com proteção do remanescente, destino explícito, revisão da etiqueta e origens/FIFO preservados. Cancelamento retorna internamente sem nova entrada. Devolução após retirada cria entrada vinculada à baixa com FIFO original e limite do já retirado menos devoluções. Avaria tem quantidade/data/destino/responsabilidade/reparo explícitos, reserva preservada e fatos datados para BE12. Não há preço, emissão fiscal ou cobrança real.
+
+Arquivos novos (prefixo backend/src/main/java/br/com/rodogarcia/wms/)
+controllers: ExpedicaoController.java, AvariaController.java.
+dto: ExpedicaoDto.java, AvariaDto.java.
+services: ExpedicaoService.java, RegistroDevolucaoService.java, MovimentoSaidaEstoqueService.java, ResolucaoCadastroService.java, AvariaService.java, LinhaTemporalEstoqueService.java.
+models: SeparacaoSaida.java, DocumentoSaida.java, CoberturaDocumentoSaida.java, RetiradaSaida.java, BaixaSaida.java, DevolucaoSaida.java, AvariaEstoque.java, FatoPermanencia.java.
+repositories: os oito Repository correspondentes aos modelos acima.
+Teste: backend/src/test/java/br/com/rodogarcia/wms/ExpedicaoIntegrationTest.java (36 casos executados, incluindo parametrizados).
+Contrato/schema: docs/27-separacao-retirada-retornos-e-avaria.md, registrado antes da implementação e encaminhado via Farol para V6 de Prumo.
+
+Arquivos existentes ajustados neste bloco (mesmo prefixo Java)
+models/UnidadeLogistica.java: condição efetiva e marcador avariaInicialReparada, preservando condição original.
+models/enums/SituacaoPedidoSaida.java e SituacaoReservaSaida.java: estados da separação/retirada.
+repositories/UnidadeLogisticaRepository.java: predicado próprio de saída SEPARACAO com ponte do pedido, proteção equivalente e condição efetiva; disponibilidade continua somente ARMAZENAGEM sem reserva.
+services/EstoqueService.java e dto/EstoqueDto.java: consulta física de saída, condição efetiva e resultado de avaria compatível com histórico existente.
+services/PedidoSaidaService.java: integração com expedição/impedimentos/escopo; cancelamento BE09 não contorna separação.
+services/MovimentacaoEstoqueService.java: separação só retorna por comando próprio; condição efetiva de reparo inicial.
+services/CapacidadeService.java: conjunto de duas posições SEPARACAO permitido com mesmas capacidades, área, alcance e Gestor; ocupação continua validada.
+Nenhuma alteração em database, infra, frontend ou registros centrais; Graphify fica com Farol. Base D18/BE08 e demais alterações preexistentes preservadas. Repositório sem commits, arquivos não rastreados; lista descreve o recorte, não um diff Git.
+
+Schema/pareamento real para Prumo
+Novas tabelas: separacao_saida, documento_saida, cobertura_documento_saida, retirada_saida, baixa_saida, devolucao_saida, avaria_estoque, fato_permanencia.
+Coluna adicional: unidade_logistica.avaria_inicial_reparada.
+Complementos da avaria: bloqueio_previo, quantidade_base temporal, equivalencia_base DECIMAL(19,6), ciclo_id VARCHAR(36). Ciclo delimita a restauração de bloqueio preventivo; base/equivalência são da ocorrência, não do registro posterior.
+CHECKs de pedido/reserva/tipo_localizacao ampliados conforme doc27; sentinela versao_unidade_lida=-1 somente LEITURA invalidada por reparo.
+PEDIDO_SAIDA/auditoria+operacao_saida: LEITURA_SAIDA, SEPARACAO_SAIDA, DOCUMENTO_SAIDA, CANCELAMENTO_DOCUMENTO, RETIRADA_FISICA, RETORNO_INTERNO, DEVOLUCAO_SAIDA. Não gravam movimento_estoque; efeitos físicos novos gravam fato_permanencia.
+PEDIDO_ENTRADA/auditoria+movimento_estoque: AVARIA_DETALHADA, RESPONSABILIDADE_AVARIA, REPARO_AVARIA.
+Entrada nova de devolução: auditoria PEDIDO_ENTRADA/DEVOLUCAO_ENTRADA, sem movimento_estoque desse recebimento.
+Snapshot de separação imutável por ciclo em resultado original operacao_saida/auditoria; linha separacao_saida representa estado corrente. Teste conserva resultado anterior após mudança de origem/reseparação; não requer tabela extra.
+
+Achados e correções conferidas
+Guarda Gestor para resolverPendentes=true antes de todo replay aplicável; Gestor executa e Operação/Supervisor repetem mesmo UUID/payload recebem 403, inclusive avaria/reparo.
+Teto arbitrário 200 removido de conjuntos que precisam cobrir reservas reais, sem reduzir BE09 histórico. Teste 201 reservas automáticas separadas: retorno com 200 destinos rejeita; falha de auditoria após efeitos reverte todos; retorno com 201 confirma todos os destinos integralmente.
+Base temporal de avaria: conteúdo 100, retirada parcial 50, ocorrência de 20 anterior usa base 100/equivalência 1 (20%); posterior usa 50 (40%). Memória/fatos e reconhecimento preservados. História insuficiente retorna 409 HISTORICO_AVARIA_INSUFICIENTE, sem presumir denominador/destino.
+Retorno interno usa condição efetiva: reparo inicial preserva AVARIADA histórica, permite reservar/separar/cancelar e voltar a ARMAZENAGEM apta.
+Bloqueio de dano antigo já liberado não ressurge: reparo restaura apenas bloqueio_previo do ciclo vigente.
+Conjunto de duas posições SEPARACAO, retorno e retirada parcial testados sem reduzir ocupação/equivalência do remanescente.
+Concorrência determinística real H2/HTTP: retirada segura lock compartilhado, avaria concorrente aguarda e revalida versão após commit; repetição concorrente da mesma retirada gera um único efeito. Multiitem, notas/cobertura/XML, permissões/escopo, label/revisão, rollback de auditoria, conservação e devoluções também exercitados.
+
+Comandos e saída real (executados de backend com JAVA_HOME JDK21 local)
+JAVA_HOME=C:/Users/suporte/AppData/Local/Programs/Eclipse Adoptium/jdk-21
+java -version: Temurin 21.0.12.1+1-LTS; output em d19-bloco1-jdk.log (PowerShell registrou stderr nativo como NativeCommandError textual, sem falha do JDK/build).
+mvnw.cmd -B -ntp spotless:apply test -Dtest=ExpedicaoIntegrationTest
+  d19-bloco1-testes-quatro-achados.log: BUILD SUCCESS, 36 testes, 0 falhas/erros/ignorados.
+mvnw.cmd -B -ntp spotless:apply
+  d19-bloco1-spotless.log: BUILD SUCCESS, 4.547 s, término 06/10/2026 00:06:39 -03:00.
+mvnw.cmd -B -ntp clean verify
+  d19-bloco1-clean-verify.log: BUILD SUCCESS, 233 testes, 0 falhas/erros/ignorados; 02:34 min; término 06/10/2026 00:09:18 -03:00.
+  197 casos D18 preservados + 36 casos D19; JAR local target/wms-backend-0.0.1-SNAPSHOT.jar, 58.657.964 bytes.
+  Relatórios XML conferidos e resumo permanente em d19-bloco1-resumo-testes.txt.
+Logs intermediários de compilação/testes (com falhas iniciais corrigidas) permanecem d19-bloco1-compilacao*, d19-bloco1-testes-iniciais.log, d19-bloco1-testes-ajustes.log e d19-bloco1-testes-revisao.log. Não são a evidência final de aprovação.
+
+Limites e revisão
+Validação local HTTP/serviço/H2, dados fictícios, JWT/chaves efêmeros. Não valida SQL Server/V6 aplicada, provedor real, assinatura/XSD completo/SEFAZ, emissões NOTAZZ/ESL reais, impressão, equipamento, frontend ou homologação comercial. Preços, impostos e valores externos não foram inventados.
+Pendente parecer final Vigia e reconciliação V6/JPA por Prumo após freeze. Registros centrais/Graphify/índice/evidência geral permanecem com Farol.
+README ainda descreve D18 e doc27 contém redação de preparação em introdução/último trecho; não foram alterados depois do freeze solicitado. Atualização documental desse estado será informada antes de editar para manter a conferência final.
+Próximo trabalho autorizado durante revisão: SOMENTE docs/29 contrato/schema BE05/BE12, antes de Java/V7. Complemento cadastral por revisão sem trocar identidade; Excel com prévia/erros por linha, duplicidades lote/existente, confirmação atômica/replay/Gestor; serviços/tabelas/vigências, memória diária/pico/tarifa, mínimo/GRIS configurados, deduplicação por fato e avaria temporal. Inativação definitiva somente no último trecho após BE13/BE14.

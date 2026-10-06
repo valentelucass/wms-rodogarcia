@@ -1,0 +1,101 @@
+D19 — Cedro — P2-locks BE14 — 06/10/2026
+
+NOVO FREEZE de backend/Java e contrato31 para revisão somente das diferenças.
+Aceite BE14 retido até Vigia/Prumo/Farol. Nenhum aceite externo presumido.
+Baseline360/289 e333/251 preservada; não repetir revisão BE13.
+
+Resultado real
+- clean verify: BUILD SUCCESS,367/0/0/0,17 XMLs/JAR,4:05min,
+  2026-10-06T07:49:48-03:00. Compilou257 fontes principais/19 teste.
+- spotless: BUILD SUCCESS,276 Java,2.111s,07:45:38.
+- fronteiras:19/0/0/0,BUILD SUCCESS,1:28min,07:45:03.
+- Primeira bateria89/3/0/0,BUILD FAILURE,2:14min,07:42:01 preservada.
+  Três expectativas de código de erro do teste estavam erradas:
+  CONTRATO_INVALIDO versus DADOS_INVALIDOS. HTTP400 e validações de produção
+  mantidos; nenhum cenário removido. Demais cenários da bateria passaram.
+- Conferência por XML preserva os360 casos anteriores pelos nomes de
+  classe/caso e acrescenta7; nenhuma suite removida/reduzida.
+
+Arquivos de fonte alterados (só3 no manifesto289)
+1 backend/src/main/java/br/com/rodogarcia/wms/services/ContingenciaService.java
+2 backend/src/test/java/br/com/rodogarcia/wms/ContingenciaIntegrationTest.java
+3 docs/31-fechamento-contagem-e-contingencia.md
+Sem alteração de DTO/model/repository/config/README/contratos27/29/DDL,
+centrais/database/infra/Graphify/frontend. Não houve schema adicional.
+
+Correção
+- Um alvo operacional privado, concreto e usado no lock e na execução.
+  CONTAGEM deriva codigoUnidade do DTO aninhado ContagemDto.Contar, usa a
+  projeção escalar existente para pedido e compara referências redundantes.
+  Ausência de código na raiz não troca o pedido nem a ordem de locks.
+- Conciliação e segunda transação da pendência: pedido de entrada antes
+  cliente/armazém/linha, depois unidade/revisão no serviço delegado.
+  Referências divergentes recusadas antes de locks de escrita/efeito/replay.
+- AJUSTE usa a unidade da contagem; REMANEJAMENTO/AVARIA a unidade da rota;
+  CHEGADA/ENTRADA conservam pedido de entrada e tipos de saída pedido de saída.
+  FATO_SERVICO deriva unidadeId/pedidos/contexto do DTO aninhado, confere raiz
+  redundante e conserva cliente/armazém antes dos efeitos financeiros.
+- JSON/hash originais, datas, snapshots, reserva e auditoria conservados.
+  Não há novo literal de tipo administrativo/ação de auditoria/CHECK/enum.
+  Contrato formalizado antes Java (9CAE2D...); corrigido editorialmente para
+  unidadeId de FATO_SERVICO (377A35...), sem campo/literal/hash de payload novo.
+
+Testes novos significativos
+- Duas ordens HTTP reais contagem direta x contingência com alvo somente
+  aninhado, latches e transações reais H2. Primeiro comando mantém lock;
+  segundo aguarda; ambos terminam e geram2 revisões sem saldo duplicado.
+  Físico/disponível100 e reservado0; replay original e Operação403.
+- Três variantes de referência divergente: código na raiz, pedido na raiz
+  e código aninhado incompatível com rota de remanejamento. HTTP400, nenhum
+  efeito/revisão/chave consumida, conteúdo/hash/versão da linha conservados.
+- Rollback tardio na auditoria da leitura remove efeito/confirmacão; segunda
+  transação conserva só pendência. Reconciliar depois mantém alvo aninhado,
+  físico100/bloqueado100 e confirmação idempotente única.
+- FATO_SERVICO: unidadeId somente aninhada, raiz de unidade/pedido divergentes
+  e cliente aninhado divergente; nenhum fato indevido, um fato válido,
+  replay único e Operação403. Ordem própria do serviço mantida.
+- Os12 anteriores de contingência e todas as regressões360 passaram no build.
+
+Comandos exatos na pasta backend
+JAVA_HOME=C:/Users/suporte/AppData/Local/Programs/Eclipse Adoptium/jdk-21
+MAVEN_OPTS=-Xmx384m
+mvnw.cmd -B -ntp -Dwms.build.directory=target-be14 spotless:apply -Dtest=ContingenciaIntegrationTest,JornadaBackendIntegrationTest,CobrancaIntegrationTest,ArquiteturaTest -DargLine=-Xmx768m test
+mvnw.cmd -B -ntp -Dwms.build.directory=target-be14 spotless:apply -Dtest=ContingenciaIntegrationTest -DargLine=-Xmx768m test
+mvnw.cmd -B -ntp -Dwms.build.directory=target-be14 spotless:apply
+mvnw.cmd -B -ntp -Dwms.build.directory=target-be14 -DargLine=-Xmx768m clean verify
+mvnw.cmd -version
+JDK21/bin/java.exe -version
+./evidencias/d19-bloco4-conferir-p2-locks.ps1
+PowerShell exige aspas no argumento -Dtest com lista; primeira tentativa
+sem aspas deu ParserError antes de executar Maven/criar log. Não foi teste
+Java nem bloqueio de confiança. Ferramentas reais21.0.12.1+1/Maven3.9.16.
+Conferência ps1 terminou normalmente; não inferir código nativo0 de
+LASTEXITCODE nulo para script PowerShell.
+
+Evidências novas fora de target
+- d19-bloco4-testes-relevantes-p2-locks.log e xml-primeira-p2-locks/ (4XMLs)
+- d19-bloco4-testes-fronteiras-p2-locks.log
+- d19-bloco4-spotless-p2-locks.log / clean-verify-p2-locks.log
+- d19-bloco4-ferramentas-p2-locks.log
+- d19-bloco4-conferencia-p2-locks.log / conferir-p2-locks.ps1
+- d19-bloco4-resumo-p2-locks.json / preservacao-p2-locks.json
+- d19-bloco4-xml-p2-locks/ (17 XMLs integrais com hashes)
+- d19-bloco4-freeze-p2-locks.sha256 (289 arquivos;286 iguais/3 alterados)
+  SHA256 A257476BCC711BCB14A42A27FAE72C092E68F85460700D758B8BC9C70CE38233
+- Doc31 SHA256
+  0C57C902AF67645A3949CF136993B0FE1EBADDDAA4CEC2DD3173CC637E96D879
+- JAR atual target-be14/wms-backend-0.0.1-SNAPSHOT.jar,78.526.951bytes,
+  SHA256352211B7A38EFE0E80A034656B41D40CEEDDE0D988FE5AF130E56BF2C1FA13E5.
+- JAR360 copiado antes do clean para d19-bloco4-artefato-freeze360.jar,
+  SHA256829A59B6CA60AF314089D1A0D303603FF3CACEEDAB4076F47608D7B513B3BA13,
+  igual ao original. Log/17XMLs/manifesto360/289/README e333/251 intactos.
+
+Limites e próximo passo
+H2/HTTP/JWT efêmero não comprovam SQL Server/locks/migrations/provedor,
+equipamento, fiscal/comercial/recuperação real. Dados fictícios; sem SQL real,
+NFS-e/ESL/emissão/envio/cobrança real/publicação/commit/push/rotinas/Hermes/ETL.
+Novo freeze para Vigia rever alvo/locks e Prumo reconferir guardas sem DDL novo.
+Farol mantém centrais/mapa/aceite. Auditoria local do restante BE01–BE16 já
+encaminhada em leitura: não identifiquei nova função independente faltante,
+separando revisão/preparo final das validações externas. D19 segue autorizada,
+sem novo pedido ao usuário nem declaração antecipada de conclusão/piloto.

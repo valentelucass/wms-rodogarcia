@@ -1,0 +1,120 @@
+D19 / BE13 — entrega restrita p2-origem — 06/10/2026
+
+FREEZE EXPLÍCITO backend/doc29/doc31 para revisão das diferenças por Vigia/Prumo/Farol.
+Build local aprovado tecnicamente; aceite local BE13 permanece com Farol após pareceres.
+BE14 e inativação definitiva BE05 continuam somente leitura/planejamento, sem Java/schema novo.
+
+RESULTADO REAL
+JDK Temurin21.0.12.1+1; Maven Wrapper3.9.16, tools em d19-bloco3-ferramentas-p2-origem.log.
+Na pasta C:/Users/suporte/Documents/projetos/wms-rodogarcia/backend:
+1. mvnw.cmd -B -ntp -Dtest=FechamentoIntegrationTest,CobrancaIntegrationTest clean test
+   d19-bloco3-testes-relevantes-p2-origem.log: BUILD SUCCESS;93/0/0/0;2:13min;04:13:33-03:00.
+2. mvnw.cmd -B -ntp spotless:apply
+   d19-bloco3-spotless-final-p2-origem.log: BUILD SUCCESS;238 Java;4,487s;04:14:19-03:00.
+3. mvnw.cmd -B -ntp clean verify
+   d19-bloco3-clean-verify-final-p2-origem.log: BUILD SUCCESS;333/0/0/0;15 XMLs;3:30min;04:17:56-03:00.
+   221 fontes principais/17 de teste; JAR78.338.373bytes.
+   SHA256 JAR 7904BC0DFF1BB51D58AAB02F0135DC5C8CE890358A8C392BB0849BF6E2C5450B.
+Todos os outputs ficam em backend/evidencias, fora de target. XMLs/JAR resumidos em
+d19-bloco3-resumo-final-p2-origem.json; surefire original do build atual permanece em target.
+
+TRÊS P2 CORRIGIDOS
+1. Troca da versão financeira confronta ajustes ORIGINADOS em TODAS as versões do fechamento.
+   Sem regularizacaoOrigem explícita ou com lista/delta/destino divergentes:409/CONFLITO permanece.
+   Com lista exata, destino/versão/diferencaEsperada e comprovação externa integral, cria ajuste
+   REGULARIZACAO_ORIGEM no primeiro ciclo posterior apto, no mesmo commit da tratativa/composição/auditoria.
+   Delta é cálculo próprio anterior menos cálculo próprio selecionado, sem ajustes recebidos.
+   Exemplo A/V1=100→correção80 gera−20B; ao manterA/V2=80, regularização explícita+20.
+   Se−20 VALIDADO, ambos compõemB; se APLICADO emB, mantém todos os campos e+20 compõeC.
+   +20 continua VALIDADO/pendente até aprovação e finalização do destino; não declara liquidação.
+   Correção comum encadeia a última correção normal do fechamento inteiro, excluindo regularizações:
+   próximo80→70=−10. Segunda troca80→100 exige todos os deltas, inclusive deV2 e regularizações.
+   Ajustar por origem que deixou de ser a versão reconciliada é recusado; hash comum repetido
+   em outra versão da mesma origem também é recusado. Models guardam nascimento/identificação/contexto.
+   Nenhum APLICADO é apagado, transferido, desfeito ou repetido. NFS-e/cancelamento externos são
+   somente comprovações manuais existentes, não execução fiscal ou presunção de documento anulado.
+2. preparar confere período do cálculo/compromisso e calendário ANTES do replay.
+   Referência setembro não autoriza outubro; cálculo futuro já salvo não autoriza caminho histórico.
+   Gestor/escopo continuam antes do replay; INATIVO não é reativado nem concede compromisso físico.
+3. JSON existente da auditoria guarda resolução.tipo/compromissoId/clienteId/armazemId e período
+   do compromisso FECHAMENTO, além do período do efeito em cálculo/fechamento. Configuração conserva
+   vigência no resultado; pedidos executados são identificados sem período presumido.
+   Auditoria/effects/replay são atômicos. Respostas e snapshots antigos não são reescritos.
+   Aprovação histórica aceita JSON antigo e envelope novo, inclusive em NFS-e tardia de SUPERADA.
+
+SCHEMA FORMALIZADO ANTES JPA / ENCAMINHADO AO FAROL PARA PRUMO
+Sem tabela nova; quatro campos em duas tabelas:
+ajuste_fechamento.tipo VARCHAR(24) NOT NULL DEFAULT 'CORRECAO_CALCULO'; valores
+CORRECAO_CALCULO/REGULARIZACAO_ORIGEM; tratativa_origem_id BIGINT NULL FK tratativa_externa_fechamento.
+CHECK pareia tipo normal com FK NULL e regularização com FK preenchida.
+UNIQUE filtrada WHERE tratativa_origem_id IS NOT NULL; índice FK.
+tratativa_externa_fechamento.versao_base_anterior_id BIGINT NULL FK versao_fechamento;
+dependencias_origem_json NVARCHAR(MAX) NULL, snapshot de todos os deltas dependentes.
+CHECK ambos NULL ou preenchidos; JSON preenchido ISJSON. Colunas novas imutáveis, índice FK.
+H2 usa índice único compatível com NULL e CHECK de pareamento; não comprova SQL Server/ISJSON/V8.
+Prumo é dono do DDL, deve manter ordem das FKs e conferirá o complemento no V8 em arquivos.
+Dez ações/tipos administrativos anteriores mantidos, inclusive TRATATIVA_EXTERNA em
+FECHAMENTO_COBRANCA (19 caracteres). REGULARIZACAO_ORIGEM é tipo do ajuste/hash técnico;
+não há novo operacao_administrativa.tipo nem ação de auditoria. Nenhum movimento_estoque financeiro.
+doc29 esclarece somente o JSON de auditoria; sem nova estrutura V7.
+
+COBERTURA
+FechamentoIntegrationTest41:36 anteriores ampliados e cinco cenários novos.
+CobrancaIntegrationTest52 preservados, todos os outros testes anteriores passaram no integral333.
+Novos casos:−20VALIDADO/APLICADO; bloqueio sem regularização, lista/delta incorretos; origem antiga
+recusada; duplicação entre versões; +20 e próxima correção−10; finalização no destino/marca de
+aplicação; segunda troca de base com ajustes em duas origens e cadeia70→60; snapshotsA/B intactos.
+HTTP concorrente sob barreira determinística da auditoria/contexto: duas transações da mesma
+tratativa produzem uma única regularização e a mesma resposta. Gestor executa; replay por
+Supervisor/Operação403; payload divergente409. Falha tardia reverte tratativa, ajuste, composição,
+revisão e marca de repetição. Model impede reidentificar entidade já gravada.
+Preparação histórica válida/replay403 e inválida por período/futuro já salvo, sem reativação/movimento.
+Auditoria de configuração/cálculo/fechamento conferida no H2 E GET HTTP Gestor; Supervisor403.
+Rollback nos três caminhos permite repetir a chave; não deixa efeito ou auditoria parcial.
+Campo opcional novo da tratativa ausente é omitido da serialização usada no hash.
+Todos os casos BE07/08/09/10/11 e financeiro anterior foram executados novamente, sem supressão.
+
+ARQUIVOS ALTERADOS DESDE FREEZE328/251
+backend/README.md
+backend/src/main/java/br/com/rodogarcia/wms/dto/FechamentoCobrancaDto.java
+backend/src/main/java/br/com/rodogarcia/wms/models/AjusteFechamento.java
+backend/src/main/java/br/com/rodogarcia/wms/models/TratativaExternaFechamento.java
+backend/src/main/java/br/com/rodogarcia/wms/repositories/AjusteFechamentoRepository.java
+backend/src/main/java/br/com/rodogarcia/wms/services/CalculoCobrancaService.java
+backend/src/main/java/br/com/rodogarcia/wms/services/ConfiguracaoCobrancaService.java
+backend/src/main/java/br/com/rodogarcia/wms/services/FechamentoCobrancaService.java
+backend/src/main/java/br/com/rodogarcia/wms/services/ResolucaoFinanceiraCadastroService.java
+backend/src/test/java/br/com/rodogarcia/wms/FechamentoIntegrationTest.java
+docs/29-cadastros-servicos-e-calculo.md
+docs/31-fechamento-contagem-e-contingencia.md
+Demais alterações somente evidências novas backend/evidencias/*p2-origem* fora do manifesto.
+
+PRESERVAÇÃO / HASHES
+Manifesto anterior d19-bloco3-freeze-final.sha256 intacto:
+D249C81AC84EC02904842F15E3FE74D6CAA42B0668531FDBBD3F68115F36222A.
+Novo d19-bloco3-freeze-final-p2-origem.sha256:251 caminhos;239 idênticos/12 alterados/0 ausentes/0 novos.
+SHA256 628A2B453D71C5DD47CDD8D4F1C4FC5C6AC7667041F4CC174519C51AB5E76DD4.
+Comparação completa d19-bloco3-preservacao-final-p2-origem.json.
+doc31 3284E984538781CEB01C332DF64BDDF59325D1C809CF6114EF1774E367F90933.
+doc29 D4365689A0A0A3A2A75FC84B01609EE14EF3563164A1E24CD3A42A265DD242EB.
+README62F080A41A9FADE6E29A58F824F318FBD6A9138E593851C2159F78EE098D208C.
+doc27 segue06029503B073817962288EDFB6C794FCB6981772C423BEAD65B7B197851DD774.
+Outputs/freeze/entrega328/251,292/222,286 e anteriores preservados, sem sobrescrita.
+
+TENTATIVAS PRESERVADAS / DISTINÇÃO FIXTURE E CÓDIGO
+d19-bloco3-compile-p2-origem.log: tentativa de compile interrompida pelo Spotless, sem suprimir conferência.
+d19-bloco3-testes-inicial-p2-origem.log: testCompile falhou em Map genérico do helper; assinatura corrigida.
+d19-bloco3-testes-fixture-p2-origem.log:40executados/3falhas/1erro; novas fixtures usavam cálculo
+desatualizado após outro fato e texto no argumento de data. Corrigidos data e novo cálculo de fixture.
+d19-bloco3-testes-cenarios-p2-origem.log:93/2/0; aprovação final das novas fixtures usava destino
+desatualizado após novas execuções. Corrigido com recalcular/reabrir/aprovar, preservando regra estrita.
+Bateria93 e build333 posteriores passaram. Correções de produção são as três regras P2 acima,
+não remoção de cenário/validação, flexibilização de enum/quantidade/unidade ou suppression de lint.
+
+LIMITES / PRÓXIMO PASSO
+Somente HTTP/serviços/H2 isolado, dados fictícios; não valida SQL Server/migrations/locks SQL Server,
+ESL/NFS-e externa, preços/tributos/calendário reais, liquidação, equipamentos ou homologação comercial.
+Sem SQL Server real/fiscal/cobrança real/envio externo/frontend/publicação/commit/push/rotinas/
+Hermes/ETL/Graphify/centrais por Cedro. Farol mantém centrais/evidência32/índice/mapa.
+Solicitada revisão restrita dessas diferenças a Vigia e reconferência do complemento V8 a Prumo,
+via Farol. Sem iniciar código BE14 durante a leitura. D19 continua autorizado após aceite local.

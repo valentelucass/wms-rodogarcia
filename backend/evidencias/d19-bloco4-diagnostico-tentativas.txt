@@ -1,0 +1,85 @@
+D19 BE14/BE05/BE01 — classificação das tentativas preservadas — 06/10/2026
+
+Todos os logs d19-bloco4-*.log foram conservados com seus resultados reais.
+Um output com falhas não é evidência de aprovação. A classificação abaixo
+separa erros dos helpers/ambiente e integrações de produção encontradas.
+
+Ambiente e instrumentação
+- O clean inicial em target falhou durante remoção de classes disputadas com
+  compilação do editor. Não foi atribuído a regra de negócio. O pom agora admite
+  wms.build.directory; o padrão continua target. As execuções finais usam
+  target-be14 isolado, sem apagar/encerrar processo de outro agente.
+- compilações iniciais: helper criarProduto/import TipoQuantidade ausente e
+  cópia intermediária da Jornada incompleta. Nenhum teste duplicado dessa cópia
+  foi executado; os testes originais de Contingencia permanecem no arquivo próprio.
+- respostas de pedido encapsuladas, comparação JsonNode numérica, JWT baseado
+  em relógio histórico, enum MENSAL inexistente e JwtAuthenticationToken sem
+  autoridades eram defeitos de fixtures. Corrigidos sem suprimir permissões.
+- encerramento 53/2/0/0: Clock mock sem getZone produzia erro no filtro da
+  auditoria; zona UTC configurada como o Clock real. Dois testes isolados e
+  bateria financeira posterior passaram, sem mudança das guardas de produção.
+- ferramentas-final.log contém a apresentação NativeCommandError do PowerShell
+  ao capturar java -version em stderr; Maven -v confirma JDK21 normalmente.
+- clean-verify-final.log:290 executados/2 falhas de arquitetura e OOM no fork
+  de testes limitado a384MiB; BUILD FAILURE07:02:16,07:07min, sem JAR final.
+  Relatórios parciais copiados para d19-bloco4-xml-arquitetura-oom, sem sobrescrever.
+  A recusa inicial de Stop-Process preservou o PID sem confirmação. Depois foi
+  comprovada a cadeia25052(surefire)->21572(cmd)->23532(Maven com target-be14
+  clean verify)->28016(cmd)->31864(sessão PowerShell própria). Somente o fork
+  próprio25052 foi encerrado; nenhum processo de outro agente/editor foi parado.
+  Instrução posterior de usar somente write_stdin será respeitada nas execuções
+  seguintes. Novo build integral usa768MiB para o fork, mantendo todos os cenários.
+
+Integrações reais reveladas pela jornada, corrigidas e testadas
+- O primeiro clean completo revelou controllers BE14 referenciando enums models.
+  Filtros passam a enums de DTO com mesmos literais e conversão no serviço.
+  ArchUnit incluía fixtures pela regra de exclusão dependente do nome target.
+  Importa agora o diretório real da aplicação, confere novas classes e recusa
+  test-classes, mantendo todas as regras originais em toda produção.
+- ENTRADA temporal injetava operacaoId em DTO Efetivar legado sem esse campo,
+  gerando500. Wrapper mantém chave separada e comando tipado antigo intacto.
+- Registro da mesma identidade global com outro UUID retornava estado atual
+  CONCILIADA, perdendo confirmação original PENDENTE. Agora recupera resultado
+  original da primeira REGISTRO_CONTINGENCIA. GET atual continua CONCILIADA.
+- PedidoEntrada.efetivadoEm usava data de conciliação05/09 em vez da ocorrência
+  física02/09. Resumo do efeito/GET/entrada conservam02; alteradoEm/auditoria05.
+- VINCULAR AJUSTE/REMANEJAMENTO/RETIRADA temporal precisava conferir referência
+  original identidadeExecucao pelo mesmo hash delegado. Hash e resultado antigos
+  permanecem. AJUSTE recupera apenas escala decimal comprovada do efeitoJson,
+  sem substituir delta recebido, arredondar ou aceitar payload divergente.
+- Ajuste comprovado a zero já encerra fisicamente ocupação/permanência, mas o
+  cálculo só reconhecia RETIRADA. Marco AJUSTE_ESTOQUE datado passou a ser
+  considerado, mantendo regra AC04 e calendário de valor separado das diárias.
+- Memória de origens considerava ajuste posterior, enquanto valorEstoque não.
+  Ambas agora usam reconstrução temporal comprovada por origem; discrepância
+  continua pendência explícita, sem preço inventado ou ausência convertida em zero.
+- Recomposição era integralmente recusada apesar do contrato. Agora limitada à
+  própria origem/condição comprovadas menos conteúdos e baixas de todas as
+  unidades, em identidade ativa/ocupação/capacidade existente. Testes conservam
+  bloqueio independente e recusam excesso/quantidade já retirada.
+- Pedido identificado para carga PREPARADA excluía unidades de uma posição por
+  join implícito nullable em conjuntoAtual. Predicado usa EXISTS para duas posições;
+  mantém capacidades e todas as guardas. Estoque comum permanece indisponível.
+
+Outputs significativos posteriores
+- camadas-consultas: compilação falhou por import explícito de
+  SituacaoRevisaoContagem ausente. Import corrigido; log preservado, sem teste executado.
+- camadas-consultas-import:17/0/0/0 (Arquitetura5, Contingencia12),
+  SUCCESS07:07:50,01:41min, filtros DTO e fronteiras de produção conferidos.
+- integracao-fisico-financeira:117/0/0/0, SUCCESS06:46:08,02:34min.
+- jornada-fronteiras:13/0/0/0, SUCCESS06:53:08,01:22min.
+- spotless-final:276 Java, SUCCESS06:54:44,1.721s.
+- spotless-final-camadas:276 Java, SUCCESS07:08:18,1.986s.
+- clean-verify-final-camadas: resultado integral em seu próprio log/resumo, sem sobrescrever
+  os outputs333/328/292/286/240/233/197 nem seus manifestos históricos.
+
+Jornada nova meaningful: nota100/valor1000 fornecidos; chegadas50+50; duas
+etiquetas; pedido inteiro60 por50+10; remanescente40 com origem/FIFO e espaço
+preservados; fato SAIDA único60; contagem identificada a zero; cálculo122 com
+tarifas fictícias2/posição-dia e1/unidade fornecidas; fechamento/demonstrativo
+imutável; referência externa fictícia registrada localmente; encerramento após
+resolver compromissos. Nenhuma emissão/envio/cobrança real foi executada.
+
+Limites: H2/HTTP/JWT efêmero e dados fictícios não comprovam SQL Server,
+equipamentos, provedor real, preços/tributos reais, homologação operacional ou
+comercial. Revisão final Vigia/Prumo/Farol é distinta do build local.

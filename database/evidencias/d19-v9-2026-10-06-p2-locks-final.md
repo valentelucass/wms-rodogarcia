@@ -1,0 +1,33 @@
+# V9 — parecer estático FINAL p2-locks367/289 — 06/10/2026
+
+**Correção documental posterior ao manifesto456:** [relatório/manifesto separados](../../infra/evidencias/d19-correcao-identidade-ciclos-2026-10-06.md). Achado concreto no contrato técnico: alias de objetos misturou identidade367 com histórico360904/122. Cópia profunda restituiu360422845/B459/JAR829A/78.524.597 bytes, conservando atual367 e todos os outputs. Diagnóstico238/238 e67/67 originais não cobriam a mistura; preservados, com nova guarda68/fixtures18/diagnóstico306. Nenhuma nova comparação JPA, suplemento, Java ou SQL desta correção;904/129 abaixo continuam os resultados da rodada original. Revisão/aceite depende de Farol/Vigia.
+
+Prumo. Nova tarefa explícita de Farol, distinta do freeze360 histórico. **Compatível na fronteira estrutural/lexical conferida; nenhum achado material de schema/literal/JPA nesta leitura.** Não é aceite de regras de negócio/BE14 ou homologação SQL Server. Vigia revisa código/semântica em paralelo; Farol decide aceite local.
+
+## Fonte e resultado
+
+[Manifesto289 exato](../../backend/evidencias/d19-bloco4-freeze-p2-locks.sha256), SHAA257476BCC711BCB14A42A27FAE72C092E68F85460700D758B8BC9C70CE38233. [Fonte31 final copiada](d19-v9-2026-10-06-p2-locks-final-fonte-doc31.md), SHA0C57C902AF67645A3949CF136993B0FE1EBADDDAA4CEC2DD3173CC637E96D879. [Coleta antes](d19-v9-2026-10-06-p2-locks-final-antes.json):289/289 fontes exatas,411/411 hashes da entrega anterior exatos,21 cópias antes da escrita; cópia adicional do leitor histórico antes de piná-lo ao snapshot360. SQL V1–V9 preservadas; V9SHA17C6C2F9FB5B362242CF54AB2CD615B5646011EB7AB81D052C8FCE6833DF88B8.
+
+Diferença contra360: só ContingenciaService.java, ContingenciaIntegrationTest.java e doc31,286 fontes iguais/zero ausentes. Quadro e transcrição estrutural conservam oito tabelas/79 colunas/18 FKs/oito UNIQUE/24 CHECKs de tabela/dez índices comuns/um único filtrado, seis CHECKs cumulativos substituídos e um novo CHECK de pares. Sem coluna/tabela/enum/literal novo. P2 altera derivação de alvo/locks/guardas de serviço; não inferido DDL para ele.
+
+| Leitura executada | Output e metadados reais |
+| --- | --- |
+| `verificar-schema-v9.ps1 -CompararJpa -ManifestoFreeze backend/evidencias/d19-bloco4-freeze-p2-locks.sha256` | [904/904](d19-v9-2026-10-06-p2-locks-final-leitor-final.json), [metadados](d19-v9-2026-10-06-p2-locks-final-leitor-final-execucao.json):15 models/86 campos,70 fontes consultadas, mapeamentos/herança/tipos/tamanhos/precisão/nulos/imutabilidade declarada/FKs/uniques/enums e pares cumulativos. |
+| `verificar-v9-freeze-suplementar.ps1 -ManifestoFreeze backend/evidencias/d19-bloco4-freeze-p2-locks.sha256` | [129/129](d19-v9-2026-10-06-p2-locks-final-suplemento-final.json), [metadados](d19-v9-2026-10-06-p2-locks-final-suplemento-final-execucao.json):79 campos e25 regras lexicais,18 anteriores mais sete fronteiras P2. |
+| `verificar-preparacao-final-local.ps1 -DiretorioArtefato target-be14` | [238/238](d19-v9-2026-10-06-p2-locks-final-tecnico-final.json), [metadados](d19-v9-2026-10-06-p2-locks-final-tecnico-final-execucao.json): inclui original56/56, sequência V1–V9/64 tabelas, plano externo/privilegios/recuperação e JAR367/17 XMLs. |
+
+Todos os outputs completos acima concluíram PowerShell normalmente (`$?` true) e LASTEXITCODE **null**, sem alegar saída nativa0. Não executado JPA/Hibernate: `-CompararJpa` lê arquivos. Comandos de coleta, início/fim e hashes de output estão nos metadados; saída0 do processo coletor não é código nativo do leitor.
+
+## P2 e limite das guardas
+
+ContingenciaService.java:747 bloquearLinha obtém alvoOperacional antes dos locks e usa entradaParaLock; ordem lexical entrada→cliente→armazém→linha. :778 alvoOperacional converte CONTAGEM ao ContagemDto.Contar aninhado, deriva codigoUnidade/pedido pela projeção escalar, confere referências redundantes e retorna registro privado concreto. :867 pedidoDaUnidade usa buscarPedidoPorCodigo sem prelock da unidade. :391 aplicar usa o mesmo resolvedor; :485 delega **contagens.contar(dto)**. A segunda transação de pendência usa bloquearLinha; FATO_SERVICO confere contexto/unidadeId/pedidos do DTO; :889 referencia opcional não nula divergente é recusada.
+
+Sete regras adicionais registram presença/ausência/ordem nos métodos, com linhas/regex no output. Não são prova de ramo executado, igualdade semântica de todos os DTOs, corrida/locks reais, permissão integral ou atomicidade. Esses aspectos ficam com a revisão Vigia/testes Cedro/ensaio SQL Server. O suplemento não aceita o P2 sozinho.
+
+[Tentativa128/129](d19-v9-2026-10-06-p2-locks-final-suplemento-inicial.json) e [cópia antes da correção](d19-v9-2026-10-06-p2-locks-final-guardas-antes128.json) preservadas. Uma regex presumiu contarContingencia; fonte congelada grava contagens.contar(dto). Apenas premissa lexical corrigida, sem backend/SQL adaptados. Metadados da tentativa registram `$?` false/LASTEXITCODE null. Parser37 histórico não precisou ser reexecutado: nenhum parser de Java foi alterado nesta tarefa.
+
+Situação do serviço continua String VARCHAR24 obrigatório com Check ATIVO/ENCERRAMENTO_PENDENTE/INATIVO, não enum Java presumido; models não mudaram. Entrada histórica em CANCELADA/carga_id, identidade global, snapshots/JSON/nulos e pares de efeito/data mantidos. Inventário lexical conserva43 gravações administrativas/37 tipos em38 permitidos,34 ocorrências de auditoria nas fontes afetadas (sobreaproximação de enum declarada), uma construção de movimento AJUSTE_ESTOQUE, zero pendências lexicais. ENTRADA_CONTINGENCIA administrativo/auditoria PEDIDO_ENTRADA-ENTRADA_EFETIVADA; AJUSTE administrativo APLICACAO_CONTAGEM e movimento/auditoria AJUSTE_ESTOQUE; pares anteriores preservados.
+
+Nullable UNIQUE JPA não expressa WHERE entrada_id IS NOT NULL: filtro SQL separado, nenhuma geração automática presumida. Instant/TIMESTAMP representa contrato DATETIME2(6), sem observar precisão física. ISJSON/CHECK/FKs simples não provam estrutura/hash/contexto/imutabilidade. H2 de Cedro não aplica V9 nem comprova dialeto/NULL/collation/índices/locks/permissões SQL Server.
+
+[Relatório técnico367](../../infra/evidencias/d19-preparacao-p2-locks367-2026-10-06.md) reconcilia artefato, resumos, limites/donos externos. Históricos904/122/411/360 e anteriores333/307/194/424/22 preservados byte a byte; documentos correntes têm snapshots antes da atualização. Backend/31/centrais/Graphify/frontend somente leitura. Nenhum SQL/conexão/Flyway Info/Validate, JVM/H2/build/rede/env/segredo/fiscal/cobrança real/ETL/Hermes/Git/publicação. CLI próprio ausente: retorno neste ask e arquivos, sem identidade alheia.

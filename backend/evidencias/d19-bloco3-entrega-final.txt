@@ -1,0 +1,68 @@
+D19 — Cedro — entrega BE01/BE13 local — 06/10/2026
+
+FREEZE explícito: backend e contratos29/31 estáveis para revisão final de Vigia/Prumo/Farol. Contrato27 preservado. Nenhum aceite BE13/comercial/externo declarado pelo build. Escrita BE14 seguinte após aceite local deste bloco; D19 segue autorizado sem nova permissão por bloco.
+
+Resultado real:
+- mvnw.cmd -B -ntp -Dtest=FechamentoIntegrationTest,CobrancaIntegrationTest,CadastrosIntegrationTest,EstoqueIntegrationTest,ExpedicaoIntegrationTest,UnidadeLogisticaIntegrationTest clean test
+  backend/evidencias/d19-bloco3-testes-transacoes.log: BUILD SUCCESS,226/0/0/0,02:54min,03:34:18 -03:00. Suítes28/52/31/43/36/36.
+- mvnw.cmd -B -ntp spotless:apply
+  backend/evidencias/d19-bloco3-spotless-final.log: BUILD SUCCESS,238 Java,2.045s,03:34:56 -03:00.
+- mvnw.cmd -B -ntp clean verify
+  backend/evidencias/d19-bloco3-clean-verify-final.log: BUILD SUCCESS,328/0/0/0,03:16min,03:38:18 -03:00. 292 anteriores +36 novos;15 XMLs;221 fontes principais/17 de teste;JAR empacotado.
+- JDK Temurin21.0.12.1+1;Maven Wrapper3.9.16. Output real em d19-bloco3-ferramentas-cmd-final.log. JAVA_HOME desta máquina: C:/Users/suporte/AppData/Local/Programs/Eclipse Adoptium/jdk-21. Todos os comandos Maven acima na pasta backend, redirecionados a evidencias fora de target.
+- ./backend/evidencias/d19-bloco3-conferir-final.ps1, na raiz: lê XMLs/JAR/log/fontes e compara manifesto292. Output d19-bloco3-conferencia-final.log confirma15 XMLs/328/0/0/0/251 arquivos. Primeira tentativa do produtor do relatório usou dicionários em Measure-Object; corrigida para PSCustomObject, sem alteração Java ou build.
+- git symbolic-ref --short HEAD: main. git rev-list --all --count:0. Sem commit/push.
+
+JAR backend/target/wms-backend-0.0.1-SNAPSHOT.jar:78.328.376bytes, SHA-256 F7246BEE3B66695186BD31F5D5EC9F1422AD4208A638ED2FD83DFF81CC28DA81.
+Manifesto d19-bloco3-freeze-final.sha256:251 arquivos, SHA-256 D249C81AC84EC02904842F15E3FE74D6CAA42B0668531FDBBD3F68115F36222A.
+d19-bloco3-preservacao-final.json compara222 anteriores:208 idênticos/14 alterados BE13/0 ausentes/29 novos. Nenhum output ou manifesto anterior sobrescrito; doc27, recursos properties, testes anteriores e Java operacional BE07/BE08/BE09/BE10 preservados, salvo guarda de conjunto em CapacidadeService contra INATIVO.
+d19-bloco3-resumo-final.json:contagem e hashes individuais dos15 XMLs/JAR.
+
+Implementação:
+- 11 models/repositories novos:FechamentoCobranca,VersaoFechamento,DiaFechamento,FatoFechamento,AjusteFechamento,AjusteVersaoFechamento,EntregaEsl,ConfirmacaoExternaFechamento,ReferenciaNfse,ResolucaoFinanceiraFechamento,TratativaExternaFechamento.
+- Controllers FechamentoCobrancaController/AjusteFechamentoController;DTO FechamentoCobrancaDto;services FechamentoCobrancaService/ResolucaoFinanceiraCadastroService;teste FechamentoIntegrationTest.
+- Esquema/nomes/tipos/FKs/enums/constraints no31 formalizados antes dos respectivos ajustes JPA e reportados por Maestri ao Farol para V8 de Prumo. 11 tabelas BE13;seis CHECKs cadastrais cumulativos INATIVO;nenhuma edição Cedro de database/infra ou V1–V7.
+- FECHAMENTO_COBRANCA tem19 caracteres. Ações de auditoria e tipos de operação administrativa exatos:PREPARACAO_FECHAMENTO,APROVACAO_FECHAMENTO,REJEICAO_FECHAMENTO,REABERTURA_FECHAMENTO,ENTREGA_ESL,CONFIRMACAO_EXTERNA,REFERENCIA_NFSE,RESOLUCAO_FINANCEIRA,AJUSTE_FECHAMENTO,TRATATIVA_EXTERNA. Nenhum grava movimento_estoque.
+- Metadata decisão/estado externo separados dos bytes/hash UTF-8 imutáveis;calendarização nominal/corte/âncora configurados;dias/fatos únicos;aprovação integral;reabertura só com nova versão;NFS-e existentes múltiplas/tardias preservadas;CONFLITO_EXTERNO exige tratativa manual integral comprovada.
+- ZERO/CREDITO exige confirmação fiscal e resolução financeira separadas;ajustes100→80→70 conservam−20/−10;próprio100+recebido−100=ZERO,corrigir próprio80 gera−20;APLICADO conserva destino/versão/data.
+- Vigia P2:VALIDADO ausente da composição mantém conflito até redirecionamento explícito atômico no próximo destino apto;histórico/snapshot/auditoria mantêm atribuição antiga. Segunda reconciliação não aplica snapshot cujo ajuste pertence atualmente a outro destino. Guarda model/service e rollback cobertos.
+- Gestor antes de replay/escopo/UUID/payload/revisão/locks CLIENTE→ARMAZEM→fechamentos;auditoria/resposta/efeitos no mesmo commit. Transições comuns recusam entrar INATIVO e sair de INATIVO nas seis entidades;nenhuma rota definitiva introduzida. Resolução financeira histórica identifica execução/pedido/período sem reativação nem efeito físico.
+
+14 arquivos alterados do freeze292:
+backend/README.md
+backend/src/main/java/br/com/rodogarcia/wms/config/CadastrosSegurancaConfig.java
+backend/src/main/java/br/com/rodogarcia/wms/dto/CalculoCobrancaDto.java
+backend/src/main/java/br/com/rodogarcia/wms/dto/ConfiguracaoCobrancaDto.java
+backend/src/main/java/br/com/rodogarcia/wms/dto/FatoServicoDto.java
+backend/src/main/java/br/com/rodogarcia/wms/models/SituacaoCadastro.java
+backend/src/main/java/br/com/rodogarcia/wms/repositories/AuditoriaCadastroRepository.java
+backend/src/main/java/br/com/rodogarcia/wms/services/AuditoriaService.java
+backend/src/main/java/br/com/rodogarcia/wms/services/CadastroSupport.java
+backend/src/main/java/br/com/rodogarcia/wms/services/CalculoCobrancaService.java
+backend/src/main/java/br/com/rodogarcia/wms/services/CapacidadeService.java
+backend/src/main/java/br/com/rodogarcia/wms/services/ConfiguracaoCobrancaService.java
+backend/src/main/java/br/com/rodogarcia/wms/services/FatoServicoService.java
+docs/29-cadastros-servicos-e-calculo.md
+29 novos caminhos completos no JSON de preservação (27 fontes principais,1 teste,doc31). README/doc31 atualizados com resultados reais;doc29 preserva aceite/histórico292 e explicita extensão compatível BE13.
+
+36 testes novos reais HTTP/serviço/H2:
+Calendários29/30/31 comum/bissexto/30dias/primeiro parcial/contrato contíguo;períodos sobrepostos;falta de configuração/corte futuro;decisão integral/rejeição/reabertura e unicidade dia/fato;bytes/hash/metadados;revisão otimista;UUID/divergência/401/403/escopos;entrega DESCONHECIDO;NFS-e tardia/múltipla/trait;ZERO/CREDITO;cadeia de correções/deduplicação/composição/APLICADO;resolução financeira ENCPENDING/INATIVO/configuração específica/anulação por período;seis guardas comuns cadastrais e hash anterior sem resolucao.
+Concorrência determinística com barreiras sob transações HTTP reais:preparação/replay/sobreposição e NFS-e×reabertura em ambas as ordens.
+Rollback de auditoria:criação integral,finalização/referência/aplicação e tratativa/redirecionamento;repetição após falha e segundo conflito contra snapshot redirecionado.
+Todas as suítes anteriores passaram no clean verify328, incluindo44 BE09,36 BE07,43 expedição,52 financeiro e31 estoque.
+
+Tentativas preservadas, sem ocultar falhas ou flexibilizar validações:
+compile-inicial219 SUCCESS02:50:22;compile-tratativa221 SUCCESS02:54:56.
+testes-inicial:helper unidade ausente na extração;fixture:19 falhas unidade UNIDADE incompatível com serviço ADICIONAL (corrigido fixture para VEICULO).
+testes-unidade:19 erros de compilation problems no artefato IdentidadeTesteConfig apesar da fonte presente/Maven Nothing to compile;causa de artefato desatualizado não comprovada, recompilação clean eliminou o erro.
+testes-clean:19/9/0,relógio mockado sem withZone;stub Clock.fixed por fuso preservou guardas civis de produção.
+testes-clock-guarda:19/0/0/0 SUCCESS03:10:25.
+testes-p2-resolucao:77/0/1/0,52 financeiros preservados;fixture INATIVO recusada pelo CHECK de enum de dois valores. Formalizado schema31/Prumo antes do enum e guardas de produção;nenhum CHECK de teste removido.
+spotless-cobertura:imports genéricos recusados;imports explícitos mantêm a regra. spotless-imports passou238 Java.
+testes-relevantes-final:testes não executados/import HashSet ausente na produção;testes-ajuste-import:testes não executados/import Endereco ausente no novo teste. Imports corrigidos e logs preservados.
+testes-import-teste:225/7/0/0,02:53min,03:28:38. Seis fixtures cadastrais enviavam UUID indevido a RevisaoCadastroRequest;corrigido somente payload. Uma falha real UnexpectedRollbackException:exceção de conferirAtual marcava rollback-only via proxy MANDATORY antes de registrar NFS-e já existente como conflito. Produção passou a usar comparação booleana pura sob os mesmos locks para esse registro;aprovação/entrega permanecem estritas. Nova anulação histórica confere execução/pedido/período antes de replay.
+testes-transacoes:226/0/0/0 SUCCESS;spotless-final e clean-verify-final328 SUCCESS conforme comandos acima. Nenhum teste retirado/suprimido;validações BE07/BE08 e regras de unidade preservadas. ERROR IllegalStateException nos outputs finais pertence à injeção deliberada de falha da auditoria para verificar rollback.
+
+Limites/próximo passo:
+Revisão final Vigia e pareamento V8/JPA/serviços de Prumo sobre251 hashes;Farol registra32/states/continuidade/Graphify. Durante revisão Cedro só lê/planeja próximo BE14, sem editar Java ou contratos congelados. Qualquer achado exige novo sufixo/output/manifesto/reconferência antes do aceite. Após aceite local BE13, formalizar schema BE14 antes Java e implementar contagem/carga inicial/contingência/indicadores e inativação definitiva conforme D19/26/32, sem nova autorização por macrobloco.
+H2 não valida dialeto/CHECKs/índices/locks SQL Server,provedor real,preços/parâmetros comerciais,layout/procedimento ESL/NFS-e,fiscal externo,impressão/coletor/piloto. Nenhuma emissão/envio/cobrança real,conexão/migration SQL Server,publicação,commit/push,rotina,perfil Hermes,ETL,frontend ou Graphify por Cedro. Dados fictícios somente;recursos .properties e origens/reservas/etiquetas mantidos.

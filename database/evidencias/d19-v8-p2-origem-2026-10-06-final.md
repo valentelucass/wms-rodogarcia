@@ -1,0 +1,9 @@
+# Fecho da preparação V8 p2-origem, 06/10/2026
+
+Preparação independente concluída em arquivos:11 tabelas112 colunas26 FKs10 constraints UNIQUE26 CHECKs16 índices comuns mais1 único filtrado, seis CHECKs cadastrais preservados. Quatro campos formalizados antes do Java, com DEFAULT explícito de tipo comum, FK cíclica posterior/filtrada e par base anterior/JSON. [V8](../migrations/V8__fechamento_e_versoes.sql) SHAB67580F64ED8C8558E25FF9D4FD545C923E193BBFD6A749DA45052CE1D9DB017. V1–V7/fontes/cópias/outputs469/470/490/132 preservados.
+
+[Parecer inicial completo](d19-v8-p2-origem-2026-10-06.md) e fontes664/F3/8E permanecem datados. Fonte31 final3284E984538781CEB01C332DF64BDDF59325D1C809CF6114EF1774E367F90933 acrescentou relato de entrega/freeze333; [comparação](d19-v8-p2-origem-2026-10-06-fonte-fecho-comparacao.json) comprova quadro/complemento idênticos a8E. [Output470 de fecho](d19-v8-p2-origem-2026-10-06-leitor-fecho-final.json) e [metadados](d19-v8-p2-origem-2026-10-06-leitor-fecho-final-execucao.json): leitura contrato/SQL da cópia literal3284, origem igual na captura, sem JPA solicitado naquela etapa. PowerShell normal/LASTEXITCODE null; não significa saída nativa0.
+
+Primeiro QA local13/12 e manifesto intermediário foram preservados. A fonte viva mudou para3284, e a lista de documentos do comando não incluiu corretamente o parecer; esse QA não valida o fechamento. A reconferência posterior produz novos checks locais/manifesto sem sobrescrever essa tentativa.
+
+Depois da preparação, Farol comunicou explicitamente novo freeze333/251 e autorizou o pareamento final: [evidência523/523 e163/163](d19-v8-2026-10-06-p2-origem-final.md), com hashes atuais29/31 pelo manifesto. Resultados469/470 continuam preparação;490/132 continuam freeze328 histórico. Nenhum SQL/conexão/JVM/Hibernate/H2/build/Flyway Info/Validate ou aceite BE13. BE14/V9 aguarda schema formal.

@@ -1,0 +1,52 @@
+D19 — BE01/BE05/BE12 — entrega P2 avaria BE08 — 06/10/2026
+
+FREEZE EXPLÍCITO: backend e contrato29 congelados novamente para Vigia/Prumo revisarem as diferenças. Doc31 suspenso; nenhum Java BE13/BE14 iniciado. Build não é aceite local nem homologação comercial. D19 continua autorizado após fechar esta revisão.
+
+Correção:
+- CalculoCobrancaService reconcilia o movimento imutável AVARIA_ESTOQUE com a linha temporal, em armazenagem e valor físico. Sem quantidade/período/responsabilidade comprovados: PENDENTE, valor/dano/suspensão desconhecidos, sem estimar dano ou preço.
+- Pendência AVARIA_BE08_SEM_DETALHE identifica movimento_estoque.id, UUID/ciclo BE08, unidade e instante. Campo fatoId tem namespace explícito no detalhe. Histórico não comprovado não vira data presumida.
+- Cobertura vem somente do primeiro AVARIA_DETALHADA posterior da marcação, antes de nova marca, cujo snapshot anterior mostra o marcador e cujo resultado vincula ID/ciclo da ocorrência nova. Dano antigo reparado não prova um dano novo.
+- Data detalhada posterior deixa lacuna anterior pendente mesmo depois do reparo/reconhecimento. Reconhecimento Gestor posterior cobre somente a ocorrência comprovada; snapshots antigos permanecem intactos. Responsabilidade pendente também impede COMPLETO no valor físico do dia de retirada sem diária.
+- Nenhuma nova tabela/coluna/enum JPA. MovimentacaoEstoqueService, AvariaService, regras BE08/BE07, locks e modelos ficaram iguais ao freeze anterior. Reserva, bloqueio, saldo, nota/FIFO e histórico não são alterados pelo financeiro.
+- Contrato29 distingue os 13 tipos reais de operacao_administrativa das ações de auditoria. CRIACAO_SERVICO/CRIACAO_TABELA persistem como antes, auditoria CRIACAO e hash/replay intactos. Prumo corrigiu V7 em arquivos; não houve SQL real.
+
+Arquivos de implementação/documentação alterados em relação ao freeze parser-final222:
+backend/src/main/java/br/com/rodogarcia/wms/repositories/MovimentoEstoqueRepository.java
+backend/src/main/java/br/com/rodogarcia/wms/services/CalculoCobrancaService.java
+backend/src/test/java/br/com/rodogarcia/wms/CobrancaIntegrationTest.java
+backend/README.md
+docs/29-cadastros-servicos-e-calculo.md
+Comparação completa: d19-bloco2-preservacao-p2-avaria-final.json. Manifesto novo: d19-bloco2-freeze-p2-avaria-final.sha256 (222 arquivos). Os 217 outros hashes continuam iguais. Doc27 e recursos properties preservados.
+
+Comandos reais em backend, JAVA_HOME=C:/Users/suporte/AppData/Local/Programs/Eclipse Adoptium/jdk-21:
+1. mvnw.cmd -B -ntp spotless:apply test -Dtest=CobrancaIntegrationTest,EstoqueIntegrationTest,ExpedicaoIntegrationTest,UnidadeLogisticaIntegrationTest
+   d19-bloco2-testes-p2-avaria-relevantes.log: BUILD SUCCESS, 162/0/0/0, 1:54 min, 02:13:39 -03:00. Financeiro52, estoque31, expedição43, BE07 36.
+2. mvnw.cmd -B -ntp spotless:apply
+   d19-bloco2-spotless-p2-avaria-final.log: BUILD SUCCESS, 210 Java, 1,844 s, 02:14:01 -03:00.
+3. mvnw.cmd -B -ntp clean verify
+   d19-bloco2-clean-verify-p2-avaria-final.log: BUILD SUCCESS, 292/0/0/0, 14 XMLs reais, 194 fontes principais/16 de teste, JAR, 2:50 min, 02:17:02 -03:00.
+4. mvnw.cmd -v
+   d19-bloco2-ambiente-p2-avaria-final.log: Maven Wrapper3.9.16, Temurin21.0.12.1+1, Windows, UTF-8.
+Logs redirecionados por cmd /d /c para evidencias, fora de target. Resumo XMLs/artefato: d19-bloco2-resumo-p2-avaria-final.json.
+
+Artefato: backend/target/wms-backend-0.0.1-SNAPSHOT.jar
+Bytes: 78223834
+SHA256: 83235E12A8CE2A0F2756B8702E1D3AF7E5ECDDCD584E64A25ED1C356AE910D5A
+
+Seis casos novos, HTTP real e H2 isolado:
+1. BOA100/reservado80 -> avaria BE08: antes completo; depois pendente, replay original; reserva/bloqueio/origens preservados; liberação recusada e snapshot antigo igual.
+2. Detalhe posterior com ocorrência desde a marcação: reconhecimento Gestor posterior comprova passado; reparo preserva histórico; novo cálculo completo com GRIS20/total22 fictícios.
+3. Detalhe posterior com ocorrência só mais tarde: lacuna desde marcação permanece pendente após reparo/reconhecimento; período posterior conhecido completa; snapshots não mudam.
+4. Ciclo detalhado reparado -> nova avaria BE08: ciclo antigo não cobre nova marca; nova ocorrência/ciclo vinculado é exigido.
+5. Valor físico no dia da retirada sem diária: dano BE08 desconhecido impede GRIS/COMPLETO. Ledger de retirada é fixture histórico para conferir cálculo, não autorização operacional para retirar estoque bloqueado.
+6. Falha tardia da auditoria BE08: rollback de movimento/flag/bloqueio; cálculo continua comprovado; repetir comando após remover falha registra uma única marca e deixa financeiro pendente.
+Clock fictício controlado apenas no contexto de teste financeiro. Não foram suprimidas validações de produção. Todos os 286 anteriores passaram; total292 (240 da base aceita +52 financeiros).
+
+Preservação e tentativas:
+- Outputs e manifestos parser-final286/222 e entregas anteriores permanecem intactos. Seus hashes estão no relatório de preservação.
+- d19-bloco2-testes-p2-avaria-inicial.log: falha de testCompile no helper (ordem dos parâmetros), 17,722 s, 02:08:40.
+- d19-bloco2-testes-p2-avaria-ajuste-fixture.log: 51/0/1/0, nome incorreto de coluna na consulta do teste, 1:25 min, 02:10:31. Corrigidos somente os fixtures/conferências; cenários e regras mantidos.
+- d19-bloco2-complemento-tipos-v7-p2-avaria.txt identifica hash documental do esclarecimento antes da redação P2. Não substitui o manifesto anterior.
+
+Limites e próximo passo:
+H2/HTTP local não validam SQL Server/V7, parâmetros comerciais reais, fiscal/NFS-e, cobrança real, provedor, equipamentos ou frontend. Não houve publicação/commit/push/rotinas/perfis Hermes/ETL/Graphify por Cedro. Farol mantém centrais e Graphify. Revisão final concentra P2 e cinco diferenças novas; comparar V7/JPA sem schema extra. Aguardo parecer/aceite local de Farol para retomar doc31/BE13, depois BE14 e integração D19, sem nova autorização por macrobloco.

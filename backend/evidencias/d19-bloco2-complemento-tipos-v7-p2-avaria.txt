@@ -1,0 +1,6 @@
+Complemento documental ao freeze parser-final222/build286 preservados.
+Somente doc29 esclarece tipo de operacao_administrativa vs acao de auditoria.
+Tipos: COMPLEMENTO_FISCAL, REFERENCIA_FISCAL, PREVIA_ENDERECOS, IMPORTACAO_ENDERECOS, CRIACAO_SERVICO, CRIACAO_TABELA, ENCERRAMENTO_VIGENCIA, VINCULO_TABELA, CONFIGURACAO, REGISTRO_SERVICO, ANULACAO_SERVICO, MARCO_AVARIA, CALCULO.
+Auditoria das criacoes continua CRIACAO; Java/hash/replay nao alterados.
+SHA256 neste complemento antes da redacao P2: E5144BAE18D0211B44D721868FA06F0F4B27F6D94AC0BBE6E66E75822B25A029  docs/29-cadastros-servicos-e-calculo.md
+Nao substitui manifesto parser-final.
