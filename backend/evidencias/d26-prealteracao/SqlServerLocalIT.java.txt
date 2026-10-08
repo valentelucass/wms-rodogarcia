@@ -72,10 +72,6 @@ class SqlServerLocalIT {
         @Override
         public void initialize(ConfigurableApplicationContext contexto) {
             var env = contexto.getEnvironment();
-            String rodada = env.getProperty("WMS_SQLSERVER_IT_ROUND");
-            if (rodada != null && !rodada.matches("D26[A-Z0-9]{6,12}")) {
-                throw new IllegalStateException("Identificador de rodada SQL D26 inválido.");
-            }
             SqlServerEnsaioLocalGuard.validar(
                     env,
                     Binder.get(env)
@@ -366,9 +362,7 @@ class SqlServerLocalIT {
     }
 
     private Cliente novoCliente(Instant instante) {
-        String prefixo = System.getenv().getOrDefault("WMS_SQLSERVER_IT_ROUND", "D20");
-        String codigo =
-                prefixo + UUID.randomUUID().toString().replace("-", "").substring(0, 12);
+        String codigo = "D20" + UUID.randomUUID().toString().replace("-", "").substring(0, 20);
         return new Cliente(codigo, "Ação fictícia", codigo, instante);
     }
 

@@ -1,1 +1,0 @@
-﻿ALTER TABLE wms.cliente ADD d21_ficticio varchar(12) NULL;
