@@ -221,6 +221,21 @@ public class EncerramentoService {
 
     private List<EncerramentoDto.Impedimento> impedimentos(Alvo a) {
         var p = new ArrayList<EncerramentoDto.Impedimento>();
+        if (a.tipo() == Tipo.ENDERECO) {
+            for (var conjunto :
+                    em.createQuery(
+                                    "select c from ConjuntoPosicoes c where c.situacao<>'INATIVO' and (c.enderecoA.id=:id or c.enderecoB.id=:id) order by c.id",
+                                    ConjuntoPosicoes.class)
+                            .setParameter("id", a.id())
+                            .getResultList()) {
+                add(
+                        p,
+                        "CONJUNTO_VIGENTE",
+                        "CONJUNTO_POSICOES",
+                        conjunto.getId(),
+                        "Conjunto vigente depende desta posição; encerre o conjunto identificado antes do endereço.");
+            }
+        }
         var us =
                 em.createQuery(
                                 "select u from UnidadeLogistica u where "

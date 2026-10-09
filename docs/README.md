@@ -63,6 +63,8 @@ Uma proposta não se torna regra aprovada por estar escrita aqui. O silêncio do
 
 | [Conexão compartilhada e SQL real](39-conexao-compartilhada-e-sql-real.md) | D24: bootstrap/upgrade reais, catálogo/histórico e reexecução; sa administrativo separado da aplicação |
 | [Testes backend e leitura SQL DEV](40-testes-backend-e-leitura-sql-dev.md) | D25: build408, JAR6/6, correções locais e leitura JDBC DEV; aplicação SQL condicionada à identidade restrita |
+| [Ensaio HTTP e persistência DEV](41-ensaio-http-e-persistencia-dev.md) | D26: identidade própria, build412/IT7, jornadas reais159/160, matrizes RN/AC, provas SQL e ajuste bloqueado por schema |
+| [Validação técnica API/SQL DEV](42-validacao-tecnica-api-sql-dev.md) | D27 técnica encerrada: V10 somente DEV, RN22/XML e ajustes corrigidos, build420,726 HTTP novos/persistência e witness SQL online; matriz/limites/revisão/recibo WMS, D26 preservada |
 
 ## Atualização da documentação
 
@@ -74,13 +76,25 @@ Os temas Q01 a Q27 devem manter seus identificadores; registrar respostas por n�
 
 Não copiar senhas, certificados, chaves de acesso ou dados reais de produção para os documentos.
 
-## Ponto atual em 06 de outubro
+## Ponto atual em 07 de outubro
 
-**D25 no [40](40-testes-backend-e-leitura-sql-dev.md):** 408 testes finais e JAR6/6; JDBC administrativo de leitura WMS_DEV/catálogo/vazio comprovados. API/JPA/IT SQL aguardam identidade própria restrita; somente DEV, conforme regra AGENTS preservada. Revisão Vigia favorável; pacote local encerrado, sem homologação SQL da aplicação.
+**D30 vigente, nova demanda expressa de Lucas após o fecho localD29:** verificação integral da parcela local backend/documentação/contratos para frontend futuro. [Escopo/dez critérios](../orchestracao/.runtime/d30-farol-escopo-e-distribuicao.json), [adenda de fontes/donos e HTTP+H2](../orchestracao/.runtime/d30-farol-adenda-donos-fontes.json) e [matriz de aceite em andamento](../orchestracao/.runtime/d30-matriz-aceite-local.json). HTTPLOCAL+H2 efêmero isolado e fictício autorizado após comprovar URL/perfis/configuração por suíte; nenhuma conexãoSQLServer/HTTPDEV/escritaBancoReal ou intervenção de servidor. H2 não provaSQLServer. Frontend não iniciado; somente contratos para futura demanda. Aprovação local integral exige zero critério local pendente e revisão independente de todo pacote. RegistrosD29 abaixo são históricos e conservam seus limites; não autorizam novas sondas.
+
+**D29 em execução por autorização expressa de Lucas:** cobertura documental e técnica ampliada, com novas famílias fictícias somente WMS_DEV/WMSDEV e escritas de negócio pela API. [Distribuição e limites](../orchestracao/.runtime/d29-autorizacao-e-distribuicao.md), [matriz central em ampliação](../orchestracao/.runtime/d29-matriz-requisitos-farol.json) e [preflight novo](../orchestracao/.runtime/d29-prumo-preflight.json). A matriz confronta RN/I/PR, cenários V, propostas AC, respostas e cláusulas dos contratos; inventário ou HTTP200 não constituem aceite. Frontend, dispositivos, fiscal externo, aceitação comercial e recuperação em destino isolado permanecem separados. Andamento e critérios oficiais no states.md.
+
+**D28 encerrada com limites:** [recibo Farol](../orchestracao/.runtime/d28-resultado-final.json), build novo420/0/0/0, jornadas HTTP/API e17 fotografias SQL contemporâneas, revisão independente de29 critérios. Sem nova correção de negócio confirmada; reds de roteiro/fixture/oráculo preservados. Witness nativo SQL não comprovado pela identidade restrita; alternativa HTTP/JVM/SELECT posterior explicitada. D28 não homologa todo o backend nem atende as novas lacunas D29 por herança.
+
+**D27 técnica encerrada no [42](42-validacao-tecnica-api-sql-dev.md):** ajustes, RN22/XML e financeiro fictício nos casos documentados; V10 aplicada somente DEV na autorização histórica própria. V1–V10/checksums/históricos preservados e imutáveis. A D29 não autoriza migrations/DDL nem launcher DEV→PROD.
+
+## Histórico até 06 de outubro
+
+**D26, ensaios encerrados no [41](41-ensaio-http-e-persistencia-dev.md):** identidade própria WMSDEV, build412/IT7 e API real159/160;1.404 solicitações com recusas/tentativas preservadas. SQL236/0+GET17/0+extra76/0, duas causas locais corrigidas. Ajuste físico bloqueado por CHECK, V10 só proposta; snapshot20 não aprovado por anulação/desatualização.32 JARs encerrados; matrizes e lacunas, sem backend total aprovado/frontend/PROD.
+
+**Histórico D25 no [40](40-testes-backend-e-leitura-sql-dev.md):** 408 testes finais e JAR6/6; JDBC administrativo de leitura WMS_DEV/catálogo/vazio comprovados. API/JPA/IT SQL então aguardavam identidade própria restrita, supersedida pelo provisionamento autorizado D26; regra DEV permanente preservada.
 
 **D24 concluída no [39](39-conexao-compartilhada-e-sql-real.md):** conexão compartilhada e execução real DEV/PROD pelo BAT, com nove migrations e catálogos completos. SQL Server 2022 Standard preservado. Fonte protegida já provisionada. Registros D20–D23 abaixo são históricos; aplicação e homologação continuam separadas.
 
-**Histórico D22 concluído localmente no [38](38-launcher-automatico-e-credencial-protegida.md):** execução normal automática sem senha/confirmação, credencial DPAPI WMS exclusiva e [configurador UMA VEZ](../database/configurar-credencial.bat). 18/18 fixtures DPAPI fictícias, 5/5 fixtures de console e 9/9 casos cmd.exe independentes; 818/818 hashes database, 84/84 backend, 73 snapshots D21 e V1–V9 intactas; Vigia favorável. Credencial real AUSENTE, provisionamento do operador pendente; SQL/TLS reais não executados pelo agente. Fluxo completo D21 e seus históricos preservados. [Recibo WMS](../orchestracao/.runtime/d22-resultado-final.md). D21/D20 abaixo são históricos.
+**Histórico D22 concluído localmente no [38](38-launcher-automatico-e-credencial-protegida.md):** execução normal automática sem senha/confirmação, credencial DPAPI WMS exclusiva e [configurador UMA VEZ](../database/configurar-credencial.bat). 18/18 fixtures DPAPI fictícias, 5/5 fixtures de console e 9/9 casos cmd.exe independentes; 818/818 hashes database, 84/84 backend, 73 snapshots D21 e V1–V9 intactas; Vigia favorável. Credencial real AUSENTE, provisionamento do operador pendente; SQL/TLS reais não executados pelo agente. Fluxo completo D21 e seus históricos preservados. [Recibo WMS](../database/evidencias/d22-relatorio-final.md). D21/D20 abaixo são históricos.
 
 **D21 concluída localmente no [37](37-bootstrap-e-upgrade-manual-database.md):** [BAT único](../database/iniciar-bancos.bat) e [README curto](../database/README.md), bootstrap/upgrade completo DEV depois PROD, fonte Flyway dinâmica.41/41 fixtures,672/672 checks,25/25 Maven,675/84 hashes e revisão favorável; SQL real não executado. Interação anterior de senha/confirmação substituída por D22: configurar UMA VEZ e executar normalmente sem perguntas. D20 abaixo é histórico; a entrega atual inclui schema e pendentes também PROD pelo operador.
 

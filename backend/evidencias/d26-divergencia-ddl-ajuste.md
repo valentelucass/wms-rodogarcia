@@ -1,0 +1,9 @@
+# D26 — ajuste físico bloqueado pelo domínio aplicado
+
+JAR final SHA256 `85FD7CF9171ED32B2157E92F1866064912B64B41824EFE9B06A5C37FC3094EE0`, rodada `D2694ED1B4D`: conciliação da linha1 Supervisor200, replay200 igual; primeira contagem2/revisão1 válida. Leitura direta35 cria revisão2/PENDENTE (esperado40/reservado0). Operação403 na aplicação; Supervisor409 `CONFLITO_DE_INTEGRIDADE`, UUID `56a768cf-6ef6-41b4-8641-b59798336466`.
+
+`ContagemEstoqueService.aplicarDatado` grava `FatoPermanencia.tipo=AJUSTE_ESTOQUE` para preservar a mudança de quantidade/equivalência usada pela memória financeira. V6 linha198 define `ck_fato_permanencia_tipo` somente `SEPARACAO,RETORNO_INTERNO,RETIRADA,AVARIA,REPARO`; V7–V9 não ampliam esse CHECK. V9 amplia movimento/auditoria de ajuste, mas não esse domínio. O 409 é observado; a identificação da constraint decorre das fontes e requer confronto de metadata real por Prumo.
+
+Pedido de leitura Prumo: WMS_DEV/WMSDEV, unidade6, contagem2, revisão2, linha1; confirmar definição/estado real do CHECK, quantidade40/conteúdo40/versão13, revisão PENDENTE, linha CONCILIADA, ausência do fato/movimento/snapshot/aplicação/auditoria do UUID acima e preservação dos efeitos válidos anteriores. Não inserir/alterar nada para diagnosticar.
+
+Proposta separada para Prumo/Farol: futura migration cumulativa acrescentando **somente `AJUSTE_ESTOQUE`** ao domínio `ck_fato_permanencia_tipo`, conservando demais valores e `WITH CHECK`, após revisão do contrato BE14. Este arquivo não autoriza aplicar DDL nesta D26. Não mudar V6/V9/checksums, usar outro tipo fictício, omitir o fato temporal ou ampliar grants. A aplicação de contagem e os fluxos dependentes desse ajuste ficam bloqueados por schema até decisão específica; consultas, cargas e outros fluxos continuam sendo ensaiados.

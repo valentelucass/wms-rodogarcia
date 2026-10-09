@@ -1,0 +1,7 @@
+# D26 — tentativa focal preservada e próximo handshake
+
+D269D06DD04 concluiu 83 casos, dados novos por HTTP (cliente11/armazém5/pedidos13–14/gate87), par200/409, reversão e cancelamento por Supervisor, reserva final0/físico100. `concorrenciaObservada=false`: não há arquivo de witness SQL dessa rodada. Readiness de Prumo foi conferido antes do gate; execução22:46–22:56Z registra44 amostras e zero testemunhas. A prova JVM é separada, não substitui witness SQL.
+
+Antes de nova tentativa focal, Prumo deve publicar readiness atual e diagnóstico sanitizado da condição que impediu as44 amostras de satisfazer o contrato (somente SPIDs/tipos/modos/estados/recursos, sem texto SQL/segredos). Cedro não executa observador administrativo nem amplia permissões. Nova tentativa somente após readiness; não repetir sete ITs nem a suíte por ajuste de oráculo. O caminho concorrente agora usa o mesmo controle de cookie/segredo/request-id das outras chamadas. jcmd passa a drenar streams em paralelo, prazo real2s e finally sobre apenas o auxiliar próprio; regressão offline pendente.
+
+O leitor de persistência deve também conferir a família cliente9/armazém4 (baseD2665736D17, retomadasD2603638663/D2651AA30EC/D2624CDA08F/D26D993F203), saída60, avaria reparada, XML4 pendente de unitização, retorno pedido15 cancelado. D26D993F203 preserva409 de primeira contagem: JPA tenta inserir revisão0 e V9 exige>=1; não executar SQL de alteração. Correção de ordem de persistência está em preparação no backend, com build e repetição apenas das jornadas afetadas.

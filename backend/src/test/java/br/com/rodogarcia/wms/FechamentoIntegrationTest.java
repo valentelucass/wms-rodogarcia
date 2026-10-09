@@ -84,6 +84,8 @@ class FechamentoIntegrationTest {
     @Autowired JdbcTemplate jdbc;
     @Autowired PlatformTransactionManager transactions;
     @MockitoSpyBean AuditoriaService auditoria;
+    @MockitoSpyBean br.com.rodogarcia.wms.services.AcessoService acessoD30;
+    private br.com.rodogarcia.wms.services.AcessoService alvoAcessoD30;
     @MockitoBean Clock clock;
     private AuditoriaService alvoAuditoria;
     @PersistenceContext EntityManager em;
@@ -105,6 +107,9 @@ class FechamentoIntegrationTest {
         alvoAuditoria =
                 org.springframework.test.util.AopTestUtils.getUltimateTargetObject(auditoria);
         reset(alvoAuditoria);
+        alvoAcessoD30 =
+                org.springframework.test.util.AopTestUtils.getUltimateTargetObject(acessoD30);
+        reset(alvoAcessoD30);
         SecurityContextHolder.clearContext();
         jdbc.update("update wms.unidade_logistica set reserva_saida_id=null");
         for (String t :
@@ -289,6 +294,17 @@ class FechamentoIntegrationTest {
         assertThat(f.get("fechamento").get("situacao").asString()).isEqualTo("EMITIDO");
         assertThat(contar("calculo_cobranca")).isEqualTo(1);
         assertThat(contar("movimento_estoque")).isZero();
+        assertThat(
+                        d30GetFotografiaIntegral(
+                                        "/api/v1/fechamentos-cobranca?clienteId="
+                                                + clienteId
+                                                + "&armazemId="
+                                                + armazemId,
+                                        supervisor)
+                                .get("totalItens")
+                                .longValue())
+                .isPositive();
+        assertThat(d30GetFotografiaIntegral(rota(f) + "/versoes", supervisor).size()).isEqualTo(1);
     }
 
     @Test
@@ -522,6 +538,33 @@ class FechamentoIntegrationTest {
         var tabela = jdbc.queryForObject("select id from wms.tabela_cobranca", Long.class);
         jdbc.update(
                 "update wms.tabela_cobranca set cliente_id=null,tipo='PADRAO' where id=?", tabela);
+        long segundoCliente =
+                new TransactionTemplate(transactions)
+                        .execute(
+                                tx -> {
+                                    var c =
+                                            new Cliente(
+                                                    "D30-MULTI",
+                                                    "Segundo proprietario ficticio",
+                                                    "33333333000133",
+                                                    BASE);
+                                    em.persist(c);
+                                    em.flush();
+                                    em.persist(
+                                            new br.com.rodogarcia.wms.models.VinculoTabelaCliente(
+                                                    c,
+                                                    em.find(Armazem.class, armazemId),
+                                                    em.find(
+                                                            br.com.rodogarcia.wms.models
+                                                                    .TabelaCobranca.class,
+                                                            tabela),
+                                                    LocalDate.parse("2026-09-01"),
+                                                    null,
+                                                    BASE,
+                                                    BASE));
+                                    em.flush();
+                                    return c.getId();
+                                });
         var solicitar = comando();
         solicitar.put(
                 "versao",
@@ -546,6 +589,15 @@ class FechamentoIntegrationTest {
                         "FECHAMENTO",
                         "compromissoId",
                         f.get("fechamento").get("id").longValue()));
+        var ordemClientes = new java.util.concurrent.CopyOnWriteArrayList<Long>();
+        doAnswer(
+                        inv -> {
+                            ordemClientes.add(inv.getArgument(0));
+                            return inv.callRealMethod();
+                        })
+                .when(alvoAcessoD30)
+                .cliente(org.mockito.ArgumentMatchers.anyLong());
+        var fotoCorte = D30FotografiaFisica.capturar(jdbc);
         var r =
                 resposta(
                         post(
@@ -553,6 +605,13 @@ class FechamentoIntegrationTest {
                                 d,
                                 gestor),
                         200);
+        assertThat(ordemClientes)
+                .containsExactlyElementsOf(
+                        java.util.stream.Stream.of(clienteId, segundoCliente).sorted().toList());
+        var depoisCorte = D30FotografiaFisica.capturar(jdbc);
+        for (String t : fotoCorte.keySet())
+            if (!List.of("TABELA_COBRANCA", "AUDITORIA_CADASTRO", "OPERACAO_ADMINISTRATIVA")
+                    .contains(t)) assertThat(depoisCorte.get(t)).as(t).isEqualTo(fotoCorte.get(t));
         assertThat(r.get("fim").asString()).isEqualTo("2026-09-03");
         assertThat(
                         jdbc.queryForObject(
@@ -642,7 +701,7 @@ class FechamentoIntegrationTest {
 
     @Test
     void ajustesAssinadosEncadeiamBaseConservamRecebidoEAplicamSoNaFinalizacao() throws Exception {
-        configurar("2026-09-01", "DIAS_CORRIDOS", null, 30, null);
+        var servicoD30 = configurar("2026-09-01", "DIAS_CORRIDOS", null, 30, null);
         var origemFato = fato("10", "2026-09-02T12:00:00Z");
         var origem = nfse(aprovar(preparar(calcular("2026-09-01", "2026-10-01"))), "ORIGEM");
         anular(origemFato);
@@ -667,6 +726,16 @@ class FechamentoIntegrationTest {
                                 String.class,
                                 a.get("id").longValue()))
                 .isEqualTo("VALIDADO");
+        d30CompromissoServicoSemEfeito(
+                servicoD30.get("id").longValue(),
+                "OBRIGACAO_FINANCEIRA_PENDENTE",
+                "FECHAMENTO_COBRANCA",
+                destino.get("fechamento").get("id").longValue());
+        d30CompromissoServicoSemEfeito(
+                servicoD30.get("id").longValue(),
+                "AJUSTE_FINANCEIRO_PENDENTE",
+                "AJUSTE_FECHAMENTO",
+                a.get("id").longValue());
         destino = resolver(confirmar(destino));
         assertThat(
                         jdbc.queryForObject(
@@ -746,6 +815,29 @@ class FechamentoIntegrationTest {
                 .isEqualTo("FINALIZADO_SEM_EMISSAO");
         assertThat(contar("ajuste_fechamento")).isEqualTo(3);
         assertThat(contar("fato_fechamento")).isEqualTo(4);
+        assertThat(
+                        d30GetFotografiaIntegral(
+                                        "/api/v1/ajustes-fechamento?clienteId="
+                                                + clienteId
+                                                + "&armazemId="
+                                                + armazemId,
+                                        gestor)
+                                .size())
+                .isEqualTo(3);
+        D30VersaoJpaProvider.conferir(
+                em.getEntityManagerFactory(),
+                jdbc,
+                br.com.rodogarcia.wms.models.AjusteFechamento.class,
+                "AJUSTE_FECHAMENTO",
+                a.get("id").longValue(),
+                "FechamentoIntegrationTest#ajustesAssinadosEncadeiamBaseConservamRecebidoEAplicamSoNaFinalizacao");
+        D30VersaoJpaProvider.conferir(
+                em.getEntityManagerFactory(),
+                jdbc,
+                br.com.rodogarcia.wms.models.VersaoFechamento.class,
+                "VERSAO_FECHAMENTO",
+                aplicado,
+                "FechamentoIntegrationTest#ajustesAssinadosEncadeiamBaseConservamRecebidoEAplicamSoNaFinalizacao");
     }
 
     @Test
@@ -1090,6 +1182,27 @@ class FechamentoIntegrationTest {
                                 String.class,
                                 armazemId))
                 .isEqualTo(situacao);
+    }
+
+    private void d30CompromissoServicoSemEfeito(
+            long servico, String codigo, String recurso, long id) throws Exception {
+        var antes = D30FotografiaFisica.capturar(jdbc);
+        var resposta =
+                resposta(
+                        get(
+                                "/api/v1/encerramentos/SERVICO_COBRANCA/"
+                                        + servico
+                                        + "/impedimentos",
+                                gestor),
+                        200);
+        var encontrados = new java.util.ArrayList<JsonNode>();
+        for (var item : resposta.get("impedimentos"))
+            if (item.get("codigo").asString().equals(codigo)
+                    && item.get("recurso").asString().equals(recurso)
+                    && item.get("id").longValue() == id) encontrados.add(item);
+        assertThat(encontrados).as(codigo + "#" + id).hasSize(1);
+        assertThat(encontrados.getFirst().get("detalhe").asString()).isNotBlank();
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(antes);
     }
 
     private void falharAuditoria(String acao) {
@@ -1887,6 +2000,134 @@ class FechamentoIntegrationTest {
                 .isEqualTo("INATIVO");
     }
 
+    @ParameterizedTest
+    @org.junit.jupiter.params.provider.ValueSource(
+            strings = {
+                "CLIENTE",
+                "ARMAZEM",
+                "PRODUTO",
+                "EMBALAGEM",
+                "ENDERECO",
+                "CONJUNTO_POSICOES",
+                "SERVICO_COBRANCA"
+            })
+    void d30SeteAlvosSemCompromissoConcluemEstadoComReplayEConservacao(String tipo)
+            throws Exception {
+        long id =
+                new TransactionTemplate(transactions)
+                        .execute(
+                                tx -> {
+                                    if (tipo.equals("CLIENTE")) return clienteId;
+                                    if (tipo.equals("ARMAZEM")) return armazemId;
+                                    if (tipo.equals("PRODUTO")) return produtoId;
+                                    if (tipo.equals("EMBALAGEM")) return embalagemId;
+                                    if (tipo.equals("SERVICO_COBRANCA")) {
+                                        var s =
+                                                new br.com.rodogarcia.wms.models.ServicoCobranca(
+                                                        "D30-LIVRE",
+                                                        "Servico livre ficticio",
+                                                        "ADICIONAL",
+                                                        "VEICULO",
+                                                        "ATIVO",
+                                                        BASE,
+                                                        BASE);
+                                        em.persist(s);
+                                        em.flush();
+                                        return s.getId();
+                                    }
+                                    var a = em.find(Armazem.class, armazemId);
+                                    var e1 =
+                                            new Endereco(
+                                                    a,
+                                                    "D30-LIVRE-A",
+                                                    "A",
+                                                    0,
+                                                    "01",
+                                                    "Endereco livre",
+                                                    TipoEndereco.ARMAZENAGEM,
+                                                    BigDecimal.TEN,
+                                                    BigDecimal.ONE,
+                                                    BigDecimal.ONE,
+                                                    BigDecimal.ONE,
+                                                    1,
+                                                    0,
+                                                    BASE);
+                                    em.persist(e1);
+                                    em.flush();
+                                    if (tipo.equals("ENDERECO")) return e1.getId();
+                                    var e2 =
+                                            new Endereco(
+                                                    a,
+                                                    "D30-LIVRE-B",
+                                                    "A",
+                                                    0,
+                                                    "02",
+                                                    "Endereco livre",
+                                                    TipoEndereco.ARMAZENAGEM,
+                                                    BigDecimal.TEN,
+                                                    BigDecimal.ONE,
+                                                    BigDecimal.ONE,
+                                                    BigDecimal.ONE,
+                                                    1,
+                                                    1,
+                                                    BASE);
+                                    em.persist(e2);
+                                    var c =
+                                            new br.com.rodogarcia.wms.models.ConjuntoPosicoes(
+                                                    a,
+                                                    "D30-LIVRE",
+                                                    e1,
+                                                    e2,
+                                                    new BigDecimal("20"),
+                                                    new BigDecimal("2"),
+                                                    BigDecimal.ONE,
+                                                    BigDecimal.ONE,
+                                                    1,
+                                                    BASE);
+                                    em.persist(c);
+                                    em.flush();
+                                    return c.getId();
+                                });
+        String tabela = tipo.toLowerCase(java.util.Locale.ROOT);
+        String rota = "/api/v1/encerramentos/" + tipo + "/" + id;
+        var antes = D30FotografiaFisica.capturar(jdbc);
+        var livre = resposta(get(rota + "/impedimentos", gestor), 200);
+        assertThat(livre.get("situacao").asString()).isEqualTo("ATIVO");
+        assertThat(livre.get("versao").longValue()).isZero();
+        assertThat(livre.get("impedimentos").isEmpty()).isTrue();
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(antes);
+        var solicitar = comando();
+        solicitar.put("versao", 0L);
+        solicitar.put("motivo", "D30OK");
+        var pendente = resposta(post(rota + "/solicitar", solicitar, gestor), 200);
+        assertThat(pendente.get("situacao").asString()).isEqualTo("ENCERRAMENTO_PENDENTE");
+        assertThat(pendente.get("versao").longValue()).isEqualTo(1);
+        var inativar = comando();
+        inativar.put("versao", 1L);
+        inativar.put("motivo", "M".repeat(500));
+        var inativo = resposta(post(rota + "/inativar", inativar, gestor), 200);
+        assertThat(inativo.get("situacao").asString()).isEqualTo("INATIVO");
+        assertThat(inativo.get("versao").longValue()).isEqualTo(2);
+        var depois = D30FotografiaFisica.capturar(jdbc);
+        for (String t : antes.keySet()) {
+            if (!java.util.Set.of(
+                            tabela.toUpperCase(java.util.Locale.ROOT),
+                            "AUDITORIA_CADASTRO",
+                            "OPERACAO_ADMINISTRATIVA")
+                    .contains(t)) assertThat(depois.get(t)).as(t).isEqualTo(antes.get(t));
+        }
+        assertThat(
+                        jdbc.queryForObject(
+                                "select count(*) from wms.operacao_administrativa where tipo in ('SOLICITACAO_ENCERRAMENTO','INATIVACAO_DEFINITIVA')",
+                                Integer.class))
+                .isEqualTo(2);
+        assertThat(resposta(post(rota + "/solicitar", solicitar, gestor), 200)).isEqualTo(pendente);
+        assertThat(resposta(post(rota + "/inativar", inativar, gestor), 200)).isEqualTo(inativo);
+        resposta(post(rota + "/inativar", inativar, supervisor), 403);
+        assertThat(resposta(get(rota + "/impedimentos", gestor), 200)).isEqualTo(inativo);
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(depois);
+    }
+
     private Map<String, Object> nfseComando(JsonNode f, int numero, String referencia) {
         var d = decisaoNumero(f, numero);
         d.put("emissorDocumento", "99999999000199");
@@ -2281,5 +2522,15 @@ class FechamentoIntegrationTest {
                         JwtEncoderParameters.from(
                                 JwsHeader.with(SignatureAlgorithm.RS256).build(), claims))
                 .getTokenValue();
+    }
+
+    private JsonNode d30GetFotografiaIntegral(String rota, String token) throws Exception {
+        var antes = D30FotografiaFisica.capturar(jdbc);
+        var resultado = resposta(get(rota, token), 200);
+        assertThat(resultado.isNull()).as(rota + " resposta positiva").isFalse();
+        assertThat(D30FotografiaFisica.capturar(jdbc))
+                .as(rota + " conserva todas64tabelas")
+                .isEqualTo(antes);
+        return resultado;
     }
 }

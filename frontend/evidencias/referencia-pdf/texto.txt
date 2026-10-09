@@ -1,0 +1,441 @@
+
+--- PÁGINA 1 ---
+WMS Rodogarcia — Especificação Funcional
+Página 1
+ESPECIFICAÇÃO FUNCIONAL
+WMS RODOGARCIA
+Documento consolidado para orientação do desenvolvimento do sistema de gestão de
+armazenagem
+Versão 1.0 — Visão geral, módulos, fluxos, regras de negócio, cadastros, faturamento e relatórios
+Objetivo: transformar as definições realizadas em uma referência funcional única para o desenvolvedor,
+preservando as particularidades da operação.
+
+--- PÁGINA 2 ---
+WMS Rodogarcia — Especificação Funcional
+Página 2
+1. OVERVIEW DA OPERAÇÃO
+O WMS da Rodogarcia será responsável pelo controle sistêmico da mercadoria enquanto ela estiver dentro
+do armazém. O sistema deverá controlar recebimento, conferência, identificação, unitização,
+endereçamento, estoque, movimentações, pedidos de saída, FIFO, reservas, serviços cobrados e
+rastreabilidade.
+A solução deve nascer genérica. A operação da Brasel, com bobinas, é o primeiro caso de uso, mas o
+sistema deverá suportar também caixas, pallets e outras unidades logísticas.
+O princípio central é: para cada mercadoria, o WMS deve saber quem é o proprietário, qual SKU, qual
+quantidade, qual unidade logística, qual status, em qual armazém e em qual endereço está.
+1.1 WMS x TMS
+WMS
+TMS
+Recebimento e conferência dentro do armazém
+Transporte de entrada e saída
+Unitização, etiqueta e endereçamento
+Veículo, motorista, rota e frete
+Estoque e localização
+CT-e, MDF-e e execução do transporte
+Pedido de saída, FIFO e reserva
+Expedição/transporte
+Registro da saída física do estoque
+Entrega/retirada e demais rotinas de transporte
+O WMS não substitui o TMS. Quando uma mercadoria chega, o transporte até o armazém é tratado pelo TMS; ao
+chegar, a mercadoria entra no WMS. Na saída, o WMS controla o estoque e a nota/retirada; o transporte volta a
+ser tratado no TMS.
+2. ESTRUTURA DE NAVEGAÇÃO
+• Dashboard / Início
+• Cadastros
+• Entrada
+• Endereçamento
+• Estoque / Armazenagem
+• Saída
+• Faturamento
+• Relatórios
+A interface deve priorizar simplicidade e velocidade. As telas utilizadas no coletor devem ter somente as
+informações necessárias para a execução da tarefa.
+3. CADASTROS
+3.1 Armazém
+Cada armazém será cadastrado individualmente, por exemplo Osasco e Castro. O cadastro deverá conter
+dados operacionais e fiscais.
+• Nome/identificação do armazém
+• CNPJ
+• Inscrição estadual e demais dados fiscais aplicáveis
+• Endereço completo
+• Natureza/parâmetros de operação
+
+--- PÁGINA 3 ---
+WMS Rodogarcia — Especificação Funcional
+Página 3
+• Dados necessários à emissão fiscal
+• Status ativo/inativo
+• Estrutura física vinculada
+3.2 Endereços
+Dentro de cada armazém serão cadastrados ruas, níveis e posições. A estrutura definida é Rua + Nível +
+Posição.
+Componente
+Exemplo
+Regra
+Rua
+A
+Letras: A, B, C, D, E...
+Nível
+1
+Nível vertical
+Posição
+01
+Sequencial
+Endereço
+A101
+Rua A, nível 1, posição 01
+Exemplo: se a rua A possuir 50 posições por nível, o nível 1 será A101–A150; nível 2, A201–A250; nível 3,
+A301–A350.
+O endereço não será impresso na etiqueta da mercadoria. Ele fica no sistema, pois a unidade pode mudar de
+endereço sem precisar trocar a etiqueta.
+3.3 Cliente
+• Razão social
+• CNPJ/CPF
+• Inscrição estadual
+• Endereço
+• Contatos
+• Dados de faturamento
+• Dados fiscais
+• Tabela de preços vinculada
+• Status
+3.4 Produto / SKU
+• SKU
+• Descrição
+• Cliente proprietário
+• Unidade de medida
+• Tipo de mercadoria/unidade
+• Dados fiscais
+• Regras fiscais parametrizáveis
+• Informações necessárias à emissão fiscal
+O CFOP não deve ser obrigatoriamente um atributo fixo do SKU. Recomenda-se parametrizar regras fiscais
+por produto/operação para permitir cenários diferentes.
+3.5 Tabelas de preços
+O sistema terá cadastro independente de tabelas, permitindo uma Tabela Padrão e tabelas específicas de
+clientes. A tabela será vinculada ao cliente e deverá permitir vigência.
+
+--- PÁGINA 4 ---
+WMS Rodogarcia — Especificação Funcional
+Página 4
+Serviço
+Exemplo
+Entrada
+Valor por unidade logística
+Armazenagem
+Valor por posição/unidade por dia
+Saída
+Valor por unidade logística
+Serviços adicionais
+Preço conforme serviço
+O conceito não deve ser limitado a bobinas. Se cinco caixas forem unitizadas em um pallet que ocupa uma
+posição, a regra de cobrança pode considerar uma posição/unidade, conforme o contrato.
+3.6 Serviços adicionais
+Cadastrar serviços que podem ser lançados em pedidos de entrada ou saída e posteriormente faturados.
+• Paletização
+• Arrumação/rearrumação
+• Movimentação adicional
+• Outros serviços contratados
+• Unidade de cobrança e preço
+4. ETIQUETA DA RODOGARCIA
+A etiqueta original do fabricante/cliente já contém diversas informações. A etiqueta da Rodogarcia deve ser
+simples e conter somente os dados estáveis necessários à rastreabilidade.
+Campo
+Finalidade
+SKU
+Conferência e identificação
+ID único
+Identificação permanente da unidade
+Data de entrada
+Rastreabilidade e FIFO
+Código de barras/QR
+Leitura pelo coletor
+O endereço não deve fazer parte da etiqueta. O ID único é o vínculo permanente entre a etiqueta física e o
+registro do WMS.
+5. MÓDULO DE ENTRADA
+5.1 Lista de pedidos
+A tela inicial de entrada apresenta todos os pedidos já criados para consulta futura, com filtros por número,
+cliente, data, nota e status. No canto da tela haverá a opção Novo Pedido de Entrada.
+5.2 Novo pedido: XML ou manual
+Opção
+Funcionamento
+XML
+Operador cria o pedido e importa o XML. O sistema lê os dados da NF-e e preenche os itens e informações disponív
+Manual
+Operador cria o pedido e informa os dados quando o XML não estiver disponível.
+A importação deve trazer, conforme disponibilidade no XML, número da nota, data de emissão, cliente,
+SKU/produtos, quantidades e demais dados relevantes.
+5.3 Conferência
+
+--- PÁGINA 5 ---
+WMS Rodogarcia — Especificação Funcional
+Página 5
+A conferência é uma validação feita pelo operador: ele compara fisicamente a mercadoria recebida com o
+pedido/XML e registra o resultado.
+Resultado
+Efeito
+Sem divergência
+Prossegue para unitização/identificação e liberação.
+Com divergência
+Registra divergência e pode enviar para quarentena.
+Não haverá, nesta primeira versão, uma automação física de conferência. O sistema apenas registra a
+decisão do operador.
+5.4 Unitização
+Após a conferência, o operador informa como a mercadoria será organizada. Uma bobina normalmente será
+uma unidade logística. Outras mercadorias poderão ser agrupadas em pallets.
+Exemplo: uma nota possui 1.000 caixas. O operador pode criar dois pallets: 500 caixas no pallet 1 e 500 no
+pallet 2. O sistema gera duas etiquetas/IDs e mantém as quantidades vinculadas ao SKU e ao pedido.
+Regra inicial: não permitir SKUs diferentes dentro da mesma unidade logística. A soma das quantidades
+unitizadas deve fechar com a quantidade conferida.
+5.5 Status
+Status
+Significado
+Rascunho
+Pedido criado.
+Aguardando conferência
+Pronto para conferência.
+Conferido
+Conferência sem divergência.
+Divergência
+Diferença identificada.
+Quarentena
+Não disponível até resolução.
+Disponível
+Liberado para estoque.
+Endereçado
+Possui localização.
+Finalizado
+Entrada concluída.
+Quarentena não é estoque disponível. Uma unidade em quarentena não pode participar do FIFO nem ser
+reservada.
+6. ENDEREÇAMENTO
+Depois de conferida, unitizada e liberada, a unidade fica em uma área de triagem. O endereçamento será
+realizado em uma segunda tela, otimizada para coletor.
+• Bipar etiqueta da unidade
+• Bipar etiqueta do endereço
+• Validar a leitura
+• Gravar armazém + endereço
+• Marcar posição como ocupada
+• Atualizar a localização da unidade
+O operador não deve digitar o endereço como rotina. O processo deve privilegiar leitura do código físico.
+6.1 Visualização do armazém
+
+--- PÁGINA 6 ---
+WMS Rodogarcia — Especificação Funcional
+Página 6
+Como melhoria visual, a tela poderá mostrar posições ocupadas em vermelho e disponíveis em verde. Essa
+funcionalidade é desejável, mas pode ser desenvolvida posteriormente.
+6.2 Mudança de endereço
+Se a unidade for movimentada, a etiqueta não muda. O sistema atualiza o endereço e guarda o histórico.
+7. ESTOQUE / ARMAZENAGEM
+O estoque deve ser consultável por cliente, SKU, unidade logística, armazém, endereço e status.
+Status
+Disponível para FIFO?
+Recebimento
+Não
+Quarentena
+Não
+Disponível
+Sim
+Reservada
+Não
+Em movimentação/separação
+Não
+Expedida
+Não
+A partir do endereçamento passam a ser gerados os eventos de cobrança de armazenagem conforme a
+tabela do cliente, inclusive cobrança diária quando essa for a regra contratada.
+8. MÓDULO DE SAÍDA
+8.1 Lista de pedidos
+A tela inicial de saída será semelhante à entrada: lista de pedidos já criados, consulta e filtros, com botão
+Novo Pedido de Saída.
+8.2 Novo pedido: XML ou manual
+O operador poderá criar manualmente ou importar XML. As informações principais são equivalentes às da
+entrada: número/referência da nota, cliente, SKU, quantidade e dados necessários para a operação fiscal.
+8.3 FIFO
+Quando o cliente solicitar um SKU e uma quantidade, o WMS deverá identificar as unidades disponíveis e
+sugerir as mais antigas pela data de entrada: First In, First Out.
+O algoritmo deve excluir unidades em quarentena, reservadas, indisponíveis ou já expedidas.
+8.4 Reserva
+Assim que o operador confirmar as unidades sugeridas, elas passam para Reservada. A reserva as retira
+imediatamente do saldo disponível para outros pedidos.
+Exemplo: a Brasel solicita determinado SKU. O WMS sugere as bobinas mais antigas. Ao confirmar, essas
+bobinas ficam reservadas. Um segundo pedido não poderá selecioná-las.
+8.5 Saída física
+O WMS controla a retirada do estoque e registra a baixa. O transporte e a entrega ficam fora do WMS.
+8.6 TMS
+Após a emissão da nota de saída, o operador utilizará o TMS para criar o frete e realizar o transporte. O WMS
+não controlará veículo, motorista, rota, CT-e ou MDF-e.
+
+--- PÁGINA 7 ---
+WMS Rodogarcia — Especificação Funcional
+Página 7
+9. FISCAL E NOTAS
+Cliente, produto e armazém terão seus dados fiscais cadastrados. As regras fiscais que variam conforme a
+operação devem ser parametrizáveis.
+• Cliente: CNPJ, IE, endereço e dados fiscais.
+• Produto: informações fiscais e regras aplicáveis.
+• Armazém: CNPJ, IE, endereço, natureza/parâmetros e dados do estabelecimento.
+• Pedido: dados da operação e documento fiscal.
+• Integração: preparação para API do sistema de emissão de notas utilizado pela Rodogarcia.
+A emissão fiscal deve utilizar os dados já registrados no WMS, evitando redigitação. O evento de estoque
+não deve ser baixado definitivamente por uma emissão que tenha falhado ou sido rejeitada.
+10. FATURAMENTO
+Cada evento operacional que gera cobrança deve ser registrado e associado ao cliente e à tabela vigente.
+• Entrada
+• Armazenagem diária
+• Saída
+• Paletização
+• Arrumação
+• Outros serviços adicionais
+No fechamento mensal, o sistema consolida os eventos faturáveis por cliente. O gestor deve conseguir
+identificar quais entradas, posições, saídas e serviços originaram cada valor.
+11. RELATÓRIOS
+• Estoque por cliente
+• Estoque por SKU
+• Quantidade de unidades por cliente
+• Quantidade de SKU por cliente
+• Status por cliente
+• Mercadorias em quarentena
+• Mercadorias reservadas
+• Localização por ID
+• Histórico de movimentações
+• Valor de mercadoria armazenada
+• Ocupação por armazém
+• Posições ocupadas/disponíveis
+• Entradas e saídas
+• Serviços adicionais
+• Valores para faturamento
+12. DASHBOARD
+A tela inicial deverá trazer indicadores principais da operação.
+
+--- PÁGINA 8 ---
+WMS Rodogarcia — Especificação Funcional
+Página 8
+• Percentual de ocupação do armazém
+• Posições ocupadas em número absoluto
+• Posições disponíveis em número absoluto
+• Quantidade de unidades armazenadas
+• Valor da mercadoria armazenada
+• Quantidade em quarentena
+• Quantidade reservada
+• Pedidos de entrada em aberto
+• Pedidos de saída em aberto
+• Indicadores de faturamento
+O mapa visual do armazém, com vermelho/verde, é uma melhoria de usabilidade e pode entrar após o
+núcleo operacional.
+13. REGRAS DE NEGÓCIO CRÍTICAS
+• O sistema deve ser genérico, não limitado a bobinas.
+• Cada unidade logística possui um ID único permanente.
+• Etiqueta: SKU + ID + data de entrada + código de leitura.
+• Endereço é informação sistêmica, nunca um dado fixo da etiqueta.
+• Quarentena não é estoque disponível.
+• Reserva não é quarentena: reserva é bloqueio para atendimento de uma saída.
+• Unidade reservada não pode ser selecionada por outro pedido.
+• FIFO considera as unidades disponíveis mais antigas.
+• Não permitir mistura de SKUs na mesma unidade logística na primeira versão.
+• A soma da unitização deve fechar com a quantidade conferida.
+• Todo endereço deve pertencer a um armazém.
+• Movimentações de endereço devem manter histórico.
+• Tabelas de preços devem preservar histórico e vigência.
+• Serviços adicionais podem ser vinculados a entrada ou saída.
+• O WMS controla armazenagem; o TMS controla transporte.
+• Eventos de cobrança devem ser auditáveis.
+• Operações críticas devem registrar usuário, data/hora e origem/destino.
+14. MAPA DE TELAS
+Módulo
+Telas principais
+Início
+Dashboard
+Cadastros
+Clientes; Produtos/SKUs; Armazéns; Endereços; Tabelas; Serviços
+Entrada
+Lista; Novo XML/Manual; Conferência; Unitização; Etiquetas
+Endereçamento
+Tela para coletor; consulta de posições
+Estoque
+Consulta; detalhe da unidade; histórico
+
+--- PÁGINA 9 ---
+WMS Rodogarcia — Especificação Funcional
+Página 9
+Módulo
+Telas principais
+Saída
+Lista; Novo XML/Manual; FIFO; Reserva; confirmação
+Faturamento
+Eventos; fechamento mensal
+Relatórios
+Estoque; ocupação; movimentações; valores; serviços
+15. FLUXO PONTA A PONTA
+Entrada
+• Criar pedido
+• XML ou manual
+• Receber mercadoria
+• Conferir fisicamente
+• Registrar divergência, se houver
+• Quarentena quando necessário
+• Definir unitização
+• Gerar IDs e etiquetas
+• Liberar
+• Enviar para triagem
+• Bipar unidade + endereço
+• Ocupar posição
+• Iniciar contabilização da armazenagem
+Armazenagem
+• Consultar por cliente/SKU/ID
+• Movimentar endereço quando necessário
+• Manter histórico
+• Disponibilidade controlada por status
+Saída
+• Criar pedido
+• XML ou manual
+• Informar SKU/quantidade
+• Aplicar FIFO
+• Confirmar unidades
+• Reservar
+• Emitir nota conforme fluxo fiscal
+• Confirmar saída física
+• Baixar estoque
+• Entregar processo ao TMS para transporte
+Faturamento
+• Registrar eventos
+
+--- PÁGINA 10 ---
+WMS Rodogarcia — Especificação Funcional
+Página 10
+• Aplicar tabela do cliente
+• Consolidar período
+• Apresentar detalhamento mensal
+16. RECOMENDAÇÃO DE IMPLEMENTAÇÃO
+Fase
+Escopo
+1
+Cadastros e estrutura de armazéns/endereços
+2
+Entrada, XML/manual, conferência, quarentena, unitização e etiquetas
+3
+Endereçamento por coletor e estoque
+4
+Saída, FIFO, reserva e baixa
+5
+Faturamento, serviços e relatórios
+6
+Dashboard e mapa visual
+7
+Integrações/API e melhorias
+Antes do desenvolvimento, o responsável técnico deve transformar esta especificação em modelo de dados,
+permissões, APIs, critérios de aceite e protótipos de tela. Esses detalhes técnicos não devem alterar as
+regras funcionais aqui definidas.
+17. PONTOS TÉCNICOS A DEFINIR
+• Formato do código de barras/QR Code
+• Padrão do ID único
+• Modelo de impressora e etiqueta
+• Modelo do coletor
+• Campos fiscais exigidos pela API do sistema Notas
+• Formato e tratamento dos retornos da API
+• Regra matemática de cobrança diária
+• Momento de fechamento dos eventos de cobrança
+• Perfis e permissões
+• Rotina de inventário futuro
+Conclusão: o WMS proposto forma um núcleo de controle de armazenagem com rastreabilidade por unidade
+logística, localização sistêmica, FIFO e reserva, cobrança por eventos e separação clara em relação ao TMS. A
+Brasel pode ser o primeiro cliente/operação, mas a estrutura foi desenhada para suportar outros produtos,
+clientes, armazéns e modelos de unitização.

@@ -80,6 +80,7 @@ class UnidadeLogisticaIntegrationTest {
     @Autowired private ProdutoRepository produtos;
     @Autowired private EmbalagemRepository embalagens;
     @Autowired private UnidadeLogisticaService service;
+    @Autowired private br.com.rodogarcia.wms.repositories.UnidadeLogisticaRepository d30Unidades;
     private Cliente cliente;
     private Armazem armazem;
     private Produto produto;
@@ -155,13 +156,21 @@ class UnidadeLogisticaIntegrationTest {
                 .isTrue();
         assertThat(entrada(pedido, 0).get("unitizadaEm").isNull()).isFalse();
         var codigos = new ArrayList<String>();
+        BigDecimal boas = BigDecimal.ZERO, avariadas = BigDecimal.ZERO;
         long revisaoPedido = versao(pedido);
         int auditorias = contar("auditoria_cadastro");
         for (var detalhe : resultado.get("unidades")) {
             var unidade = detalhe.get("unidade");
+            assertThat(unidade.get("clienteId").longValue()).isEqualTo(cliente.getId());
+            assertThat(unidade.get("produtoId").longValue()).isEqualTo(produto.getId());
+            assertThat(unidade.get("unidadeMedida").asString()).isEqualTo("UN");
+            if (unidade.get("condicao").asString().equals("AVARIADA"))
+                avariadas = avariadas.add(unidade.get("quantidade").decimalValue());
+            else boas = boas.add(unidade.get("quantidade").decimalValue());
             String codigo = unidade.get("codigo").asString();
             codigos.add(codigo);
             assertThat(UUID.fromString(codigo).toString()).isEqualTo(codigo);
+            assertThat(unidade.get("ativa").booleanValue()).isTrue();
             assertThat(unidade.get("disponivelParaSaida").booleanValue()).isFalse();
             assertThat(unidade.get("codigoDun").asString()).isEqualTo("DUN-10");
             assertThat(unidade.get("quantidadeProdutoPorDun").decimalValue())
@@ -184,9 +193,26 @@ class UnidadeLogisticaIntegrationTest {
                     .isEqualByComparingTo(unidade.get("quantidade").decimalValue());
         }
         assertThat(codigos).doesNotHaveDuplicates();
+        assertThat(boas).isEqualByComparingTo("8");
+        assertThat(avariadas).isEqualByComparingTo("2");
+        assertThat(
+                        jdbc.queryForObject(
+                                "select sum(quantidade) from wms.unidade_logistica where condicao='AVARIADA'",
+                                BigDecimal.class))
+                .isEqualByComparingTo("2");
         assertThat(versao(pedido)).isEqualTo(revisaoPedido);
         assertThat(contar("auditoria_cadastro")).isEqualTo(auditorias);
         assertThat(contar("operacao_unidade")).isEqualTo(1);
+        var primeiraUnidade = resultado.get("unidades").get(0).get("unidade");
+        var detalheConsultado =
+                d30GetFotografiaIntegral(
+                        "/api/v1/pedidos-entrada/"
+                                + pedido
+                                + "/unidades/"
+                                + primeiraUnidade.get("id").longValue(),
+                        gestor);
+        assertThat(detalheConsultado.get("unidade").get("id").longValue())
+                .isEqualTo(primeiraUnidade.get("id").longValue());
     }
 
     @ParameterizedTest
@@ -299,6 +325,9 @@ class UnidadeLogisticaIntegrationTest {
         var dados = dividir(u, "4");
         var resultado = resposta(post(divisao(pedido, u), dados, supervisor), 200);
         assertThat(resposta(post(divisao(pedido, u), dados, supervisor), 200)).isEqualTo(resultado);
+        var fotoReplay = D30FotografiaFisica.capturar(jdbc);
+        resposta(post(divisao(pedido, u), dados, operador), 403);
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(fotoReplay);
         var atual = resposta(get(CODIGOS + codigo + "/etiqueta", operador), 200);
         assertThat(atual.get("quantidadeProduto").decimalValue()).isEqualByComparingTo("6");
         assertThat(atual.get("versaoConteudo").longValue()).isEqualTo(1);
@@ -356,6 +385,9 @@ class UnidadeLogisticaIntegrationTest {
         var agrupadas = resposta(post(reagrupamento(pedido, a), dados, supervisor), 200);
         assertThat(resposta(post(reagrupamento(pedido, a), dados, supervisor), 200))
                 .isEqualTo(agrupadas);
+        var fotoReplay = D30FotografiaFisica.capturar(jdbc);
+        resposta(post(reagrupamento(pedido, a), dados, operador), 403);
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(fotoReplay);
         var destino = agrupadas.get("unidades").get(0).get("unidade");
         var consumida = agrupadas.get("unidades").get(1).get("unidade");
         assertThat(destino.get("codigo")).isEqualTo(a.get("codigo"));
@@ -404,6 +436,12 @@ class UnidadeLogisticaIntegrationTest {
             unidadeB.put("embalagemId", embalagem(produto, "OUTRA", "5").getId());
         if (diferenca.equals("TIPO")) unidadeB.put("tipo", "BOBINA");
         var b = unitizar(pedido, 1, List.of(unidadeB)).get("unidades").get(0).get("unidade");
+        if (diferenca.equals("LOTE")) {
+            assertThat(a.get("controlaLote").booleanValue()).isFalse();
+            assertThat(b.get("controlaLote").booleanValue()).isFalse();
+            assertThat(a.get("lote").asString()).isEqualTo("LOTE-A");
+            assertThat(b.get("lote").asString()).isEqualTo("LOTE-B");
+        }
         if (diferenca.equals("CHEGADA")) assertThat(a.get("dataFifo")).isEqualTo(b.get("dataFifo"));
         resposta(post(reagrupamento(pedido, a), reagrupar(a, b), supervisor), 409);
         assertThat(saldo()).isEqualByComparingTo("10");
@@ -707,6 +745,76 @@ class UnidadeLogisticaIntegrationTest {
                         Instant.now()));
     }
 
+    @Test
+    void d30CentoEUmaUnidadesRecusamAntesDaUnitizacao() throws Exception {
+        long pedido = receber("101", "0");
+        var e = entrada(pedido, 0);
+        var lista = IntStream.range(0, 101).mapToObj(i -> nova("1", "BOA")).toList();
+        var antes = D30FotografiaFisica.capturar(jdbc);
+        resposta(
+                post(unitizacao(pedido, e.get("id").longValue()), dados(pedido, lista), operador),
+                400);
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(antes);
+        assertThat(contar("unidade_logistica")).isZero();
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {20, 21})
+    void d30LimiteDeOrigensNaoIncluiDestinoEContaEncerradas(int origens) throws Exception {
+        long pedido = receber(String.valueOf(origens + 1), "0");
+        var resultado =
+                unitizar(
+                        pedido,
+                        0,
+                        IntStream.range(0, origens + 1).mapToObj(i -> nova("1", "BOA")).toList());
+        var lista = resultado.get("unidades");
+        var destino = lista.get(0).get("unidade");
+        var revisoes = new ArrayList<Map<String, Object>>();
+        for (int i = 1; i <= origens; i++) revisoes.add(revisao(lista.get(i).get("unidade")));
+        var comando =
+                Map.of(
+                        "operacaoId",
+                        UUID.randomUUID(),
+                        "versaoDestino",
+                        destino.get("versao").longValue(),
+                        "origens",
+                        revisoes,
+                        "motivo",
+                        "Fronteira local D30 preserva origem");
+        var antes = D30FotografiaFisica.capturar(jdbc);
+        var retorno = post(reagrupamento(pedido, destino), comando, supervisor);
+        if (origens == 21) {
+            resposta(retorno, 400);
+            assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(antes);
+        } else {
+            var confirmado = resposta(retorno, 200);
+            assertThat(confirmado.get("unidades").size()).isEqualTo(21);
+            assertThat(
+                            jdbc.queryForObject(
+                                    "select quantidade from wms.unidade_logistica where id=?",
+                                    BigDecimal.class,
+                                    destino.get("id").longValue()))
+                    .isEqualByComparingTo("21");
+            assertThat(
+                            jdbc.queryForObject(
+                                    "select count(*) from wms.unidade_logistica where pedido_id=? and ativa=false and quantidade=0",
+                                    Integer.class,
+                                    pedido))
+                    .isEqualTo(20);
+            assertThat(d30Unidades.countByPedidoId(pedido)).isEqualTo(21);
+            assertThat(saldo()).isEqualByComparingTo("21");
+            for (String tabela :
+                    List.of(
+                            "NOTA_ENTRADA",
+                            "ITEM_NOTA_ENTRADA",
+                            "CHEGADA_RECEBIMENTO",
+                            "ITEM_CHEGADA",
+                            "ENTRADA_CONFERIDA"))
+                assertThat(D30FotografiaFisica.capturar(jdbc).get(tabela))
+                        .isEqualTo(antes.get(tabela));
+        }
+    }
+
     private long criarPedido() throws Exception {
         return resposta(
                         post(
@@ -871,6 +979,85 @@ class UnidadeLogisticaIntegrationTest {
         return detalhePedido(pedido).get("pedido").get("versao").longValue();
     }
 
+    @Test
+    void d30HashUnitizacaoDistingueAcaoRecursoVersoesEOrdemDasListas() throws Exception {
+        long pedido = receber("10", "0");
+        long entradaId = entrada(pedido, 0).get("id").longValue();
+        var dados = dados(pedido, List.of(nova("5", "BOA"), nova("3", "BOA"), nova("2", "BOA")));
+        String payload =
+                "{\"operacaoId\":\""
+                        + dados.get("operacaoId")
+                        + "\",\"versaoPedido\":"
+                        + dados.get("versaoPedido")
+                        + ",\"motivo\":\"Organizacao fisica confirmada\",\"unidades\":["
+                        + d30LiteralNova("5")
+                        + ","
+                        + d30LiteralNova("3")
+                        + ","
+                        + d30LiteralNova("2")
+                        + "]}";
+        String esperado = d30Sha("UNITIZAR:" + entradaId + ":" + payload);
+        var resultado = resposta(post(unitizacao(pedido, entradaId), dados, operador), 200);
+        String uuid = dados.get("operacaoId").toString();
+        var op = jdbc.queryForMap("select * from wms.operacao_unidade where operacao_id=?", uuid);
+        assertThat(op.get("PEDIDO_ID")).isEqualTo(pedido);
+        assertThat(op.get("TIPO")).isEqualTo("UNIDADES_CRIADAS");
+        assertThat(op.get("CONTEUDO_HASH")).isEqualTo(esperado);
+        assertThat(mapper.readTree(op.get("RESULTADO").toString())).isEqualTo(resultado);
+        var foto = D30FotografiaFisica.capturar(jdbc);
+        var alterada = new HashMap<String, Object>(dados);
+        alterada.put("versaoPedido", ((Number) dados.get("versaoPedido")).longValue() + 1);
+        resposta(post(unitizacao(pedido, entradaId), alterada, operador), 409);
+        alterada = new HashMap<>(dados);
+        alterada.put("unidades", List.of(nova("2", "BOA"), nova("3", "BOA"), nova("5", "BOA")));
+        resposta(post(unitizacao(pedido, entradaId), alterada, operador), 409);
+        resposta(post(unitizacao(pedido, entradaId + 99999), dados, operador), 409);
+        var unidades = resultado.get("unidades");
+        var destino = unidades.get(0).get("unidade");
+        var outraAcao = new HashMap<String, Object>(dividir(destino, "2"));
+        outraAcao.put("operacaoId", dados.get("operacaoId"));
+        resposta(post(divisao(pedido, destino), outraAcao, supervisor), 409);
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(foto);
+        assertThat(resposta(post(unitizacao(pedido, entradaId), dados, operador), 200))
+                .isEqualTo(resultado);
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(foto);
+        var a = unidades.get(1).get("unidade");
+        var b = unidades.get(2).get("unidade");
+        var agrupar = new HashMap<String, Object>(reagrupar(destino, a));
+        agrupar.put("origens", List.of(revisao(a), revisao(b)));
+        var agrupada = resposta(post(reagrupamento(pedido, destino), agrupar, supervisor), 200);
+        var fotoAgrupada = D30FotografiaFisica.capturar(jdbc);
+        var invertida = new HashMap<String, Object>(agrupar);
+        invertida.put("origens", List.of(revisao(b), revisao(a)));
+        resposta(post(reagrupamento(pedido, destino), invertida, supervisor), 409);
+        var v = new HashMap<String, Object>(revisao(a));
+        v.put("versao", a.get("versao").longValue() + 1);
+        invertida = new HashMap<>(agrupar);
+        invertida.put("origens", List.of(v, revisao(b)));
+        resposta(post(reagrupamento(pedido, destino), invertida, supervisor), 409);
+        invertida = new HashMap<>(agrupar);
+        invertida.put("versaoDestino", destino.get("versao").longValue() + 1);
+        resposta(post(reagrupamento(pedido, destino), invertida, supervisor), 409);
+        assertThat(resposta(post(reagrupamento(pedido, destino), agrupar, supervisor), 200))
+                .isEqualTo(agrupada);
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(fotoAgrupada);
+    }
+
+    private String d30LiteralNova(String quantidade) {
+        return "{\"embalagemId\":"
+                + embalagem.getId()
+                + ",\"tipo\":\"PALLET\",\"condicao\":\"BOA\",\"quantidade\":"
+                + quantidade
+                + "}";
+    }
+
+    private String d30Sha(String texto) throws Exception {
+        return java.util.HexFormat.of()
+                .formatHex(
+                        java.security.MessageDigest.getInstance("SHA-256")
+                                .digest(texto.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+    }
+
     private Map<String, Object> nova(String quantidade, String condicao) {
         return Map.of(
                 "embalagemId",
@@ -1033,5 +1220,15 @@ class UnidadeLogisticaIntegrationTest {
                         JwtEncoderParameters.from(
                                 JwsHeader.with(SignatureAlgorithm.RS256).build(), claims))
                 .getTokenValue();
+    }
+
+    private JsonNode d30GetFotografiaIntegral(String rota, String token) throws Exception {
+        var antes = D30FotografiaFisica.capturar(jdbc);
+        var resultado = resposta(get(rota, token), 200);
+        assertThat(resultado.isNull()).as(rota + " resposta positiva").isFalse();
+        assertThat(D30FotografiaFisica.capturar(jdbc))
+                .as(rota + " conserva todas64tabelas")
+                .isEqualTo(antes);
+        return resultado;
     }
 }

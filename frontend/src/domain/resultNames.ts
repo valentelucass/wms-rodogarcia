@@ -1,0 +1,22 @@
+const names: Record<string, string> = {
+    "CalculoCobrancaDto.Resultado": "Cálculos",
+    "FechamentoCobrancaDto.Fechamento": "Fechamentos",
+    "FechamentoCobrancaDto.Versao": "Versões do fechamento",
+    "PedidoEntradaDto.Resumo": "Pedidos de entrada",
+    "PedidoSaidaDto.Detalhe": "Pedidos de saída",
+    "PedidoSaidaDto.Reserva": "Reservas do pedido",
+    "ExpedicaoDto.DocumentoRegistrado": "Documentos de mercadoria",
+    "ExpedicaoDto.Baixa": "Baixas físicas",
+    "ExpedicaoDto.Devolucao": "Devoluções ligadas às baixas",
+    "RecebimentoDto.Entrada": "Entradas conferidas",
+    "UnidadeLogisticaDto.Resumo": "Unidades logísticas",
+    "AvariaDto.Ocorrencia": "Ocorrências de avaria",
+    "FatoServicoDto.Fato": "Fatos de serviço",
+    "CalculoCobrancaDto.Diaria": "Diárias da memória",
+    "CalculoCobrancaDto.Linha": "Linhas da memória",
+    "ConfiguracaoCobrancaDto.Servico": "Serviços contratados",
+    "ConfiguracaoCobrancaDto.Tabela": "Tabelas de cobrança",
+    "ConfiguracaoCobrancaDto.ItemResposta": "Itens da tabela",
+    "ConfiguracaoCobrancaDto.Vinculo": "Vínculos de tabela por cliente",
+};
+export const resultName = (type: string) => names[type] ?? "Registros";

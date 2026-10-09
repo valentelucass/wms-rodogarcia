@@ -1,0 +1,15 @@
+# D27 — Cedro
+
+**COMPLETED: jornadas técnicas finitas D27 concluídas para peer review.** [Recibo compacto](d27-cedro.json), [matriz de161 rotas](d27-matriz.md) e [46 regras/casos/GET/SQL/limites](d27-regras.md). Backend total e propostas AC não homologados.
+
+JAR atual: **420/0/0/0**,20 XMLs, `target-d27-numerico-final/wms-backend-0.0.1-SNAPSHOT.jar`, SHA `4304D4283BB21A0F80F3D6AD034F9891D560DFED754B6511E6BD89CDE8900CE1`. RN22/XML seguro/integral/idempotente implementado; ajustes zero preservam história/liberam associação; as duas falhas numéricas têm [red/green e HTTP posteriores](d27-vig04-repro.md). Sem novo build depois deste artefato, novos ITs vazios ou migration alterada pelo backend. [JARs históricos intactos](d27-jars-preservacao.json).
+
+**726 HTTP novos:**715 aprovados individualmente,4 requisições de2 pares confrontados em conjunto,7 divergências históricas (3 defeitos corrigidos/4 erros do roteiro). **248 assertivas:**247 aprovadas/1 histórica de retomada já reservada, sem gate/POST. Dois404 fora do inventário permanecem erros do roteiro. RequestIds726 avaliados, ausência/cookie/segredo observados0. Positivos:61D27/161combinadosD26+D27, separados por artefato; não somar SQL/offline/420 à contagem HTTP.
+
+[Green D2748A39681](d27-concorrencia-green.md): fonteCAC92281/pedidos28/29, JAR4304, OnlineWitness=true, duas requests SQL nativas/API19664/gate88, par200/409/GET/replay; vencedor29RESERVADO80/perdedor28RASCUNHO0; físico100/reservado80/bloqueado20/**disponível0**. [SELECT focal24/0](../../orchestracao/.runtime/d27-prumo-concorrencia-final-select-20261007T024151964.json) confirma efeitos únicos/rollback/snapshots/auditorias. [Original D279E93BDC2](d27-concorrencia-fotografia-diagnostico.md), flagsfalse/falha e12 amostras reconciliadas offline intactos;25/26 não remutados. Mutex3/0 evita aguardadores sobrepostos.
+
+Outras provas específicas: ajuste28/0+auditoria6/0; mínimo fictício50 aprovado no corte real/replay/versões65/0; SKU/FIFO/quarentena/avaria/tabelas/mínimo proporcional/GRIS/memórias106/0; XML numérico final20/0. Links por regra/família no recibo/matriz. VIG07 delimitado: GET estado/versão e campos de reserva são comparações próprias, diferentes de snapshot/auditoria integral; DateTime serializado emms não certifica igualdadeFIFO exata em microssegundos.
+
+[Auditoria documental23/0](d27-matriz-auditoria.json):984 referências fonte/caso/status, sem divergências/duplicatas; UTF8/IDs/causalidade conferidos. [OS final](d27-processos-final.json):21JARs encerrados,0JVMs próprias/0listeners nas42 portas; issuer/helper/aguardador encerrados, nenhum processo alheio terminado. [Freeze fontes](d27-freeze-fontes-final.json) e [evidências](d27-freeze-evidencias-final.json) separados dos históricos.
+
+Persistem os limites de homologação comercial/operacional, demais combinações, frontend/provedor/fiscal real/equipamentos/redeoffline/recuperação/desempenho, descritos por regra. Previsões54/53.75 não são aprovação futura;20 anuladoD26 não foi reativado. Nenhum callback, produção, reset, grant ou SQL de negócio direto. Quatro prompts antigos da mesma D27: **JÁ ATENDIDOS**; aguardar sem reexecução.

@@ -1,0 +1,5 @@
+# D27 — comparação SQL das avarias
+
+Prumo: a fotografia104/2 tem as duas divergências nas chaves do snapshot de AVARIA_DETALHADA e RESPONSABILIDADE_AVARIA. AvariaService.concluir grava **EstoqueDto.Confirmacao** no resultado de movimento_estoque, com operacaoId/pedidoId/versaoPedido/estoque/avaria. O retorno HTTP é **AvariaDto.Confirmacao**, com operacaoId/avaria/estoque. repetida desserializa EstoqueDto.Confirmacao e reconstrói explicitamente AvariaDto.Confirmacao; este contrato não exige igualdade da raiz inteira SQL com o DTO público.
+
+Conferir a projeção exata pública operacaoId/avaria/estoque contra HTTP, além de validar pedidoId/versaoPedido persistidos contra as fontes da unidade/pedido no instante. Não ignorar valores internos, não comparar snapshot com GET posterior como se fosse o mesmo instante. HTTP replay completo já foi igual no momento das duas operações; dados/JSONs104/2 preservados. Fonte AvariaService linhas306–349 e respectivas respostasD2762B21E4F. Nenhuma correção Java/SQL/grant, apenas ajuste de oráculo de comparação justificado por contrato.

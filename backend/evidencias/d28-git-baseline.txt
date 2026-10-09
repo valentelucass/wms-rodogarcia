@@ -1,0 +1,106 @@
+ M AGENTS.md
+ M STATES.md
+ M backend/README.md
+ M backend/ensaios/d26/EnsaioD26.java
+ M backend/ensaios/d26/FixtureHttps.java
+ M backend/ensaios/d26/JornadasD26.java
+ M backend/ensaios/d26/inventario.ps1
+ M backend/ensaios/d26/preparar.ps1
+ M backend/evidencias/d26-matriz.md
+A  backend/evidencias/d26-prealteracao/SqlServerLocalIT.java.txt
+ M backend/src/main/java/br/com/rodogarcia/wms/controllers/PedidoSaidaController.java
+ M backend/src/main/java/br/com/rodogarcia/wms/dto/PedidoSaidaDto.java
+ M backend/src/main/java/br/com/rodogarcia/wms/services/CargaInicialService.java
+ M backend/src/main/java/br/com/rodogarcia/wms/services/ContagemEstoqueService.java
+ M backend/src/main/java/br/com/rodogarcia/wms/services/LinhaTemporalEstoqueService.java
+ M backend/src/test/java/br/com/rodogarcia/wms/CobrancaIntegrationTest.java
+ M backend/src/test/java/br/com/rodogarcia/wms/ContingenciaIntegrationTest.java
+ M backend/src/test/java/br/com/rodogarcia/wms/PedidoSaidaIntegrationTest.java
+MM backend/src/test/java/br/com/rodogarcia/wms/SqlServerLocalIT.java
+ M backend/src/test/java/br/com/rodogarcia/wms/SqlServerLocalITTest.java
+ M database/README.md
+ M database/migrations/README.md
+ M database/scripts/d21-flyway.ps1
+ M docs/06-decisoes-e-pendencias.md
+ M docs/09-continuidade.md
+ M docs/24-pedido-saida-fifo-e-reserva.md
+ M docs/README.md
+?? backend/ensaios/d26/ComplementosD26.java
+?? backend/ensaios/d26/ProcessoLimitadoD26Test.java
+?? backend/ensaios/d26/RespostaConcorrenteD26Test.java
+?? backend/ensaios/d26/consolidar.ps1
+?? backend/ensaios/d26/executar.ps1
+?? backend/ensaios/d26/matriz.ps1
+?? backend/ensaios/d26/regras.ps1
+?? backend/ensaios/d27/
+?? backend/ensaios/d28/
+?? backend/evidencias/d26-D2603638663-concorrencia-jvm.txt
+?? backend/evidencias/d26-D2665736D17-concorrencia-jvm.txt
+?? backend/evidencias/d26-D269D06DD04-concorrencia-jvm.txt
+?? backend/evidencias/d26-cedro.md
+?? backend/evidencias/d26-clean-verify-inicial.exit
+?? backend/evidencias/d26-concorrencia-contrato.md
+?? backend/evidencias/d26-concorrencia-retomada-pedido.md
+?? backend/evidencias/d26-confronto-estados-financeiros.md
+?? backend/evidencias/d26-divergencia-ddl-ajuste.md
+?? backend/evidencias/d26-extra-naozero-prumo-pedido.md
+?? backend/evidencias/d26-extra-naozero.md
+?? backend/evidencias/d26-falha-calculo-temporal.md
+?? backend/evidencias/d26-green-revisao-minima.exit
+?? backend/evidencias/d26-persistencia-complementos-pedido.md
+?? backend/evidencias/d26-precorrecao-financeiro/
+?? backend/evidencias/d26-precorrecao-revisao/
+?? backend/evidencias/d26-preextra-naozero/
+?? backend/evidencias/d26-regras.md
+?? backend/evidencias/d26-repro-revisao-zero-maven.exit
+?? backend/evidencias/d26-repro-revisao-zero.exit
+?? backend/evidencias/d26-xml/
+?? backend/evidencias/d27-aguardador-anterior-ao-lock.ps1.txt
+?? backend/evidencias/d27-ajuste-zero-repro.md
+?? backend/evidencias/d27-build-atual.txt
+?? backend/evidencias/d27-build-final-atual.txt
+?? backend/evidencias/d27-build-numerico-atual.txt
+?? backend/evidencias/d27-build-vig04-atual.txt
+?? backend/evidencias/d27-cedro.md
+?? backend/evidencias/d27-concorrencia-ajuste-contrato.md
+?? backend/evidencias/d27-concorrencia-contrato.md
+?? backend/evidencias/d27-concorrencia-espera-pedido.md
+?? backend/evidencias/d27-concorrencia-fotografia-diagnostico.md
+?? backend/evidencias/d27-concorrencia-green-preparo.md
+?? backend/evidencias/d27-concorrencia-green.md
+?? backend/evidencias/d27-concorrencia-janela.md
+?? backend/evidencias/d27-concorrencia-tentativa1.md
+?? backend/evidencias/d27-financeiro-sugestao-avaliada.md
+?? backend/evidencias/d27-formatacao-auxiliares-final.exit
+?? backend/evidencias/d27-formatacao-auxiliares-numerico.exit
+?? backend/evidencias/d27-matriz.md
+?? backend/evidencias/d27-pendencias.md
+?? backend/evidencias/d27-persistencia-final-pedido.md
+?? backend/evidencias/d27-prumo-get-unidade-contrato.md
+?? backend/evidencias/d27-readiness-repro.md
+?? backend/evidencias/d27-readiness-snapshot.sha256
+?? backend/evidencias/d27-regras.md
+?? backend/evidencias/d27-rn22-contrato.md
+?? backend/evidencias/d27-variantes-persistencia-pedido.md
+?? backend/evidencias/d27-variantes-snapshot-avaria-contrato.md
+?? backend/evidencias/d27-vig04-green.exit
+?? backend/evidencias/d27-vig04-normalizacao-green.exit
+?? backend/evidencias/d27-vig04-normalizacao-red.exit
+?? backend/evidencias/d27-vig04-normalizacao-red2.exit
+?? backend/evidencias/d27-vig04-red.exit
+?? backend/evidencias/d27-vig04-repro.md
+?? backend/evidencias/d27-xml/
+?? backend/evidencias/d28-build-atual.exit
+?? backend/src/main/java/br/com/rodogarcia/wms/services/PedidoSaidaXmlService.java
+?? database/config/d27-revisao.example.json
+?? database/docs/d27-migration-dev.md
+?? database/docs/propostas/
+?? database/evidencias/d27-d21-flyway-antes.ps1.txt
+?? database/migrations/V10__permitir_ajuste_estoque_em_fato_permanencia.sql
+?? database/migrations/V10__permitir_ajuste_estoque_em_fato_permanencia.sql.conf
+?? database/scripts/d27-guardas.ps1
+?? database/scripts/d27-migrate-dev.ps1
+?? database/scripts/d27-preflight.ps1
+?? database/scripts/testar-d27.ps1
+?? docs/41-ensaio-http-e-persistencia-dev.md
+?? docs/42-validacao-tecnica-api-sql-dev.md

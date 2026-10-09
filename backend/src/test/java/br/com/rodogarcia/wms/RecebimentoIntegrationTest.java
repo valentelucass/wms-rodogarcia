@@ -32,6 +32,7 @@ import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -319,6 +320,16 @@ class RecebimentoIntegrationTest {
                                 .get("estornadaEm")
                                 .isNull())
                 .isFalse();
+        var chegadaAtiva = resposta(get(id + "/chegadas", supervisor), 200).get("itens").get(1);
+        assertThat(chegadaAtiva.get("estornadaEm").isNull()).isTrue();
+        var fotoEfetivada = D30FotografiaFisica.capturar(jdbc);
+        resposta(
+                post(
+                        id + "/chegadas/" + chegadaAtiva.get("id").longValue() + "/estorno",
+                        revisao(versao(id)),
+                        supervisor),
+                409);
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(fotoEfetivada);
         resposta(
                 post(id + "/chegadas/" + original + "/estorno", revisao(versao(id)), supervisor),
                 409);
@@ -421,8 +432,88 @@ class RecebimentoIntegrationTest {
         resposta(post(id + "/efetivacao", efetivar(versao(id), true), supervisor), 400);
         chegada(id, itemId(id), "10", "0", DIA1);
         resposta(post(id + "/cancelamento", revisao(versao(id)), supervisor), 409);
+        long chegadaId =
+                resposta(get(id + "/chegadas", supervisor), 200)
+                        .get("itens")
+                        .get(0)
+                        .get("id")
+                        .longValue();
+        resposta(
+                post(id + "/chegadas/" + chegadaId + "/estorno", revisao(versao(id)), supervisor),
+                200);
+        var todas = resposta(get(id + "/chegadas", supervisor), 200).get("itens");
+        assertThat(todas.size()).isEqualTo(1);
+        assertThat(todas.get(0).get("estornadaEm").isNull()).isFalse();
+        var fotoEstornada = D30FotografiaFisica.capturar(jdbc);
+        resposta(post(id + "/cancelamento", revisao(versao(id)), supervisor), 409);
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(fotoEstornada);
         long vazio = criarPedido();
-        resposta(post(vazio + "/cancelamento", revisao(versao(vazio)), supervisor), 200);
+        var resumoVazio = detalhe(vazio).get("pedido");
+        var cancelarVazio = revisao(versao(vazio));
+        var fotoVazio = D30FotografiaFisica.capturar(jdbc);
+        var cancelado = resposta(post(vazio + "/cancelamento", cancelarVazio, supervisor), 200);
+        assertThat(cancelado.get("id").longValue()).isEqualTo(vazio);
+        assertThat(cancelado.get("situacao").asString()).isEqualTo("CANCELADO");
+        assertThat(cancelado.get("versao").longValue())
+                .isEqualTo(resumoVazio.get("versao").longValue() + 1);
+        assertThat(detalhe(vazio).get("pedido")).isEqualTo(cancelado);
+        var fotoCancelado = D30FotografiaFisica.capturar(jdbc);
+        assertThat(fotoVazio).hasSize(64);
+        for (String tabela : fotoVazio.keySet()) {
+            if (tabela.equals("PEDIDO_ENTRADA") || tabela.equals("AUDITORIA_CADASTRO")) continue;
+            assertThat(fotoCancelado.get(tabela)).as(tabela).isEqualTo(fotoVazio.get(tabela));
+        }
+        assertThat(fotoCancelado.get("PEDIDO_ENTRADA"))
+                .hasSameSizeAs(fotoVazio.get("PEDIDO_ENTRADA"));
+        assertThat(
+                        fotoCancelado.get("PEDIDO_ENTRADA").stream()
+                                .filter(x -> ((Number) x.get("ID")).longValue() != vazio)
+                                .toList())
+                .isEqualTo(
+                        fotoVazio.get("PEDIDO_ENTRADA").stream()
+                                .filter(x -> ((Number) x.get("ID")).longValue() != vazio)
+                                .toList());
+        var linhaAntes =
+                fotoVazio.get("PEDIDO_ENTRADA").stream()
+                        .filter(x -> ((Number) x.get("ID")).longValue() == vazio)
+                        .findFirst()
+                        .orElseThrow();
+        var linhaDepois =
+                fotoCancelado.get("PEDIDO_ENTRADA").stream()
+                        .filter(x -> ((Number) x.get("ID")).longValue() == vazio)
+                        .findFirst()
+                        .orElseThrow();
+        var dadosAntes = new HashMap<>(linhaAntes);
+        var dadosDepois = new HashMap<>(linhaDepois);
+        for (String campo : List.of("SITUACAO", "VERSAO", "ALTERADO_EM")) {
+            dadosAntes.remove(campo);
+            dadosDepois.remove(campo);
+        }
+        assertThat(dadosDepois).isEqualTo(dadosAntes);
+        assertThat(linhaDepois.get("SITUACAO")).isEqualTo("CANCELADO");
+        assertThat(((Number) linhaDepois.get("VERSAO")).longValue())
+                .isEqualTo(((Number) linhaAntes.get("VERSAO")).longValue() + 1);
+        assertThat(fotoCancelado.get("AUDITORIA_CADASTRO"))
+                .containsAll(fotoVazio.get("AUDITORIA_CADASTRO"));
+        var auditorias =
+                fotoCancelado.get("AUDITORIA_CADASTRO").stream()
+                        .filter(x -> !fotoVazio.get("AUDITORIA_CADASTRO").contains(x))
+                        .toList();
+        assertThat(auditorias).hasSize(1);
+        var auditoriaCancelamento = auditorias.get(0);
+        assertThat(auditoriaCancelamento.get("TIPO")).isEqualTo("PEDIDO_ENTRADA");
+        assertThat(((Number) auditoriaCancelamento.get("REGISTRO_ID")).longValue())
+                .isEqualTo(vazio);
+        assertThat(auditoriaCancelamento.get("ACAO")).isEqualTo("PEDIDO_CANCELADO");
+        assertThat(auditoriaCancelamento.get("USUARIO")).isEqualTo("recebedor-teste");
+        assertThat(auditoriaCancelamento.get("MOTIVO")).isEqualTo(cancelarVazio.get("motivo"));
+        assertThat(mapper.readTree(auditoriaCancelamento.get("DADOS_ANTES").toString()))
+                .isEqualTo(resumoVazio);
+        var conteudoAuditado =
+                mapper.readTree(auditoriaCancelamento.get("DADOS_DEPOIS").toString());
+        assertThat(conteudoAuditado.get("pedido")).isEqualTo(cancelado);
+        assertThat(conteudoAuditado.get("evento").isObject()).isTrue();
+        assertThat(conteudoAuditado.get("evento").size()).isZero();
         resposta(
                 post(
                         vazio + "/notas",
@@ -631,6 +722,310 @@ class RecebimentoIntegrationTest {
                 .isEqualTo(1);
         resposta(get(id + "/entradas?tamanho=101", operador), 400);
         resposta(get(id + "/entradas", token("OPERACAO", List.of(), List.of())), 403);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"99999999999999999.99", "0.00", "NULL"})
+    void d30ValorMercadoriaManualPreservaMaximoZeroENulo(String literal) throws Exception {
+        long id = criarPedido();
+        BigDecimal esperado = literal.equals("NULL") ? null : new BigDecimal(literal);
+        adicionarNota(id, 1, "1", produto.getId(), esperado);
+        var response = get(String.valueOf(id), operador);
+        assertThat(response.statusCode()).isEqualTo(200);
+        var dto = mapper.readValue(response.body(), PedidoEntradaDto.Detalhe.class);
+        var item = dto.notas().getFirst().itens().getFirst();
+        if (esperado == null) {
+            assertThat(item.valorMercadoria()).isNull();
+            assertThat(
+                            jdbc.queryForObject(
+                                    "select valor_mercadoria from wms.item_nota_entrada",
+                                    BigDecimal.class))
+                    .isNull();
+        } else {
+            assertThat(item.valorMercadoria()).isEqualByComparingTo(esperado);
+            assertThat(
+                            jdbc.queryForObject(
+                                    "select valor_mercadoria from wms.item_nota_entrada",
+                                    BigDecimal.class))
+                    .isEqualByComparingTo(esperado);
+        }
+        assertThat(item.prevista()).isEqualByComparingTo("1");
+        assertThat(item.produtoId()).isEqualTo(produto.getId());
+        assertThat(dto.notas().getFirst().numero()).isEqualTo(1);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"-0.01", "100000000000000000.00", "0.001"})
+    void d30ValorMercadoriaManualRejeitaForaDoDominioSemEfeitos(String literal) throws Exception {
+        long id = criarPedido();
+        var antes = D30FotografiaFisica.capturar(jdbc);
+        resposta(
+                post(
+                        id + "/notas",
+                        nota(versao(id), 1, "1", produto.getId(), new BigDecimal(literal)),
+                        operador),
+                400);
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(antes);
+        assertThat(contar("nota_entrada")).isZero();
+        assertThat(contar("item_nota_entrada")).isZero();
+    }
+
+    @Test
+    void d30LimiteManualVinteNotasNaoSeConfundeComMilItens() throws Exception {
+        long id = criarPedido();
+        for (int n = 1; n <= 20; n++) adicionarNota(id, n, "1", produto.getId(), null);
+        assertThat(detalhe(id).get("notas").size()).isEqualTo(20);
+        assertThat(contar("item_nota_entrada")).isEqualTo(20);
+        var antes = D30FotografiaFisica.capturar(jdbc);
+        resposta(
+                post(id + "/notas", nota(versao(id), 21, "1", produto.getId(), null), operador),
+                400);
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(antes);
+    }
+
+    @Test
+    void d30LimiteManualMilItensEPorNotaSaoIndependentes() throws Exception {
+        long id = criarPedido();
+        for (int n = 1; n <= 5; n++)
+            resposta(post(id + "/notas", d30NotaComItens(id, n, 200), operador), 200);
+        assertThat(contar("nota_entrada")).isEqualTo(5);
+        assertThat(contar("item_nota_entrada")).isEqualTo(1000);
+        var antes = D30FotografiaFisica.capturar(jdbc);
+        resposta(post(id + "/notas", d30NotaComItens(id, 6, 1), operador), 400);
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(antes);
+        long outro = criarPedido();
+        antes = D30FotografiaFisica.capturar(jdbc);
+        resposta(post(outro + "/notas", d30NotaComItens(outro, 7, 201), operador), 400);
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(antes);
+    }
+
+    @Test
+    void d30ChegadaDuzentosItensAceitaEDuzentosEUmRecusaComOrigensValidas() throws Exception {
+        long id = criarPedido();
+        resposta(post(id + "/notas", d30NotaComItens(id, 1, 200), operador), 200);
+        resposta(post(id + "/notas", d30NotaComItens(id, 2, 1), operador), 200);
+        var itens =
+                jdbc.queryForList("select id from wms.item_nota_entrada order by id", Long.class);
+        assertThat(itens).hasSize(201);
+        iniciar(id);
+        var chegada = new HashMap<String, Object>();
+        chegada.put("versao", versao(id));
+        chegada.put("operacaoId", UUID.randomUUID());
+        chegada.put("chegouEm", DIA1);
+        chegada.put("observacao", "D30 conferencia de itens distintos");
+        chegada.put("itens", itens.stream().map(i -> item(i, "1", "0")).toList());
+        var antes = D30FotografiaFisica.capturar(jdbc);
+        resposta(post(id + "/chegadas", chegada, operador), 400);
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(antes);
+        chegada.put("itens", itens.subList(0, 200).stream().map(i -> item(i, "1", "0")).toList());
+        resposta(post(id + "/chegadas", chegada, operador), 200);
+        assertThat(contar("chegada_recebimento")).isEqualTo(1);
+        assertThat(contar("item_chegada")).isEqualTo(200);
+        assertThat(
+                        jdbc.queryForObject(
+                                "select sum(quantidade_boa) from wms.item_chegada",
+                                BigDecimal.class))
+                .isEqualByComparingTo("200");
+        assertThat(
+                        jdbc.queryForObject(
+                                "select count(distinct item_nota_id) from wms.item_chegada",
+                                Integer.class))
+                .isEqualTo(200);
+    }
+
+    @Test
+    void d30LimiteCemChegadasIncluiEstornadaSemConfundirQuantidade() throws Exception {
+        long id = prepararPedido("101"), item = itemId(id);
+        chegada(id, item, "1", "0", DIA1);
+        long primeira = jdbc.queryForObject("select id from wms.chegada_recebimento", Long.class);
+        resposta(
+                post(id + "/chegadas/" + primeira + "/estorno", revisao(versao(id)), supervisor),
+                200);
+        for (int i = 1; i < 100; i++)
+            chegada(id, item, "1", "0", Instant.parse(DIA1).plusSeconds(i).toString());
+        assertThat(contar("chegada_recebimento")).isEqualTo(100);
+        assertThat(
+                        jdbc.queryForObject(
+                                "select count(*) from wms.chegada_recebimento where estornada_em is not null",
+                                Integer.class))
+                .isEqualTo(1);
+        assertThat(
+                        jdbc.queryForObject(
+                                "select sum(i.quantidade_boa) from wms.item_chegada i join wms.chegada_recebimento c on c.id=i.chegada_id where c.estornada_em is null",
+                                BigDecimal.class))
+                .isEqualByComparingTo("99");
+        var antes = D30FotografiaFisica.capturar(jdbc);
+        resposta(
+                post(
+                        id + "/chegadas",
+                        dadosChegada(
+                                versao(id),
+                                item,
+                                "1",
+                                "0",
+                                Instant.parse(DIA1).plusSeconds(100).toString()),
+                        operador),
+                400);
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(antes);
+        assertThat(
+                        detalhe(id)
+                                .get("notas")
+                                .get(0)
+                                .get("itens")
+                                .get(0)
+                                .get("prevista")
+                                .decimalValue())
+                .isEqualByComparingTo("101");
+    }
+
+    private Map<String, Object> d30NotaComItens(long pedido, int numeroNota, int quantidade)
+            throws Exception {
+        var itens =
+                java.util.stream.IntStream.rangeClosed(1, quantidade)
+                        .mapToObj(
+                                n ->
+                                        Map.of(
+                                                "numeroItem",
+                                                n,
+                                                "produtoId",
+                                                produto.getId(),
+                                                "quantidadePrevista",
+                                                "1"))
+                        .toList();
+        return Map.of(
+                "versao",
+                versao(pedido),
+                "serie",
+                1,
+                "numero",
+                numeroNota,
+                "emissao",
+                "2026-09-01",
+                "itens",
+                itens);
+    }
+
+    @Test
+    void d30ReferenciaDaEntradaEhUnicaNoContextoSemDependerDeReplay() throws Exception {
+        var d =
+                new HashMap<String, Object>(
+                        Map.of(
+                                "clienteId",
+                                cliente.getId(),
+                                "armazemId",
+                                armazem.getId(),
+                                "referencia",
+                                "D30-REFERENCIA-CONTEXTO"));
+        var original = resposta(post("", d, operador), 201);
+        var antes = D30FotografiaFisica.capturar(jdbc);
+        var duplicada = resposta(post("", new HashMap<>(d), operador), 409);
+        assertThat(duplicada.get("codigo").asString()).isEqualTo("CONFLITO_DE_INTEGRIDADE");
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(antes);
+        var outro =
+                armazens.saveAndFlush(
+                        new Armazem(
+                                "D30-REF-OUTRO",
+                                "Outro ficticio",
+                                "33333333000133",
+                                "Osasco",
+                                "SP",
+                                Instant.now()));
+        String tokenOutro = token("OPERACAO", List.of(cliente.getId()), List.of(outro.getId()));
+        d.put("armazemId", outro.getId());
+        var novo = resposta(post("", d, tokenOutro), 201);
+        assertThat(novo.get("id").longValue()).isNotEqualTo(original.get("id").longValue());
+        assertThat(novo.get("referencia")).isEqualTo(original.get("referencia"));
+        assertThat(novo.get("armazemId").longValue()).isEqualTo(outro.getId());
+        assertThat(contar("pedido_entrada")).isEqualTo(2);
+        assertThat(contar("nota_entrada")).isZero();
+        assertThat(contar("entrada_conferida")).isZero();
+    }
+
+    @Test
+    void d30NotaSemRecebidoAceitaNaoCriaMercadoriaNoPedidoFisicoPositivo() throws Exception {
+        long id = criarPedido();
+        adicionarNota(id, 1, "10", produto.getId(), null);
+        adicionarNota(id, 2, "20", produto.getId(), null);
+        iniciar(id);
+        long recebido = itemId(id);
+        long semRecebido =
+                detalhe(id).get("notas").get(1).get("itens").get(0).get("id").longValue();
+        chegada(id, recebido, "10", "0", DIA1);
+        var antesRecusa = D30FotografiaFisica.capturar(jdbc);
+        resposta(post(id + "/efetivacao", efetivar(versao(id), false), supervisor), 409);
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(antesRecusa);
+        var r = resposta(post(id + "/efetivacao", efetivar(versao(id), true), supervisor), 200);
+        assertThat(r.get("situacao").asString()).isEqualTo("EFETIVADO");
+        var entradas = resposta(get(id + "/entradas", supervisor), 200).get("itens");
+        assertThat(entradas.size()).isEqualTo(1);
+        assertThat(entradas.get(0).get("itemNotaId").longValue()).isEqualTo(recebido);
+        assertThat(entradas.get(0).get("quantidadeTriagem").decimalValue())
+                .isEqualByComparingTo("10");
+        assertThat(
+                        jdbc.queryForObject(
+                                "select count(*) from wms.entrada_conferida e join wms.item_chegada i on e.item_chegada_id=i.id where i.item_nota_id=?",
+                                Integer.class,
+                                semRecebido))
+                .isZero();
+        var falta = detalhe(id).get("notas").get(1).get("itens").get(0);
+        assertThat(falta.get("prevista").decimalValue()).isEqualByComparingTo("20");
+        assertThat(falta.get("recebidaBoa").decimalValue()).isEqualByComparingTo("0");
+        assertThat(falta.get("recebidaAvariada").decimalValue()).isEqualByComparingTo("0");
+        assertThat(falta.get("diferenca").decimalValue()).isEqualByComparingTo("-20");
+        assertThat(contar("unidade_logistica")).isZero();
+    }
+
+    @ParameterizedTest
+    @CsvSource({"9999999999999.999999,500", "0.000001,5"})
+    void d30ChegadaMedidaExataPreservaQuantidadeObservacaoELote(String quantidade, int tamanho)
+            throws Exception {
+        produto =
+                produtos.saveAndFlush(
+                        new Produto(
+                                cliente,
+                                "D30-CHEGADA6",
+                                "Produto ficticio medido",
+                                "KG",
+                                TipoQuantidade.MEDIDA,
+                                6,
+                                false,
+                                false,
+                                null,
+                                Instant.now()));
+        long id = prepararPedido(quantidade);
+        String observacao = "o".repeat(tamanho), lote = "l".repeat(60);
+        var dados =
+                new HashMap<String, Object>(
+                        dadosChegada(versao(id), itemId(id), quantidade, "0", DIA1));
+        var recebido = new HashMap<String, Object>(item(itemId(id), quantidade, "0"));
+        recebido.put("lote", lote);
+        dados.put("observacao", observacao);
+        dados.put("itens", List.of(recebido));
+        resposta(post(id + "/chegadas", dados, operador), 200);
+        var chegadaResposta = get(id + "/chegadas", supervisor);
+        assertThat(chegadaResposta.statusCode()).isEqualTo(200);
+        var observadorExato =
+                tools.jackson.databind.json.JsonMapper.builder()
+                        .enable(
+                                tools.jackson.databind.DeserializationFeature
+                                        .USE_BIG_DECIMAL_FOR_FLOATS)
+                        .build();
+        var chegada = observadorExato.readTree(chegadaResposta.body()).get("itens").get(0);
+        assertThat(chegada.get("observacao").asString()).isEqualTo(observacao);
+        assertThat(chegada.get("itens").get(0).get("lote").asString()).isEqualTo(lote);
+        assertThat(chegada.get("itens").get(0).get("quantidadeBoa").decimalValue())
+                .isEqualByComparingTo(quantidade);
+        assertThat(chegada.get("itens").get(0).get("quantidadeAvariada").decimalValue())
+                .isEqualByComparingTo("0");
+        assertThat(
+                        jdbc.queryForObject(
+                                "select quantidade_boa from wms.item_chegada", BigDecimal.class))
+                .isEqualByComparingTo(quantidade);
+        assertThat(jdbc.queryForObject("select lote from wms.item_chegada", String.class))
+                .isEqualTo(lote);
+        var foto = D30FotografiaFisica.capturar(jdbc);
+        resposta(post(id + "/chegadas", dados, operador), 200);
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(foto);
     }
 
     private long prepararPedido(String quantidade) throws Exception {

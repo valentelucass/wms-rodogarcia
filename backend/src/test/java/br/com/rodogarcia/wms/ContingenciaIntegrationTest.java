@@ -37,10 +37,12 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.jwt.JwsHeader;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
+import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -113,6 +115,7 @@ class ContingenciaIntegrationTest {
     @Autowired private Environment environment;
     @Autowired private JsonMapper mapper;
     @Autowired private JwtEncoder encoder;
+    @Autowired private JwtDecoder d30Decoder;
     @Autowired private JdbcTemplate jdbc;
     @Autowired private ClienteRepository clientes;
     @Autowired private ArmazemRepository armazens;
@@ -148,6 +151,36 @@ class ContingenciaIntegrationTest {
         operador = token("OPERACAO", List.of(cliente.getId()), List.of(armazem.getId()));
         supervisor = token("SUPERVISOR", List.of(cliente.getId()), List.of(armazem.getId()));
         numero = 0;
+    }
+
+    @Test
+    void d26PrimeiraContagemRespeitaRevisaoMinimaPersistida() throws Exception {
+        // Restrição independente copiada do contrato V9; H2 não prova SQL Server.
+        jdbc.execute(
+                "ALTER TABLE wms.contagem_estoque ADD CONSTRAINT d26_contagem_revisao CHECK (revisao_atual >= 1)");
+        try {
+            var u = unitizar(receber("100", "0"), "100", "BOA");
+            var resultado = contar(u, "100");
+            assertThat(resultado.get("revisao").intValue()).isEqualTo(1);
+            assertThat(contar("contagem_estoque")).isEqualTo(1);
+            assertThat(contar("revisao_contagem")).isEqualTo(1);
+        } finally {
+            jdbc.execute("ALTER TABLE wms.contagem_estoque DROP CONSTRAINT d26_contagem_revisao");
+        }
+    }
+
+    @Test
+    void d26PrimeiraCargaRespeitaRevisaoMinimaPersistida() throws Exception {
+        jdbc.execute(
+                "ALTER TABLE wms.carga_inicial ADD CONSTRAINT d26_carga_revisao CHECK (revisao_atual >= 1)");
+        try {
+            var resultado = carga();
+            assertThat(resultado.get("revisao").get("numero").intValue()).isEqualTo(1);
+            assertThat(contar("carga_inicial")).isEqualTo(1);
+            assertThat(contar("revisao_carga_inicial")).isEqualTo(1);
+        } finally {
+            jdbc.execute("ALTER TABLE wms.carga_inicial DROP CONSTRAINT d26_carga_revisao");
+        }
     }
 
     @Test
@@ -1427,7 +1460,43 @@ class ContingenciaIntegrationTest {
     @Test
     void preparaCargaUmaVezMasSoConfirmaTodasAsEtiquetas() throws Exception {
         var c = carga();
+        var d30AntesLeitura = D30FotografiaFisica.capturar(jdbc);
+        assertThat(
+                        resposta(
+                                        get(
+                                                "/api/v1/cargas-iniciais/"
+                                                        + c.get("id").longValue(),
+                                                supervisor),
+                                        200)
+                                .get("id"))
+                .isEqualTo(c.get("id"));
+        var d30Revisoes =
+                resposta(
+                        get(
+                                "/api/v1/cargas-iniciais/" + c.get("id").longValue() + "/revisoes",
+                                supervisor),
+                        200);
+        assertThat(d30Revisoes.get("totalItens").longValue()).isEqualTo(1);
+        assertThat(d30Revisoes.get("itens").get(0).get("numero").intValue()).isEqualTo(1);
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(d30AntesLeitura);
         var d = conferencia(c, List.of());
+        var d30AntesHash = D30FotografiaFisica.capturar(jdbc);
+        for (String hash : java.util.Arrays.asList(null, "Z".repeat(63), "Z".repeat(64))) {
+            var divergente = new HashMap<>(d);
+            divergente.put("conteudoHash", hash);
+            var recusada =
+                    resposta(
+                            post(
+                                    "/api/v1/cargas-iniciais/"
+                                            + c.get("id").longValue()
+                                            + "/preparar",
+                                    divergente,
+                                    supervisor),
+                            hash != null && hash.length() == 64 ? 409 : 400);
+            if (hash != null && hash.length() == 64)
+                assertThat(recusada.get("codigo").asString()).isEqualTo("REVISAO_DESATUALIZADA");
+            assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(d30AntesHash);
+        }
         var preparada =
                 resposta(
                         post(
@@ -1471,6 +1540,20 @@ class ContingenciaIntegrationTest {
                                 supervisor),
                         200);
         assertThat(confirmado.get("situacao").asString()).isEqualTo("REGULARIZADA");
+        assertThat(d30Decoder.decode(supervisor).getSubject()).isEqualTo("estoquista-teste");
+        var atoresD30 =
+                jdbc.queryForList(
+                        "select acao,usuario,tipo,registro_id from wms.auditoria_cadastro where acao in ('PREPARACAO_CARGA','CONFIRMACAO_CARGA') order by id");
+        assertThat(atoresD30).hasSize(2);
+        assertThat(atoresD30)
+                .extracting(linha -> linha.get("ACAO"))
+                .containsExactly("PREPARACAO_CARGA", "CONFIRMACAO_CARGA");
+        for (var linha : atoresD30) {
+            assertThat(linha.get("USUARIO")).isEqualTo("estoquista-teste");
+            assertThat(linha.get("TIPO")).isEqualTo("CARGA_INICIAL");
+            assertThat(((Number) linha.get("REGISTRO_ID")).longValue())
+                    .isEqualTo(c.get("id").longValue());
+        }
         assertThat(saldo().get("disponivel").decimalValue()).isEqualByComparingTo("20");
         var indicador =
                 resposta(
@@ -1523,6 +1606,36 @@ class ContingenciaIntegrationTest {
                             supervisor),
                     200);
             ids.add(leitura.get("id").longValue());
+        }
+        assertThat(ids).hasSize(2);
+        var d30AntesResolucao = D30FotografiaFisica.capturar(jdbc);
+        for (var selecao :
+                List.of(
+                        java.util.Arrays.asList(ids.getFirst(), null),
+                        List.of(ids.getFirst()),
+                        List.of(ids.getFirst(), ids.getFirst()),
+                        List.of(0L, ids.getLast()),
+                        List.of(-1L, ids.getLast()))) {
+            var divergente = new HashMap<>(pedido);
+            divergente.put("contagensIds", selecao);
+            boolean validacao =
+                    selecao.size() == 2
+                            && selecao.getFirst() != null
+                            && (selecao.getFirst() <= 0
+                                    || selecao.getFirst().equals(selecao.getLast()));
+            var recusa =
+                    resposta(
+                            post(
+                                    "/api/v1/cargas-iniciais/"
+                                            + c.get("id").longValue()
+                                            + "/resolver-cancelamento",
+                                    divergente,
+                                    gestor),
+                            validacao ? 400 : 409);
+            if (!validacao)
+                assertThat(recusa.get("codigo").asString())
+                        .isEqualTo("RESOLUCAO_ESTAGIO_INCOMPLETA");
+            assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(d30AntesResolucao);
         }
         var r =
                 resposta(
@@ -1667,8 +1780,596 @@ class ContingenciaIntegrationTest {
                 409);
     }
 
+    @Test
+    void d27AjusteZeroRespeitaCheckSQLLocalizacaoSemApagarMarcoHistorico() throws Exception {
+        jdbc.execute(
+                "ALTER TABLE wms.unidade_logistica ADD CONSTRAINT d27_localizacao_sql CHECK ((tipo_localizacao IS NULL AND primeiro_enderecamento_em IS NULL AND peso_kg IS NULL AND conjunto_atual_id IS NULL) OR (tipo_localizacao IS NOT NULL AND tipo_localizacao IN ('ARMAZENAGEM','TRIAGEM','QUARENTENA','SEPARACAO') AND primeiro_enderecamento_em IS NOT NULL AND peso_kg IS NOT NULL AND ((posicoes_necessarias = 1 AND conjunto_atual_id IS NULL) OR (posicoes_necessarias = 2 AND conjunto_atual_id IS NOT NULL))))");
+        try {
+            d27AjusteZeroPreservaPosicaoDesassociaUnidadeEReplayNaoDuplicaFato();
+        } finally {
+            jdbc.execute("ALTER TABLE wms.unidade_logistica DROP CONSTRAINT d27_localizacao_sql");
+        }
+    }
+
+    @Test
+    void d27AjusteZeroPreservaPosicaoDesassociaUnidadeEReplayNaoDuplicaFato() throws Exception {
+        var u = unitizar(receber("10", "0"), "10", "BOA");
+        var e = endereco("D27-ZERO", "ARMAZENAGEM");
+        posicionar(u, e);
+        u = atual(u);
+        var antes =
+                resposta(get(UNIDADES + u.get("codigo").asString() + "/estoque", operador), 200);
+        Long ocupacao =
+                jdbc.queryForObject(
+                        "select id from wms.ocupacao_endereco where unidade_id=?",
+                        Long.class,
+                        u.get("id").longValue());
+        var c = contar(u, "0");
+        var d = aplicar(c, atual(u));
+        String rota = "/api/v1/contagens/" + c.get("id").longValue() + "/aplicar";
+        var aplicado = resposta(post(rota, d, supervisor), 200);
+        assertThat(aplicado.get("situacao").asString()).isEqualTo("APLICADA");
+        assertThat(resposta(post(rota, d, supervisor), 200)).isEqualTo(aplicado);
+        assertThat(
+                        jdbc.queryForObject(
+                                "select count(*) from wms.ocupacao_endereco where id=? and unidade_id is null",
+                                Long.class,
+                                ocupacao))
+                .isEqualTo(1);
+        assertThat(atual(u).get("ativa").booleanValue()).isFalse();
+        var depois =
+                resposta(get(UNIDADES + u.get("codigo").asString() + "/estoque", operador), 200);
+        assertThat(depois.get("primeiroEnderecamentoEm"))
+                .isEqualTo(antes.get("primeiroEnderecamentoEm"));
+        assertThat(depois.get("inicioArmazenagemEm")).isEqualTo(antes.get("inicioArmazenagemEm"));
+        assertThat(depois.get("tipoLocalizacao")).isEqualTo(antes.get("tipoLocalizacao"));
+        assertThat(depois.get("posicoes").isEmpty()).isTrue();
+        assertThat(saldo().get("fisicoTotal").decimalValue()).isEqualByComparingTo("0");
+        assertThat(
+                        jdbc.queryForObject(
+                                "select count(*) from wms.fato_permanencia where tipo='AJUSTE_ESTOQUE'",
+                                Long.class))
+                .isEqualTo(1);
+        assertThat(
+                        jdbc.queryForObject(
+                                "select count(*) from wms.movimento_estoque where acao='AJUSTE_ESTOQUE'",
+                                Long.class))
+                .isEqualTo(1);
+    }
+
+    @Test
+    void d30FalhaTardiaDeAuditoriaNoEncerramentoDefinitivoReverteEPermiteRetry() throws Exception {
+        String rota = "/api/v1/encerramentos/CLIENTE/" + cliente.getId();
+        var solicitado =
+                resposta(
+                        post(
+                                rota + "/solicitar",
+                                Map.of(
+                                        "operacaoId",
+                                        UUID.randomUUID(),
+                                        "versao",
+                                        0,
+                                        "motivo",
+                                        "Encerramento identificado D30 sem compromissos"),
+                                gestor),
+                        200);
+        var comando =
+                Map.of(
+                        "operacaoId",
+                        UUID.randomUUID(),
+                        "versao",
+                        solicitado.get("versao").longValue(),
+                        "motivo",
+                        "Inativacao definitiva D30 com auditoria atomica");
+        var antes = D30FotografiaFisica.capturar(jdbc);
+        jdbc.execute(
+                "alter table wms.auditoria_cadastro add constraint d30_falha_inativacao check (acao <> 'INATIVACAO_DEFINITIVA')");
+        try {
+            resposta(post(rota + "/inativar", comando, gestor), 409);
+            assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(antes);
+            assertThat(resposta(get(rota + "/impedimentos", gestor), 200)).isEqualTo(solicitado);
+        } finally {
+            jdbc.execute("alter table wms.auditoria_cadastro drop constraint d30_falha_inativacao");
+        }
+        var concluido = resposta(post(rota + "/inativar", comando, gestor), 200);
+        assertThat(concluido.get("situacao").asString()).isEqualTo("INATIVO");
+        assertThat(concluido.get("versao").longValue())
+                .isEqualTo(solicitado.get("versao").longValue() + 1);
+        assertThat(concluido.get("impedimentos").size()).isZero();
+        var apos = D30FotografiaFisica.capturar(jdbc);
+        assertThat(resposta(post(rota + "/inativar", comando, gestor), 200)).isEqualTo(concluido);
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(apos);
+        assertThat(
+                        jdbc.queryForObject(
+                                "select count(*) from wms.auditoria_cadastro where acao='INATIVACAO_DEFINITIVA'",
+                                Integer.class))
+                .isEqualTo(1);
+        assertThat(
+                        jdbc.queryForObject(
+                                "select count(*) from wms.operacao_administrativa where tipo='INATIVACAO_DEFINITIVA'",
+                                Integer.class))
+                .isEqualTo(1);
+    }
+
     private JsonNode atual(JsonNode u) throws Exception {
         return resposta(get(UNIDADES + u.get("codigo").asString(), operador), 200).get("unidade");
+    }
+
+    @Test
+    void d30EnvelopeDecimalNormalizadoConservaSnapshotExecucaoEReplay() throws Exception {
+        var u = unitizar(receber("100", "0"), "100", "BOA");
+        posicionar(u, endereco("D30-ESCALA", "ARMAZENAGEM"));
+        u = atual(u);
+        var instante = Instant.now().truncatedTo(java.time.temporal.ChronoUnit.MICROS);
+        var leitura = new HashMap<String, Object>(leituraContagem(u, "70", instante));
+        leitura.put("contado", new BigDecimal("70.0"));
+        var envelope =
+                linha(
+                        "D30-ESCALA-NUMERICA",
+                        "CONTAGEM",
+                        instante,
+                        List.of(),
+                        false,
+                        Map.of("dados", leitura));
+        var original = resposta(post("/api/v1/contingencias", envelope, supervisor), 200);
+        var fotoRegistro = D30FotografiaFisica.capturar(jdbc);
+        leitura.put("contado", new BigDecimal("70.000000"));
+        assertThat(resposta(post("/api/v1/contingencias", envelope, supervisor), 200))
+                .isEqualTo(original);
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(fotoRegistro);
+        var comando = conciliar(original);
+        var conciliado =
+                resposta(
+                        post(
+                                "/api/v1/contingencias/"
+                                        + original.get("id").longValue()
+                                        + "/conciliar",
+                                comando,
+                                supervisor),
+                        200);
+        assertThat(conciliado.get("situacao").asString()).isEqualTo("CONCILIADA");
+        assertThat(contar("contagem_estoque")).isEqualTo(1);
+        assertThat(
+                        jdbc.queryForObject(
+                                "select contado from wms.revisao_contagem", BigDecimal.class))
+                .isEqualByComparingTo("70");
+        assertThat(
+                        jdbc.queryForObject(
+                                "select quantidade from wms.unidade_logistica where id=?",
+                                BigDecimal.class,
+                                u.get("id").longValue()))
+                .isEqualByComparingTo("100");
+        var depois = D30FotografiaFisica.capturar(jdbc);
+        assertThat(
+                        resposta(
+                                post(
+                                        "/api/v1/contingencias/"
+                                                + original.get("id").longValue()
+                                                + "/conciliar",
+                                        comando,
+                                        supervisor),
+                                200))
+                .isEqualTo(conciliado);
+        assertThat(resposta(post("/api/v1/contingencias", envelope, supervisor), 200))
+                .isEqualTo(original);
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(depois);
+        leitura.put("contado", new BigDecimal("71.0"));
+        resposta(post("/api/v1/contingencias", envelope, supervisor), 409);
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(depois);
+    }
+
+    @org.junit.jupiter.params.ParameterizedTest
+    @org.junit.jupiter.params.provider.ValueSource(
+            strings = {"0", "1.123456", "9999999999999.999999"})
+    void d30NumeroRealEmMapEObjetoConservaContagemExata(String literal) throws Exception {
+        var plano =
+                java.nio.file.Path.of(
+                        "evidencias/d30-cedro-contingencia-numeros-v24-plano-antes.json");
+        assertThat(
+                        java.util.HexFormat.of()
+                                .formatHex(
+                                        java.security.MessageDigest.getInstance("SHA-256")
+                                                .digest(java.nio.file.Files.readAllBytes(plano)))
+                                .toUpperCase())
+                .isEqualTo("6C3BD75F03DC96BA43DCB0A88239B2EEA9FB46BE1F8076F50A7D4B603BF34D68");
+        produto =
+                produtos.saveAndFlush(
+                        new Produto(
+                                cliente,
+                                "D30-NUMERO",
+                                "Medido ficticio",
+                                "KG",
+                                TipoQuantidade.MEDIDA,
+                                6,
+                                false,
+                                false,
+                                null,
+                                Instant.now()));
+        embalagem =
+                embalagens.saveAndFlush(
+                        new Embalagem(
+                                produto,
+                                "D30-NUMERO-DUN",
+                                "DUN ficticio",
+                                BigDecimal.ONE,
+                                Instant.now()));
+        String fisico = "9999999999999.999999";
+        var u = unitizar(receber(fisico, "0"), fisico, "BOA");
+        posicionar(u, endereco("D30-NUMERO", "ARMAZENAGEM"));
+        u = atual(u);
+        var instante = Instant.now().truncatedTo(java.time.temporal.ChronoUnit.MICROS);
+        var contado = new BigDecimal(literal);
+        var leitura = new HashMap<String, Object>(leituraContagem(u, literal, instante));
+        leitura.put("contado", contado); // numero JSON real, nao String decimal.
+        var envelope =
+                linha(
+                        "D30-NUMERO-REAL",
+                        "CONTAGEM",
+                        instante,
+                        List.of(),
+                        false,
+                        Map.of("dados", leitura));
+        var observador =
+                tools.jackson.databind.json.JsonMapper.builder()
+                        .enable(
+                                tools.jackson.databind.DeserializationFeature
+                                        .USE_BIG_DECIMAL_FOR_FLOATS)
+                        .build();
+        var canonicoLeitura = new java.util.TreeMap<String, Object>(leitura);
+        canonicoLeitura.put("contado", contado.stripTrailingZeros());
+        canonicoLeitura.put("versaoUnidade", BigDecimal.valueOf(u.get("versao").longValue()));
+        var canonico = new java.util.TreeMap<String, Object>();
+        canonico.put("dados", canonicoLeitura);
+        var conteudoEsperado =
+                new br.com.rodogarcia.wms.dto.ContingenciaDto.Conteudo(canonico, List.of(), false);
+        String hashEsperado =
+                java.util.HexFormat.of()
+                        .formatHex(
+                                java.security.MessageDigest.getInstance("SHA-256")
+                                        .digest(
+                                                mapper.writeValueAsBytes(
+                                                        List.of(
+                                                                "FATO_CONTINGENCIA",
+                                                                "D30-NUMERO-REAL",
+                                                                List.of(
+                                                                        cliente.getId(),
+                                                                        armazem.getId(),
+                                                                        br.com.rodogarcia.wms.models
+                                                                                .TipoContingencia
+                                                                                .CONTAGEM,
+                                                                        instante,
+                                                                        "Operador fictício",
+                                                                        "Relatório físico fictício comprovado",
+                                                                        conteudoEsperado)))));
+        var respostaRegistro = post("/api/v1/contingencias", envelope, supervisor);
+        assertThat(respostaRegistro.statusCode())
+                .as("registro valido do Number " + literal)
+                .isEqualTo(200);
+        var original = observador.readTree(respostaRegistro.body());
+        assertThat(original.get("resultado").isNull()).isTrue();
+        java.nio.file.Files.writeString(
+                java.nio.file.Path.of(System.getProperty("wms.test.evidencias.dir"))
+                        .resolve(
+                                "d30-cedro-contingencia-numero-red-observacao-"
+                                        + UUID.randomUUID()
+                                        + ".json"),
+                observador.writeValueAsString(
+                        Map.of(
+                                "literalFixture",
+                                literal,
+                                "hashEsperadoIndependente",
+                                hashEsperado,
+                                "respostaRawFicticia",
+                                respostaRegistro.body(),
+                                "limite",
+                                "Mapper/config/rota reais somente H2mem ficticio; observadorBigDecimal nao conserta entrada")),
+                java.nio.file.StandardOpenOption.CREATE_NEW);
+        var numeroConteudo = original.get("conteudo").get("dados").get("dados").get("contado");
+        assertThat(numeroConteudo.decimalValue()).isEqualByComparingTo(contado);
+        assertThat(original.get("conteudoHash").asString()).isEqualTo(hashEsperado);
+        assertThat(numeroConteudo.isNumber()).isTrue();
+        assertThat(numeroConteudo.decimalValue()).isEqualByComparingTo(contado);
+        String consultaRota = "/api/v1/contingencias/" + original.get("id").longValue();
+        var fotoRegistro = D30FotografiaFisica.capturar(jdbc);
+        var consultaOriginal = get(consultaRota, supervisor);
+        assertThat(consultaOriginal.statusCode()).isEqualTo(200);
+        assertThat(observador.readTree(consultaOriginal.body())).isEqualTo(original);
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(fotoRegistro);
+        for (int cardinalidade : List.of(0, 101)) {
+            var invalido = new HashMap<String, Object>(envelope);
+            var mapa = new java.util.LinkedHashMap<String, Object>();
+            for (int i = 0; i < cardinalidade; i++) mapa.put("campo" + i, "ficticio");
+            invalido.put("dados", mapa);
+            var recusa = post("/api/v1/contingencias", invalido, supervisor);
+            assertThat(recusa.statusCode()).isEqualTo(400);
+            var problema = observador.readTree(recusa.body());
+            assertThat(problema.get("codigo").asString()).isEqualTo("DADOS_INVALIDOS");
+            var campos = new java.util.ArrayList<String>();
+            for (var erro : problema.get("campos"))
+                campos.add(erro.get("campo").asString() + "#" + erro.get("codigo").asString());
+            assertThat(campos).contains("dados#Size");
+            assertThat(problema.get("idOperacao").asString()).isNotBlank();
+            assertThat(recusa.body()).doesNotContain("jdbc:", "SQLException");
+            assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(fotoRegistro);
+        }
+        var mapaCem = new java.util.LinkedHashMap<String, Object>();
+        mapaCem.put("dados", new HashMap<>(leitura));
+        for (int i = 0; i < 99; i++) mapaCem.put("campo" + i, "ficticio");
+        var cem = new HashMap<String, Object>(envelope);
+        cem.put("operacaoId", UUID.randomUUID());
+        cem.put("identidadeFato", "D30-MAP-CEM");
+        cem.put("dados", mapaCem);
+        var positivoCem = post("/api/v1/contingencias", cem, supervisor);
+        assertThat(positivoCem.statusCode()).as("Map100 otherwise valido").isEqualTo(200);
+        assertThat(observador.readTree(positivoCem.body()).get("conteudo").get("dados").size())
+                .isEqualTo(100);
+        assertThat(contar("contagem_estoque")).isZero();
+        fotoRegistro = D30FotografiaFisica.capturar(jdbc);
+        leitura.put("contado", contado.setScale(6));
+        var replayRegistro = post("/api/v1/contingencias", envelope, supervisor);
+        assertThat(replayRegistro.statusCode()).isEqualTo(200);
+        assertThat(observador.readTree(replayRegistro.body())).isEqualTo(original);
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(fotoRegistro);
+        var comando = conciliar(original);
+        String rota = "/api/v1/contingencias/" + original.get("id").longValue() + "/conciliar";
+        var comandoTipado =
+                mapper.convertValue(
+                        comando, br.com.rodogarcia.wms.dto.ContingenciaDto.Conciliar.class);
+        String hashConciliacaoEsperado =
+                java.util.HexFormat.of()
+                        .formatHex(
+                                java.security.MessageDigest.getInstance("SHA-256")
+                                        .digest(
+                                                mapper.writeValueAsBytes(
+                                                        List.of(
+                                                                "CONCILIACAO_CONTINGENCIA",
+                                                                original.get("id").longValue(),
+                                                                comandoTipado))));
+        var respostaEfeito = post(rota, comando, supervisor);
+        assertThat(respostaEfeito.statusCode())
+                .as("efeito CONTAGEM do Number " + literal)
+                .isEqualTo(200);
+        var resultado = observador.readTree(respostaEfeito.body());
+        assertThat(resultado.get("situacao").asString()).isEqualTo("CONCILIADA");
+        assertThat(resultado.get("resultado").get("efeito").get("contado").isNumber()).isTrue();
+        assertThat(resultado.get("resultado").get("efeito").get("contado").decimalValue())
+                .isEqualByComparingTo(contado);
+        assertThat(contar("contagem_estoque")).isEqualTo(1);
+        assertThat(contar("revisao_contagem")).isEqualTo(1);
+        assertThat(
+                        jdbc.queryForObject(
+                                "select contado from wms.revisao_contagem", BigDecimal.class))
+                .isEqualByComparingTo(contado);
+        assertThat(
+                        jdbc.queryForObject(
+                                "select quantidade from wms.unidade_logistica where id=?",
+                                BigDecimal.class,
+                                u.get("id").longValue()))
+                .isEqualByComparingTo(fisico);
+        assertThat(
+                        resultado
+                                .get("resultado")
+                                .get("efeito")
+                                .get("origens")
+                                .get(0)
+                                .get("quantidade")
+                                .decimalValue())
+                .isEqualByComparingTo(fisico);
+        var depois = D30FotografiaFisica.capturar(jdbc);
+        assertThat(
+                        jdbc.queryForObject(
+                                "select conteudo_hash from wms.operacao_administrativa where operacao_id=?",
+                                String.class,
+                                comando.get("operacaoId").toString()))
+                .isEqualTo(hashConciliacaoEsperado);
+        assertThat(hashConciliacaoEsperado).isNotEqualTo(hashEsperado);
+        var consultaEfeito = get(consultaRota, supervisor);
+        assertThat(consultaEfeito.statusCode()).isEqualTo(200);
+        assertThat(observador.readTree(consultaEfeito.body())).isEqualTo(resultado);
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(depois);
+        var replayEfeito = post(rota, comando, supervisor);
+        assertThat(replayEfeito.statusCode()).isEqualTo(200);
+        assertThat(observador.readTree(replayEfeito.body())).isEqualTo(resultado);
+        assertThat(observador.readTree(post("/api/v1/contingencias", envelope, supervisor).body()))
+                .isEqualTo(original);
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(depois);
+        leitura.put("contado", contado.equals(BigDecimal.ZERO) ? BigDecimal.ONE : BigDecimal.ZERO);
+        resposta(post("/api/v1/contingencias", envelope, supervisor), 409);
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(depois);
+        java.nio.file.Files.writeString(
+                java.nio.file.Path.of(System.getProperty("wms.test.evidencias.dir"))
+                        .resolve("d30-cedro-contingencia-number-" + UUID.randomUUID() + ".json"),
+                mapper.writeValueAsString(
+                        Map.of(
+                                "caso",
+                                "d30NumeroRealEmMapEObjetoConservaContagemExata",
+                                "entradaNumber",
+                                literal,
+                                "hashEsperadoAntes",
+                                hashEsperado,
+                                "contadoSQL",
+                                literal,
+                                "originalResultadoNULL",
+                                true,
+                                "saldoFisico",
+                                fisico,
+                                "replay64Igual",
+                                true,
+                                "limite",
+                                "Efeito CONTAGEM; nao hash universal nem SQLServer")),
+                java.nio.file.StandardOpenOption.CREATE_NEW);
+    }
+
+    @Test
+    void d30CompromissosDeEmbalagemEArmazemIncluemCargaContagemEOutroCliente() throws Exception {
+        long embalagemC1 = embalagem.getId(), clienteC1 = cliente.getId();
+        String operadorC1 = operador;
+        long pedidoC1 = receber("100", "0");
+        long entradaC1 =
+                resposta(get(PEDIDOS + pedidoC1 + "/entradas", operador), 200)
+                        .get("itens")
+                        .get(0)
+                        .get("id")
+                        .longValue();
+        d30CompromissoSemEfeito(
+                "EMBALAGEM", embalagemC1, "UNITIZACAO_PENDENTE", "ENTRADA_CONFERIDA", entradaC1);
+        d30CompromissoSemEfeito(
+                "ARMAZEM", armazem.getId(), "UNITIZACAO_PENDENTE", "ENTRADA_CONFERIDA", entradaC1);
+        var u = unitizar(pedidoC1, "100", "BOA");
+        posicionar(u, endereco("D30-COMPROMISSO-C1", "ARMAZENAGEM"));
+        u = atual(u);
+        var contagem = contar(u, "70");
+        var carga = carga();
+        for (String dono : List.of("EMBALAGEM", "ARMAZEM")) {
+            long id = dono.equals("EMBALAGEM") ? embalagemC1 : armazem.getId();
+            d30CompromissoSemEfeito(
+                    dono,
+                    id,
+                    "CONTAGEM_PENDENTE",
+                    "CONTAGEM_ESTOQUE",
+                    contagem.get("id").longValue());
+            d30CompromissoSemEfeito(
+                    dono, id, "CARGA_PENDENTE", "CARGA_INICIAL", carga.get("id").longValue());
+        }
+        cliente =
+                clientes.saveAndFlush(
+                        new Cliente(
+                                "D30-C2",
+                                "Outro cliente ficticio",
+                                "11111111000191",
+                                Instant.now()));
+        criarProduto();
+        assertThat(cliente.getId()).isNotEqualTo(clienteC1);
+        operador = token("OPERACAO", List.of(cliente.getId()), List.of(armazem.getId()));
+        supervisor = token("SUPERVISOR", List.of(cliente.getId()), List.of(armazem.getId()));
+        long pedidoC2 = receber("50", "0");
+        long entradaC2 =
+                resposta(get(PEDIDOS + pedidoC2 + "/entradas", operador), 200)
+                        .get("itens")
+                        .get(0)
+                        .get("id")
+                        .longValue();
+        var comando =
+                Map.of(
+                        "operacaoId",
+                        UUID.randomUUID(),
+                        "versaoPedido",
+                        versao(pedidoC2),
+                        "motivo",
+                        "Volumes fisicos distintos do segundo cliente",
+                        "unidades",
+                        List.of(
+                                Map.of(
+                                        "embalagemId",
+                                        embalagem.getId(),
+                                        "tipo",
+                                        "VOLUME",
+                                        "condicao",
+                                        "BOA",
+                                        "quantidade",
+                                        "25"),
+                                Map.of(
+                                        "embalagemId",
+                                        embalagem.getId(),
+                                        "tipo",
+                                        "VOLUME",
+                                        "condicao",
+                                        "BOA",
+                                        "quantidade",
+                                        "25")));
+        var volumes =
+                resposta(
+                                post(
+                                        PEDIDOS
+                                                + pedidoC2
+                                                + "/entradas/"
+                                                + entradaC2
+                                                + "/unitizacao",
+                                        comando,
+                                        operador),
+                                200)
+                        .get("unidades");
+        assertThat(volumes.size()).isEqualTo(2);
+        assertThat(volumes.get(0).get("unidade").get("id").longValue())
+                .isNotEqualTo(volumes.get(1).get("unidade").get("id").longValue());
+        for (var volume : volumes) {
+            var v = volume.get("unidade");
+            assertThat(v.get("tipo").asString()).isEqualTo("VOLUME");
+            assertThat(v.get("clienteId").longValue()).isEqualTo(cliente.getId());
+            assertThat(v.get("produtoId").longValue()).isEqualTo(produto.getId());
+            assertThat(v.get("quantidade").decimalValue()).isEqualByComparingTo("25");
+            assertThat(
+                            jdbc.queryForObject(
+                                    "select entrada_id from wms.conteudo_unidade where unidade_id=?",
+                                    Long.class,
+                                    v.get("id").longValue()))
+                    .isEqualTo(entradaC2);
+            assertThat(
+                            jdbc.queryForObject(
+                                    "select quantidade from wms.conteudo_unidade where unidade_id=?",
+                                    BigDecimal.class,
+                                    v.get("id").longValue()))
+                    .isEqualByComparingTo("25");
+            var antes = D30FotografiaFisica.capturar(jdbc);
+            resposta(get(UNIDADES + v.get("codigo").asString(), operadorC1), 403);
+            assertThat(
+                            resposta(get(UNIDADES + v.get("codigo").asString(), operador), 200)
+                                    .get("unidade")
+                                    .get("id")
+                                    .longValue())
+                    .isEqualTo(v.get("id").longValue());
+            assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(antes);
+            d30CompromissoSemEfeito(
+                    "ARMAZEM",
+                    armazem.getId(),
+                    "SALDO_FISICO",
+                    "UNIDADE_LOGISTICA",
+                    v.get("id").longValue());
+        }
+        d30CompromissoSemEfeito(
+                "ARMAZEM",
+                armazem.getId(),
+                "SALDO_FISICO",
+                "UNIDADE_LOGISTICA",
+                u.get("id").longValue());
+        for (String dono : List.of("EMBALAGEM", "ARMAZEM")) {
+            long id = dono.equals("EMBALAGEM") ? embalagemC1 : armazem.getId();
+            String rota = "/api/v1/encerramentos/" + dono + "/" + id;
+            var atual = resposta(get(rota + "/impedimentos", gestor), 200);
+            var solicitar = new HashMap<String, Object>();
+            solicitar.put("operacaoId", UUID.randomUUID());
+            solicitar.put("versao", atual.get("versao").longValue());
+            solicitar.put("motivo", "Encerramento preserva compromissos identificados");
+            var pendente = resposta(post(rota + "/solicitar", solicitar, gestor), 200);
+            solicitar.put("operacaoId", UUID.randomUUID());
+            solicitar.put("versao", pendente.get("versao").longValue());
+            var antes = D30FotografiaFisica.capturar(jdbc);
+            assertThat(
+                            resposta(post(rota + "/inativar", solicitar, gestor), 409)
+                                    .get("codigo")
+                                    .asString())
+                    .isEqualTo("ENCERRAMENTO_IMPEDIDO");
+            assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(antes);
+        }
+    }
+
+    private void d30CompromissoSemEfeito(
+            String dono, long idDono, String codigo, String recurso, long id) throws Exception {
+        var antes = D30FotografiaFisica.capturar(jdbc);
+        var resposta =
+                resposta(
+                        get(
+                                "/api/v1/encerramentos/" + dono + "/" + idDono + "/impedimentos",
+                                gestor),
+                        200);
+        var encontrados = new java.util.ArrayList<JsonNode>();
+        for (var item : resposta.get("impedimentos"))
+            if (item.get("codigo").asString().equals(codigo)
+                    && item.get("recurso").asString().equals(recurso)
+                    && item.get("id").longValue() == id) encontrados.add(item);
+        assertThat(encontrados).as(dono + " compromisso " + codigo + "#" + id).hasSize(1);
+        assertThat(encontrados.getFirst().get("detalhe").asString()).isNotBlank();
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(antes);
     }
 
     private JsonNode saldo() throws Exception {
@@ -1728,6 +2429,176 @@ class ContingenciaIntegrationTest {
                                 c.get("origens").get(0).get("entradaId").longValue(),
                                 "delta",
                                 c.get("diferenca").decimalValue())));
+    }
+
+    @Test
+    void d30RevisaoPublicaCargaPreservaOrigemHistoricoReplayERollback() throws Exception {
+        var original = carga();
+        assertThat(original.get("revisao").get("numero").intValue()).isEqualTo(1);
+        assertThat(original.get("situacao").asString()).isEqualTo("PENDENTE");
+        var dados =
+                new HashMap<String, Object>(
+                        mapper.convertValue(
+                                original.get("revisao").get("dados"),
+                                new TypeReference<Map<String, Object>>() {}));
+        dados.put("fonte", "Nota original preservada; revisao documental ficticia D30");
+        var dadosTipados =
+                mapper.convertValue(dados, br.com.rodogarcia.wms.dto.CargaInicialDto.Dados.class);
+        String hashEsperado =
+                java.util.HexFormat.of()
+                        .formatHex(
+                                java.security.MessageDigest.getInstance("SHA-256")
+                                        .digest(mapper.writeValueAsBytes(dadosTipados)));
+        var operacao = UUID.randomUUID();
+        var comando =
+                Map.of(
+                        "operacaoId",
+                        operacao,
+                        "versao",
+                        original.get("versao").longValue(),
+                        "dados",
+                        dados,
+                        "motivo",
+                        "Revisao documental identificada sem movimentacao fisica");
+        String rota = "/api/v1/cargas-iniciais/" + original.get("id").longValue() + "/revisoes";
+        // A fixture20 foi registrada em memoria; o wrapper le DECIMAL(19,6) no JPA.
+        var originalJpa =
+                new HashMap<String, Object>(
+                        mapper.convertValue(original, new TypeReference<Map<String, Object>>() {}));
+        originalJpa.put("quantidadeEstagio", new BigDecimal("20.000000"));
+        var antesEsperadoJpa = mapper.readTree(mapper.writeValueAsString(originalJpa));
+        var esperado = new HashMap<String, Object>(originalJpa);
+        esperado.put("versao", original.get("versao").longValue() + 1);
+        esperado.put(
+                "revisao",
+                Map.of("numero", 2, "conteudoHash", hashEsperado, "dados", dadosTipados));
+        var respostaEsperada = mapper.readTree(mapper.writeValueAsString(esperado));
+        var antes = D30FotografiaFisica.capturar(jdbc);
+        resposta(post(rota, comando, operador), 403);
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(antes);
+        var divergente = new HashMap<String, Object>(comando);
+        divergente.put("operacaoId", UUID.randomUUID());
+        divergente.put("versao", original.get("versao").longValue() + 1);
+        assertThat(resposta(post(rota, divergente, supervisor), 409).get("codigo").asString())
+                .isEqualTo("ESTAGIO_DESATUALIZADO");
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(antes);
+        br.com.rodogarcia.wms.services.AuditoriaService alvo =
+                org.springframework.test.util.AopTestUtils.getUltimateTargetObject(auditoria);
+        org.mockito.Mockito.doThrow(
+                        new IllegalStateException("D30 falha tardia ficticia de auditoria"))
+                .when(alvo)
+                .registrar(
+                        org.mockito.ArgumentMatchers.any(),
+                        org.mockito.ArgumentMatchers.any(),
+                        org.mockito.ArgumentMatchers.any(),
+                        org.mockito.ArgumentMatchers.any(),
+                        org.mockito.ArgumentMatchers.any(),
+                        org.mockito.ArgumentMatchers.any());
+        try {
+            resposta(post(rota, comando, supervisor), 500);
+            assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(antes);
+        } finally {
+            org.mockito.Mockito.reset(alvo);
+        }
+        var revisada = resposta(post(rota, comando, supervisor), 200);
+        assertThat(revisada).isEqualTo(respostaEsperada);
+        var depois = D30FotografiaFisica.capturar(jdbc);
+        for (var tabela : antes.keySet()) {
+            var pre = antes.get(tabela);
+            var pos = depois.get(tabela);
+            switch (tabela) {
+                case "CARGA_INICIAL" -> {
+                    assertThat(pos).hasSize(pre.size());
+                    for (int i = 0; i < pre.size(); i++) {
+                        if (((Number) pre.get(i).get("ID")).longValue()
+                                != original.get("id").longValue()) {
+                            assertThat(pos.get(i)).isEqualTo(pre.get(i));
+                            continue;
+                        }
+                        assertThat(((Number) pos.get(i).get("VERSAO")).longValue())
+                                .isEqualTo(original.get("versao").longValue() + 1);
+                        assertThat(((Number) pos.get(i).get("REVISAO_ATUAL")).intValue())
+                                .isEqualTo(2);
+                        var preConservado = new HashMap<>(pre.get(i));
+                        var posConservado = new HashMap<>(pos.get(i));
+                        for (var campo : List.of("VERSAO", "REVISAO_ATUAL", "ALTERADA_EM")) {
+                            preConservado.remove(campo);
+                            posConservado.remove(campo);
+                        }
+                        assertThat(posConservado).isEqualTo(preConservado);
+                    }
+                }
+                case "REVISAO_CARGA_INICIAL", "AUDITORIA_CADASTRO", "OPERACAO_ADMINISTRATIVA" -> {
+                    assertThat(pos).hasSize(pre.size() + 1).containsAll(pre);
+                    var novas = pos.stream().filter(linha -> !pre.contains(linha)).toList();
+                    assertThat(novas).hasSize(1);
+                    var nova = novas.getFirst();
+                    if (tabela.equals("REVISAO_CARGA_INICIAL")) {
+                        assertThat(((Number) nova.get("CARGA_ID")).longValue())
+                                .isEqualTo(original.get("id").longValue());
+                        assertThat(((Number) nova.get("NUMERO")).intValue()).isEqualTo(2);
+                        assertThat(nova.get("CONTEUDO_HASH")).isEqualTo(hashEsperado);
+                        assertThat(mapper.readTree((String) nova.get("DADOS_JSON")))
+                                .isEqualTo(
+                                        mapper.readTree(mapper.writeValueAsString(dadosTipados)));
+                    } else {
+                        if (tabela.equals("AUDITORIA_CADASTRO")) {
+                            assertThat(((Number) nova.get("REGISTRO_ID")).longValue())
+                                    .isEqualTo(original.get("id").longValue());
+                            assertThat(nova.get("TIPO")).isEqualTo("CARGA_INICIAL");
+                            assertThat(nova.get("ACAO")).isEqualTo("REVISAO_CARGA");
+                            assertThat(mapper.readTree((String) nova.get("DADOS_ANTES")))
+                                    .isEqualTo(antesEsperadoJpa);
+                            assertThat(mapper.readTree((String) nova.get("DADOS_DEPOIS")))
+                                    .isEqualTo(respostaEsperada);
+                        } else {
+                            assertThat(((Number) nova.get("RECURSO_ID")).longValue())
+                                    .isEqualTo(original.get("id").longValue());
+                            assertThat(nova.get("TIPO")).isEqualTo("REVISAO_CARGA");
+                            assertThat(nova.get("OPERACAO_ID").toString())
+                                    .isEqualTo(operacao.toString());
+                            assertThat(mapper.readTree((String) nova.get("RESULTADO")))
+                                    .isEqualTo(respostaEsperada);
+                        }
+                    }
+                }
+                default -> assertThat(pos).isEqualTo(pre);
+            }
+        }
+        assertThat(resposta(post(rota, comando, supervisor), 200)).isEqualTo(revisada);
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(depois);
+        divergente = new HashMap<>(comando);
+        divergente.put("motivo", "Mesmo UUID com conteudo documental divergente D30");
+        assertThat(resposta(post(rota, divergente, supervisor), 409).get("codigo").asString())
+                .isEqualTo("OPERACAO_DIVERGENTE");
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(depois);
+        divergente = new HashMap<>(comando);
+        divergente.put("operacaoId", UUID.randomUUID());
+        assertThat(resposta(post(rota, divergente, supervisor), 409).get("codigo").asString())
+                .isEqualTo("ESTAGIO_DESATUALIZADO");
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(depois);
+        java.nio.file.Files.writeString(
+                java.nio.file.Path.of(System.getProperty("wms.test.evidencias.dir"))
+                        .resolve("d30-cedro-revisao-carga-" + operacao + ".json"),
+                mapper.writeValueAsString(
+                        Map.of(
+                                "caso",
+                                "d30RevisaoPublicaCargaPreservaOrigemHistoricoReplayERollback",
+                                "esperadoAntes",
+                                respostaEsperada,
+                                "original",
+                                original,
+                                "resposta",
+                                revisada,
+                                "antes64",
+                                antes,
+                                "depois64",
+                                depois,
+                                "replay64Igual",
+                                true,
+                                "rollback64Igual",
+                                true)),
+                java.nio.file.StandardOpenOption.CREATE_NEW);
     }
 
     private JsonNode carga() throws Exception {

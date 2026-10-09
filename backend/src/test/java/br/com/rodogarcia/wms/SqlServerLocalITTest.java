@@ -69,6 +69,18 @@ class SqlServerLocalITTest {
         assertThatCode(() -> new AmbienteConfig(ambiente)).doesNotThrowAnyException();
     }
 
+    @Test
+    void rodadaInvalidaERecusadaAntesDeBindPoolOuConexao() {
+        var contexto = new org.springframework.context.support.GenericApplicationContext();
+        contexto.setEnvironment(
+                new MockEnvironment().withProperty("WMS_SQLSERVER_IT_ROUND", "D26';SQL"));
+        try (contexto) {
+            assertThatThrownBy(() -> new SqlServerLocalIT.Guarda().initialize(contexto))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessage("Identificador de rodada SQL D26 inválido.");
+        }
+    }
+
     private DataAccessResourceFailureException falha(int codigo) {
         return new DataAccessResourceFailureException(
                 "Falha fictícia",

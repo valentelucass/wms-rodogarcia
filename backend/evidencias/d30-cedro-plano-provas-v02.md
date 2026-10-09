@@ -1,0 +1,9 @@
+# D30 Cedro — importações e provas focais v02
+
+Inventários reconciliados por identidade: 258 fontes produtivas, 470 tipos nomeados, 9 anônimos, 1.443 componentes record, 80 constantes enum. Javac acrescenta três constantes de interface JPQL não enumeradas como atributos no extrator inicial do Vigia. Construtores gerados são separados dos 236 declarados e oito compactos. Isso comprova inventário estrutural, sem aceitar variáveis ou requisitos por contagem.
+
+Focal01: 54/0/0/0, quatro XMLs, fontes/classes/log preservados. Rateio de R$0,01 em seis ordens conserva soma e identidade; 0/0/1 no último ID é convenção técnica vigente, sem atribuição normativa/comercial indevida. Os contratos Long/decimal usam mapper da configuração real e MockMvc standalone com controllers reais/serviços simulados; entrada/saída e 400 antes do negócio são testados. A03 corrigido somente no teste: CREATE_NEW e saída própria D30; SHA histórico D20 preservado 38AD8D204C8D947E2DC76DCE2D26473D05EAF76A423A2EE9FFF9EF1E94038801. Red físico em cópia isolada e primeiro oráculo SHA inconclusivo permanecem registrados, sem repetir.
+
+F01: caso local separado 1/0/0/0 confirma nullable/UNIQUE gerado em H2, duas chaves NULL permitidas e chave informada repetida recusada. Nenhuma garantia local retirada, nenhuma mudança Java produtiva ou migration; H2 não comprova filtro ou operação nativa SQL Server. ApiHttp local separado 4/0/0/0 comprova perfil test e zero DataSource/EntityManagerFactory por guarda antes de singletons e captura do contexto antes dos casos.
+
+O plano importado agora individualiza 706 facetas locais das 727 lacunas, 192 records/1.373 componentes DTO e 161 rotas. Os cinco casos iniciais não limitam o trabalho. Confrontos por atributo/assertiva e suficiência das provas continuam; não há aceite integral nem final antecipado. SQLIT real suspenso; H2HTTP11 autorizado, com URLs memory distintas e guarda fail-closed em preparação. Zero ações SQL Server/PROD.

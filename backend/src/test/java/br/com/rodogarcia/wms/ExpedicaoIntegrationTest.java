@@ -43,6 +43,10 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -80,6 +84,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.util.AopTestUtils;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
+import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -123,6 +128,7 @@ class ExpedicaoIntegrationTest {
         jdbc.update("update wms.unidade_logistica set reserva_saida_id=null");
         for (String tabela :
                 List.of(
+                        "operacao_administrativa",
                         "avaria_estoque",
                         "devolucao_saida",
                         "baixa_saida",
@@ -134,6 +140,8 @@ class ExpedicaoIntegrationTest {
                         "operacao_saida",
                         "reserva_saida",
                         "item_pedido_saida",
+                        "revisao_contagem",
+                        "contagem_estoque",
                         "pedido_saida",
                         "movimento_estoque",
                         "ocupacao_endereco",
@@ -240,11 +248,20 @@ class ExpedicaoIntegrationTest {
         p = documentar(p, u, x, "RETORNO_MERCADORIA");
         saldo("10", "0", "4", "6");
         var comando = retirada(p, List.of(x), List.of(destinacao(p, u, origem)));
+        var d30ReservasAntes = D30ReservaFotografia.capturar(jdbc, p.get("id").longValue());
+        D30ReservaFotografia.exigirAtivas(d30ReservasAntes);
+        var d30Inicio = clock.instant();
         var resultado = resposta(post(rota(p, "/retirada"), comando, supervisor), 200);
+        var d30Termino = clock.instant();
+        var d30ReservasDepois = D30ReservaFotografia.capturar(jdbc, p.get("id").longValue());
+        D30ReservaFotografia.exigirEncerradas(
+                d30ReservasAntes, d30ReservasDepois, "RETIRADA", d30Inicio, d30Termino);
         assertThat(resultado.get("expedicao").get("pedido").get("situacao").asString())
                 .isEqualTo("RETIRADO");
         assertThat(resposta(post(rota(p, "/retirada"), comando, supervisor), 200))
                 .isEqualTo(resultado);
+        assertThat(D30ReservaFotografia.capturar(jdbc, p.get("id").longValue()))
+                .isEqualTo(d30ReservasDepois);
         saldo("6", "6", "0", "0");
         var nova = resposta(get(unidadeRota(u, "/etiqueta"), operador), 200);
         assertThat(nova.get("codigoLeitura")).isEqualTo(etiqueta.get("codigoLeitura"));
@@ -260,6 +277,22 @@ class ExpedicaoIntegrationTest {
                                 u.id()))
                 .isEqualByComparingTo("6");
         var fatos = resultado.get("expedicao").get("fatos");
+        var d30AntesFatos = D30FotografiaFisica.capturar(jdbc);
+        var d30Fatos = resposta(get(rota(p, "/fatos"), operador), 200);
+        assertThat(d30Fatos.size()).isEqualTo(2);
+        assertThat(d30Fatos.get(0).get("tipo").asString()).isEqualTo("SEPARACAO");
+        assertThat(d30Fatos.get(1).get("tipo").asString()).isEqualTo("RETIRADA");
+        for (var f : d30Fatos) {
+            assertThat(f.get("unidadeId").longValue()).isEqualTo(u.id());
+            assertThat(f.get("quantidadeAntes").decimalValue()).isEqualByComparingTo("10");
+            assertThat(f.get("equivalenciaAntes").decimalValue()).isEqualByComparingTo("1");
+            assertThat(f.get("equivalenciaDepois").decimalValue()).isEqualByComparingTo("1");
+        }
+        assertThat(d30Fatos.get(0).get("quantidadeDepois").decimalValue())
+                .isEqualByComparingTo("10");
+        assertThat(d30Fatos.get(1).get("quantidadeDepois").decimalValue())
+                .isEqualByComparingTo("6");
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(d30AntesFatos);
         assertThat(fatos.get(1).get("equivalenciaDepois").decimalValue()).isEqualByComparingTo("1");
         assertThat(enderecoAtual(u)).isEqualTo(origem);
         comando.put("motivo", "Payload diferente da retirada");
@@ -464,15 +497,119 @@ class ExpedicaoIntegrationTest {
         resposta(post(rota(p, "/cancelamento"), comando(p), supervisor), 409);
         var exp = resposta(get(rota(p, "/expedicao"), operador), 200);
         long doc = exp.get("documentos").get(0).get("id").longValue();
-        p =
+        UUID casoDocumento = UUID.randomUUID();
+        var documentoAntes = exp.get("documentos").get(0);
+        assertThat(documentoAntes.get("situacao").asString()).isEqualTo("AUTORIZADO");
+        assertThat(documentoAntes.get("canceladoEm").isNull()).isTrue();
+        var fotoDocumentoAntes = d30Foto("documento-cancelamento-antes", casoDocumento);
+        var cancelarDocumento = comando(p);
+        var documentoCancelado =
                 resposta(
+                        post(
+                                rota(p, "/documentos/" + doc + "/cancelamento"),
+                                cancelarDocumento,
+                                supervisor),
+                        200);
+        var documentoDepois = documentoCancelado.get("expedicao").get("documentos").get(0);
+        assertThat(documentoDepois.get("id").longValue()).isEqualTo(doc);
+        assertThat(documentoDepois.get("situacao").asString()).isEqualTo("CANCELADO");
+        assertThat(documentoDepois.get("canceladoEm").isNull()).isFalse();
+        var camposAntes =
+                mapper.convertValue(documentoAntes, new TypeReference<Map<String, Object>>() {});
+        var camposDepois =
+                mapper.convertValue(documentoDepois, new TypeReference<Map<String, Object>>() {});
+        camposAntes.remove("situacao");
+        camposAntes.remove("canceladoEm");
+        camposDepois.remove("situacao");
+        camposDepois.remove("canceladoEm");
+        assertThat(camposDepois).isEqualTo(camposAntes);
+        var pedidoCancelado = documentoCancelado.get("expedicao").get("pedido");
+        long pedidoId = p.get("id").longValue();
+        assertThat(pedidoCancelado.get("id")).isEqualTo(p.get("id"));
+        assertThat(pedidoCancelado.get("situacao")).isEqualTo(p.get("situacao"));
+        assertThat(pedidoCancelado.get("versao").longValue())
+                .isEqualTo(p.get("versao").longValue() + 1);
+        var fotoDocumentoDepois = d30Foto("documento-cancelamento-depois", casoDocumento);
+        assertThat(fotoDocumentoDepois.keySet()).isEqualTo(fotoDocumentoAntes.keySet());
+        for (String tabela : fotoDocumentoAntes.keySet()) {
+            var linhasAntes = fotoDocumentoAntes.get(tabela);
+            var linhasDepois = fotoDocumentoDepois.get(tabela);
+            if (tabela.equals("AUDITORIA_CADASTRO") || tabela.equals("OPERACAO_SAIDA")) {
+                assertThat(linhasDepois).hasSize(linhasAntes.size() + 1).containsAll(linhasAntes);
+                var nova =
+                        linhasDepois.stream()
+                                .filter(linha -> !linhasAntes.contains(linha))
+                                .toList();
+                assertThat(nova).hasSize(1);
+                if (tabela.equals("AUDITORIA_CADASTRO")) {
+                    assertThat(nova.get(0).get("TIPO")).isEqualTo("PEDIDO_SAIDA");
+                    assertThat(((Number) nova.get(0).get("REGISTRO_ID")).longValue())
+                            .isEqualTo(pedidoId);
+                    assertThat(nova.get(0).get("ACAO")).isEqualTo("CANCELAMENTO_DOCUMENTO");
+                    assertThat(mapper.readTree((String) nova.get(0).get("DADOS_ANTES")))
+                            .isEqualTo(exp);
+                    assertThat(mapper.readTree((String) nova.get(0).get("DADOS_DEPOIS")))
+                            .isEqualTo(documentoCancelado);
+                } else {
+                    assertThat(((Number) nova.get(0).get("PEDIDO_ID")).longValue())
+                            .isEqualTo(pedidoId);
+                    assertThat(nova.get(0).get("OPERACAO_ID"))
+                            .isEqualTo(cancelarDocumento.get("operacaoId").toString());
+                    assertThat(nova.get(0).get("TIPO")).isEqualTo("CANCELAMENTO_DOCUMENTO");
+                    assertThat(mapper.readTree((String) nova.get(0).get("RESULTADO")))
+                            .isEqualTo(documentoCancelado);
+                }
+            } else if (tabela.equals("DOCUMENTO_SAIDA") || tabela.equals("PEDIDO_SAIDA")) {
+                assertThat(linhasDepois).hasSize(linhasAntes.size());
+                long alvo = tabela.equals("DOCUMENTO_SAIDA") ? doc : pedidoId;
+                for (var linhaAntes : linhasAntes) {
+                    var linhaDepois =
+                            linhasDepois.stream()
+                                    .filter(linha -> linha.get("ID").equals(linhaAntes.get("ID")))
+                                    .findFirst()
+                                    .orElseThrow();
+                    if (((Number) linhaAntes.get("ID")).longValue() != alvo) {
+                        assertThat(linhaDepois).isEqualTo(linhaAntes);
+                    } else {
+                        var original = new HashMap<>(linhaAntes);
+                        var atual = new HashMap<>(linhaDepois);
+                        if (tabela.equals("DOCUMENTO_SAIDA")) {
+                            assertThat(atual.get("SITUACAO")).isEqualTo("CANCELADO");
+                            assertThat(
+                                            ((D30FotografiaTemporal.Campo)
+                                                            atual.get("CANCELADO_EM"))
+                                                    .nulo())
+                                    .isFalse();
+                            original.remove("SITUACAO");
+                            atual.remove("SITUACAO");
+                            original.remove("CANCELADO_EM");
+                            atual.remove("CANCELADO_EM");
+                        } else {
+                            assertThat(((Number) atual.get("VERSAO")).longValue())
+                                    .isEqualTo(((Number) original.get("VERSAO")).longValue() + 1);
+                            original.remove("VERSAO");
+                            atual.remove("VERSAO");
+                            original.remove("ALTERADO_EM");
+                            atual.remove("ALTERADO_EM");
+                        }
+                        assertThat(atual).isEqualTo(original);
+                    }
+                }
+            } else {
+                assertThat(linhasDepois).isEqualTo(linhasAntes);
+            }
+        }
+        assertThat(
+                        resposta(
                                 post(
                                         rota(p, "/documentos/" + doc + "/cancelamento"),
-                                        comando(p),
+                                        cancelarDocumento,
                                         supervisor),
-                                200)
-                        .get("expedicao")
-                        .get("pedido");
+                                200))
+                .isEqualTo(documentoCancelado);
+        assertThat(d30Foto("documento-cancelamento-replay", casoDocumento))
+                .isEqualTo(fotoDocumentoDepois);
+        p = pedidoCancelado;
         int entradas = contar("pedido_entrada");
         d = comando(p);
         d.put("unidades", List.of(destinacao(p, u, origem)));
@@ -586,6 +723,278 @@ class ExpedicaoIntegrationTest {
     }
 
     @Test
+    void d30ReparoRecusaSepararAntesDaNovaLeituraSemEfeito() throws Exception {
+        var u = unidade("10");
+        long origem = enderecoAtual(u);
+        long destinoSeparacao = endereco(TipoEndereco.SEPARACAO);
+        var p = separar(reservado(u, "4"), u, destinoSeparacao);
+        long quarentena = endereco(TipoEndereco.QUARENTENA);
+        var a = resposta(post(avariaRota(u, ""), avaria(u, "2", quarentena), supervisor), 200);
+        var reparada =
+                resposta(
+                        post(
+                                avariaRota(
+                                        u, "/" + a.get("avaria").get("id").longValue() + "/reparo"),
+                                reparo(a, u, origem),
+                                supervisor),
+                        200);
+        assertThat(reparada.get("avaria").get("tratativa").asString()).isEqualTo("REPARADA");
+        p = resposta(get(rota(p, ""), operador), 200);
+        assertThat(p.get("situacao").asString()).isEqualTo("EM_SEPARACAO");
+        var dados = new HashMap<String, Object>(comando(p));
+        dados.put("destinacao", destinacao(p, u, destinoSeparacao));
+        UUID caso = UUID.randomUUID();
+        var antes = d30Foto("reparo-antes", caso);
+        assertCodigo(post(rota(p, "/separacoes"), dados, operador), 409, "LEITURA_DESATUALIZADA");
+        assertThat(d30Foto("reparo-depois", caso)).isEqualTo(antes);
+        var atual = resposta(get(rota(p, ""), operador), 200);
+        assertThat(atual).isEqualTo(p);
+        assertThat(atual.get("reservas").get(0).get("situacao").asString()).isEqualTo("ATIVA");
+        assertThat(atual.get("reservas").get(0).get("quantidade").decimalValue())
+                .isEqualByComparingTo("4");
+        d30ConferirFisicoEConteudo(u, "10");
+        assertThat(enderecoAtual(u)).isEqualTo(origem);
+    }
+
+    @Test
+    void d30Contagem90ComReserva40JaSeparadaRecusaSemEfeito() throws Exception {
+        var u = unidade("100");
+        var p = separar(reservado(u, "40"), u, endereco(TipoEndereco.SEPARACAO));
+        var estoque = resposta(get(unidadeRota(u, "/estoque"), operador), 200).get("unidade");
+        var c =
+                resposta(
+                        post(
+                                "/api/v1/contagens",
+                                Map.of(
+                                        "operacaoId",
+                                        UUID.randomUUID(),
+                                        "codigoUnidade",
+                                        u.codigo(),
+                                        "versaoUnidade",
+                                        estoque.get("versao").longValue(),
+                                        "contado",
+                                        new BigDecimal("90"),
+                                        "observadoEm",
+                                        clock.instant(),
+                                        "motivo",
+                                        "Leitura fisica D30 apos separacao"),
+                                operador),
+                        200);
+        assertThat(c.get("esperado").decimalValue()).isEqualByComparingTo("100");
+        assertThat(c.get("contado").decimalValue()).isEqualByComparingTo("90");
+        assertThat(c.get("diferenca").decimalValue()).isEqualByComparingTo("-10");
+        assertThat(c.get("reservado").decimalValue()).isEqualByComparingTo("40");
+        var dados =
+                Map.of(
+                        "operacaoId",
+                        UUID.randomUUID(),
+                        "revisao",
+                        c.get("revisao").intValue(),
+                        "versaoUnidade",
+                        estoque.get("versao").longValue(),
+                        "motivo",
+                        "Ajuste D30 com prova fisica",
+                        "causa",
+                        "Diferenca conferida D30",
+                        "destino",
+                        "Destino interno ficticio D30",
+                        "comprovacao",
+                        "Comprovacao ficticia D30",
+                        "origens",
+                        List.of(
+                                Map.of(
+                                        "entradaId",
+                                        c.get("origens").get(0).get("entradaId").longValue(),
+                                        "delta",
+                                        new BigDecimal("-10"))));
+        UUID caso = UUID.randomUUID();
+        var pedidoAntesDaRecusa = resposta(get(rota(p, ""), operador), 200);
+        assertThat(pedidoAntesDaRecusa.get("unidadesImpedidas").get(0).longValue())
+                .isEqualTo(u.id());
+        assertThat(pedidoAntesDaRecusa.get("podeProsseguir").booleanValue()).isFalse();
+        var antes = d30Foto("contagem-separada-antes", caso);
+        assertCodigo(
+                post(
+                        "/api/v1/contagens/" + c.get("id").longValue() + "/aplicar",
+                        dados,
+                        supervisor),
+                409,
+                "PENDENTE_RESERVA");
+        assertThat(d30Foto("contagem-separada-depois", caso)).isEqualTo(antes);
+        assertThat(resposta(get(rota(p, ""), operador), 200)).isEqualTo(pedidoAntesDaRecusa);
+        assertThat(p.get("situacao").asString()).isEqualTo("SEPARADO");
+        d30ConferirFisicoEConteudo(u, "100");
+        assertThat(
+                        jdbc.queryForObject(
+                                "select count(*) from wms.fato_permanencia where tipo='AJUSTE_ESTOQUE'",
+                                Integer.class))
+                .isZero();
+    }
+
+    @Test
+    void d30AvariaAberta6Mais5RecusaEMais4AceitaLimite() throws Exception {
+        var u = unidade("10");
+        var p = reservado(u, "4");
+        long quarentena = endereco(TipoEndereco.QUARENTENA);
+        var primeira =
+                resposta(post(avariaRota(u, ""), avaria(u, "6", quarentena), supervisor), 200);
+        assertThat(primeira.get("avaria").get("quantidade").decimalValue())
+                .isEqualByComparingTo("6");
+        var excesso = avaria(u, "5", quarentena);
+        UUID caso = UUID.randomUUID();
+        var antes = d30Foto("avaria-excesso-antes", caso);
+        assertCodigo(post(avariaRota(u, ""), excesso, supervisor), 409, "AVARIA_EXCEDIDA");
+        assertThat(d30Foto("avaria-excesso-depois", caso)).isEqualTo(antes);
+        assertThat(contar("avaria_estoque")).isEqualTo(1);
+        d30ConferirFisicoEConteudo(u, "10");
+        var segunda =
+                resposta(post(avariaRota(u, ""), avaria(u, "4", quarentena), supervisor), 200);
+        assertThat(segunda.get("avaria").get("quantidade").decimalValue())
+                .isEqualByComparingTo("4");
+        assertThat(segunda.get("avaria").get("id")).isNotEqualTo(primeira.get("avaria").get("id"));
+        assertThat(contar("avaria_estoque")).isEqualTo(2);
+        assertThat(
+                        jdbc.queryForObject(
+                                "select sum(quantidade) from wms.avaria_estoque where unidade_id=? and tratativa='EM_TRATAMENTO'",
+                                BigDecimal.class,
+                                u.id()))
+                .isEqualByComparingTo("10");
+        d30ConferirFisicoEConteudo(u, "10");
+        var atual = resposta(get(rota(p, ""), operador), 200);
+        assertThat(atual.get("reservas").get(0).get("situacao").asString()).isEqualTo("ATIVA");
+        assertThat(atual.get("reservas").get(0).get("quantidade").decimalValue())
+                .isEqualByComparingTo("4");
+        assertThat(
+                        jdbc.queryForObject(
+                                "select sum(quantidade_prevista) from wms.item_nota_entrada where nota_id=?",
+                                BigDecimal.class,
+                                u.notaId()))
+                .isEqualByComparingTo("10");
+    }
+
+    @Test
+    void d30ReparoReplayOriginalPreservaOutraAvariaEBloqueio() throws Exception {
+        var u = unidade("10");
+        var p = reservado(u, "4");
+        resposta(post(unidadeRota(u, "/bloqueio"), bloqueio(u), operador), 200);
+        long quarentena = endereco(TipoEndereco.QUARENTENA);
+        var primeira =
+                resposta(post(avariaRota(u, ""), avaria(u, "2", quarentena), supervisor), 200);
+        var segunda =
+                resposta(post(avariaRota(u, ""), avaria(u, "3", quarentena), supervisor), 200);
+        long outraId = segunda.get("avaria").get("id").longValue();
+        var antes = D30FotografiaFisica.capturar(jdbc);
+        var outraOriginal =
+                antes.get("AVARIA_ESTOQUE").stream()
+                        .filter(x -> ((Number) x.get("ID")).longValue() == outraId)
+                        .findFirst()
+                        .orElseThrow();
+        var comando = reparo(primeira, u, quarentena);
+        var reparada =
+                resposta(
+                        post(
+                                avariaRota(
+                                        u,
+                                        "/"
+                                                + primeira.get("avaria").get("id").longValue()
+                                                + "/reparo"),
+                                comando,
+                                supervisor),
+                        200);
+        assertThat(reparada.get("avaria").get("id")).isEqualTo(primeira.get("avaria").get("id"));
+        assertThat(reparada.get("avaria").get("tratativa").asString()).isEqualTo("REPARADA");
+        assertThat(reparada.get("avaria").get("quantidade").decimalValue())
+                .isEqualByComparingTo("2");
+        assertThat(reparada.get("estoque").get("bloqueada").booleanValue()).isTrue();
+        assertThat(reparada.get("estoque").get("avariaPosterior").booleanValue()).isTrue();
+        assertThat(reparada.get("estoque").get("tipoLocalizacao").asString())
+                .isEqualTo("QUARENTENA");
+        var apos = D30FotografiaFisica.capturar(jdbc);
+        assertThat(
+                        apos.get("AVARIA_ESTOQUE").stream()
+                                .filter(x -> ((Number) x.get("ID")).longValue() == outraId)
+                                .findFirst()
+                                .orElseThrow())
+                .isEqualTo(outraOriginal);
+        assertThat(outraOriginal.get("TRATATIVA")).isEqualTo("EM_TRATAMENTO");
+        assertThat((BigDecimal) outraOriginal.get("QUANTIDADE")).isEqualByComparingTo("3");
+        d30ConferirFisicoEConteudo(u, "10");
+        var pedido = resposta(get(rota(p, ""), operador), 200);
+        assertThat(pedido.get("podeProsseguir").booleanValue()).isFalse();
+        assertThat(pedido.get("unidadesImpedidas").get(0).longValue()).isEqualTo(u.id());
+        assertThat(pedido.get("reservas").get(0).get("situacao").asString()).isEqualTo("ATIVA");
+        assertThat(pedido.get("reservas").get(0).get("quantidade").decimalValue())
+                .isEqualByComparingTo("4");
+        UUID caso = UUID.randomUUID();
+        var semEfeito = d30Foto("reparo-outra-pendente-antes", caso);
+        assertCodigo(post(rota(p, "/revalidacao"), null, operador), 409, "RESERVA_IMPEDIDA");
+        assertCodigo(
+                post(unidadeRota(u, "/liberacao"), bloqueio(u), supervisor),
+                409,
+                "LIBERACAO_INVALIDA");
+        assertThat(d30Foto("reparo-outra-pendente-depois", caso)).isEqualTo(semEfeito);
+        var replayAntes = d30Foto("reparo-replay-antes", caso);
+        assertThat(
+                        resposta(
+                                post(
+                                        avariaRota(
+                                                u,
+                                                "/"
+                                                        + primeira.get("avaria")
+                                                                .get("id")
+                                                                .longValue()
+                                                        + "/reparo"),
+                                        comando,
+                                        supervisor),
+                                200))
+                .isEqualTo(reparada);
+        assertThat(d30Foto("reparo-replay-depois", caso)).isEqualTo(replayAntes);
+        var divergente = new HashMap<>(comando);
+        divergente.put("motivo", "Reparo com motivo divergente");
+        var divergenteAntes = d30Foto("reparo-conteudo-divergente-antes", caso);
+        assertCodigo(
+                post(
+                        avariaRota(
+                                u, "/" + primeira.get("avaria").get("id").longValue() + "/reparo"),
+                        divergente,
+                        supervisor),
+                409,
+                "OPERACAO_REUTILIZADA");
+        assertThat(d30Foto("reparo-conteudo-divergente-depois", caso)).isEqualTo(divergenteAntes);
+        d30ConferirFisicoEConteudo(u, "10");
+    }
+
+    private Map<String, List<Map<String, Object>>> d30Foto(String etapa, UUID caso)
+            throws Exception {
+        var foto = D30FotografiaFisica.capturar(jdbc);
+        assertThat(foto).hasSize(64);
+        var dir = Path.of(System.getProperty("wms.test.evidencias.dir"));
+        Files.createDirectories(dir);
+        Files.writeString(
+                dir.resolve("d30-cedro-" + etapa + "-" + caso + ".json"),
+                mapper.writerWithDefaultPrettyPrinter().writeValueAsString(foto),
+                StandardCharsets.UTF_8,
+                StandardOpenOption.CREATE_NEW,
+                StandardOpenOption.WRITE);
+        return foto;
+    }
+
+    private void d30ConferirFisicoEConteudo(Unidade u, String esperado) {
+        assertThat(
+                        jdbc.queryForObject(
+                                "select quantidade from wms.unidade_logistica where id=?",
+                                BigDecimal.class,
+                                u.id()))
+                .isEqualByComparingTo(esperado);
+        assertThat(
+                        jdbc.queryForObject(
+                                "select sum(quantidade) from wms.conteudo_unidade where unidade_id=?",
+                                BigDecimal.class,
+                                u.id()))
+                .isEqualByComparingTo(esperado);
+    }
+
+    @Test
     void reparoDaAvariaInicialNaoReescreveCondicaoHistorica() throws Exception {
         var u =
                 unidade(
@@ -694,6 +1103,11 @@ class ExpedicaoIntegrationTest {
                         BigDecimal.class,
                         u.id());
         long local = enderecoAtual(u);
+        long destinoFalha =
+                acao.equals("SEPARACAO_SAIDA")
+                        ? endereco(TipoEndereco.SEPARACAO)
+                        : acao.equals("AVARIA_DETALHADA") ? endereco(TipoEndereco.QUARENTENA) : 0;
+        var fotoRollback = D30FotografiaFisica.capturar(jdbc);
         jdbc.execute(
                 "alter table wms.auditoria_cadastro add constraint ck_d19_auditoria check (acao <> '"
                         + acao
@@ -708,7 +1122,7 @@ class ExpedicaoIntegrationTest {
                         409);
             if (acao.equals("SEPARACAO_SAIDA")) {
                 var d = comando(p);
-                d.put("destinacao", destinacao(p, u, endereco(TipoEndereco.SEPARACAO)));
+                d.put("destinacao", destinacao(p, u, destinoFalha));
                 resposta(post(rota(p, "/separacoes"), d, operador), 409);
             }
             if (acao.equals("DEVOLUCAO_SAIDA"))
@@ -723,15 +1137,11 @@ class ExpedicaoIntegrationTest {
                                 supervisor),
                         409);
             if (acao.equals("AVARIA_DETALHADA"))
-                resposta(
-                        post(
-                                avariaRota(u, ""),
-                                avaria(u, "2", endereco(TipoEndereco.QUARENTENA)),
-                                supervisor),
-                        409);
+                resposta(post(avariaRota(u, ""), avaria(u, "2", destinoFalha), supervisor), 409);
         } finally {
             jdbc.execute("alter table wms.auditoria_cadastro drop constraint ck_d19_auditoria");
         }
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(fotoRollback);
         assertThat(contar("pedido_entrada")).isEqualTo(entradaAntes);
         assertThat(contar("baixa_saida")).isEqualTo(baixaAntes);
         assertThat(contar("avaria_estoque")).isEqualTo(avariaAntes);
@@ -1601,6 +2011,92 @@ class ExpedicaoIntegrationTest {
                                 .asString())
                 .isEqualTo("RETIRADO");
         saldo("0", "0", "0", "0");
+    }
+
+    @Test
+    void d30MedidaKgRetiraQuantidadeExataPreservandoNotaDunPesoEPrecisao() throws Exception {
+        produtoId =
+                new TransactionTemplate(transactions)
+                        .execute(
+                                tx -> {
+                                    var produto =
+                                            new Produto(
+                                                    em.find(Cliente.class, clienteId),
+                                                    "D30-KG",
+                                                    "Medida explicita ficticia",
+                                                    "KG",
+                                                    TipoQuantidade.MEDIDA,
+                                                    3,
+                                                    false,
+                                                    false,
+                                                    null,
+                                                    clock.instant());
+                                    em.persist(produto);
+                                    em.persist(
+                                            new Embalagem(
+                                                    produto,
+                                                    "D30-KG-DUN",
+                                                    "Embalagem independente",
+                                                    new BigDecimal("2"),
+                                                    clock.instant()));
+                                    em.flush();
+                                    return produto.getId();
+                                });
+        var u = unidade("10.125");
+        long origem = enderecoAtual(u);
+        var notaAntes = jdbc.queryForMap("select * from wms.nota_entrada where id=?", u.notaId());
+        var itemAntes =
+                jdbc.queryForMap("select * from wms.item_nota_entrada where nota_id=?", u.notaId());
+        var produtoAntes = jdbc.queryForMap("select * from wms.produto where id=?", produtoId);
+        var p = reservado(u, "2.500");
+        p = separar(p, u, endereco(TipoEndereco.SEPARACAO));
+        var xml = xmlSaida(130, "D30-KG", "2.500").replace("<uCom>UN</uCom>", "<uCom>KG</uCom>");
+        p = documentar(p, u, xml, "RETORNO_MERCADORIA");
+        var comando = retirada(p, List.of(xml), List.of(destinacao(p, u, origem)));
+        var retirado = resposta(post(rota(p, "/retirada"), comando, supervisor), 200);
+        assertThat(retirado.get("expedicao").get("pedido").get("situacao").asString())
+                .isEqualTo("RETIRADO");
+        assertThat(jdbc.queryForObject("select quantidade from wms.baixa_saida", BigDecimal.class))
+                .isEqualByComparingTo("2.500");
+        assertThat(
+                        jdbc.queryForObject(
+                                "select quantidade from wms.unidade_logistica where id=?",
+                                BigDecimal.class,
+                                u.id()))
+                .isEqualByComparingTo("7.625");
+        assertThat(
+                        jdbc.queryForObject(
+                                "select quantidade from wms.conteudo_unidade where unidade_id=?",
+                                BigDecimal.class,
+                                u.id()))
+                .isEqualByComparingTo("7.625");
+        assertThat(
+                        jdbc.queryForObject(
+                                "select peso_kg from wms.unidade_logistica where id=?",
+                                BigDecimal.class,
+                                u.id()))
+                .isEqualByComparingTo("500");
+        assertThat(
+                        jdbc.queryForObject(
+                                "select quantidade_produto from wms.embalagem where produto_id=?",
+                                BigDecimal.class,
+                                produtoId))
+                .isEqualByComparingTo("2");
+        assertThat(jdbc.queryForMap("select * from wms.nota_entrada where id=?", u.notaId()))
+                .isEqualTo(notaAntes);
+        assertThat(
+                        jdbc.queryForMap(
+                                "select * from wms.item_nota_entrada where nota_id=?", u.notaId()))
+                .isEqualTo(itemAntes);
+        assertThat(jdbc.queryForMap("select * from wms.produto where id=?", produtoId))
+                .isEqualTo(produtoAntes);
+        assertThat(produtoAntes.get("UNIDADE_MEDIDA")).isEqualTo("KG");
+        assertThat(((Number) produtoAntes.get("PRECISAO_QUANTIDADE")).intValue()).isEqualTo(3);
+        var antesReplay = D30FotografiaFisica.capturar(jdbc);
+        assertThat(resposta(post(rota(p, "/retirada"), comando, supervisor), 200))
+                .isEqualTo(retirado);
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(antesReplay);
+        saldo("7.625", "7.625", "0", "0");
     }
 
     private JsonNode reservado(Unidade u, String q) throws Exception {

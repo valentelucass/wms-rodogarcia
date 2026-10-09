@@ -131,17 +131,16 @@ public class CargaInicialService {
                 .isPresent())
             throw conflito("REFERENCIA_DUPLICADA", "Referência do estágio já registrada.");
         var c =
-                cargas.saveAndFlush(
-                        new CargaInicial(
-                                cliente,
-                                armazem,
-                                produto,
-                                referencia,
-                                dados.etiquetaFornecida() == null
-                                        ? null
-                                        : CadastroSupport.texto(dados.etiquetaFornecida()),
-                                dados.quantidade(),
-                                agora()));
+                new CargaInicial(
+                        cliente,
+                        armazem,
+                        produto,
+                        referencia,
+                        dados.etiquetaFornecida() == null
+                                ? null
+                                : CadastroSupport.texto(dados.etiquetaFornecida()),
+                        dados.quantidade(),
+                        agora());
         revisar(c, dados.dados(), dados.motivo());
         var resultado = resultado(c);
         salvar(c, "REGISTRO_CARGA", dados.operacaoId(), hash, dados.motivo(), null, resultado);
@@ -537,6 +536,8 @@ public class CargaInicialService {
 
     private void revisar(CargaInicial c, CargaInicialDto.Dados d, String motivo) {
         c.revisar(agora());
+        // Não persistir revisão zero: V9 exige a primeira revisão já no INSERT.
+        if (c.getId() == null) cargas.saveAndFlush(c);
         String json = mapper.writeValueAsString(d);
         revisoes.saveAndFlush(
                 new RevisaoCargaInicial(

@@ -1,0 +1,86 @@
+@Test
+    void multipartIntegralReplayPerfilEPosicao01() throws Exception {
+        byte[] arquivo = excel("normal", 2);
+        var pre = previa(arquivo, gestor);
+        assertThat(pre.get("situacao").asString()).isEqualTo("PREVIA");
+        assertThat(contar("endereco")).isZero();
+        assertThat(pre.get("linhas").get(0).get("endereco").get("posicao").asString())
+                .isEqualTo("01");
+        var d = confirmacao(pre);
+        var d30AntesConfirmar = D30FotografiaFisica.capturar(jdbc);
+        var resultado =
+                resposta(
+                        post(
+                                "/api/v1/importacoes-enderecos/"
+                                        + pre.get("id").longValue()
+                                        + "/confirmacao",
+                                d,
+                                gestor),
+                        200);
+        assertThat(resultado.get("enderecos").size()).isEqualTo(2);
+        assertThat(resultado.get("enderecos").get(0).get("tipoUnidadePermitido").isNull()).isTrue();
+        assertThat(resultado.get("enderecos").get(0).get("capacidadePesoKg").isNull()).isTrue();
+        var d30DepoisConfirmar = D30FotografiaFisica.capturar(jdbc);
+        for (String t : d30AntesConfirmar.keySet()) {
+            if (!java.util.Set.of(
+                            "ENDERECO",
+                            "IMPORTACAO_ENDERECO",
+                            "AUDITORIA_CADASTRO",
+                            "OPERACAO_ADMINISTRATIVA")
+                    .contains(t))
+                assertThat(d30DepoisConfirmar.get(t)).as(t).isEqualTo(d30AntesConfirmar.get(t));
+        }
+        assertThat(
+                        resposta(
+                                post(
+                                        "/api/v1/importacoes-enderecos/"
+                                                + pre.get("id").longValue()
+                                                + "/confirmacao",
+                                        d,
+                                        gestor),
+                                200))
+                .isEqualTo(resultado);
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(d30DepoisConfirmar);
+        assertThat(
+                        post(
+                                        "/api/v1/importacoes-enderecos/"
+                                                + pre.get("id").longValue()
+                                                + "/confirmacao",
+                                        d,
+                                        supervisor)
+                                .statusCode())
+                .isEqualTo(403);
+        d.put("motivo", "Outro conteudo divergente");
+        assertThat(
+                        post(
+                                        "/api/v1/importacoes-enderecos/"
+                                                + pre.get("id").longValue()
+                                                + "/confirmacao",
+                                        d,
+                                        gestor)
+                                .statusCode())
+                .isEqualTo(409);
+        assertThat(contar("endereco")).isEqualTo(2);
+        assertThat(
+                        multipart(
+                                        arquivo,
+                                        Map.of(
+                                                "operacaoId",
+                                                UUID.randomUUID(),
+                                                "motivo",
+                                                "Previa sem autenticacao"),
+                                        null)
+                                .statusCode())
+                .isEqualTo(401);
+        assertThat(
+                        multipart(
+                                        arquivo,
+                                        Map.of(
+                                                "operacaoId",
+                                                UUID.randomUUID(),
+                                                "motivo",
+                                                "Operacao sem autorizacao"),
+                                        operador)
+                                .statusCode())
+                .isEqualTo(403);
+    }

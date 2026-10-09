@@ -1,0 +1,21 @@
+# Desenvolvimento integrado WMS_DEV
+
+Estado observado neste incremento: integração real **impedida**. A única abertura atual de Prumo em 2026-10-09T00:51:02.8522544Z recusou TLS (`0x800B0110`) antes de SELECT; alvo/identidade/permissões não foram confirmados. As três referências públicas OIDC e o fluxo de autenticação DEV aprovado não foram encontrados. A execução real do BAT saiu com código 40 por ausência OIDC, antes de SQL e sem processos novos. Nenhuma URL integrada ou roundtrip foi comprovado. O exercício anterior em 5189 permanece fictício/histórico.
+
+O responsável pelo TLS precisa analisar a recusa atual e apresentar um encaminhamento seguro; o arquivo público configurado no cliente não identifica sozinho a causa nem o certificado peer atual. Alterações de certificado/trust/servidor/acessos/sharedruntime exigem decisão material própria e não foram feitas. O responsável pela identidade precisa fornecer as referências públicas do provedor WMS DEV e o fluxo aprovado. Não executar uma nova sonda automática ou substituir essas dependências por tokens de ensaio, confiança global ou bypass TLS.
+
+Execute `iniciar-dev.bat` na raiz do WMS. O console verifica portas próprias, configuração de identidade pública e uma guarda atual WMS_DEV/WMSDEV/TLS/permissões; só depois inicia backend e frontend reais. Mantenha o console aberto. Não há encerramento ou reinício de processos preexistentes, fallback fictício, migration, bootstrap SQL ou execução PROD.
+
+As portas propostas são backend `127.0.0.1:25580` e frontend `127.0.0.1:25581`. Uma porta ocupada interrompe a execução; o launcher não reutiliza nem encerra seu dono. Os servidores históricos 5178/5188/5189 são preservados. A URL só é anunciada após readiness dos processos novos; isso não substitui a prova de consulta autenticada no navegador/API.
+
+O backend usa somente `sqlserver-dev` e o complemento `application-frontend-dev.properties`: banco WMS_DEV, login WMSDEV, Hibernate validate, init SQL e migrations automáticas desativados. A credencial SQL própria fica no canal WMS DPAPI/ACL existente, carregada em memória após guarda aprovada, sem senha em argumento/log/frontend/repositório. A guarda não reutiliza o G01 histórico como prova atual nem um booleano de ambiente como aprovação.
+
+A autenticação existente é ResourceServer JWT RS256. `WMS_OIDC_ISSUER`, `WMS_OIDC_JWK_SET_URI` e `WMS_OIDC_AUDIENCE` são referências públicas de um provedor WMS DEV já configurado; não são criadas pelo launcher. O fluxo de obtenção de token/sessão e as contas precisam ser aprovados e fornecidos pelo responsável pela identidade. O launcher não cria conta, endpoint de login, chave ou token de ensaio para substituir esse provedor. A ausência da configuração pública interrompe antes de abrir SQL.
+
+`npm run dev` é o caminho frontend integrado real, sem fallback mock. O exercício isolado permanece somente em modo explícito separado `npm run dev:ficticio`; não comprova WMS_DEV. O proxy same-origin encaminha `/api` sem rewrite para o backend próprio confirmado; não permite SQL direto no navegador nem exige liberar CORS/CSP global.
+
+Cada execução grava evidências sanitizadas em `orchestracao/.runtime/frontend-integracao-dev-runs/<runId>/`: launcher, guarda, readiness backend e vínculo frontend. O recibo final da demanda fica em `orchestracao/.runtime/frontend-integracao-dev-resultado.json/.md`. Consulta autenticada, alvo SQL confirmado e observação do navegador são provas distintas; uma porta aberta ou HTTP200 do HTML/status não comprova roundtrip de negócio.
+
+As referências dos launchers de outros projetos foram consultadas apenas para organização: BAT ancorado no repositório, preparação separada, propagação de exit code e readiness antes da URL. Não foram executados nem copiados env, conexões, credenciais, controles, históricos, PM2, rotinas de kill/limpeza ou comportamento PROD.
+
+Limites: sem sa/PROD/DDL/migrations/grants/roles/alterar SQLServer/serviços/sharedruntime, sem reset/DELETE/fixtures SQL, equipamentos/fiscal reais, publicação/commit/push/ETL/rotinas. Escrita de negócio pertinente, quando autorizada e viável, somente HTTP com dados fictícios rastreáveis. Falha atual de transporte ou guarda inconclusiva interrompe sem repetição/fallback. O impedimento observado deve ser lido no recibo atual; o histórico não substitui nova verificação autorizada.

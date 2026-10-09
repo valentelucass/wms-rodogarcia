@@ -1,0 +1,30 @@
+import tools.jackson.databind.JsonNode;
+import java.nio.file.*;
+import java.time.*;
+import java.util.*;
+
+/** Fases faltantes: resposta original separada do GET atual, autorizacao antes do replay. */
+final class ReplayFinalD29 {
+ final EnsaioD29 x;final JornadasD29 j;final PendenciasD29 p;
+ ReplayFinalD29(EnsaioD29 x){this.x=x;j=new JornadasD29(x);p=new PendenciasD29(x);}
+ JsonNode prior;
+ JsonNode caseNamed(String name){for(var c:prior.path("cases"))if(c.path("caso").asString().equals(name)&&c.path("actual").asInt()==200)return c;throw new IllegalStateException("D29_REPLAY_ORIGINAL_AUSENTE");}
+ void run()throws Exception {
+  if(!x.ids.containsKey("retomadaDe"))throw new IllegalStateException("D29_REPLAY_EXIGE_FAMILIA_CONCLUIDA");
+  prior=x.json.readTree(Files.readAllBytes(x.evidence.resolve("d29-"+x.ids.get("retomadaDe")+"-http.json")));if(!prior.path("fase").asString().equals("concluido"))throw new IllegalStateException("D29_REPLAY_BASE_NAO_CONCLUIDA");x.product=j.get("/api/v1/produtos/"+x.ids.get("produtoId"));x.pack=j.get("/api/v1/embalagens/"+x.ids.get("embalagemId"));x.precheck("replay-depois-estado-atual",false);
+  if(prior.path("ids").path("etapa").asString().equals("fifo"))fifo();else if(prior.path("ids").path("etapa").asString().equals("fiscal-servicos"))contingency();else throw new IllegalStateException("D29_REPLAY_BASE_FORA_CASO");
+ }
+ void fifo()throws Exception {
+  var c=caseNamed("D29 Supervisor reserva bobina6 integral");var payload=c.path("payload");String route=c.path("rota").asString();var snapshot=c.path("resposta");String get="/api/v1/pedidos-saida/"+snapshot.path("pedido").path("id").asLong();var current=j.get(get);var balance=j.balance();
+  x.ids.put("oraculosSQL",EnsaioD29.m("fontes",List.of("docs/24-pedido-saida-fifo-e-reserva.md:31,60","D29-VIG-P17","D29-L-P01"),"esperado","Reserva6 original foi revertida e outro pedido10 tem2reservas ativas. Gestor replay retorna snapshot6 original; GET atual do pedido6 continua RASCUNHO/historicoREVERTIDA. Supervisor semcliente/armazem403 e Operacao403 antes replay; conteudodivergente409. Nenhuma reserva/auditoria/versao/fisico duplicada.","limite","Gestor prova autorizacao atual do replay; nao e primeira confirmacao excepcional nova porGestor."));x.save();
+  var replay=x.call("D29 Gestor replay6 apos reversao e reserva10","POST",route,payload,"GESTOR",200);x.assertion("D29 snapshot6 original e GETcorrente distintos",replay.equals(snapshot)&&!replay.path("pedido").equals(current)&&current.path("situacao").asString().equals("RASCUNHO"),EnsaioD29.m("original",snapshot,"atual",current),replay);
+  for(String scope:List.of("wms_clientes","wms_armazens"))x.callToken("D29 Supervisor fora "+scope+" antes replay","POST",route,payload,"SUPERVISOR",x.token("SUPERVISOR",EnsaioD29.m(scope,List.of())),403);
+  x.call("D29 Operacao nao autoriza replay antigo excepcional","POST",route,payload,"OPERACAO",403);var bad=x.json.convertValue(payload,Map.class);bad.put("motivo",x.round+" corpo divergente ficticio");p.code("D29 UUID divergente apos reversao",x.call("D29 replayUUID corpo divergente","POST",route,bad,"GESTOR",409),"OPERACAO_DIVERGENTE");x.assertion("D29 replay preserva GET e saldo atual",current.equals(j.get(get))&&balance.equals(j.balance()),EnsaioD29.m("pedido",current,"saldo",balance),j.get(get));
+ }
+ void contingency()throws Exception {
+  // O registro L2 original esta na primeira rodada, e a base atual confirma a conciliacao.
+  var original=x.json.readTree(Files.readAllBytes(x.evidence.resolve("d29-D292196EC77-http.json")));JsonNode c=null;for(var item:original.path("cases"))if(item.path("caso").asString().equals("D29 L2antesL1 registro"))c=item;if(c==null||c.path("actual").asInt()!=200)throw new IllegalStateException("D29_REGISTRO_L2_ORIGINAL_AUSENTE");var body=c.path("payload");x.preserveCapturedDates(body,body,Instant.parse(c.path("instanteRespostaUtc").asString()));var snapshot=c.path("resposta");String route="/api/v1/contingencias/"+snapshot.path("id").asLong();var current=p.get("D29 L2 GET atual CONCILIADA",route,"GESTOR");var count=p.get("D29 contagens antes replay","/api/v1/contagens"+p.ctx(),"GESTOR");var balance=j.balance();
+  x.ids.put("oraculosSQL",EnsaioD29.m("fontes",List.of("docs/31-fechamento-contagem-e-contingencia.md","D29-VIG-P17","D29-L-P10"),"esperado","L2 original PENDENTE registrado antesL1; atualCONCILIADA e2contagens. Cliente57 agoraENCERRAMENTO_PENDENTE: Supervisor403 antesreplay; Gestor retorna snapshotPENDENTE original, GET CONCILIADA separado. Mesmo fato novoUUID conserva snapshot/linha/2contagens, somente novo registro idempotente permitido; alcance403. Sem nova execucao fisica.","limite","Nao cria nova conciliacao nem prova VINCULAR outro efeito."));x.save();
+  x.call("D29 Supervisor registro antigo emcliente pendente403","POST","/api/v1/contingencias",body,"SUPERVISOR",403);var replay=x.call("D29 Gestor replay registroPENDENTE aposCONCILIADA","POST","/api/v1/contingencias",body,"GESTOR",200);x.assertion("D29 L2 snapshot original PENDENTE vs GET CONCILIADA",replay.equals(snapshot)&&snapshot.path("situacao").asString().equals("PENDENTE")&&current.path("situacao").asString().equals("CONCILIADA"),EnsaioD29.m("snapshot",snapshot,"atual",current),replay);var other=x.json.convertValue(body,Map.class);other.put("operacaoId",UUID.randomUUID().toString());var repeated=x.call("D29 mesmo fato outroUUID nao executa","POST","/api/v1/contingencias",other,"GESTOR",200);x.assertion("D29 identidade global original outroUUID",repeated.equals(snapshot),snapshot,repeated);x.callToken("D29 alcance atual antesregistro replay","POST","/api/v1/contingencias",body,"SUPERVISOR",x.token("SUPERVISOR",EnsaioD29.m("wms_clientes",List.of())),403);x.assertion("D29 L2 replay conserva corrente e efeitos2",current.equals(p.get("D29 L2 GET final corrente",route,"GESTOR"))&&count.equals(p.get("D29 contagens depois replay","/api/v1/contagens"+p.ctx(),"GESTOR"))&&balance.equals(j.balance()),EnsaioD29.m("linha",current,"contagens",count,"saldo",balance),repeated);
+ }
+}

@@ -13,6 +13,7 @@ import br.com.rodogarcia.wms.models.UnidadeLogistica;
 import br.com.rodogarcia.wms.repositories.BaixaSaidaRepository;
 import br.com.rodogarcia.wms.repositories.ConteudoUnidadeRepository;
 import br.com.rodogarcia.wms.repositories.FatoServicoRepository;
+import br.com.rodogarcia.wms.repositories.ItemPedidoSaidaRepository;
 import br.com.rodogarcia.wms.repositories.NotaEntradaRepository;
 import br.com.rodogarcia.wms.repositories.PedidoEntradaRepository;
 import br.com.rodogarcia.wms.repositories.PedidoSaidaRepository;
@@ -31,6 +32,7 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,6 +49,7 @@ public class FatoServicoService {
     private final UnidadeLogisticaRepository unidades;
     private final PedidoEntradaRepository entradas;
     private final PedidoSaidaRepository saidas;
+    private final ItemPedidoSaidaRepository itensSaida;
     private final RetiradaSaidaRepository retiradas;
     private final BaixaSaidaRepository baixas;
     private final ConteudoUnidadeRepository conteudos;
@@ -67,6 +70,7 @@ public class FatoServicoService {
             UnidadeLogisticaRepository unidades,
             PedidoEntradaRepository entradas,
             PedidoSaidaRepository saidas,
+            ItemPedidoSaidaRepository itensSaida,
             RetiradaSaidaRepository retiradas,
             BaixaSaidaRepository baixas,
             ConteudoUnidadeRepository conteudos,
@@ -86,6 +90,7 @@ public class FatoServicoService {
         this.unidades = unidades;
         this.entradas = entradas;
         this.saidas = saidas;
+        this.itensSaida = itensSaida;
         this.retiradas = retiradas;
         this.baixas = baixas;
         this.conteudos = conteudos;
@@ -136,9 +141,9 @@ public class FatoServicoService {
                 e.saida() == null ? null : e.saida().getId(),
                 e.instante(),
                 null);
-        if (fatos.findByClienteIdAndArmazemIdAndServicoIdAndChaveFato(
-                        d.clienteId(), d.armazemId(), s.getId(), e.chave())
-                .isPresent()) throw conflito("FATO_SERVICO_JA_CONFIRMADO");
+        var existente =
+                fatos.findByClienteIdAndArmazemIdAndServicoIdAndChaveFato(
+                        d.clienteId(), d.armazemId(), s.getId(), e.chave());
         if ("PERCENTUAL".equals(s.getUnidade()) ? d.valorBase() == null : d.valorBase() != null)
             throw CadastroSupport.invalido(
                     "Base monetária explícita somente para serviço percentual.");
@@ -159,6 +164,7 @@ public class FatoServicoService {
             }
         }
         if (cotas.isEmpty()) throw conflito("RATEIO_INSUFICIENTE");
+        if (existente.isPresent()) return associarSaida(existente.get(), s, d, e, cotas, hash);
         var f =
                 fatos.saveAndFlush(
                         new FatoServico(
@@ -203,6 +209,70 @@ public class FatoServicoService {
                 hash,
                 resposta);
         return resposta;
+    }
+
+    private FatoServicoDto.Fato associarSaida(
+            FatoServico f,
+            ServicoCobranca s,
+            FatoServicoDto.Registrar d,
+            Execucao e,
+            Map<Long, BigDecimal> cotas,
+            String hash) {
+        if (!"ADICIONAL".equals(s.getTipo())
+                || !"CONFIRMADO".equals(f.getSituacao())
+                || f.getPedidoSaida() != null
+                || e.saida() == null
+                || !Objects.equals(f.getOrigem(), d.origem())
+                || !Objects.equals(f.getReferenciaExecucao(), d.referenciaExecucao())
+                || !f.getExecutadoEm()
+                        .equals(e.instante().truncatedTo(java.time.temporal.ChronoUnit.MICROS))
+                || !mesmoNumero(f.getQuantidade(), e.quantidade())
+                || !Objects.equals(f.getCategoria(), CadastroSupport.codigo(d.categoria()))
+                || !mesmoNumero(f.getValorBase(), d.valorBase())
+                || !Objects.equals(f.getCriterioRateio(), CadastroSupport.texto(d.criterioRateio()))
+                || !Objects.equals(
+                        f.getUnidade() == null ? null : f.getUnidade().getId(),
+                        e.unidade() == null ? null : e.unidade().getId())
+                || !Objects.equals(
+                        f.getPedidoEntrada() == null ? null : f.getPedidoEntrada().getId(),
+                        e.entrada() == null ? null : e.entrada().getId())
+                || !Objects.equals(
+                        f.getProduto() == null ? null : f.getProduto().getId(),
+                        e.produto() == null ? null : e.produto().getId()))
+            throw conflito("FATO_SERVICO_JA_CONFIRMADO");
+        var originais = rateios.findByFatoIdOrderByNotaIdAsc(f.getId());
+        if (originais.size() != cotas.size()
+                || originais.stream()
+                        .anyMatch(r -> !mesmoNumero(r.getCota(), cotas.get(r.getNota().getId()))))
+            throw conflito("FATO_SERVICO_JA_CONFIRMADO");
+        if (f.getProduto() != null
+                && itensSaida.buscarDoPedido(e.saida().getId()).stream()
+                        .noneMatch(i -> i.getProduto().getId().equals(f.getProduto().getId())))
+            throw conflito("CONTEXTO_EXECUCAO_INVALIDO");
+        var antes = resposta(f);
+        f.associarSaida(e.saida());
+        fatos.flush();
+        var resposta = resposta(f);
+        auditoria.registrar(
+                "FATO_SERVICO",
+                f.getId(),
+                "REGISTRO_SERVICO",
+                CadastroSupport.motivo(d.motivo()),
+                antes,
+                resposta);
+        operacoes.salvar(
+                d.operacaoId(),
+                "REGISTRO_SERVICO",
+                f.getCliente(),
+                f.getArmazem(),
+                f.getId(),
+                hash,
+                resposta);
+        return resposta;
+    }
+
+    private static boolean mesmoNumero(BigDecimal a, BigDecimal b) {
+        return a == null ? b == null : b != null && a.compareTo(b) == 0;
     }
 
     private Execucao execucao(ServicoCobranca s, FatoServicoDto.Registrar d) {

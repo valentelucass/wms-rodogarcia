@@ -44,6 +44,7 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -98,6 +99,7 @@ class PedidoSaidaIntegrationTest {
     @Autowired private JdbcTemplate jdbc;
     @Autowired private PlatformTransactionManager transactions;
     @Autowired private PedidoSaidaService service;
+    @Autowired private java.time.Clock d30Clock;
     @MockitoSpyBean private EstoqueService estoqueService;
     @MockitoSpyBean private EnderecoService enderecoService;
     @PersistenceContext private EntityManager em;
@@ -118,6 +120,7 @@ class PedidoSaidaIntegrationTest {
         jdbc.update("update wms.unidade_logistica set reserva_saida_id=null");
         for (String tabela :
                 List.of(
+                        "operacao_administrativa",
                         "operacao_saida",
                         "reserva_saida",
                         "item_pedido_saida",
@@ -208,6 +211,134 @@ class PedidoSaidaIntegrationTest {
         operador = token("OPERACAO", List.of(clienteId), List.of(armazemId));
         supervisor = token("SUPERVISOR", List.of(clienteId), List.of(armazemId));
         gestor = token("GESTOR", List.of(), List.of());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"OPERACAO", "SUPERVISOR", "GESTOR"})
+    void d27XmlCriaPedidoIntegralPreservaNotaReplayEPermiteReserva(String perfil) throws Exception {
+        unidade("10");
+        String identidade = token(perfil, List.of(clienteId), List.of(armazemId));
+        var d = d27ImportarXml("2", "3");
+        var fotoCriacao = D30FotografiaFisica.capturar(jdbc);
+        var imported = resposta(post(SAIDAS + "xml", d, identidade), 201);
+        d30CriacaoNaoMovimentaFisico(fotoCriacao, null, imported);
+        assertThat(imported.get("documento").get("numero").longValue()).isEqualTo(271);
+        assertThat(imported.get("documento").get("itens").size()).isEqualTo(2);
+        assertThat(imported.get("pedido").get("itens").size()).isEqualTo(1);
+        assertThat(imported.get("pedido").get("itens").get(0).get("quantidade").decimalValue())
+                .isEqualByComparingTo("5");
+        assertThat(resposta(post(SAIDAS + "xml", d, identidade), 201)).isEqualTo(imported);
+        assertThat(contar("pedido_saida")).isEqualTo(1);
+        assertThat(contar("operacao_administrativa")).isEqualTo(1);
+        assertThat(contar("auditoria_cadastro")).isEqualTo(2);
+        assertThat(contar("reserva_saida")).isZero();
+        var altered = new HashMap<>(d);
+        altered.put("xml", d.get("xml").toString().replace("<qCom>2</qCom>", "<qCom>1</qCom>"));
+        assertCodigo(post(SAIDAS + "xml", altered, identidade), 409, "OPERACAO_DIVERGENTE");
+        var duplicate = new HashMap<>(d);
+        duplicate.put("operacaoId", UUID.randomUUID());
+        assertCodigo(post(SAIDAS + "xml", duplicate, identidade), 409, "REFERENCIA_DUPLICADA");
+        var p = imported.get("pedido");
+        var reserved =
+                resposta(post(rota(p, "/reserva"), reservar(p), identidade), 200).get("pedido");
+        assertThat(reserved.get("situacao").asString()).isEqualTo("RESERVADO");
+        saldo("10", "0", "5", "5");
+        assertThat(
+                        d30GetFotografiaIntegral(
+                                        "/api/v1/pedidos-saida?clienteId="
+                                                + clienteId
+                                                + "&armazemId="
+                                                + armazemId,
+                                        gestor)
+                                .get("totalItens")
+                                .longValue())
+                .isPositive();
+    }
+
+    @Test
+    void d27XmlRecusaXXEUnidadeAlcanceInsuficienciaSemPersistenciaParcial() throws Exception {
+        unidade("10");
+        var d = d27ImportarXml("2", "3");
+        assertThat(post(SAIDAS + "xml", d, null).statusCode()).isEqualTo(401);
+        assertThat(
+                        post(SAIDAS + "xml", d, token("OPERACAO", List.of(), List.of(armazemId)))
+                                .statusCode())
+                .isEqualTo(403);
+        assertThat(
+                        post(SAIDAS + "xml", d, token("OPERACAO", List.of(clienteId), List.of()))
+                                .statusCode())
+                .isEqualTo(403);
+        Map<String, Object> bad = new HashMap<>(d);
+        bad.put(
+                "xml",
+                "<!DOCTYPE NFe [<!ENTITY x SYSTEM 'file:///arquivo-ficticio'>]>"
+                        + d.get("xml").toString().replace("SKU", "&x;"));
+        assertThat(post(SAIDAS + "xml", bad, operador).statusCode()).isEqualTo(400);
+        bad = new HashMap<>(d);
+        bad.put("xml", d.get("xml").toString().replace("<uCom>UN</uCom>", "<uCom>KG</uCom>"));
+        assertThat(post(SAIDAS + "xml", bad, operador).statusCode()).isEqualTo(400);
+        bad = new HashMap<>(d);
+        bad.put("xml", d.get("xml").toString().replace("<qCom>2</qCom>", "<qCom>-1</qCom>"));
+        assertThat(post(SAIDAS + "xml", bad, operador).statusCode()).isEqualTo(400);
+        bad = d27ImportarXml("6", "5");
+        assertCodigo(post(SAIDAS + "xml", bad, operador), 409, "SALDO_INSUFICIENTE");
+        assertThat(contar("pedido_saida")).isZero();
+        assertThat(contar("item_pedido_saida")).isZero();
+        assertThat(contar("operacao_administrativa")).isZero();
+        assertThat(contar("operacao_saida")).isZero();
+        assertThat(contar("auditoria_cadastro")).isZero();
+    }
+
+    @Test
+    void d27XmlRecusaExpoentesExtremosAntesDeSomarSemEfeitos() throws Exception {
+        unidade("10");
+        for (String quantity :
+                List.of("1E2147483647", "100E2147483647", "1E13", "0.0000001", "1E-2147483647")) {
+            assertThat(post(SAIDAS + "xml", d27ImportarXml(quantity, "1"), operador).statusCode())
+                    .as("quantidade fora de DECIMAL19,6: %s", quantity)
+                    .isEqualTo(400);
+            assertThat(contar("pedido_saida")).isZero();
+            assertThat(contar("operacao_administrativa")).isZero();
+            assertThat(contar("auditoria_cadastro")).isZero();
+        }
+        saldo("10", "10", "0", "0");
+    }
+
+    @Test
+    void d27XmlNotacaoCientificaDentroDaFaixaMantemSomaEReplay() throws Exception {
+        unidade("10");
+        var d = d27ImportarXml("2E0", "3E0");
+        var created = resposta(post(SAIDAS + "xml", d, operador), 201);
+        assertThat(created.get("pedido").get("itens").get(0).get("quantidade").decimalValue())
+                .isEqualByComparingTo("5");
+        assertThat(resposta(post(SAIDAS + "xml", d, operador), 201)).isEqualTo(created);
+        assertThat(contar("pedido_saida")).isEqualTo(1);
+        assertThat(contar("operacao_administrativa")).isEqualTo(1);
+        assertThat(contar("reserva_saida")).isZero();
+    }
+
+    private Map<String, Object> d27ImportarXml(String first, String second) {
+        String det =
+                "<det nItem='%s'><prod><cProd>SKU</cProd><uCom>UN</uCom><qCom>%s</qCom><vProd>10</vProd></prod></det>";
+        String xml =
+                "<NFe xmlns='http://www.portalfiscal.inf.br/nfe'><infNFe versao='4.00' Id='NFe"
+                        + "7".repeat(44)
+                        + "'><ide><mod>55</mod><serie>1</serie><nNF>271</nNF><dhEmi>2026-10-07T00:00:00Z</dhEmi></ide><emit><CNPJ>12345678000199</CNPJ></emit>"
+                        + det.formatted("1", first)
+                        + det.formatted("2", second)
+                        + "</infNFe></NFe>";
+        return new HashMap<>(
+                Map.of(
+                        "operacaoId",
+                        UUID.randomUUID(),
+                        "clienteId",
+                        clienteId,
+                        "armazemId",
+                        armazemId,
+                        "xml",
+                        xml,
+                        "motivo",
+                        "D27 NF-e ficticia sem emissao real"));
     }
 
     @ParameterizedTest
@@ -575,10 +706,23 @@ class PedidoSaidaIntegrationTest {
         var reservada =
                 resposta(post(rota(p, "/reserva"), reservar(p), operador), 200).get("pedido");
         var comando = comando(reservada);
+        var d30ReservasAntes = D30ReservaFotografia.capturar(jdbc, p.get("id").longValue());
+        D30ReservaFotografia.exigirAtivas(d30ReservasAntes);
         resposta(post(rota(p, "/" + acao), comando, operador), 403);
+        var d30Inicio = d30Clock.instant();
         var resultado = resposta(post(rota(p, "/" + acao), comando, supervisor), 200);
+        var d30Termino = d30Clock.instant();
+        var d30ReservasDepois = D30ReservaFotografia.capturar(jdbc, p.get("id").longValue());
+        D30ReservaFotografia.exigirEncerradas(
+                d30ReservasAntes,
+                d30ReservasDepois,
+                acao.equals("cancelamento") ? "CANCELADA" : "REVERTIDA",
+                d30Inicio,
+                d30Termino);
         assertThat(resposta(post(rota(p, "/" + acao), comando, supervisor), 200))
                 .isEqualTo(resultado);
+        assertThat(D30ReservaFotografia.capturar(jdbc, p.get("id").longValue()))
+                .isEqualTo(d30ReservasDepois);
         saldo("10", "10", "0", "0");
         saldo(segundoProdutoId, "10", "10", "0", "0");
         assertThat(resultado.get("pedido").get("reservas").size()).isEqualTo(2);
@@ -952,6 +1096,49 @@ class PedidoSaidaIntegrationTest {
         saldo("10", "0", "4", "6");
     }
 
+    @Test
+    void d30DezBobinasFisicasReservamTresIdentidadesInteiras() throws Exception {
+        var bobinas = new java.util.ArrayList<Unidade>();
+        for (int i = 0; i < 10; i++) bobinas.add(bobina("1", FIFO.plusSeconds(i), "D30-B" + i));
+        assertThat(bobinas.stream().map(Unidade::id).distinct().count()).isEqualTo(10);
+        assertThat(bobinas.stream().map(Unidade::codigo).distinct().count()).isEqualTo(10);
+        var origens = D30FotografiaFisica.capturar(jdbc);
+        var p = criar(produtoId, "3", operador);
+        var esperado = bobinas.subList(0, 3).stream().map(Unidade::id).toList();
+        var fifo = resposta(get(rota(p, "/fifo"), operador), 200).get("selecoes");
+        assertThat(fifo.size()).isEqualTo(3);
+        for (int i = 0; i < 3; i++) {
+            assertThat(fifo.get(i).get("unidadeId").longValue()).isEqualTo(esperado.get(i));
+            assertThat(fifo.get(i).get("quantidade").decimalValue()).isEqualByComparingTo("1");
+        }
+        resposta(post(rota(p, "/reserva"), reservar(p), operador), 200);
+        assertThat(
+                        jdbc.queryForList(
+                                "select unidade_id from wms.reserva_saida where situacao='ATIVA' order by unidade_id",
+                                Long.class))
+                .containsExactlyElementsOf(esperado);
+        assertThat(
+                        jdbc.queryForObject(
+                                "select count(*) from wms.reserva_saida where quantidade=1 and situacao='ATIVA'",
+                                Integer.class))
+                .isEqualTo(3);
+        assertThat(
+                        jdbc.queryForObject(
+                                "select count(*) from wms.unidade_logistica where tipo='BOBINA' and quantidade=1 and ativa=true",
+                                Integer.class))
+                .isEqualTo(10);
+        saldo("10", "7", "3", "0");
+        var depois = D30FotografiaFisica.capturar(jdbc);
+        for (String tabela :
+                List.of(
+                        "NOTA_ENTRADA",
+                        "ITEM_NOTA_ENTRADA",
+                        "ENTRADA_CONFERIDA",
+                        "CONTEUDO_UNIDADE",
+                        "OCUPACAO_ENDERECO"))
+            assertThat(depois.get(tabela)).as(tabela).isEqualTo(origens.get(tabela));
+    }
+
     private Unidade bobina(String q, Instant fifo, String codigo) {
         var u =
                 unidade(
@@ -1116,6 +1303,162 @@ class PedidoSaidaIntegrationTest {
         return Map.of("produtoId", id, "quantidade", new BigDecimal(q));
     }
 
+    @ParameterizedTest
+    @ValueSource(ints = {100, 101})
+    void d30LimiteSkuDistintoExigeEstoqueValidoSemReservar(int total) throws Exception {
+        var itens = new ArrayList<Map<String, Object>>();
+        for (int i = 0; i < total; i++) {
+            int indice = i;
+            long produto =
+                    new TransactionTemplate(transactions)
+                            .execute(
+                                    s -> {
+                                        var p =
+                                                new Produto(
+                                                        em.find(Cliente.class, clienteId),
+                                                        "D30-SKU-" + indice,
+                                                        "Fronteira ficticia D30",
+                                                        "UN",
+                                                        TipoQuantidade.CONTAGEM,
+                                                        0,
+                                                        false,
+                                                        false,
+                                                        null,
+                                                        Instant.now());
+                                        em.persist(p);
+                                        em.persist(
+                                                new Embalagem(
+                                                        p,
+                                                        "D30-DUN-" + indice,
+                                                        "Embalagem D30",
+                                                        BigDecimal.ONE,
+                                                        Instant.now()));
+                                        em.flush();
+                                        return p.getId();
+                                    });
+            unidade(
+                    produto,
+                    "1",
+                    FIFO,
+                    0,
+                    1,
+                    "D30-SKU-END-" + i,
+                    TipoEndereco.ARMAZENAGEM,
+                    CondicaoMercadoria.BOA);
+            itens.add(item(produto, "1"));
+        }
+        var antes = D30FotografiaFisica.capturar(jdbc);
+        var retorno = post("/api/v1/pedidos-saida", criarDados(itens), operador);
+        if (total == 101) {
+            resposta(retorno, 400);
+            assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(antes);
+            assertThat(contar("pedido_saida")).isZero();
+        } else {
+            var p = resposta(retorno, 201).get("pedido");
+            assertThat(p.get("itens").size()).isEqualTo(100);
+            assertThat(p.get("situacao").asString()).isEqualTo("RASCUNHO");
+            var ids = new ArrayList<Long>();
+            for (var it : p.get("itens")) {
+                ids.add(it.get("produtoId").longValue());
+                assertThat(it.get("quantidade").decimalValue()).isEqualByComparingTo("1");
+            }
+            assertThat(ids).doesNotHaveDuplicates();
+            assertThat(contar("reserva_saida")).isZero();
+        }
+        var depois = D30FotografiaFisica.capturar(jdbc);
+        for (String tabela :
+                List.of(
+                        "UNIDADE_LOGISTICA",
+                        "CONTEUDO_UNIDADE",
+                        "OCUPACAO_ENDERECO",
+                        "MOVIMENTO_ESTOQUE",
+                        "NOTA_ENTRADA",
+                        "ITEM_NOTA_ENTRADA"))
+            assertThat(depois.get(tabela)).isEqualTo(antes.get(tabela));
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {500, 501})
+    void d30SelecaoJustificadaLimitaUnidadesDistintasSemReservaOuBaixa(int total) throws Exception {
+        var selecoes = new ArrayList<Map<String, Object>>();
+        for (int i = 0; i < total; i++) {
+            var u = unidade("1");
+            selecoes.add(Map.of("unidadeId", u.id(), "quantidade", BigDecimal.ONE));
+        }
+        var p = criar(produtoId, String.valueOf(total), operador);
+        var comando = comando(p);
+        comando.put("selecoes", selecoes);
+        comando.put("motivo", "Selecao integral ficticia na fronteira D30");
+        var antes = D30FotografiaFisica.capturar(jdbc);
+        var retorno = post(rota(p, "/justificativas-fifo"), comando, supervisor);
+        if (total == 501) {
+            resposta(retorno, 400);
+            assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(antes);
+        } else {
+            var confirmado = resposta(retorno, 200);
+            assertThat(confirmado.get("selecoes").size()).isEqualTo(500);
+            assertThat(confirmado.get("pedido").get("situacao").asString()).isEqualTo("RASCUNHO");
+            var ids = new ArrayList<Long>();
+            BigDecimal soma = BigDecimal.ZERO;
+            for (var selecao : confirmado.get("selecoes")) {
+                ids.add(selecao.get("unidadeId").longValue());
+                soma = soma.add(selecao.get("quantidade").decimalValue());
+            }
+            assertThat(ids).doesNotHaveDuplicates();
+            assertThat(soma).isEqualByComparingTo("500");
+            assertThat(confirmado.get("justificadaPor").asString()).isEqualTo("saida-SUPERVISOR");
+        }
+        assertThat(contar("reserva_saida")).isZero();
+        var depois = D30FotografiaFisica.capturar(jdbc);
+        for (String tabela :
+                List.of(
+                        "UNIDADE_LOGISTICA",
+                        "CONTEUDO_UNIDADE",
+                        "OCUPACAO_ENDERECO",
+                        "MOVIMENTO_ESTOQUE",
+                        "NOTA_ENTRADA",
+                        "ITEM_NOTA_ENTRADA"))
+            assertThat(depois.get(tabela)).isEqualTo(antes.get(tabela));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"CLIENTE", "ARMAZEM", "PRODUTO"})
+    void d30CadastroInativoRecusaCriacaoAntesDeConsultarSaldo(String tipo) throws Exception {
+        long id =
+                tipo.equals("CLIENTE") ? clienteId : tipo.equals("ARMAZEM") ? armazemId : produtoId;
+        String rota = "/api/v1/encerramentos/" + tipo + "/" + id;
+        var atual = resposta(get(rota + "/impedimentos", gestor), 200);
+        assertThat(atual.get("impedimentos").size()).isZero();
+        var solicitar =
+                new HashMap<String, Object>(
+                        Map.of(
+                                "operacaoId",
+                                UUID.randomUUID(),
+                                "versao",
+                                atual.get("versao").longValue(),
+                                "motivo",
+                                "Inativacao legitima de cadastro vazio D30"));
+        var pendente = resposta(post(rota + "/solicitar", solicitar, gestor), 200);
+        solicitar.put("operacaoId", UUID.randomUUID());
+        solicitar.put("versao", pendente.get("versao").longValue());
+        assertThat(
+                        resposta(post(rota + "/inativar", solicitar, gestor), 200)
+                                .get("situacao")
+                                .asString())
+                .isEqualTo("INATIVO");
+        var antes = D30FotografiaFisica.capturar(jdbc);
+        var recusado =
+                resposta(
+                        post(
+                                "/api/v1/pedidos-saida",
+                                criarDados(List.of(item(produtoId, "1"))),
+                                operador),
+                        409);
+        assertThat(recusado.get("codigo").asString()).isEqualTo("CADASTRO_EM_ENCERRAMENTO");
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(antes);
+        assertThat(contar("pedido_saida")).isZero();
+    }
+
     private Map<String, Object> criarDados(List<Map<String, Object>> itens) {
         return new HashMap<>(
                 Map.of(
@@ -1138,7 +1481,101 @@ class PedidoSaidaIntegrationTest {
     }
 
     private JsonNode criarItens(List<Map<String, Object>> itens, String token) throws Exception {
-        return resposta(post("/api/v1/pedidos-saida", criarDados(itens), token), 201).get("pedido");
+        var antes = D30FotografiaFisica.capturar(jdbc);
+        var dados = criarDados(itens);
+        var confirmacao = resposta(post("/api/v1/pedidos-saida", dados, token), 201);
+        var pedido = confirmacao.get("pedido");
+        assertThat(pedido.get("situacao").asString()).isEqualTo("RASCUNHO");
+        d30CriacaoNaoMovimentaFisico(antes, dados, confirmacao);
+        return pedido;
+    }
+
+    private void d30CriacaoNaoMovimentaFisico(
+            Map<String, List<Map<String, Object>>> antes,
+            Map<String, Object> dados,
+            JsonNode confirmacao)
+            throws Exception {
+        var depois = D30FotografiaFisica.capturar(jdbc);
+        for (String tabela : antes.keySet())
+            if (!List.of(
+                            "PEDIDO_SAIDA",
+                            "ITEM_PEDIDO_SAIDA",
+                            "OPERACAO_SAIDA",
+                            "AUDITORIA_CADASTRO",
+                            "OPERACAO_ADMINISTRATIVA")
+                    .contains(tabela))
+                assertThat(depois.get(tabela))
+                        .as("Criacao valida conserva " + tabela)
+                        .isEqualTo(antes.get(tabela));
+        assertThat(depois.get("OPERACAO_SAIDA")).containsAll(antes.get("OPERACAO_SAIDA"));
+        var novas =
+                depois.get("OPERACAO_SAIDA").stream()
+                        .filter(l -> !antes.get("OPERACAO_SAIDA").contains(l))
+                        .toList();
+        assertThat(novas).hasSize(1);
+        var op = novas.getFirst();
+        assertThat(op.get("TIPO")).isEqualTo("CRIACAO_SAIDA");
+        if (dados == null) {
+            assertThat(op.get("OPERACAO_ID")).isEqualTo(confirmacao.get("operacaoId").asString());
+            assertThat(((Number) op.get("PEDIDO_ID")).longValue())
+                    .isEqualTo(confirmacao.get("pedido").get("id").longValue());
+            assertThat(mapper.readTree((String) op.get("RESULTADO")).get("pedido"))
+                    .isEqualTo(confirmacao.get("pedido"));
+            return;
+        }
+        assertThat(op.get("OPERACAO_ID")).isEqualTo(dados.get("operacaoId").toString());
+        assertThat(((Number) op.get("PEDIDO_ID")).longValue())
+                .isEqualTo(confirmacao.get("pedido").get("id").longValue());
+        assertThat(op.get("TIPO")).isEqualTo("CRIACAO_SAIDA");
+        assertThat(op.get("MOTIVO")).isEqualTo(dados.get("motivo"));
+        var dto = mapper.convertValue(dados, br.com.rodogarcia.wms.dto.PedidoSaidaDto.Criar.class);
+        String hashEsperado =
+                java.util.HexFormat.of()
+                        .formatHex(
+                                java.security.MessageDigest.getInstance("SHA-256")
+                                        .digest(
+                                                ("CRIACAO_SAIDA:" + mapper.writeValueAsString(dto))
+                                                        .getBytes(
+                                                                java.nio.charset.StandardCharsets
+                                                                        .UTF_8)));
+        assertThat(op.get("CONTEUDO_HASH")).isEqualTo(hashEsperado);
+        assertThat(mapper.readTree((String) op.get("RESULTADO"))).isEqualTo(confirmacao);
+    }
+
+    @Test
+    void d30FifoExcluiQuarentenaMaisAntigaSemQualquerEfeitoFisico() throws Exception {
+        var antiga =
+                unidade(
+                        produtoId,
+                        "10",
+                        FIFO.minusSeconds(86400),
+                        0,
+                        0,
+                        "D30-ANTIGA-Q",
+                        TipoEndereco.QUARENTENA,
+                        CondicaoMercadoria.BOA);
+        var disponivel =
+                unidade(
+                        produtoId,
+                        "10",
+                        FIFO,
+                        4,
+                        90,
+                        "D30-POSTERIOR-A",
+                        TipoEndereco.ARMAZENAGEM,
+                        CondicaoMercadoria.BOA);
+        var p = criar(produtoId, "4", operador);
+        var antes = D30FotografiaFisica.capturar(jdbc);
+        var s = resposta(get(rota(p, "/fifo"), operador), 200).get("selecoes");
+        assertThat(s.size()).isEqualTo(1);
+        assertThat(s.get(0).get("unidadeId").longValue())
+                .isEqualTo(disponivel.id())
+                .isNotEqualTo(antiga.id());
+        assertThat(s.get(0).get("quantidade").decimalValue()).isEqualByComparingTo("4");
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(antes);
+        assertThat(contar("reserva_saida")).isZero();
+        assertThat(contar("separacao_saida")).isZero();
+        assertThat(contar("retirada_saida")).isZero();
     }
 
     private String rota(JsonNode p, String sufixo) {
@@ -1300,5 +1737,15 @@ class PedidoSaidaIntegrationTest {
                         JwtEncoderParameters.from(
                                 JwsHeader.with(SignatureAlgorithm.RS256).build(), claims))
                 .getTokenValue();
+    }
+
+    private JsonNode d30GetFotografiaIntegral(String rota, String token) throws Exception {
+        var antes = D30FotografiaFisica.capturar(jdbc);
+        var resultado = resposta(get(rota, token), 200);
+        assertThat(resultado.isNull()).as(rota + " resposta positiva").isFalse();
+        assertThat(D30FotografiaFisica.capturar(jdbc))
+                .as(rota + " conserva todas64tabelas")
+                .isEqualTo(antes);
+        return resultado;
     }
 }

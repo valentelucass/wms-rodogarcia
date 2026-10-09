@@ -1,210 +1,611 @@
 # Decisões e pendências do WMS Rodogarcia
 
+## Resultado atual D31-DEV02 — integração real impedida por TLS atual e autenticação ausente
+
+FIM_INTEGRACAO_DEV_LUCAS e complemento iniciar-dev.bat: correção vigente da entrega frontend. A verificação segura ATUAL autorizada foi executada, sem concluir pelo histórico D29. UMA abertura WMSDEV configurada para WMS_DEV em 2026-10-09T00:51:02.8522544Z (PID32144; 454,7449ms) falhou TLS/certificado SQL/native -2146762480 antes SELECT. Alvo real/identidade/TLS/permissões/catálogo/histórico não confirmados; zero SELECT/API/backend. Sem segunda abertura/fallback. [Guarda atual](../frontend/evidencias/frontend-prumo-dev02-guarda-lucas-20261008.json).
+
+**AUTH atual:** ausência confirmada das referências públicas WMS_OIDC_ISSUER/WMS_OIDC_JWK_SET_URI/WMS_OIDC_AUDIENCE e de fluxo aprovado provider/token/sessão. ResourceServer RS256/Bearer não cria login/emissor; o canal WMSDEV é exclusivamente SQL. Nenhum token/conta/provider de ensaio foi fabricado como substituto. O iniciar-dev.bat real foi executado: exit40 AUTH_CONFIGURATION_MISSING, antes da guarda/SQL e sem processos BE/FE novos. [Recibo launcher](../orchestracao/.runtime/frontend-integracao-dev-runs/86711d638419468ab6834ff02a316f9a/launcher.json); [guia](../docs/19-desenvolvimento-integrado-dev.md).
+
+Farol mantém launcher único/canônicos/recibo; Prumo, guarda atual; Cedro, configuração/startup/readiness backend; Lume, frontend real/default/proxy/sessão/cliente; Vigia, revisão independente. Preparação e focais locais pertinentes continuam em paralelo, sem conflito de donos; nenhuma API/BE/SQL adicional enquanto impedido. npm run dev será real sem fallback, fictício modo separado explícito; fonte e revisão final do incremento ainda em fechamento. Processos 5178/5188/5189 preservados, nenhuma URL integrada anunciada.
+
+Encaminhamento material: responsável SQL/TLS comprovar correção segura da rejeição de certificado, sem bypass/globaltrust ou mudanças de servidor/acessos pelo agente; responsável identidade configurar provedor WMS DEV e fluxo de autenticação aprovado. Recibo deste MESMO incremento em orchestracao/.runtime/frontend-integracao-dev-resultado.json/.md, sem callback Hermes. FINAL14 e base frontend local MARCO03/parecer16 preservados como históricos; D30 geral aberta, aceiteLocalIntegral=false, C06/C07/C10 requeridos impedidos históricos. Não executar PROD/sa/DDL/migrations/grants/alterar servidor/sharedruntime/kill ou restart existentes/publicação/commit/push/ETL/rotinas. Registro de atualização 2026-10-09T00:56:55.994632+00:00.
+
+## Histórico preservado — fecho local anterior e limite DEV01
+
+## Resultado atual D31 — base local concluída e revisada; integração real impedida
+
+FIM_FRONTEND_LUCAS_20261008: base React/TypeScript funcional concluída e aprovada na revisão local integrada de Vigia. Fonte SHA256 C58B64105A7B3232F314D56F8150CCBD6CE1530B6FE4D33837BA46AD3DD4F922 (179 arquivos); tipagem/lint/build, 299 testes locais e 16 Chromium, todos exit0. As 22 parcelas essenciais usam provas compartilhadas; smokes contratuais não equivalem a jornadas integrais. Organização, legibilidade, acoplamento e testabilidade revisados; CSS preto/branco/azul efetivamente aplicado no navegador desktop/coletor. [Resultado JSON](../orchestracao/.runtime/frontend-resultado-lucas-20261008.json), [MD](../orchestracao/.runtime/frontend-resultado-lucas-20261008.md), [parecer](../orchestracao/.runtime/frontend-vigia-parecer-lucas-20261008.json). Registro UTC 2026-10-09T00:08:45.382787+00:00.
+
+**Abrir frontend:** http://127.0.0.1:5189, processo próprio Lume PID19856, exercício fictício. Vínculo de fonte e observações em [recibo de execução](../frontend/evidencias/frontend-lume-exercicio-marco03.json). npm run dev usa vite.dev.config.ts: [guia](../frontend/docs/desenvolvimento-dev.md). 5178/5188 preservados; 5188 é histórico com FE-VIG-008 e não é a versão corrigida. API/SQL, provider/contas/tokens/CORS reais, usuários sem rota, equipamentos/fiscal/piloto permanecem pendentes; aprovação local não homologa o sistema inteiro ou FE13 real.
+
+**DEV01 real BLOQUEADO G01:** falta prova atual de resolução segura D29. [Guarda Prumo](../frontend/evidencias/frontend-prumo-dev-guarda-lucas-20261008.json): guardaRealAprovada=false. Canal WMSDEV conferido apenas por metadados; zero leitura de segredo/DPAPI, SQL/SELECT/API/backend/fixtures. Configuração DEV preparada, modo real fechado. Responsável SQL deve fornecer evidência atual; depois avaliar nova guarda WMS_DEV/WMSDEV/TLS/permissões/catálogo/histórico. Nenhuma sonda/fallback ou intervenção em servidor/acessos/runtime compartilhado autorizada por este fecho.
+
+Lume: integração frontend/checks; Cedro: FE12 e preparo mínimo backend DEV; Prumo: CSS/DEVconfig/guarda; Vigia: revisão independente; Farol: canônicos/recibo/mapa/nota. Fonte congelada, bloco local encerrado, somente exercício fictício próprio aberto. Aguardar demanda/decisão ou prova segura SQL; sem retomada automática. FINAL14 local preservada/aprovada; D30 geral aberta, aceiteLocalIntegral=false, C06/C07/C10 requeridos impedidos. Históricos/IDs/checksums preservados, sem repetir backend/FINAL14 ou tarefas reconciliadas.
+
+
+## D31 — frontend funcional autorizado por Lucas em 08/10/2026 (registro intermediário preservado; resultado atual acima)
+
+**D31-DEV01 — incremento expresso de Lucas; integração real BLOQUEADA em G01:** “ja deveria juntar o frotend modo run dev com backend e sql server _DEV sim para ser possivel testar enquanto esta sendo feito as atualizacoes”. Autorizado preparar desenvolvimento integrado frontend run dev + backend + SQL Server exclusivamente WMS_DEV, identidade própria WMSDEV restrita. Prumo precisa comprovar resolução segura atual do incidente D29 antes da nova guarda mínima real de alvo/identidade/TLS/permissões/catálogo/histórico. A autorização, listener ativo e provas antigas não comprovam recuperação. [Guarda atual](../frontend/evidencias/frontend-prumo-dev-guarda-lucas-20261008.json), SHA256 9135BC92A2C1BF3DF012D47B8EA19E196B835D0A153F840F10D3AA34F15C9005: guardaRealAprovada=false; nenhuma prova atual segura localizada nas fontes direcionadas; canal WMSDEV existente/ACL compatível apenas por metadados. Zero abertura SQL/SELECT/HTTP/backend/fixtures neste recorte. Cedro prepara exclusivamente perfil/guia backend DEV; Lume prepara frontend real/proxy/baseURL/run dev sem segredos; nenhum backend com SQL ou FE→API com SQL será iniciado enquanto bloqueado. Após pré-requisitos comprovados: somente processos próprios, consultas primeiro; escritas fictícias pertinentes somente HTTP/API rastreável. Sem DDL/Flyway pendente/mutação automática do schema, SQL de fixtures/reset/DELETE, PROD/sa na aplicação, alteração de servidor/acessos/runtime compartilhado, kill/restart existentes ou reabertura FINAL14. Responsável SQL deve fornecer prova atual de recuperação segura; partes frontend independentes continuam. Registro de incorporação: 2026-10-08T21:35:56.890749+00:00; horário do pedido não presumido. [Registro do incremento](../orchestracao/.runtime/frontend-farol-dev01-lucas-20261008.json).
+
+**CSS aplicado — prova Prumo encerrada:** link CSS externo no index, import JS duplicado removido, CSP preservada; 30 capturas/estados DEV e BUILD em 1440/768/390 px, HTTP200 text/css, computed Arial/margin0/header azul, zero violações CSP/erros de console/overflow do documento/API/externos. [Recibo](../frontend/evidencias/frontend-prumo-css-lucas-20261008.json), SHA256 2453DC770565379D01BDC21635F134080A578767418739C9200757010FA5F608. Diagnóstico reproduziu HTML cru no DEV devido à injeção CSS inline bloqueada; build anterior já estilizado. Não identifica a URL vista por Lucas. O defeito de navegação do skip link é separado, corrigido por Lume e ainda aguarda reconferência; CSS aprovado na fatia não aceita teclado global nem a entrega inteira.
+
+**Fase atual: implementação da base frontend FE01–FE13 em andamento**, por demanda expressa FIM_FRONTEND_LUCAS_20261008. React com TypeScript em frontend/, visual básico preto/branco/azul, sem rodada estética. [Demanda integral](../orchestracao/.runtime/frontend-demanda-lucas-20261008.txt) e [distribuição/limites](../orchestracao/.runtime/frontend-farol-escopo-lucas-20261008.json). Posse atual distribuída por autorização expressa de Lucas: Cedro assume somente frontend/src/modules/regularizacao/ e testes próprios FE12; Prumo, estilos/entrypoint (src/styles/, styles.css, main.tsx, index.html) e prova do CSS; Lume mantém os demais arquivos frontend, contratos/cliente/workflow/agregadores e integração/checks finais. Vigia revisa em leitura fatias estabilizadas e artefatos próprios, em paralelo. Farol mantém canônicos, decisões, continuidade, mapa e recibos centrais. A abertura inicial não havia enviado trabalho a Cedro/Prumo; a distribuição paralela e o incremento DEV01 acima são os estados atuais.
+
+**Prioridade expressa de Lucas — CSS aplicado e execução paralela:** “nenhum css de fato foi aplicado sendo que tem css, eu falei pra aplicar so uma base fina, e nao deixar html puro, e precisamos adiantar rapido, coloque outros agents para adiantar outras coisas”. Prumo confronta imports/entrypoint/asset e DOM/computed styles em navegação real desktop/coletor; corrige a base fina preto/branco/azul, legibilidade/espaçamento/alinhamento/controles/tabelas/feedback/foco/responsividade, sem refinamento estético. Cedro completa FE12; Lume os demais recortes; Vigia reconfirma fatias estáveis sem esperar fecho global. Handoff imutável F49F86454F8852DDF334C71A04E4EBD624968B28892D62FAAA70883711E2220B; formatter anterior encerrado, donos liberados sem concorrência. [Distribuição e fronteiras](../orchestracao/.runtime/frontend-farol-distribuicao-paralela-lucas-20261008.json).
+
+**Escopo concreto:** telas administrativas e fluxos de coletor segundo contratos atuais; navegação, formulários, consultas/ações, carga/vazio/erro/sucesso, prevenção de envio repetido, acessibilidade/teclado e responsividade. Cliente HTTP central e DTOs precisos; backend continua responsável por regras, disponibilidade, permissões e cálculo. Configuração externa sem segredos; nenhuma rota ou autenticação inventada. Provedor JWT/CORS real e equipamentos permanecem dependências próprias. Referências reais inventariadas: um PDF de especificação, dois DOCX e README; originais preservados.
+
+**Validação autorizada:** instalação/build/tipagem/lint/testes e exercício do frontend local próprio. Respostas fictícias explicitamente identificadas para ensaio isolado não comprovam integração real. Fonte, comandos/logs/hashes, cobertura concreta BE→FE e revisão independente serão consolidados; FE13 real com API/dispositivos permanece pendente enquanto impedida. Não concluir pela existência de scaffold, formulário genérico ou contagem de testes.
+
+**Preservação e limites:** FINAL14 backend LOCAL concluída/revisada/aprovada, sem faltante local executável conhecido; não repetir tarefas/testes/build backend. D30 geral aberta, aceiteLocalIntegral=false, C06/C07/C10 requeridos impedidos conservados. D29/317nativas/6equipamento/45externas/47históricas/corte temporal e históricos/IDs/checksums preservados. O limite inicial sem SQL/HTTPDEV foi incrementado exclusivamente por D31-DEV01 acima, condicionado à resolução segura e nova guarda; a integração real permanece bloqueada. Nenhuma migration/DDL/PROD/sa/runtime compartilhado/restart/kill existentes/fiscalreal/dispositivos/publicação/commit/push/ETL/rotina/callback ou ask Hermes autorizado. Processos próprios FE e, após guardas, BE DEV permitidos.
+
+**Critério de fecho D31:** base funcional entregue e exercitada; contratos/documentação coerentes; parecer independente sobre fonte atual; limitações reais delimitadas. Recibo final somente [JSON](../orchestracao/.runtime/frontend-resultado-lucas-20261008.json) e [MD](../orchestracao/.runtime/frontend-resultado-lucas-20261008.md). Registro iniciado em 2026-10-08T17:55:54.3120267Z. Próximo passo: Lume implementa/valida, Vigia revisa fonte estável; Farol consolida evidências e encerra aguardando decisão de Lucas.
+
+**Revisão do MARCO01 em 08/10/2026:** tipagem/lint/211 testes/build/oito jornadas de navegador passaram também em cópia independente, mas três focais novos de Vigia reproduziram defeitos: FE-VIG-002 (vínculo de pedido e reserva/derivados), FE-VIG-003 (constraints de elementos primitivos de listas) e FE-VIG-004 (null em resposta primitiva obrigatória). O MARCO01 não recebeu aceite local. Lume preserva o marco e corrige exclusivamente frontend/ para novo freeze/provas/MARCO02; Vigia reconfirma as correções antes do fecho. Organização estrutural e recortes anteriores foram tratados, sem compensar os três defeitos. O mapa em execução é intermediário, sem aceite de comportamento; será reconciliado com a fonte final. FINAL14 permanece intocada.
+
+**Suficiência das jornadas locais (revisão 8):** além dos três defeitos, o parecer preserva parcelas operacionais locais ainda não demonstradas em FE04/05/06/08/09/10/11/12, especialmente retirada/retorno/devolução em FE10. Lume recebeu complemento focal da mesma demanda para resolver percursos essenciais e provar comandos, referências, revisões e feedback; Vigia delimita suficiência em artefatos próprios. Formulários, mapa de 161 rotas e mocks isolados não aceitam passos ausentes. Integração real permanece requisito separado. [Confronto e encaminhamentos](../orchestracao/.runtime/frontend-farol-suficiencia-jornadas-20261008.json).
+
+**Correção expressa de Lucas nesta mesma demanda (registro 2026-10-08T18:44:36.079090+00:00):** “estou achando o codigo muito mal organizado, cuidado”. Organização, legibilidade, acoplamento e testabilidade passam a critério de entrega: separar telas/módulos, componentes, contratos/HTTP, hooks e estilos por responsabilidade concreta; corrigir concentração, duplicação e abstrações sem uso, preservando comportamento. Lume corrige; Vigia revisa explicitamente a organização na fonte estável; verificar frontend após as correções. Sem rodada estética, missão duplicada ou ampliação dos limites. Base não será declarada pronta com desorganização material conhecida. Inspeção e snapshots em [D31-ORG01](../orchestracao/.runtime/frontend-farol-organizacao-20261008.json).
+
+## Histórico anterior preservado — FINAL14 e demais fases
+
+A demanda D31 inicia frontend expressamente; textos antigos “frontend não iniciado/aguarda demanda” conservam sua data e não descrevem mais esta nova fase. A aprovação e os limites backend históricos permanecem inalterados.
+
+**D30 — verificação local integral backend/documentação/contratos, demanda Lucas07/10/2026:** em andamento BE01–BE16. Frontend não iniciado; FE01–FE13 recebem somente ligações documentais. [Escopo e dez critérios](../orchestracao/.runtime/d30-farol-escopo-e-distribuicao.json), [matriz atual](../orchestracao/.runtime/d30-matriz-aceite-local.json) e [andamento](../orchestracao/.runtime/d30-farol-andamento.json). Aceite integral somente com zero critério local pendente, sem percentual por número de testes.
+
+**Produto integral de disposição recebido:** [Lumev10](../orchestracao/.runtime/d30-lume-revisao-integral-v10.json) preserva1131IDs,727/706,1373/192,161rotas,48/39 e45/47. Cada linha possui definição/usos/oráculo/prova relacionada ou limite/faltante; não aceite de comportamento por estrutura, URI, chamada, annotation ou nome. [Fila de encaminhamentos](../orchestracao/.runtime/d30-farol-fila-integral-lume-v09.json) conserva51qualificações individuais, sem limitar o conjunto. Cedro confronta equivalentes e completa faltantes locais; Vigia revisa assertivas/recibos. Reserva no cálculo, DUN contextual, marcos encerradaEm, hash decimal e compromissos/rollback do encerramento continuam com disposição específica.
+
+**Provas revisadas e versões:** [Vigia01/02](../orchestracao/.runtime/d30-vigia-parecer-focal01-02.json), [03–05](../orchestracao/.runtime/d30-vigia-parecer-predicados-focais03-05.json), [Prumo/SQM/06–08/header](../orchestracao/.runtime/d30-vigia-parecer-prumo-focais06-08-sqm-header.json) e [Long12/13](../orchestracao/.runtime/d30-vigia-coercao-long-focais12-13-conferencias.json) favoráveis somente aos predicados delimitados, sem somar execuções ou fechar pais. [Integer14/15 autor](../backend/evidencias/d30-cedro-coercao-integer-recibo.json) conserva red4/4/0/0 e green4/0/0/0 dos quatro negativos; [Parecer INTEGER independente](../orchestracao/.runtime/d30-vigia-coercao-integer-focais14-15-conferencias.json) favorável somente aos quatro negativos; positivos/nulos/exatos/overflow/Long/Decimal e regressão completa pendentes na última fonte. Módulo correnteDF7D Long/Integer distingue versão histórica5C630 do green13;259main atuais,258anteriores preservadas nas capturas. Header64KB é correção local de transporte, domínio500/Long/sub200/900s intacto. Prumo317 estático e SQM7/34zeroJDBC revisados com limites; A11 valor lexical suficiente na captura5F230, textoUTF8autorD01D/F183 qualificado separadamente em [Vigia](../orchestracao/.runtime/d30-vigia-a11-utf8-versao-parecer.json), sem retroagir hashes ou repetir confronto. Não materialização/ORDERBY/locks reais. A associação futura RN09.01/V40.02/AC09.06 recebeu [parecer Vigia17–20](../orchestracao/.runtime/d30-vigia-associacao-focais17-20-parecer.json) favorável somente aos vetores do green20, com fixture/red/parcial separados; rollback tardio, audit/op por assertiva dedicada, SKU/dados/nulos e FINAL permanecem pendentes. FatoServico e seu service mudaram por caminho/SHA; preservação das258 fontes anteriores é histórica, sem certificar todasasatuais iguais.
+
+**Ainda necessário para concluir LOCAL:** resolver todos faltantes pertinentes nas706/727/1373/161/classes/variáveis, incluindo fonte nova no inventário de símbolos após última mudança. A08 temporal lossless, A10 schemaH2 e três ramosv09 têm primeira execução somente na regressãoFINAL;65GETs precisam observação guardada por rota/cenário, reaproveitando jornadas, sem duplicar fixtures/focais. Depois das últimasfontes: finalCOMPLETO seguro com fonte/snapshot/classes/JAR/XML/log da mesma execução, mapa produtivo por caminho/SHA, freeze e revisão independente de TODO pacote. [Disposição documental Farol](../orchestracao/.runtime/d30-farol-disposicoes-documentais-v09.json) confirma fontes do vínculo futuro adicional/peso e explicita lacunas locais; não cria conversão ou saída fictícia. [Contrato derivado atualizado](../orchestracao/.runtime/d30-farol-adenda-contratos-associacao-inteiros-v01.json) separa associação/replays/consulta atual e negativos Long/Integer, preservando prefixo do documento35. [Adenda Lumev05](../orchestracao/.runtime/d30-lume-adenda-v10-vigia-assertivas-v05.json) preserva as disposições anteriores e individualiza equivalentes/faltantes de recebimento, unitização e saída; [gate de cobertura](../orchestracao/.runtime/d30-farol-gate-final-disposicoes-v10-v01.json) e [faltantes por atributo](../orchestracao/.runtime/d30-farol-gate-final-atributos-faltantes-v10.json) mantêm IDs/pointers em batches sem aceite estrutural. limites de recebimento, unitização e saída continuam na mesma fila, com comandos válidos e conservação na recusa, sem repetir positivos já provados. Ausência de prova realSQL não impede predicados locais. Nenhum impedimento concreto de execuçãoLOCAL identificado; trabalho restante não é aceite nem bloqueio externo.
+
+**Autoridade e preservação:** Cedro único escritor/executor backend; Farol docs/canônicos; Lume/Prumo/Vigia leitura e próprios artefatos. HTTPLOCAL+H2 efêmero fictício e mocks autorizados com configuração/URL/perfis e guardas fail-closed antes dos casos. SQLIT somente compilação. SQLServer/HTTPDEV/sondas/banco real,PROD,sa real,servidor/runtime/acessos,DDL/migrations reais,restart/kill/reset/limpeza,publicação/commit/push,ETL e rotinas continuam suspensos. D29 e históricos preservados; byte-identidade das caudas apenas na linhagem temporal conferida em [Vigia](../orchestracao/.runtime/d30-vigia-canonicos-vinculos-temporais.json), sem afirmar todosbytes imutáveis desde baseline inicial. Dependências nativas/equipamento/externos conservam requisitos e encaminhamento próprio; nenhuma simulação os aceita. FE aguarda demanda posterior.
+
+**Delimitação atual de defaults e provas:** a [adenda dos defaults de Avaria](../orchestracao/.runtime/d30-farol-adenda-contratos-defaults-avaria-v01.json) qualifica somente os dois construtores compactos Java NULL→false; binding HTTP, permissões, replay e efeitos dos callers continuam com prova própria pendente. O [parecer de oráculos da primeira FINAL](../orchestracao/.runtime/d30-vigia-oraculos-final-inteiros-get-v01.json) exige capturas H2 pertinentes por rota/caso/contexto, handler real e fisicoIgual=true, ligadas à fonte/XML da mesma execução; XML verde sozinho não atesta as fotografias. Captura ausente, false/null ou concorrente sem correspondente permanece pendente. Contextos sem banco conservam prova própria. A [revisão das assertivas de componentes](../orchestracao/.runtime/d30-vigia-componentes-v13-v15-limites-assertivas-v01.json) mantém validação aninhada, causalidade do400 e transformações por caller nos mesmos IDs, sem aceite por roundtrip sintético.
+
+**Consolidação de disposições,08/10/2026:** [Vigia:706locais/727IDs](../orchestracao/.runtime/d30-vigia-cobertura-facetas727-local706-v01.json), [1373atributos](../orchestracao/.runtime/d30-vigia-cobertura-atributosDTO1373-v01.json) e [161contratos](../orchestracao/.runtime/d30-vigia-cobertura-contratosHTTP161-v01.json) têm disposições individuais conferidas; fontes/corpos relacionados e faltantes preservados, sem equivalência comportamental por contagem. [Lumev07](../orchestracao/.runtime/d30-lume-adenda-v10-delta-produtivo-v07.json) e [Vigia32](../orchestracao/.runtime/d30-vigia-delta-produtivo-v07-simbolos32-v01.json) delimitam32símbolos selecionados, não total corrente8716; onze do módulo faltavam no índice histórico. [Posição v08](../orchestracao/.runtime/d30-lume-adenda-v10-posicao-por-id-v08.json) qualifica a restrição na mesma posição, sem exclusividade global deSKU/cliente; [sobrecargas v09](../orchestracao/.runtime/d30-lume-adenda-v10-sobrecargas-v09.json) corrige cinco vínculos derivados: Indicador146 conserva fuso e fixa produtoId=null, controller chama157 com ambos. [Consolidação v32](../orchestracao/.runtime/d30-farol-consolidacao-contratos-guardas-v32.json) importa planos Cedro34–37 e a leitura estática C07 Prumo: receita declarativa não é executor/FINAL. format31/compile31 exit0 informado pelo autor; nenhum JUnit novo após focal20. Ainda pendem disposições correntes completas de classes/variáveis, complementos finitos, último código/símbolos, freeze/executor seguro/primeiraFINALcompleta e revisão geral. Fragmentos graph v2 são históricos após esta atualização dos cabeçalhos; integração e fonte corrente mantêm gate próprio C09. C01–C10 abertos; SQLServer/FE suspensos.
+
+**Regressão e partições,08/10/2026:** a [consolidação FINAL02](../orchestracao/.runtime/d30-farol-consolidacao-final02-particoes-v34.json) confere os50XML/artefatos preservados e87reds porcaso:695/67/20/0,608green,exit1 e0JAR somente nessa execução. FINAL01 anterior falhou em formato semJUnit/JAR; não somar tentativas nem inferir87defeitos produtivos. Cedro trata causas compartilhadas, fixtures/oráculos/instrumentação e candidatos materiais antes da próxima regressão completa após últimas fontes. [Lume autoria exclusiva v02](../orchestracao/.runtime/d30-lume-particao-semantica-v02.json) e [Prumo autoria exclusiva v1](../orchestracao/.runtime/d30-prumo-particao-semantica-v1.json) foram recebidas comIDs/pointers/SHA preservados; suficiência semântica/provas e FINAL continuam em revisão independente. [Parecer de suficiência Cedro](../orchestracao/.runtime/d30-vigia-cedro-indice-semantico-linhagens-v01.json) exige substituir disposições genéricas por transformação/invariante/caller/assertiva/oráculo/versão ou faltante concreto. [Ligações por dono/caller](../orchestracao/.runtime/d30-farol-ligacoes-prumo-v36-distribuicao.json) preservam356grupos sem duplicação, sem testes novos automáticos. Histórico8716 permanece; inventárioV06 corrente8744 e delta28 são declarações, não requisitos/testes/aceite. O [mapa documental v34](../orchestracao/.runtime/d30-farol-graph-documental-integrado-v34.json) foi integrado combackup/guardas e posse liberadaCedro; seusSHAs são temporais anteriores a este registro. C09 exige fonte/mapa final após últimas mudanças. Freeze/regressão/revisão geral não aguardam mera redação; achados reais permanecem na fila. C01–C10/D30 abertos; SQLServer/FE/históricos e limites mantidos.
+
+**FINAL04 e faltantes locais comprovados,08/10/2026:** a [conferência FINAL04](../orchestracao/.runtime/d30-farol-final04-pacote-conferencia.json) verifica696/0/0/0,50XML,1JAR e7095artefatosSHA da mesma execução,exit0; FINAL01/02/03 e seusreds continuam históricos separados, sem soma. Isso comprova regressão/proveniência deste snapshot, não aceite integral por número de testes. A [conferência GET65](../orchestracao/.runtime/d30-farol-get-final04-conferencia-v42.json) confronta rota/handler/caso/XML/hash das fotos64 e conserva18faltantes positivos:47rotas têm captura2xx pertinente, sem aceitar403/handlerNULL/concorrentes sem correspondente. Cedro complementa somente faltantes na fila vigente; fonte nova exige nova correspondência e regressão final após últimas mudanças. As [ligações Lume/Prumo](../orchestracao/.runtime/d30-farol-ligacoes-lume-prumo-v40.json) têm33grupos originais sem omissão/duplicação, com provas delimitadas ou falta concreta; instantes de cadastro, strings fiscais/cnull e limites individuais provider/declarações sem caller permanecem em confronto de equivalentes. [Plano de cadastros](../backend/evidencias/d30-cedro-transformacoes-cadastros-confronto-plano-v52.json) identifica candidato fiscal positivo real, sem generalizarcnull/tempo. Os [exemplos semânticos Cedro](../backend/evidencias/d30-cedro-semantica-autoral-v49.json) não concluem57classes/323grupos por contagem; autoria específica e parecer independente integral ainda necessários. O [mapa documental v41](../orchestracao/.runtime/d30-farol-graph-documental-integrado-v41.json) preserva ASTv04/backup e oito fontes temporais anteriores a este registro; posse liberadaCedro para AST após últimas fontes. Não repetir verdes por mera redação. C01–C10/D30 continuam abertos; faltantes locais são trabalho autorizado, não impedimentoSQL. IncidenteD29/guardaSQLServer não resolvidos nem reexecutados; FE não iniciado.
+
+**FINAL05 e deltas por item,08/10/2026:** a [conferencia FINAL05](../orchestracao/.runtime/d30-farol-final05-pacote-conferencia.json) registra700/2/0/0,51XML,exit1 e0JAR na execucao encerrada naturalmente; FINAL04696/0/0/0/JAR permanece prova de seu snapshot, sem soma ou heranca para fontes posteriores. Os doisreds foram preservados por caso/XML e [importados com a prova fiscal Lume](../orchestracao/.runtime/d30-farol-lume-final04-final05-deltas-v44.json): consulta da importacao retorna enderecos vazios versus expectativa da confirmacao; alteracao fisica no mesmo instante aplica ramo monotono de um microssegundo. Cedro confronta contrato/oraculo antes de corrigir, preservando main se a falha for expectativa; isso nao infere bug geral nem autoriza tolerancia temporal. A [consolidacao Prumo/Vigia](../orchestracao/.runtime/d30-farol-prumo-vigia-final04-registros-v45.json) conserva29grupos e33pareceres porID; MapDecimalMAX/associacao/rollback simulado/captura temporal tipada sao suficientes somente nos vetores revisados FINAL04. NULL/default/omissao/limites nao herdam o positivo fiscal11; identidades, versoes otimistas e repositories conservam faltante concreto de ligacao/caller quando aplicavel. Autoria Cedro57classes/323grupos, provas GET65/complementos atuais, ultima regressao verde comJAR/freeze/mapa e revisao independente geral continuam pendentes. Nao repetir focais verdes por redacao ou criar teste por getter/alias/variavel. C01–C10/pais/D30 abertos; SQLServer/FE/incidenteD29/historicos e limites permanecem.
+
+**Próximo passo D30:** [decisão local revisada e impedimentos](../orchestracao/.runtime/d30-farol-consolidacao-decisao-local-v90.json): bloco LOCAL da fonte14 conferido e aprovado somente nos predicados/canais/oráculos/limites revisados. [Parecer geral Vigia](../orchestracao/.runtime/d30-vigia-final-geral14-parecer-v01.json) conclui C01–C10 na parcela local, sem faltante local concreto conhecido ou novo teste/código necessário. FINAL14:708/0/0/0,exit0,1JAR,fonte/ZIP/classes/log/XML/capturas mesma execução; número de testes não é cobertura. Disposições93e/v117 e GET65/contextos/provider/A08 atuais revisados, AST11/mapa84 na fonte14 e preservação de relações confirmados. D30 geral/pais permanecem abertos:317facetas nativas,6equipamento,45externos/47históricos e corte03:00Z não cumprido; parcelas requeridas impedidas conservadas no denominadorC06/C07/C10, sem aceite porH2/static/mocks nem relabel. SQLD29 sem resolução segura/nova guardaWMS_DEV/WMSDEV/TLS. Próximos encaminhamentos são os donos/IDs da matriz e futura retomada nativa só no escopo seguro autorizado; nenhuma execução atual. Recibo parcial previsto em orchestracao/.runtime/d30-resultado-parcial-final14.json; frontend aguarda demanda posterior. D29/reds01–13/preexistentes preservados, sem soma/backdate/publicação/commit/push/ETL.
+
 Registro iniciado em 03/10/2026. As decisões do responsável, os requisitos da especificação e as propostas de análise têm origens diferentes. Em 05/10/2026 foi recebido o questionário com respostas aos 110 subitens. As interpretações decorrentes estão identificadas e permitem avançar no desenho sem nova rodada extensa de perguntas.
+
+
+
+## D29 — cobertura documental/técnica ampla e novas famílias DEV,07/10/2026
+
+
+
+**Retomada local expressa de Lucas,07/10/2026:** bloco local concluído e revisado pelo [parecer final Vigia](../orchestracao/.runtime/d29-fecho-local-vigia-final.json), favorável com limites; resultado no [recibo parcial](../orchestracao/.runtime/d29-resultado-parcial-fecho-local.json), sem fecho geral ou sistema completo. [Matriz1131/48/39](../orchestracao/.runtime/d29-fecho-local-lume.json), [síntesePrumo](../orchestracao/.runtime/d29-fecho-local-prumo.json) e [parecer498](../orchestracao/.runtime/d29-fecho-local-vigia-build498.json) consolidados. Os nove novos locais9/0/0/0 foram revisados: seis permutações comR$1,00 (0,33/0,33/0,34) e cortes1/0/32 somente em serviços reais/repos simulados. R$0,01 de RN09.03/CT29-L043-01 e ORDER BY SQL nativo permanecem sem prova específica deste recorte; predicados locais não homologam autorização real,400HTTP,persistência ou rollback. UTF8 Cedro corrigido pelo autor e hashes importados; versões históricas diferentes recebem limite explícito, sem reconstrução. Nenhuma nova sonda/SQL/HTTP/escrita até resolução segura comprovada e nova guarda dentro do escopo autorizado. Preservar fatos/reds, seis aceites anteriores e pais abertos; incidente/preservação final/corte/witness/727equivalências/45externos têm impedimentos e encaminhamentos distintos. Nenhuma repetição do pacote concluído. Guarda futura permanece naD29 já autorizada após comprovação segura; ações fora do escopo exigem autorização própria.
+
+
+
+**Incidente SQL prioritário D29,07/10/2026:** Lucas relatou connection timeout. Novos ensaios SQL, chamadas HTTP e escritas de negócio estão suspensos até resolução segura e nova guarda real WMS_DEV/WMSDEV/TLS. A tentativa única de diagnóstico de Prumo já terminou; a retomada atual não autoriza nova sonda, SQL ou HTTP. Cedro completa somente lacunas locais comprovadas; Lume consolida a matriz existente, Prumo os impedimentos em arquivos e Vigia revisa o pacote local. Farol mantém os registros e o recibo delimitado. Sem restart, mudança de servidor/runtime/acessos, kill de transações ou limpeza. Timeout de abertura/prelogin antes de identidade já registrado; serviço/listener não comprovam login, saúde SQL ou autoria. [Controle de suspensão](../orchestracao/.runtime/d29-incidente-suspensao-farol.md). D29 permanece aberta; nenhuma atribuição causal sem prova.
+
+
+
+**Diagnóstico do incidente D29,07/10/2026:** sonda única Prumo20:39:17Z falhou em5,12s no prelogin (SQL_-2/native258),pooling=false,zeroSELECT/HTTP e identidade/TLSatuais não confirmados. MSSQLSERVERRunning/PID65088 desde05/10,mesmoPIDD24/listener1433; não prova saúde. Quatro eventos70117:02Z de memória no poolinternal precedem preflightválido19:14:15Z; causa atual/aplicação causadora inconclusivas. Histórico administrativoD24/D26/D27 separado deD29HTTPDEV; nenhum comandoD29 de alteração global encontrado nos registros revisados, sem afirmar inexistência universal. [Recibo do incidente](../orchestracao/.runtime/d29-incidente-diagnostico-farol.md). Escritas/ensaios suspensos até resolução segura e nova guarda. Vigia1131/39 ePRIO06local14/0 revisados porcanal, semaceitepais/DEVporH2; preservação final1895+5tardios e demais limites individuais mantidos. D29 não encerrada.
+
+
+
+**Correlação701 D29,07/10/2026:** nos21arquivos HTTP/1491respostas,19fotos/1274intervalos de queries de collectors e85logs WMS examinados, não há resposta, intervalo de consulta publicado ou linha JVM timestampada entre14:02:08 e14:02:20BRT. Isso não exclui atividade/API/SQL/JVM ou consumo de memória e não identifica aplicação causadora. Fonte/checkpoint documental17:02:35Z não prova execução SQL naquele segundo. O processo65088 sem reinício e a configuração atual são critérios distintos: configuração atual permanece não comprovada enquanto a guarda falha. Aplicativo/tela, horário e erro exato do timeout relatado porLucas foram solicitados neste canal e seguem pendentes; sondaPrumo e erroEnsaioD29 não os substituem. [Correlação offline](../orchestracao/.runtime/d29-incidente-correlacao701-farol.json). AdendaVigia57/0 resolveu fonte04versus14/UTF16 sem mudar bytes; nove novosPRIO06 e consolidado14 já revisados. Escritas/ensaios continuam suspensos, sem reexecução ou atribuição causal.
+
+
+
+**Aceite delimitado dos seis vínculos D29,07/10/2026:** RN24.02/MULTI01, V33.02/RET01, AC05.01/CAP01, Q-D10-L047-S02/RET02, Q-D10-L059-S02/RET05 e Q-D10-L059-S03/RET03 atendidos somente nos casos DEV enumerados e revisados. Base LumeFINAL19:49:39.577Z/DEFCDF57, parecerVigia23/0/9C42A9F2; nenhuma nova execução. Pais abertos. Saldo porSKU10=8reservado+2bloqueado+0disponível; texto disponível2 original preservado, sem usar como esperado. Revisão local14 posterior preservada. CheckpointCedro029 está na cópia histórica; corrente456 é atualização20:45, não prova de negócio ou posse. [Aceite e fontes](../orchestracao/.runtime/d29-farol-aceite-seis-vinculos.json). Incidente e escritas suspensas permanecem; configuraçãoSQLatual não comprovada, causa/aplicação e relatoLucas pendentes. Sem fecho geral.
+
+
+
+**Origem e autorização:** nova demanda expressa de Lucas após fecho D28. Suprir lacunas da validação backend/documentação, popular WMS_DEV com todos os dados fictícios rastreáveis necessários por HTTP/API, coordenar mesmos chats até comprovar o tecnicamente possível ou demonstrar bloqueio concreto. Não limitar à repetição D28 ou ao número de métodos/HTTP200. Matriz completa requisito/regra/cenário/correção -> caso/oráculo -> evidência -> atendido/não atendido/depende de validação externa; preservar IDs RN/I/PR/V/AC e distinguir propostas de decisões.
+
+
+
+**Escopo:** recebimento/XML/divergências/quarentena; unidades/transformações/etiqueta documental; capacidade/endereço/movimento/FIFO/avaria; estoque/reserva/pedido integral/retirada parcial/reversões/repetição/perfis/alcance; cargas/contagens/ajustes e financeiro. AC04–08 positivos/zero/limites/recalculo por exemplos de teste e esperado independente, sem aprovação comercial presumida. Concorrência HTTP real com repetições/controles, sem gate artificial apresentado como lock nativo. Investigar observabilidade da identidade atual para SQL300 sem sa/DMV administrativa/grants/acessos novos; se inviável, prova alternativa e permissão faltante precisas. Corrigir defeitos concretos autorizados com red/green/build novo/reexecução/revisão.
+
+
+
+**Limites:** confirmar DB_NAME WMS_DEV e WMSDEV restrita antes de teste/população; preservar banco populado/fixtures/históricos, negócio apenas HTTP fictício. Nenhum PROD/DDL/migration/launcherDEV-PROD/sharedruntime/servidor/terceiros/frontend/publicação/commit/push/fiscal externo/cobrança real/reset/DELETE/SQL direto de fixtures/IT vazio/sa/grants. Não alterar relógio/fatos para corte nem inventar estoque real/preços/provedor/aceite humano. Impressora/coletor/operação/fiscal externo/aceite AC/recuperação em destino isolado ficam separados; avançar contratos/testes locais, sem dispositivos/serviços/restauração não autorizados. Simulação não comprova físico/fiscal.
+
+
+
+**Coordenação:** Farol central/matriz/fecho; Cedro backend/jornadas/build; Prumo preflight/SELECT/observabilidade permitida; Vigia revisão independente; Lume apenas leitura contratual/documental. Arquivos e guardas no [contrato D29](../orchestracao/.runtime/d29-autorizacao-e-distribuicao.md). Recibo final WMS somente orchestracao/.runtime e resposta neste ask, sem callback Hermes/ETL. D29 em andamento, nova demanda prevalece sobre aguardar do fecho D28; D28 abaixo preservada.
+
+
+
+**Achado D29 em tratamento,07/10/2026:** XML XInclude foi aceito201 apesar da recusa400 expressa no contrato24:101, com pedido persistido. Preservar fixture/snapshots/auditorias e corrigir somente parser Java, sem DDL/acessos/limpeza; red/green público, build novo, nova identidade HTTP, SELECT e revisão independente já autorizados. [Proposta anterior à alteração](../backend/evidencias/d29-defeito-xinclude-proposta.md). Não há prova de leitura de arquivo/rede. O genérico SELECT comprova persistência e não anula o oráculo focal vermelho. Previsões financeiras66/76 e recusa por corte08/10 são provas diferentes de aprovação/reabertura; relógio/fatos continuam imutáveis. [Andamento e matriz](../states.md).
+
+
+
+**Fecho da correção XInclude D29,07/10/2026:** greenD29E89F4D21 recusou400 com nova identidade no JAR7E22471E…939FD; SELECT134/0/focal101/0 comprova ausência de novos efeitos e preservação do pedido66 vermelho. Vigia revisou943/0 verificações; Farol conferiu somente os próprios dois PIDs/duas portas sem processo/listener em18:40:36UTC. [Achado e provas](../orchestracao/.runtime/d29-achados-farol.json), [parecer independente](../orchestracao/.runtime/d29-vigia-xinclude-green.json). Correção aceita nesse caso, sem aceitar XML inteiro/fiscal/segurança ou backend completo. Reds, demais limites e critérios D29 continuam preservados.
+
+
+
+**Retomada da D29 existente autorizada por Lucas,07/10/2026:** queda Farol e recuperação de Prumo/Lume/Vigia com --no-daemon não abrem incremento nem autorizam duplicar operações ainda produzidas pelas sessões originais. Reconciliar por arquivos/instantes/metadados; novos leitores usam arquivos distintos. Nenhum reinício de daemon/Maestri ou mudança de acesso pelo Farol. [Registro](../orchestracao/.runtime/d29-retomada-infra-reconciliada-farol.json).
+
+
+
+**Limite material de preservação D29:** collector antigo buscava separações por conjunto_origem_id opcional; as1.895linhas/hashes enumeradas não incluíam separações sem esse conjunto. CincoIDs foram capturados em baseline complementar tardia19:16:17Z, sem retroatividade. Preserve baseline/confrontos antigos; comparação futura desses5IDs comprova somente desde a captura tardia. Esse limite não é apagado por build/SELECT genérico ou contagem maior. [Resumo Prumo](../orchestracao/.runtime/d29-prumo-preservacao-separacoes-baseline-resumo.json).
+
+
+
+**Impedimento atual de acesso D29:** tentativas19:22/19:24 retornaram SQL_-2 antes de DB_NAME/login/usuario, zeroqueriesdeDados, sem fallback e com conexões próprias descartadas. Não tratar ausência de captura como zero registros. Serviço/listener ativos19:27 não comprovam identidade, disponibilidade ou causa; preflightFarol19:14 é prova anterior. Só retomar etapa SQL/API após nome real/identidade/restrições/TLS novamente comprovados. Nenhuma mudança de servidor/acesso autorizada por este diagnóstico. [Evidência](../orchestracao/.runtime/d29-prumo-acesso-checkpoint.json).
+
+
+
+## D28 — regressão real das correções D26/D27, 07/10/2026
+
+
+
+**Autorização expressa de Lucas recebida às 09:03 BRT:** repetir o teste real do backend com banco para todas as correções identificadas, sem frontend, nos mesmos chats WMS Cedro/Prumo/Vigia/Farol. Inventariar correção → caso → evidência nova no artefato atual e executar build/regressão e jornadas HTTP/API/JPA com confronto SQL novo. Histórico D26/D27 é fonte do inventário, nunca substituto desta execução.
+
+
+
+**Limites:** SQL exclusivamente WMS_DEV, nome real comprovado antes de testes/fixtures; API somente WMSDEV restrita, nunca sa. Banco populado: preservar fixtures/históricos, sem reset/DELETE/IT de banco vazio/reaplicar V1–V10/launcher DEV→PROD. Sem PROD/DDL/grants/sharedruntime/servidor/terceiros/frontend/publicação/commit/push. Escritas de negócio somente HTTP fictício rastreável. Revisão independente e red/green de defeitos concretos dentro desse escopo; impedimento material fora dele deve ser registrado, sem contornar. Não fabricar corte financeiro/relógio/história para obter aprovação.
+
+
+
+**Coordenação e aceite:** Cedro possui backend/ensaios/d28, evidências/backend e correções Java necessárias; Prumo apenas scripts/evidências novos d28-prumo em orchestracao/.runtime; Vigia apenas pareceres d28-vigia em leitura. Complemento de Lucas na mesma demanda: Lume apoia somente leitura dos contratos/cobertura de respostas API, em d28-lume, sem FE/código/execução. Farol mantém registros centrais, matriz correção/caso/evidência/limites e recibo final somente em orchestracao/.runtime. Concluir com casos efetivamente reexecutados, falhas/não cobertos e estado dos terminais; não declarar backend inteiro homologado por subconjunto. Sem callback Hermes/ETL ou reset dos chats.
+
+
+
+**Estado inicial:** baseline300 arquivos de backend/src+migrations preservado; [permissões observadas dos cinco WMS](../orchestracao/.runtime/wms-permissoes-verificacao.json), Full Access atual, persistência em novo chat não ensaiada. D28 encerrada no escopo comprovado em BE03–BE15, com witness nativo impedido por SQL300; D27 encerrada abaixo conserva seu aceite histórico.
+
+
+
+**Fecho D28,07/10/2026:** build420/0/0/0 novo,17 rodadas/761 HTTP/211 assertivas,29 correções vinculadas e revisão independente favorável com limites. SELECTs atuais1315/0 e focais211/0 sobre as fotos, sem duplicar consultas. Preflight final WMS_DEV/WMSDEV,64/687,V1–V10/311 direitos preservados;300 fontes iguais ao baseline. Quatro reds de roteiro/coletor/precondição preservados e tratados por green/complementos próprios; nenhum defeito novo de negócio demonstrado ou alteração em backend/src/migrations. Concorrência200/409/replay confirmada por HTTP/JVM+gate SELECT/rollback e SQL posterior; witness nativo não observado por recusaSQL300, sem sa/grants. Modo fresco do auxiliar saldo XML removido/bloqueado antes de credenciais/JVM/SQL/HTTP; guarda isolada3/0, sem nova jornada. Processos/listeners próprios zero, mapa AST atualizado, dados/históricos preservados. [Recibo final](../orchestracao/.runtime/d28-resultado-final.json), [matriz29](../orchestracao/.runtime/d28-matriz-correcoes-farol.json), [Vigia](../orchestracao/.runtime/d28-vigia-final.md). Backend total/piloto/comercial/fiscal/provedor/frontend/recuperação/volumetria não homologados. Aguardar nova demanda, sem callbacks Hermes/ETL.
+
+
+
+## D27 — fechamento técnico das pendências API/SQL DEV, 06/10/2026
+
+
+
+**Origem:** autorização expressa de Lucas após o recibo D26: continuar autonomamente nos mesmos chats WMS até concluir o escopo técnico ou demonstrar impedimento real inevitável. **Estado:** concluído no escopo técnico comprovado em06/10/2026, retomada às21:33 BRT e fecho registrado no recibo. D26/históricos preservados; IDs anteriores não renumerados.
+
+
+
+**Escopo autorizado:** BE03–BE15, correção mínima versionada V10 somente WMS_DEV para AJUSTE_ESTOQUE após inspeção administrativa protegida de identidade/TLS/CHECK/Flyway e revisão Vigia; preservar V1–V9/checksums e constraint habilitada/confiável. Reproduzir ajuste/recusas/replay/rollback/efeitos por HTTP e SELECT próprio. Completar jornada financeira não zero com fixture nova válida no corte real; RN22/XML conforme requisitos vigentes, filtros/paginação/perfis/alcance/estados/idempotência/concorrência e demais lacunas técnicas das matrizes D26. Escritas de negócio somente HTTP fictício com WMSDEV; API nunca administrativa. Testes SQL adaptados ao banco populado, sem repetir IT que exige vazio. Build/regressão/JAR final e provas GET/SQL/auditoria por caso; revisão final independente e mapa AST WMS proporcional.
+
+
+
+**Limites:** exclusivamente WMS_DEV. Fonte administrativa compartilhada existente somente pela API protegida para inspeção/migration DEV; nunca pelo launcher normal DEV→PROD, nem pela WMSDEV para DDL. Não alterar sa/credenciais/sharedruntime/SQL Server/serviços/instalação/compatibilidade/collation/trust global/outros bancos, nem grants globais ou privilégios da aplicação para observação. Preservar todas fixtures e históricos; nenhum reset/limpeza/repair/baseline/exclusão de dados. A alteração transacional mínima do CHECK aprovada nesta D27 não autoriza remover proteção de integridade. Sem frontend/projeto alheio/fiscal real/NFS-e/publicação/commit/push/rotinas permanentes/ETL/callback Hermes. Propostas AC e homologação operacional/provedor/equipamentos/recuperação/desempenho permanecem identificadas e fora do aceite técnico.
+
+
+
+**Coordenação:** Farol mantém AGENTS/states/decisões/continuidade/índice e recibo WMS; Prumo possui migrations/executor DEV/SQL/evidências de database; Cedro possui Java/HTTP/roteiros/matrizes/evidências backend; Vigia somente leitura e pareceres próprios. Não editar arquivos do colega em trabalho. Especialistas devolvem no mesmo ask; Farol aciona os próximos passos internos sem reconfirmação do usuário.
+
+
+
+**Progresso21:38 BRT:** [preflight administrativo real preservado](../database/evidencias/d27-preflight-real-20261007T003856112.json) passou em uma tentativa, somente SELECT WMS_DEV/sa, TLS obrigatório/certificado validado, servidor/versão preservados. CHECK habilitado/confiável e expressão OR dos cinco tipos efetivamente visível, histórico SQL V1–V9 igual à D24. Nenhum DDL/DML/grant/PROD; executor/migration ainda preparados para [revisão Vigia](../orchestracao/.runtime/d27-vigia-checkpoint-v10.md). Não confundir esse checkpoint com V10 aplicada ou ajuste HTTP aprovado.
+
+
+
+**Aplicação real21:52 BRT:** [parecer independente](../orchestracao/.runtime/d27-vigia-checkpoint-v10.md) favorável ao pacote revisto, 41/41 fixtures e3/3 execuções nativas offline, sete hashes pontuais conferidos. Farol gravou sinal interno conforme a autorização já existente. [Flyway DEV real](../database/evidencias/d27-aplicacao-20261007T005201425.json): quatro etapas exit0, V10 success/checksum−562012523, domínio completo com AJUSTE_ESTOQUE habilitado/confiável,64/687 e V1–V9/histórico/direitos/fixtures preservados. [Conferência Farol](../orchestracao/.runtime/d27-migration-conferida-farol.json). Nenhuma conexão PROD/DML de negócio/grant/sharedruntime/global. Próxima fase D27: JAR/HTTP WMSDEV e provas próprias; migration aplicada não encerra E052/AC13 por si só.
+
+
+
+**Conclusão D27:** [resultado42](42-validacao-tecnica-api-sql-dev.md), [recibo WMS](../orchestracao/.runtime/d27-resultado-final.md) e [revisão Vigia favorável](../orchestracao/.runtime/d27-vigia-final.md). Build atual420/0/0/0;726 HTTP novos e248 assertivas, históricos/classificações preservados, sem achado material atual aberto nos incrementos revistos. RN22/XML implementada, zero e dois extremos numéricos corrigidos com red/green e HTTP/SQL posteriores. Financeiro50 aprovado no corte real e previsões54/53,75 separadas; V10 aplicada somente DEV, história V1–V9 imutável,311 direitos preservados. Witness SQL online verdadeiro na rodada final, par200/409/efeito único;21 JARs encerrados/42 portas sem listener e mapa AST WMS atualizado.161 métodos positivos combinados D26/D27 não são161 no JAR atual nem backend total/AC/operacional homologados. Regra permanente Hermes AGENTS:55 preservada. Fixtures/dados/históricos permanecem; nenhum PROD, reset, grant adicional, SQL Server/sharedruntime alterado, frontend/publicação/ETL/callback. Aguardar nova demanda; prompts internos já atendidos não autorizam reexecução.
+
+
 
 ## D26 — ensaio real da API com persistência DEV, 06/10/2026
 
+
+
 Lucas: “então vc vai ter que testar populando o _DEV, e esse teste de banco de dados que quero, usando por api para ver se tudo tá funcionando corretamente”. Autoriza executar integralmente o ensaio HTTP da API atual, com Hibernate validate e dados fictícios rastreáveis exclusivamente WMS_DEV, usando identidade própria WMSDEV. Autoriza provisionamento mínimo proposto na D25, como pré-requisito: conferir existência/identidade antes; não sobrescrever login/usuário de terceiros; CONNECT e SELECT/INSERT/UPDATE apenas objetos/colunas necessários da matriz, SELECT imutável do histórico técnico, sem DELETE/DDL/roles administrativas/PROD/outros bancos. Gerar segredo forte em memória e proteger por usuário/máquina/ACL fora Git; administração compartilhada somente pela API protegida, nunca sa no backend nem senha em chat/arquivo literal/SQL literal/log/argumento/env persistente. Atestar direitos efetivos e recusas antes da API.
+
+
 
 Cedro lidera roteiro HTTP, JWT issuer/JWKS RSA efêmeros locais, JAR sqlserver-dev em loopback/porta livre e correções proporcionais com reprodução/regressão. Prumo identidade/credencial/atestado/conexão e leitura escopada da persistência. Vigia revisão independente; Farol registros centrais. Cobrir jornadas existentes do cadastro ao recebimento/unidades/estoque/pedido/reserva/expedição/retorno/cobrança fictícia/contagem/contingência, recusas de segurança/disponibilidade/bloqueios, replay, integralidade/rollback e reserva concorrente determinística. Expected/actual/HTTP e GET/SQL de persistência por caso, sem inventar rotas/campos. Toda escrita de negócio via API; sqlserver-it antes da população se precondições concretas permitirem, sem reset para resolver conflito de vazio/fixtures.
 
+
+
 Preservar regra permanente de Hermes AGENTS:55, todos dados/fixtures/históricos/migrations aplicadas/checksums. Conferir alvo real antes de toda fase; sem BAT DEV→PROD, SQL PROD, DROP/TRUNCATE/DELETE/clean/repair/baseline/recriação. Sem alteração de sa/servidor/instalação/versão/global/compatibilidade/collation/firewall/trust global/sharedruntime/terceiros. Proibidos publicação/frontend/emissão/ESL/cobrança real/commit/push/rotinas/ETL/callback Hermes. Segredos/token/chaves nunca evidências. Encerrar só processos de teste criados e conservar fixtures rastreáveis. Mudança de schema aplicada exige proposta de migration separada, não correção silenciosa.
+
+
 
 **Refinamento de aceite da mesma D26:** testar como Gestor/Supervisor/Operação por HTTP com autenticação de ensaio e persistência SQL. Inventariar endpoints atuais e cruzar matriz requisito/regra/documento → método/endpoint/perfil → caso positivo/recusa/transição/replay/concorrência → HTTP esperado/obtido → GET/SQL/auditoria. Incluir filtros/paginação/validações/erros/alcance/integridade/rollback e valores fictícios explicáveis. Cada API/regra recebe aprovado, falhou ou não executado com motivo. Sem aprovação total se faltar cobertura real; AC propostas e fiscal/provedor/equipamentos reais não homologados. Não substitui por services/repositories/H2/SELECT/happy path; reproduzir/corrigir/regredir e repetir caso HTTP real.
 
-**Status:** em execução; BE03/BE15 e regressão dos módulos BE04–BE14. Dependências D24/D25 e identidade restrita agora autorizada. Resultado/limites serão registrados por evidência real; D25 permanece histórica, sem renumerar IDs. Única decisão material será reportada somente se existir contradição concreta de escopo.
+
+
+**Ligação do diagnóstico administrativo de leitura:** a autorização expressa da D25 para fonte compartilhada sa somente diagnóstico de LEITURA continua vigente; D26 acrescenta provisionamento restrito sem revogá-la. A observação temporária de locks usa exclusivamente SELECT administrativo filtrado por WMS_DEV/WMSDEV/rodada/porteira, com origem e encerramento separados. Não representa acesso sa da API/IT, concessão de DMV à aplicação ou escrita de negócio. Readiness e par HTTP 200/409 não comprovam sozinhos sobreposição SQL.
+
+
+
+**Status:** em validação; ensaios D26 encerrados com falha aberta. WMSDEV/DPAPI/direitos restritos atestados, build412/0/0/0, SQL IT7/0/0/0 antes de popular.159/160 métodos positivos por HTTP; matrizes RN/AC e1.404 solicitações preservam recusas/tentativas/lacunas. Primeira revisão/INSERT e rollback-only de cálculo pendente corrigidos/reexecutados. SELECT236/0, GET/cálculo4 17/0 e adicional financeiro76/0. Ajuste E052 falhou409 por domínio CHECK da V6 não ampliado na V9; rollback42/0, V10 proposta fora fontes ativas, não aplicada, V1–V9/checksums intactos. Corte UTC real permitiu preparar snapshot20, mas fato anulado/recálculo0 bloquearam aprovação com CALCULO_DESATUALIZADO; nenhuma aprovação não zero inventada. Próxima decisão: migration mínima somente DEV em escopo separado. RN22/entrada XML de saída sem endpoint e demais lacunas da matriz explícitas; backend total não aprovado. [Resultado41](41-ensaio-http-e-persistencia-dev.md). D25 histórica, IDs estáveis.
+
+
 
 ## D25 — testes atuais do backend, 06/10/2026
 
+
+
 Lucas: “corrigi já, vamos testar o backend”. Autoriza build clean verify novo e testes HTTP/serviços/arquitetura/regressão, artefato atual em loopback livre e ensaio JDBC/JPA Hibernate validate/sqlserver-it somente WMS_DEV com dados fictícios identificados, após inspeção de integridade/alvo/catálogo/vazio/identidade própria. D24 comprovou migrations e conexão administrativa; os bloqueios D22/D23 são históricos.
+
+
 
 Complemento direto: testes SQL exclusivamente WMS_DEV, recusar PROD/outros/fallback; a edição permanente atribuída a Hermes em [AGENTS.md](../AGENTS.md:55) foi preservada sem refazer patch. Bootstrap DEV → PROD não autoriza testes PROD. Credencial compartilhada sa somente diagnóstico de LEITURA, nunca API/IT. Criação de login/usuário/grants não autorizada; ausência de identidade restrita limita SQL/runtime sem parar build/testes independentes, com proposta administrativa mínima somente WMS_DEV para decisão final. Preservar migrations aplicadas/checksums, fixture persistida do lock, servidor/sharedruntime/terceiros e históricos. JWT efêmero de teste não homologa provedor real. Sem publicação/frontend/fiscal/cobrança/commit/push/rotinas/ETL/callback.
 
+
+
 **Status D25:** entrega local e leituras DEV concluídas, revisão independente favorável; ensaio SQL da aplicação bloqueado pela identidade própria restrita ausente. Build final novo 408/0/0/0 em 20 XMLs e JAR HTTP 6/6, JVM própria encerrada. SqlClient/JDBC administrativo somente SELECT em WMS_DEV confirmaram catálogo 1.295/1.295, 64 tabelas vazias/687 colunas e nove migrations iguais à D24. Correções locais TLS/lock/perfil do IT/cookie de sessão; nenhum schema/DDL/DML/grant/SQL PROD. Cedro backend, Prumo leitura/conexão, Vigia revisão, Farol consolidação. [Resultado40](40-testes-backend-e-leitura-sql-dev.md), [parecer](../orchestracao/.runtime/d25-vigia-final.md), [recibo](../orchestracao/.runtime/d25-resultado-final.md). BE03/BE15 permanecem em validação externa; BE16 local verificada.
+
+
 
 **Encaminhamento único D25, ainda proposta:** autorizar provisionamento de identidade própria e credencial protegida somente WMS_DEV, com CONNECT e direitos por objetos/colunas da matriz existente; SELECT técnico Flyway sem alteração, sem DELETE/DDL/roles administrativas/PROD/outros bancos. Atestar direitos efetivos antes de JPA/API/IT. A demanda de testes não autoriza executar esse provisionamento. Nenhuma fixture de lock SQL criada; o ensaio futuro deixará registro confirmado sem limpeza automática.
 
+
+
 ## D24 — runtime compartilhado e execução real, 06/10/2026
+
+
 
 Pedido direto do responsável: jamais mudar a versão SQL Server 2022 Standard; alinhar a conexão em projetos/.runtime para novos projetos e, ao final, executar o BAT WMS. Autoriza uso administrativo da credencial SQL existente em fonte compartilhada DPAPI protegida, substituindo a exclusividade WMS D22/D23, sem expor senha. Mantém ordem DEV → PROD, preservação das migrations/checksums, TLS validado, servidor e outros bancos imutáveis; sa não é conta da aplicação. Executado e comprovado no [resultado39](39-conexao-compartilhada-e-sql-real.md). Identidades/permissões da aplicação e homologação continuam separadas.
 
+
+
 ## Decisões do responsável pelo projeto
 
+
+
 | ID | Data | Decisão | Consequência |
+
 | --- | --- | --- | --- |
+
 | D01 | 03/10/2026 | Discutir regras de negócio e arquitetura em linguagem simples, antes de código. | Orientou a fase documental inicial; D11 posteriormente autorizou começar o backend. |
+
 | D02 | 03/10/2026 | Frontend React com TypeScript. | Registrar essa base e preparar a implementação futura. |
+
 | D03 | 03/10/2026 | Backend Java com Spring. | Manter o ecossistema escolhido. |
+
 | D04 | 03/10/2026 | Banco SQL Server já disponível na empresa. | Levantar ambiente e acesso; não substituir o banco escolhido. |
+
 | D05 | 03/10/2026 | MVC convencional com repository, models, DTOs e demais camadas usuais. | Organizar o backend por camadas e separar responsabilidades dos serviços. |
+
 | D06 | 03/10/2026 | Analisar o PDF antes de perguntar; o responsável não saberá responder às regras operacionais. | Consolidar lacunas reais em linguagem simples para o gestor. |
+
 | D07 | 03/10/2026 | Criar o projeto em `C:\Users\suporte\Documents\projetos` e documentar em `docs`. | Criada a pasta `wms-rodogarcia`, nome derivado da especificação. |
+
 | D08 | 03/10/2026 | Trazer todas as lacunas identificadas em perguntas fáceis de responder pelo gestor. | Ampliado o roteiro para 27 temas com 110 subitens, preservando Q01 a Q20 e acrescentando Q21 a Q27. Nenhuma regra de negócio nova foi aprovada por essa revisão. |
+
 | D09 | 05/10/2026 | Usar as informações recebidas e o raciocínio para resolver as pontas restantes. | Formular uma base de trabalho para as ambiguidades. Distinguir resposta literal, interpretação e proposta; não exigir nova resposta para cada detalhe nem inventar dados comerciais. |
+
 | D10 | 05/10/2026 | Consultar AGENTS.md e states.md dos outros projetos e montar os arquivos do WMS, com trilha separada em backend e frontend. | AGENTS.md atualizado e states.md criado na raiz; 15 etapas BE e 13 FE com dependências e critérios. Pedido documental, sem início de implementação. |
+
 | D11 | 05/10/2026 | Ler AGENTS.md e states.md para iniciar o backend, mantendo MVC padrão com repository, models e demais camadas, e escolher uma frente. | Escolhida BE02: base executável local, com contrato técnico inicial de BE01. Autoriza código nesse escopo; não autoriza conexão ao ambiente real, migração ou publicação. |
+
 | D12 | 05/10/2026 | Fazer um bloco maior do backend. | Ampliado para cliente, armazém, produto, embalagem e endereço, com JPA, API, permissões JWT, auditoria e V1 SQL Server preparada. Recortes de BE01/BE03/BE04/BE05; testes locais com H2 e identidade efêmera. Nenhuma conexão/migration no SQL Server ou publicação. |
+
 | D13 | 05/10/2026 | Usar `.properties` em resources e seguir boas práticas de engenharia de software. | BE16 acrescenta padronização de configuração, verificação de ferramentas/formato/camadas e validação nas entradas dos serviços. Convenções e escolhas técnicas no documento 16; permanece MVC convencional. |
+
 | D14 | 05/10/2026 | Preparar no Maestri aberto uma orquestração WMS no mesmo canvas, ao lado do ETL v2, com Hermes próprio; preservar os terminais existentes e não conectar projetos. | Hermes WMS com perfil, memória e sessões próprios, mais cinco agentes WMS com papéis exclusivos. Conexões e nota somente da equipe WMS. Preparação/ativação em OR01 e documento 17; não inicia novo bloco da aplicação nem reconfigura o gateway, a ponte ou o perfil antigo. |
+
 | D15 | 05/10/2026 | Aplicar outro macrobloco do backend. | Escolhido recebimento (BE01/BE06): pedido, notas manual/XML, chegadas, quarentena, estorno e efetivação única da quantidade física conferida. V2 preparada; contrato/limites no documento 18. Unitização e disponibilidade pertencem a BE07/BE08. Não autoriza conexão SQL Server, emissão fiscal ou publicação. |
+
 | D16 | 05/10/2026 | Avançar mais no backend. | Escolhido BE01/BE07: unidades logísticas, identidade permanente, divisão/reagrupamento e dados das etiquetas, mantendo MVC e properties. AC10 continua identificado como proposta; endereçamento/disponibilidade em BE08 e validação de equipamentos em FE06. Autoriza código e testes locais, sem conexão SQL Server ou publicação. |
+
 | D17 | 05/10/2026 | Aplicar o próximo macrobloco proposto, BE08. | Entregues endereçamento, capacidade, movimentos, posições conjuntas, bloqueio/liberação e disponibilidade; consultas iniciais BE14 para FE07/FE08. V4 preparada e 153 testes aprovados; contratos/limites nos documentos 22/23. Mantém MVC/properties e propostas AC04/AC05 identificadas; não autoriza conexão SQL Server, migração, cobrança real ou publicação. |
+
 | D18 | 05/10/2026 | Avançar BE01/BE09 pela orquestração WMS: pedido de saída integral, FIFO, reserva atômica sem vencimento, parcial de pallet, exceção por perfil, saldo reservado e bloqueio por avaria posterior. | Autoriza código, contratos, migration SQL Server somente em arquivos e testes locais isolados. Cedro escreve backend/contrato, Prumo migration/procedimento, Vigia revisa em leitura e Farol consolida os registros. Preservar BE08 e alterações existentes. Exige formatação, clean verify com saída real e atualização Graphify. Proíbe conexão/migration SQL Server real, emissão fiscal, cobrança real, publicação, commit/push, rotinas, alteração dos perfis Hermes e uso do ETL. AC10/AC11 continuam interpretações/propostas identificadas; frontend não iniciado. |
+
 | D19 | 05/10/2026 | Continuar autonomamente até concluir todo o escopo local restante BE01–BE16, sem autorização por macrobloco e sem parar após BE10. | Autoriza backend, contratos, SQL/migrations somente em arquivos, procedimentos e testes isolados fictícios: BE10/BE11, BE05/BE12, BE13, BE14 e integração/preparação BE01/BE03/BE04/BE15. Ordem e arquivos no [documento 26](26-execucao-continua-backend.md). Cedro backend/contratos, Prumo migrations/infra/procedimentos, Vigia leitura e Farol registros centrais; Lume somente apoio de contratos em leitura. Preserva MVC/properties, histórico e propostas AC01–AC16. Exige testes reais por bloco, correção dos achados, clean verify final, Graphify e matriz BE01–BE16. Proíbe SQL Server real, emissão fiscal/NFS-e, cobrança real, publicação, commit/push, rotinas, perfis Hermes e ETL. Dados externos não bloqueiam trabalho independente; registrar item e dono, sem declarar homologação. |
+
+
 
 O nome da pasta foi escolhido na execução do pedido com base no nome do projeto. O pacote Java e as ferramentas foram escolhidos tecnicamente em BE02 e registrados no [documento 12](12-base-e-contratos-backend.md); não são escolhas expressas de versão/pacote pelo responsável. D12 acrescentou decisões técnicas descritas no [documento 14](14-cadastros-acesso-e-persistencia.md): JPA/Hibernate, Flyway, esquema `wms`, API Bearer/JWT, normalização/unicidade e campos inicialmente imutáveis. Nome de banco, provedor real de identidade e publicação continuam indefinidos. Essas escolhas não convertem AC01 a AC16 em aprovação do gestor.
 
+
+
 ### D20 — macrobloco local de database, 06/10/2026
+
+
 
 Lucas autorizou, após o fecho local D19, executar BE03/BE15 com auditoria integrada de V1–V9, modelos, consultas e permissões; implementar melhorias locais justificadas, automações, testes isolados fictícios e procedimentos de engenharia de database. Não recriar o modelo nem reabrir Q01–Q27. Migrations congeladas devem ser preservadas; eventual correção exige justificativa, impacto e revisão registrados. Farol mantém states, decisões, continuidade, índice e mapa; Prumo escreve database/infra, Cedro somente a integração backend necessária e Vigia revisa em leitura independente. Resultado pelo ask recebido e registro exclusivo em `orchestracao/.runtime/`, sem callback a Hermes WMS.
 
+
+
 O pedido inicial limitava a execução ao pacote local, sem conexão/aplicação SQL Server. Os complementos abaixo ampliaram somente a criação dos bancos exclusivos no alvo informado e a preparação de guia compartilhado; demais limites continuam: sem provisionamento externo, grants reais, migrations/carga PROD, fiscal/cobrança, frontend, publicação, commit/push, rotinas, perfis Hermes ou ETL. H2 e leitura estática não comprovam SQL Server. IDs D01–D19 e BE/FE permanecem estáveis. Execução e evidências no [documento 36](36-database-local-engenharia-e-validacao.md).
+
+
 
 **Complemento da mesma D20, 06/10/2026:** Lucas definiu nomes exatos `WMS_DEV` e `WMS_PROD` e autorizou iniciar sua criação somente quando alvo real e acesso autorizado forem inequivocamente confirmados, sem sobrescrever existentes. DEV primeiro; nenhuma migration/carga em PROD nesta rodada. Jamais alterar instalação/configuração global, versão/edição, serviços, instância, collation do servidor, compatibilidade/configurações de bancos existentes, outros bancos/acessos/rotinas; não instalar/atualizar SQL Server. Usar ambiente/padrões já existentes. “System admin, o mesmo que todos os outros estão usando” não identifica host/instância e não autoriza sysadmin à aplicação. Segredos e conexões de outros agentes/projetos não podem ser lidos/usados. Regra durável registrada no AGENTS canônico WMS. Alvo exato ausente na documentação WMS; solicitado somente servidor/instância ou host:porta, sem senha. Demanda local original continua, sem duplicar tarefa ou renumerar IDs.
 
+
+
 **Atualização expressa da mesma D20:** Lucas confirmou TCP `127.0.0.1:1433`, autenticação SQL, usuário administrativo `sa`, conexão inicial `master`, e autorizou criar **ambos** os bancos exclusivos após verificar identidade/existência, sem apagar/sobrescrever. DEV primeiro e PROD sem migrations/cargas. Usar defaults existentes, sem inventar collation/compatibilidade ou mudar o servidor/model. A credencial informada no chat não deve ser retransmitida, registrada ou solicitada no chat; somente mecanismo protegido existente/autorizado. Consulta de guias/metadados não sensíveis de outros projetos/runtime e guia compartilhado sem senha em `../.runtime` foram autorizados; `.env`, credenciais, históricos/dados e controles/ponte ETL continuam excluídos. “Features Trigger” não autoriza triggers. Esta atualização resolve o endereço anteriormente ausente; não autoriza acesso administrativo da aplicação.
+
+
 
 **Acesso observado por Farol:** em06/10, TCP alcançável e serviço local MSSQLSERVER Running, sem autenticação SQL. Não há credencial WMS disponível nos canais protegidos desta sessão; verificou-se somente presença das variáveis, sem ler/imprimir valores. Não houve conexão SQL, leitura de sys.databases nem CREATE. Bloqueio preciso da execução real: entrada protegida local da credencial administrativa `sa`. Depois dessa entrada, identidade/defaults/TLS/existência devem ser conferidos pelo procedimento, sem pedir novamente o alvo já informado. Evidência sanitizada em `orchestracao/.runtime/d20-acesso-sql-sanitizado.json`.
 
+
+
 **Entrega manual expressa, mesma D20:** Lucas mudou a entrega para “cria um .bat no database e eu subo manualmente”. A execução SQL passa ao operador; **o agente não executa SQL nem solicita credencial no chat**. Prumo entrega `database/iniciar-bancos.bat` e auxiliar PowerShell reaproveitando guardas existentes. Duplo clique abre console visível, mostra alvo fixo e os dois nomes, pede senha oculta só em memória, inspeciona identidade, confirma alvo na interação e cria ambos vazios DEV primeiro, sem sobrescrita. Bancos existentes devem ser preservados/conferidos, sem abortar cegamente ou recriar; retomada DEV existente/PROD ausente permitida. Garantir cópia segura por etapa e descarte de SecureString; sem segredo em bat/ps1/env/arquivo/log/argumento, bypass TLS/política, novos installs ou mudanças no ambiente/terceiros. Migrations DEV em entrada manual distinta; nenhuma migration/carga PROD automática. README curto no topo, pontos de entrada claros, histórico/evidências preservados. Testes reais via cmd.exe em modo offline e fixtures/mocks de orquestração, sem DDL real; Vigia revisa, Farol consolida. Suite backend completa não será repetida para mudança somente de launcher/procedimento. Essa atualização substitui a execução real pelo agente; ausência de credencial não impede a entrega do launcher.
+
+
 
 **Organização autorizada, mesma D20:** Lucas pediu limpar também a raiz de `database`, mantendo somente README curto e BATs necessários ao operador. Prumo inventaria antes e coordena movimentos após terminar gravações; PS1 em `scripts/`, documentação técnica em `docs/`, SQL/migrations/contratos/evidências em suas pastas próprias. Nenhum arquivo/histórico/evidência será excluído; não ler/mover secrets ou configs privadas. Atualizar caminhos, wrappers, referências Maven/Flyway, links, diagnósticos, testes e guia compartilhado afetados. Registrar de/para e justificativa no manifesto corrente, preservando manifestos históricos e nomes/conteúdo/checksums SQL. Revalidar BATs com cmd.exe offline, fixtures e caminhos após os movimentos; sem SQL ou repetição do build backend integral. Vigia revisa a organização antes do fecho local.
 
+
+
 **Delimitação técnica após revisão VIG07:** a política de mínimo privilégio da aplicação permanece sem DDL/administração, mas a guarda implementada só recusa os privilégios enumerados (`sysadmin`, `db_owner`, `db_ddladmin`, CONTROL SERVER/DATABASE, CREATE TABLE e ALTER no schema wms); ela não consulta CREATE SCHEMA nem todas as roles administrativas. Não certifica mínimo privilégio. Para o pacote manual, adotada a correção documental proposta pelo revisor: exigir atestação completa das identidades/permissões efetivas antes de uso operacional/ensaio DEV, incluindo CREATE SCHEMA, db_securityadmin/db_accessadmin e roles administrativas de servidor. Migration precisa dos direitos próprios limitados necessários, separada da aplicação/sa. Nenhuma atestação real executada; limitação do predicado permanece explícita, sem alegar correção de código ou novo build. Aprovação do launcher administrativo não aprova runtime ou grants. [Parecer independente](../orchestracao/.runtime/d20-vigia-revisao-final-2026-10-06.md).
+
+
 
 **Fecho local da mesma D20:** entregue [iniciar-bancos.bat](../database/iniciar-bancos.bat) e [README curto](../database/README.md), raiz com somente esses arquivos. Após34 movimentos,489 originais preservados, testes80/21/13/336 aprovados e722 hashes conferidos; V1–V9 iguais ao baseline. Backend396/0/0/0 em19 suítes e404 hashes, sem novo build para launcher. Revisão Vigia favorável ao launcher/organização, VIG07 delimitado conforme parágrafo anterior, sem certificação de privilégios reais. [Resultado36](36-database-local-engenharia-e-validacao.md). Nenhuma conexão SQL/CREATE/migration/carga/GRANT executada pelo agente. Próximo passo pertence ao operador manual; BE03/BE15 permanecem em validação externa nos critérios SQL. Macrobloco local encerrado, sem novo ID ou callback Hermes.
 
+
+
 ### D21 — Bootstrap e upgrade completos pelo BAT manual
+
+
 
 Correção expressa de Lucas em06/10/2026, na mesma entrega: “se eu quiser derrubar toda a database e subir o .bat ele deve subir a versão mais recente de alterações”. O launcher que somente cria bancos vazios não atende ao comportamento final. D20 permanece histórico; D21 livre acrescentada sem renumerar outros IDs.
 
+
+
 `database/iniciar-bancos.bat` deve criar bancos WMS ausentes e aplicar toda a sequência versionada vigente; em bancos existentes, preservar dados e aplicar somente migrations pendentes, validando histórico/checksums e schema real. Alvos exatos WMS_DEV/WMS_PROD em127.0.0.1:1433; DEV completo primeiro, qualquer erro DEV impede PROD. Fonte única `database/migrations` descoberta/ordenada pelo Flyway atual; hoje V1–V9, futura V10 sem lista fixa no launcher. Apagar um banco é ação manual de Lucas fora do BAT; este não executa DROP/clean/repair/baseline automático nem presume schema atualizado por arquivos presentes.
 
+
+
 **Autorização manual atual:** preparar bootstrap/migrations também PROD no launcher executado pelo próprio usuário, supersedendo o limite D20 somente nesse fluxo. Não autoriza SQL/PROD pelo agente, aplicação publicada, fiscal/cobrança ou mudanças no SQL Server/global/versão/instalação, logins/acessos compartilhados/terceiros. `sa` administrativo local pode criar/migrar ambos; isso não exige criar/grantar identidade de aplicação nem autoriza usar sa no backend. VIG07/atestação completa permanecem requisitos do runtime/ensaio da aplicação, não impedimento do DDL administrativo D21. Senha digitada oculta local, sem senha do chat ou hardcode/arquivo/argumento/log/env persistente; transporte efêmero no processo-filho, descarte e saída sanitizada. TLS compatível com confiança existente, sem bypass silencioso/alteração global.
+
+
 
 **Execução local em andamento:** Prumo database/infra/launcher, Cedro somente integração Maven/config necessária, Vigia revisão focal, Farol registros centrais/mapa/recibo. Raiz README/BAT, scripts/docs nas pastas próprias; preserve D20 antes de modificar fontes. Testes cmd.exe offline e fixtures ausentes/existentes/pendentes/checksum/queda parcial/reexecução/V10; SQL real somente operador. Build backend proporcional se config/Java alterar, sem repetir suíte integral por launcher. Sem callback Hermes ou ETL. Entrega final deve ser bootstrap/upgrade completo, não criação vazia.
 
 
+
+
+
 **Entrega local D21 em06/10/2026:** BAT completo DEV/PROD pronto,41/41 fixtures,672/672 checks,25/25 Maven,675 hashes database e84 backend, cmd.exe0/0/2/2 e parecer favorável. V1–V9 e D20 preservados; nenhum SQL pelo agente. Evidências/limites no [37](37-bootstrap-e-upgrade-manual-database.md); próximo passo do operador, sem novo macrobloco.
+
+
 
 ### D22 — Launcher automático com credencial WMS protegida
 
+
+
 06/10/2026, correção expressa de Lucas ao mesmo launcher D21 após parar em Read-Host. Incremento somente da obtenção de credencial e interação: execução normal de iniciar-bancos.bat faz bootstrap/upgrade completo WMS_DEV depois WMS_PROD sem senha/confirmacão repetida. Mantém inspeção, allowlist, identidade por conexão, TLS, checksums/histórico/catálogo e falha DEV bloqueando PROD. Operador continua responsável pela execução SQL; agente não conecta/executa SQL ou altera servidor/sa/terceiros. D21 e seus testes/manifestos permanecem históricos, sem duplicação ou renumeração.
+
+
 
 Primeiro conferir código/guias públicos e metadados de organização já usados, nunca config.local/.env/credenciais privadas. Padrão verificado da Avaliação: PSCredential Export/Import-Clixml DPAPI para mesma conta Windows/máquina, fora Git e ACL restrita. WMS usa armazenamento próprio em LOCALAPPDATA/Rodogarcia/WMS/database-runner, sem herdar credenciais/configuração/trust/controles alheios. Auxiliar configurar-credencial.bat solicita senha oculta UMA VEZ ao operador local; arquivo contém somente representação protegida, owner/ACL por SID corrente e SYSTEM, não senha literal. Segredo nunca chat/argumento/log/texto/env persistente; leitura automática retorna SecureString, mantendo transporte efêmero do filho D21 e descarte por etapa.
 
+
+
 Ausência/erro de canal protegido deve interromper rapidamente o BAT normal e explicar configurar-credencial.bat, sem pergunta de senha nem promessa de funcionamento sem provisionamento. Metadados iniciais mostraram diretório WMS ausente; nenhum segredo lido/provisionado pelo agente. Raiz README/BATs apenas. Prumo implementa database/infra, Vigia revisão focal, Farol centrais/mapa/recibo; backend inalterado, sem suíte integral. Testes cmd.exe offline e fixtures DPAPI fictícias isoladas, ausência/usuário errado/ACL/erro/retorno sem prompts. [Entrega38](38-launcher-automatico-e-credencial-protegida.md). Sem callback Hermes/ETL ou novo macrobloco.
+
+
+
 
 
 **Fecho local D22:** 18/18 fixtures DPAPI fictícias, 5/5 fixtures de console e 9/9 casos cmd.exe independentes; 818/818 hashes database, 84/84 backend, 73 snapshots D21 e V1–V9 intactas; revisão independente Vigia favorável. Launcher automático pronto; credencial real AUSENTE por metadados, configuração única e SQL real pelo operador pendentes. Nenhum segredo real/SQL pelo agente, alteração backend/SQL congelado ou servidor global. [Resultado38](38-launcher-automatico-e-credencial-protegida.md).
 
 
+
+
+
 ### D23 — Execução real autorizada; acesso automático bloqueado
+
+
 
 06/10/2026, atualização urgente de Lucas ao mesmo BE03/BE15 e launcher D21/D22. Autoriza agente a executar bootstrap/upgrade real WMS_DEV → WMS_PROD no alvo fixo existente, sem pedir senha/configurador, por identidade Windows corrente e direitos existentes ou fonte protegida exclusiva WMS já autorizada. Sem senha do chat, novos grants/logins, trust global/bypass, instalação ou alteração do servidor/terceiros; mesmos IDs e migrations preservados. Supersede somente o limite anterior de execução SQL pelo operador.
 
+
+
 Resultado real: SqlClient Windows encrypt=true/trustServerCertificate=false falhou NativeErrorCode/SQL -2146893019, cadeia TLS não confiável, antes de comprovar login. Farol verificou serviço SQL Microsoft assinado, PID65088/listener1433/criação iguais antes/depois; coletou somente certificado público recusando TLS antes LOGIN7, sem credencial. Pin exclusivo WMS fora Git, ACL usuário/SYSTEM, sem confiança global. sqlcmd Go existente -E/-Ntrue/-J então recusou logon Windows ROD-SRVW-001\suporte. Não inferir permissões/sysadmin ou causa adicional do logon; código SQL numérico não exposto nesse retorno. Fonte protegida WMS AUSENTE por metadados, sem ler conteúdo.
+
+
 
 **Bloqueado na execução real:** zero DDL, nenhuma migration/carga ou leitura autenticada de sys.databases/histórico/schema; WMS_DEV/WMS_PROD não verificados. BAT normal não executado pelo agente nesta fase porque não há acesso válido, conforme condição do pedido. Única ação indispensável: disponibilizar autenticação SQL válida já autorizada em canal protegido exclusivo WMS, fora do chat; não criar grants ou alterar login para contornar. [Evidência inicial TLS](../orchestracao/.runtime/d23-probe-windows-tls.json), [pin verificado](../orchestracao/.runtime/d23-certificado-publico-verificado.json), [recusa após pin](../orchestracao/.runtime/d23-probe-pin-windows.json) e [resultado WMS](../orchestracao/.runtime/d23-resultado-final.md). D22 é histórico local, não aceite da execução real. Nenhuma nova rodada de grafo/manifestos ou callback Hermes/ETL.
 
+
+
 **Continuação focal D23, 06/10/2026:** padrão de autenticação dos runners públicos comparado; fonte administrativa SQL compartilhada não localizada/documentada nos guias/metadados autorizados de ../.runtime. 33/33 booleanos de presença dos canais consultados ausentes; configs de referência existem sem leitura do conteúdo, DPAPI WMS ausente. O caminho fixo D22 não recebe a configuração como os demais. Menor integração: somente aquisição de credencial no launcher existente, após fonte administrativa protegida explicitamente disponibilizada ao WMS; sem novo configurador ou credencial alheia. Nenhuma conexão nova/DDL; servidor indisponível não comprovado. [Comparação e resultado](../orchestracao/.runtime/d23-comparacao-fontes-autenticacao.md).
+
+
 
 ## Base funcional
 
+
+
 A especificação versão 1.0 é a fonte funcional inicial. Os requisitos RN01 a RN30 estão em [regras de negócio](03-regras-de-negocio.md), com seção e página. As interpretações I01 a I07 estão identificadas no mesmo arquivo. O Word recebido em 05/10 complementa essa base; o resumo está em [respostas recebidas](10-respostas-recebidas-2026-10-05.md) e as conciliações em [regras consolidadas](11-alinhamentos-apos-respostas.md).
+
+
 
 ## Propostas de análise
 
+
+
 | ID | Proposta | Situação |
+
 | --- | --- | --- |
+
 | P01 | Manter uma aplicação backend e responsabilidades de negócio separadas dentro das camadas convencionais. | Proposta compatível com a estrutura solicitada; implantação ainda a definir. |
+
 | P02 | Centralizar alterações do estoque, reserva e localização nos serviços responsáveis pelo estoque. | Proposta documentada. |
+
 | P03 | Separar situação do pedido, condição da mercadoria, reserva, localização, fiscal e cobrança. | Proposta documentada; transições ainda serão detalhadas. |
+
 | P04 | Aplicar proteções de concorrência, repetição e registro conjunto de alterações relacionadas. | Proposta de proteção; mecanismos técnicos ainda não escolhidos. |
+
 | P05 | Preservar origem de quantidades, histórico e correções rastreáveis. | Proposta documentada. |
+
 | P06 | Validar integração fiscal cedo e registrar fatos cobrados desde o primeiro piloto. | Proposta que antecipa dependências da sequência do PDF. |
+
 | P07 | Planejar acesso, recuperação, confirmação nos coletores e piloto controlado desde o início. | Proposta documentada; responsáveis e parâmetros pendentes. |
+
+
 
 As proteções PR01 a PR11 detalham essas propostas. Não há aprovação tácita por ausência de comentários.
 
+
+
 ## Situação dos temas após as respostas
+
+
 
 Todos os temas receberam respostas. A coluna de tratamento aponta a regra explícita ou a interpretação/proposta que completa o funcionamento. Receber uma resposta não equivale a comprovar preços, ambiente ou desempenho real.
 
+
+
 | ID | Tema | Resultado e tratamento | Detalhamento |
+
 | --- | --- | --- | --- |
+
 | Q01 | Dados da mercadoria | Bobinas; peso da nota; SKU do cliente; aviso de validade. Parâmetros por cadastro. | AC10, AC16 |
+
 | Q02 | Divisão e reagrupamento | Parcial do pallet permitido; mesmo SKU/lote/data para reunir. Tratamento de ID e origem proposto. | AC10 |
+
 | Q03 | Entregas em partes | Várias chegadas e notas por pedido; uma nota em um pedido; efetivação única. | AC03 |
+
 | Q04 | Divergências e avaria | Carga em quarentena; tratativa com cliente; supervisor libera. Limite por pedido proposto. | AC03, AC08 |
+
 | Q05 | Triagem | Não atende saída; disponibilidade após liberação e endereçamento. | AC03 |
+
 | Q06 | Posições | Uma unidade por posição; duas para unidade grande. Conciliação com Q14 proposta. | AC05 |
+
 | Q07 | Saída incompleta | Pedido atendido inteiro; mudança exige cancelar e recriar. | AC10 |
+
 | Q08 | FIFO e exceções | Nota específica permite exceção; justificativa e autorização são ações distintas. | AC11 |
+
 | Q09 | Reserva | Sem vencimento; erro fiscal mantém; urgência exige cancelar pedido anterior. | AC01, AC11 |
+
 | Q10 | Cancelamento e devolução | Cancelar documentos/pedido; retornar separado à posição; devolução física por nova entrada. | AC01, AC02 |
+
 | Q11 | Transferência | Fora da primeira versão; transporte no TMS. | AC16 |
+
 | Q12 | Propriedade | Um proprietário por pedido; emitente da entrada é o cliente; sem troca interna de dono. | AC03 |
+
 | Q13 | Fiscal | Rodogarcia emite no NOTAZZ; várias notas possíveis; Natalina valida. Piloto manual proposto. | AC01, AC02 |
+
 | Q14 | Critérios de cobrança | Entrada, posição-dia e saída; parâmetros contratuais por cliente. | AC04, AC05, AC06 |
+
 | Q15 | Diárias | Calendário, mesmo dia zero, pico e vigência nova. Combinação matemática proposta com exemplos. | AC04, AC06 |
+
 | Q16 | Término da cobrança | Saída física encerra; reserva/separação/quarentena continuam; avaria imputável suspende. | AC01, AC04, AC08 |
+
 | Q17 | Fechamento | Ciclo por cliente, corte sem repetir dias, aprovação integral, ESL e ajustes após nota. | AC02, AC07 |
+
 | Q18 | Valor do estoque | Valor da nota proporcional ao saldo; exclui avaria do indicador, não do controle físico. | AC08 |
+
 | Q19 | Estoque inicial e contagem | Planilha se existir saldo; etiquetas conferidas; correção operacional rastreável proposta. | AC03, AC13 |
+
 | Q20 | Perfis | Gestor, Supervisor e Operação; sem obrigatoriedade de segunda pessoa. | AC11 |
+
 | Q21 | Data FIFO | Chegada física; primeira entrega da nota; devolução preserva original; sem reunir datas diferentes. | AC10, AC11 |
+
 | Q22 | Confirmação da saída | Leitura de cada unidade; XML e supervisor/gestor. Conciliação fiscal/físico proposta. | AC01 |
+
 | Q23 | Serviços | Registro manual, supervisor e liberação do gestor; vínculo e duplicidade resolvidos por proposta. | AC09 |
+
 | Q24 | Inativos | Encerramento de compromissos antes da inativação definitiva proposto. | AC12 |
+
 | Q25 | Piloto | Osasco; Caio; dez usuários/quatro simultâneos estimados; necessidade em 13/10. | AC16 |
+
 | Q26 | Equipamentos | Web, Tanca, Mickael; impressão/leitura/rede requerem teste local. | AC14, AC16 |
+
 | Q27 | Continuidade | Planilha, até 36h de parada, backups; Lucas e Caio. Recuperação a comprovar tecnicamente. | AC14, AC15 |
+
+
 
 Os identificadores Q01 a Q27 e seus 110 subitens permanecem no questionário histórico. AC01 a AC16 não são outra lista de perguntas: registram soluções derivadas da leitura e do raciocínio. A emissão versus retirada, as duas posições e a combinação pico/diária merecem conferência por exemplos antes do uso real, sem impedir o avanço do estudo.
 
+
+
 Os dados que não podem ser deduzidos são preços contratados, parâmetros fiscais concretos, cadastros reais e capacidades do ambiente. Eles entram como tarefas de implantação com responsáveis conhecidos. As propostas não substituem autorização fiscal ou homologação de valores.
+
+
 
 ## Levantamento técnico
 
+
+
 O acompanhamento de execução está no [states.md](../states.md). Esta seção registra os assuntos a definir; os status de implementação ficam nas etapas BE e FE correspondentes, sem repetir uma segunda trilha aqui.
 
+
+
 | ID | Ponto ainda aberto | Encaminhamento previsto |
+
 | --- | --- | --- |
+
 | T01 | Versões e ferramentas do frontend/SQL Server; ambiente operacional | Base Java/Spring/Maven escolhida e validada localmente em BE02; ver documento 12. React, SQL Server e ambiente operacional continuam a definir. |
+
 | T02 | Organização interna e dependências do frontend | Pacote e dependências backend definidos tecnicamente em BE02, conforme documento 12; frontend permanece futuro. |
+
 | T03 | Banco, acessos, versão e validação SQL Server | Esquema técnico `wms`, JPA e Flyway escolhidos; V1/procedimento preparados. Nome de banco/host/credenciais e aplicação real ainda dependem do alvo de desenvolvimento. H2 usado somente em testes. |
+
 | T04 | Interface do emissor, retorno, autenticação e ambiente de validação | NOTAZZ identificado; Natalina é referência fiscal. Para o piloto, registro manual/importação proposto; futura API e entrega ao ESL serão levantadas. |
+
 | T05 | Coletor, impressora, etiqueta e código físico de leitura | D16 escolheu UUID permanente e contrato de dados da etiqueta no documento 20. Coletor web e impressora Tanca informados; formato/simbologia, modelos, amostras e leitura continuam para validação com Mickael. |
+
 | T06 | Rede, usuários simultâneos, volume e quantidade de armazéns | Osasco primeiro, dez usuários/quatro simultâneos estimados. Volumes e cobertura serão medidos; não presumir desempenho validado. |
+
 | T07 | Provedor de identidade, implantação, monitoramento e gestão de segredos | Resource Server JWT implementado para cadastros, com perfis/alcances e auditoria. Falta definir/configurar emissor real, contas, ciclo de tokens e integração de login. Hospedagem e condições operacionais continuam a definir. |
+
 | T08 | Recuperação, cópias de segurança e tolerância à indisponibilidade | Lucas em TI e Caio na operação; 36h de parada informadas. Definir e testar capacidade real de recuperação, sem equiparar parada a perda aceitável de dados. |
+
+
 
 Os dados funcionais recebidos orientam esses levantamentos; verificações técnicas ainda não executadas permanecem futuras. Nenhuma solicitação foi enviada a terceiros e não há credenciais registradas.
 
+
+
 ## Como registrar novas decisões
+
+
 
 Para cada resposta ou mudança, acrescentar data, quem decidiu ou qual fonte respondeu, IDs afetados, decisão, motivo e impacto. Atualizar o estado da pendência e os documentos envolvidos. Se a resposta contradizer o PDF, registrar o conflito e a solução proposta com fundamento; avançar no estudo sem apresentar a proposta como aprovação do gestor. Validar seus efeitos por exemplos antes do uso real.
 
+
+
 ## Histórico
 
+
+
 | Data | Registro |
+
 | --- | --- |
+
 | 03/10/2026 | Criada a estrutura local e preservada a especificação original. Registradas as decisões D01 a D07, propostas P01 a P07 e questões Q01 a Q20. Aplicação ainda sem implementação. |
+
 | 03/10/2026 | Registrado o pedido D08. Questionário ampliado para Q01 a Q27, com 110 subitens curtos e condicionais. Atualizados índice, continuidade e vínculos com os fluxos. Todas as respostas seguem pendentes. |
+
 | 05/10/2026 | Recebido e preservado o Word com respostas aos 110 subitens e 12 imagens distintas. Registrada D09; consolidadas regras explícitas e 16 tratamentos por raciocínio, sem reenviar questionário. Atualizados arquitetura, fluxos, cenários e continuidade. Sem implementação, acesso ao banco ou mensagem a terceiros. |
+
 | 05/10/2026 | Registrada D10. Consultados os padrões de satelite-tms-api, dashboards-etl e avaliacao-desempenho-competencias. Adaptado AGENTS.md e criado states.md com trilhas backend/frontend e marcos conjuntos. Índices e orientações de retomada sincronizados; sem copiar configurações de outros sistemas ou implementar a aplicação. |
+
 | 05/10/2026 | Registrada D11 e iniciada implementação. Escolhas técnicas de BE02 no documento 12; build, 12 testes e execução local no documento 13. BE01 parcial; SQL Server, autenticação e frontend permanecem etapas futuras. Nenhuma proposta de negócio foi convertida em aprovação do gestor. |
+
 | 05/10/2026 | Registrada D12. Entregues cinco cadastros com API/JPA, controle de acesso, auditoria atômica, revisão e encerramento pendente. V1 SQL Server preparada; 40 testes aprovados em ambiente isolado. Escopo/limites no documento 14 e validação no 15. BE03/BE04/BE05 não concluídos no ambiente real. |
+
 | 05/10/2026 | Registrada D13 e concluída BE16: resources em properties, validação nos serviços, formatação e verificações de ferramentas/arquitetura. Build limpo com 52 testes; JAR local conferido. Padrões no documento 16 e evidências no 15. Sem alteração no SQL Server ou publicação. |
+
 | 05/10/2026 | D15 entrega recebimento manual/XML, chegadas, quarentena, estorno e efetivação única. V2 preparada e 86 testes aprovados; documentos 18/19. Preservados D14/OR01 e os arquivos da preparação de orquestração paralela. Sem migração, emissão fiscal ou publicação nesta implementação. |
+
 | 05/10/2026 | D16 entrega unidades logísticas, composição de origem, divisão/reagrupamento e dados de etiquetas. V3 preparada; 122 testes aprovados, sendo 36 novos. Contrato e validação nos documentos 20/21; próximo código BE08. SQL Server, frontend e impressão física permanecem separados. |
+
 | 05/10/2026 | D17 entrega endereçamento, capacidade, conjuntos de posições, movimentos/bloqueios e consultas de estoque. V4 preparada; 153 testes aprovados, sendo 31 novos. Contratos/evidências nos documentos 22/23. BE08 em validação externa e BE14 parcial; próximo código BE09. Sem SQL Server, frontend, cobrança ou publicação. |
+
 | 05/10/2026 | D18 entregue localmente pela equipe WMS: pedido integral por cliente/armazém, FIFO, reserva sem vencimento, parcial de pallet, exceção por perfil, saldo reservado e avaria posterior. Contratos no [documento 24](24-pedido-saida-fifo-e-reserva.md), V5 preparada e [validação](25-validacao-pedido-saida-e-reserva.md): spotless/clean verify com 197 testes, 44 novos, revisão favorável de Vigia e Graphify atualizado. BE09 em validação externa, BE01/BE14 parciais; BE10/BE11 completos fora do recorte. AC10/AC11 continuam propostas identificadas. Git zero commits, alterações preexistentes preservadas. Sem ações externas proibidas; aguardar nova demanda. |
+
 | 05/10/2026 | Registrada autorização expressa D19 para concluir continuamente o backend local restante BE01–BE16, sem autorização por macrobloco. Ordem/divisão no documento 26; não autoriza homologação ou as ações externas proibidas. |
+
 | 06/10/2026 | Primeiro bloco D19 aceito localmente: BE10/BE11 e complemento BE01, [contrato 27](27-separacao-retirada-retornos-e-avaria.md) e [evidência 28](28-validacao-separacao-retirada-retornos.md). Após achados/P2 temporal, spotless/clean verify com 240 testes, Vigia favorável e V6 compatível em arquivos. Base197, V1–V5, origem e histórico preservados. Segue BE05/BE12 autonomamente. SQL Server, fiscal, equipamentos e conferência operacional/comercial reais permanecem externos; AC01–AC16 não convertidas em aprovação. |
+
 | 06/10/2026 | Recorte local BE01/BE05/BE12 D19 aceito após P2 financeiro BE08: clean verify292/0/0/0,14 XMLs/JAR/222 hashes conferidos, Vigia favorável02:33 e V7/JPA518/518 mais67/67 suplementares compatíveis. [Contrato29](29-cadastros-servicos-e-calculo.md)/[evidência30](30-validacao-servicos-e-calculo.md). Inativação definitiva BE05 permanece após BE13/BE14; BE13 liberado para refinar31 antes de Java/V8. Continuar autonomamente, sem emissão, SQL Server real, cobrança a clientes ou homologação comercial/fiscal presumida. |
+
 | 06/10/2026 | BE01/BE13 D19 aceito localmente após três P2: clean verify333/0/0/0,15 XMLs/JAR/251 hashes conferidos, Vigia favorável04:29, V8/JPA523/523 e163/163 em arquivos. [Contrato31](31-fechamento-contagem-e-contingencia.md)/[evidência32](32-validacao-fechamento-e-contingencia.md). Regularização de origem conserva deltas/versões, período é conferido antes do replay e auditoria recupera a resolução; externo fiscal/SQL/comercial não homologado. Segue BE14/inativação definitiva BE05 e integração final, sem nova autorização, preservando todas as evidências anteriores. |
 
 
+
+
+
 **Fecho local D19 em06/10/2026:** escopo BE01–BE16 entregue/testado/revisado após P2-locks:367/0/0/0,17 XMLs/JAR/289 hashes conferidos, Vigia favorável e V9/JPA904/904+129/129 em arquivos. Matriz [34](34-matriz-e-validacao-final-backend.md), evidência [32](32-validacao-fechamento-e-contingencia.md) e modelo [35](35-modelo-integrado-e-jornadas-backend.md) sincronizados; Graphify atualizado. Não é aprovação comercial/fiscal/homologação/piloto/publicação. AC01–AC16 e todos os limites/donos externos preservados. Sem nova autorização criada; conclui o trabalho local autorizado por D19.
+

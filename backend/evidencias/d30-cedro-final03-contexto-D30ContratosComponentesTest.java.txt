@@ -1,0 +1,82 @@
+850:                    assertThat(erro).isInstanceOf(org.springframework.validation.FieldError.class);
+851:                    var campo = (org.springframework.validation.FieldError) erro;
+852:                    campos.add(campo.getField() + "#" + campo.getCode());
+853:                }
+854:        }
+855:        assertThat(campos).contains(path + "#" + regra);
+856:    }
+857:
+858:    private record Envelope(Object positivo, Object negativo, String path, List<Canal> canais) {}
+859:
+860:    private List<Envelope> envelopes(
+861:            Object positivo, Object negativo, String path, Set<Class<?>> visitados)
+862:            throws Exception {
+863:        Class<?> tipo = positivo.getClass();
+864:        if (visitados.contains(tipo)) return List.of();
+865:        var proximos = new java.util.HashSet<>(visitados);
+866:        proximos.add(tipo);
+867:        var encontrados = new ArrayList<Envelope>();
+868:        var diretos = canais.getOrDefault(tipo.getCanonicalName(), List.of());
+869:        if (!diretos.isEmpty()) encontrados.add(new Envelope(positivo, negativo, path, diretos));
+870:        for (var a : atributos.values()) {
+871:            boolean cascata = false;
+872:            for (var r : a.get("restricoes"))
+873:                if (r.get("tipo").asString().equals("Valid")) cascata = true;
+874:            if (!cascata) continue;
+875:            var pai = classe(a.get("record").asString());
+876:            String campo = a.get("campo").asString();
+877:            var componente =
+878:                    Arrays.stream(pai.getRecordComponents())
+879:                            .filter(c -> c.getName().equals(campo))
+880:                            .findFirst()
+881:                            .orElseThrow();
+882:            if (componente.getType() == tipo) {
+883:                encontrados.addAll(
+884:                        envelopes(
+885:                                instancia(pai, campo, positivo),
+940:            var retornos = new ArrayList<Map<String, Object>>();
+941:            for (var envelope : envelopes(positivo, negativo, path, Set.of()))
+942:                for (var canal : envelope.canais()) {
+943:                    conferirPositivo(canal, envelope.positivo());
+944:                    reset(canal.servicos());
+945:                    var resultadoMvc =
+946:                            canal.mvc()
+947:                                    .perform(
+948:                                            request(
+949:                                                            HttpMethod.valueOf(canal.metodo()),
+950:                                                            canal.rota())
+951:                                                    .contentType(MediaType.APPLICATION_JSON)
+952:                                                    .content(
+953:                                                            mapper.writeValueAsString(
+954:                                                                    envelope.negativo())))
+955:                                    .andReturn();
+956:                    var resposta = resultadoMvc.getResponse();
+957:                    assertThat(resposta.getStatus())
+958:                            .as(id + " " + canal.id() + " filho invalido")
+959:                            .isEqualTo(400);
+960:                    verifyNoInteractions(canal.servicos());
+961:                    var problema = mapper.readTree(resposta.getContentAsString());
+962:                    conferirCampoProblema(
+963:                            problema, envelope.path(), regra, resultadoMvc.getResolvedException());
+964:                    assertThat(problema.get("idOperacao").asString()).isNotBlank();
+965:                    assertThat(resposta.getContentAsString())
+966:                            .doesNotContain("jdbc:", "SQLException", "org.h2");
+967:                    retornos.add(
+968:                            Map.of(
+969:                                    "rotaID",
+970:                                    canal.id(),
+971:                                    "path",
+972:                                    envelope.path(),
+973:                                    "HTTP",
+974:                                    400,
+975:                                    "positivoCausalConferido",
+976:                                    true,
+977:                                    "chamadasNegocio",
+978:                                    0));
+979:                }
+980:            Files.writeString(
+981:                    destino.resolve("d30-cedro-cascata-" + id + "-" + UUID.randomUUID() + ".json"),
+982:                    mapper.writeValueAsString(
+983:                            Map.of(
+984:                                    "id",
+985:                                    id,

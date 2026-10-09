@@ -31,6 +31,16 @@ public final class PedidoSaidaDto {
             @NotNull @Size(min = 1, max = 100) List<@NotNull @Valid ItemCriar> itens,
             @NotBlank @Size(min = 5, max = 500) String motivo) {}
 
+    public record ImportarXml(
+            @NotNull UUID operacaoId,
+            @NotNull @Positive Long clienteId,
+            @NotNull @Positive Long armazemId,
+            @NotBlank @Size(max = 1000000) String xml,
+            @NotBlank @Size(min = 5, max = 500) String motivo) {}
+
+    public record ConfirmacaoXml(
+            UUID operacaoId, String xmlHash, NfeEntradaDto documento, Detalhe pedido) {}
+
     public record Selecao(
             @NotNull @Positive Long unidadeId,
             @NotNull @DecimalMin(value = "0", inclusive = false) @Digits(integer = 13, fraction = 6)

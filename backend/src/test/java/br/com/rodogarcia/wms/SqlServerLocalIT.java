@@ -367,8 +367,7 @@ class SqlServerLocalIT {
 
     private Cliente novoCliente(Instant instante) {
         String prefixo = System.getenv().getOrDefault("WMS_SQLSERVER_IT_ROUND", "D20");
-        String codigo =
-                prefixo + UUID.randomUUID().toString().replace("-", "").substring(0, 12);
+        String codigo = prefixo + UUID.randomUUID().toString().replace("-", "").substring(0, 12);
         return new Cliente(codigo, "Ação fictícia", codigo, instante);
     }
 

@@ -74,6 +74,12 @@ class CadastrosIntegrationTest {
     @Autowired private EnderecoService enderecos;
     @Autowired private JwtDecoder decoder;
 
+    @org.springframework.test.context.bean.override.mockito.MockitoBean
+    private java.time.Clock clockD30;
+
+    private static final Instant CADASTRO_INSTANTE_D30 =
+            Instant.parse("2026-10-08T06:00:00.123456Z");
+
     @Test
     void servicosRecusamContratosNulosMesmoForaDoHttp() {
         comoUsuario(
@@ -181,6 +187,12 @@ class CadastrosIntegrationTest {
 
     @BeforeEach
     void preparar() {
+        org.mockito.Mockito.when(clockD30.instant()).thenReturn(CADASTRO_INSTANTE_D30);
+        org.mockito.Mockito.when(clockD30.getZone()).thenReturn(java.time.ZoneOffset.UTC);
+        org.mockito.Mockito.when(
+                        clockD30.withZone(org.mockito.ArgumentMatchers.any(java.time.ZoneId.class)))
+                .thenAnswer(
+                        inv -> java.time.Clock.fixed(CADASTRO_INSTANTE_D30, inv.getArgument(0)));
         for (String tabela :
                 List.of(
                         "auditoria_cadastro",
@@ -199,8 +211,8 @@ class CadastrosIntegrationTest {
         long cliente = criarCliente();
         long armazem = criarArmazem();
         long produto = criarProduto(cliente, "SKU-01", "CONTAGEM", 0);
-        long embalagem =
-                criar("embalagens", embalagem(produto, "DUN-01", "500")).get("id").longValue();
+        var embalagemCriada = criar("embalagens", embalagem(produto, "DUN-01", "500"));
+        long embalagem = embalagemCriada.get("id").longValue();
         long endereco =
                 criar("enderecos", endereco(armazem, "A101", "A", "01")).get("id").longValue();
         String operador = token("OPERACAO", List.of(cliente), List.of(armazem));
@@ -217,6 +229,11 @@ class CadastrosIntegrationTest {
                                 .get("armazemId")
                                 .longValue())
                 .isEqualTo(armazem);
+        var estrutura = json(enviar("GET", "/enderecos/" + endereco, null, operador));
+        assertThat(estrutura.get("codigo").asString()).isEqualTo("A101");
+        assertThat(estrutura.get("rua").asString()).isEqualTo("A");
+        assertThat(estrutura.get("nivel").intValue()).isEqualTo(1);
+        assertThat(estrutura.get("posicao").asString()).isEqualTo("01");
         assertThat(
                         jdbc.queryForObject(
                                 "select count(*) from wms.auditoria_cadastro", Integer.class))
@@ -226,6 +243,10 @@ class CadastrosIntegrationTest {
         assertThat(historico.statusCode()).isEqualTo(200);
         var evento = json(historico).get("itens").get(0);
         assertThat(evento.get("usuario").asString()).isEqualTo("usuario-teste");
+        assertThat(evento.get("dadosAntes").isNull()).isTrue();
+        assertThat(evento.get("dadosDepois").isString()).isTrue();
+        assertThat(mapper.readTree(evento.get("dadosDepois").asString()))
+                .isEqualTo(embalagemCriada);
         assertThat(evento.get("dadosDepois").asString()).contains("DUN-01", "quantidadeProduto");
     }
 
@@ -734,6 +755,89 @@ class CadastrosIntegrationTest {
         assertThat(enviar("POST", "/enderecos", dados, gestor).statusCode()).isEqualTo(400);
     }
 
+    @Test
+    void d30MesmoDunEmDoisProdutosEDuplicataSomenteNoProduto() throws Exception {
+        long cliente = criarCliente();
+        long p1 = criarProduto(cliente, "D30-P1", "CONTAGEM", 0);
+        long p2 = criarProduto(cliente, "D30-P2", "CONTAGEM", 0);
+        var b1 = criar("embalagens", embalagem(p1, "DUN-D30", "2"));
+        var b2 = criar("embalagens", embalagem(p2, "DUN-D30", "2"));
+        assertThat(b1.get("id").longValue()).isNotEqualTo(b2.get("id").longValue());
+        assertThat(b1.get("produtoId").longValue()).isEqualTo(p1);
+        assertThat(b2.get("produtoId").longValue()).isEqualTo(p2);
+        assertThat(b1.get("codigoDun").asString()).isEqualTo("DUN-D30");
+        assertThat(b2.get("codigoDun").asString()).isEqualTo("DUN-D30");
+        var antes = D30FotografiaFisica.capturar(jdbc);
+        assertThat(
+                        enviar("POST", "/embalagens", embalagem(p1, "DUN-D30", "2"), gestor)
+                                .statusCode())
+                .isEqualTo(409);
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(antes);
+        assertThat(jdbc.queryForObject("select count(*) from wms.embalagem", Integer.class))
+                .isEqualTo(2);
+        for (var original : List.of(b1, b2)) {
+            var atual =
+                    json(
+                            enviar(
+                                    "GET",
+                                    "/embalagens/" + original.get("id").longValue(),
+                                    null,
+                                    gestor));
+            assertThat(original.get("quantidadeProduto").decimalValue()).isEqualByComparingTo("2");
+            assertThat(atual.get("quantidadeProduto").decimalValue()).isEqualByComparingTo("2");
+            assertThat(original.get("criadoEm").asString())
+                    .isEqualTo(CADASTRO_INSTANTE_D30.toString());
+            var copiaOriginal = (tools.jackson.databind.node.ObjectNode) original.deepCopy();
+            var copiaAtual = (tools.jackson.databind.node.ObjectNode) atual.deepCopy();
+            copiaOriginal.remove("quantidadeProduto");
+            copiaAtual.remove("quantidadeProduto");
+            assertThat(copiaAtual).isEqualTo(copiaOriginal);
+        }
+    }
+
+    @Test
+    void d30AuditoriaNaoAceitaPutOuDeleteSemAlterarHistoria() throws Exception {
+        criarCliente();
+        var antes = D30FotografiaFisica.capturar(jdbc);
+        for (String metodo : List.of("PUT", "DELETE")) {
+            assertThat(
+                            enviar(
+                                            metodo,
+                                            "/auditoria",
+                                            Map.of("tipo", "CLIENTE", "acao", "CRIACAO"),
+                                            gestor)
+                                    .statusCode())
+                    .isEqualTo(405);
+            assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(antes);
+        }
+        assertThat(
+                        jdbc.queryForObject(
+                                "select count(*) from wms.auditoria_cadastro", Integer.class))
+                .isEqualTo(1);
+    }
+
+    @Test
+    void d30EnderecoRecusaTrocaDeArmazemAntesDeQualquerEfeito() throws Exception {
+        long origem = criarArmazem(), outro = criarArmazem();
+        var original = criar("enderecos", endereco(origem, "D30-A", "A", "01"));
+        var dados = new LinkedHashMap<String, Object>();
+        dados.put("versao", original.get("versao").longValue());
+        dados.put("descricao", "Descricao valida da posicao");
+        dados.put("motivo", "Tentativa identificada de trocar armazem");
+        dados.put("armazemId", outro);
+        var antes = D30FotografiaFisica.capturar(jdbc);
+        assertThat(
+                        enviar("PUT", "/enderecos/" + original.get("id").longValue(), dados, gestor)
+                                .statusCode())
+                .isEqualTo(400);
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(antes);
+        var atual =
+                json(enviar("GET", "/enderecos/" + original.get("id").longValue(), null, gestor));
+        assertThat(atual).isEqualTo(original);
+        assertThat(atual.get("armazemId").longValue()).isEqualTo(origem);
+        assertThat(atual.get("armazemId").longValue()).isNotEqualTo(outro);
+    }
+
     private long criarCliente() throws Exception {
         return criar("clientes", cliente()).get("id").longValue();
     }
@@ -832,11 +936,113 @@ class CadastrosIntegrationTest {
         return Map.of("versao", versao, "motivo", "Solicitação de teste");
     }
 
+    @Test
+    void d30CadastroAcentuadoPreservaCapacidadeNoPut() throws Exception {
+        var cliente =
+                criar(
+                        "clientes",
+                        Map.of(
+                                "codigo",
+                                "D30-UTF",
+                                "nome",
+                                "João da Conceição fictício",
+                                "documentoFiscal",
+                                "11111111000111"));
+        assertThat(cliente.get("nome").asString()).isEqualTo("João da Conceição fictício");
+        var armazem =
+                criar(
+                        "armazens",
+                        Map.of(
+                                "codigo",
+                                "D30-UTF",
+                                "nome",
+                                "Armazém São José fictício",
+                                "documentoFiscal",
+                                "22222222000122",
+                                "cidade",
+                                "São Paulo",
+                                "uf",
+                                "SP"));
+        assertThat(armazem.get("nome").asString()).isEqualTo("Armazém São José fictício");
+        assertThat(armazem.get("cidade").asString()).isEqualTo("São Paulo");
+        var campos =
+                new java.util.HashMap<>(
+                        endereco(armazem.get("id").longValue(), "D30-A101", "A", "01"));
+        campos.put("descricao", "Posição de armazenagem fictícia");
+        var e = criar("enderecos", campos);
+        assertThat(e.get("descricao").asString()).isEqualTo("Posição de armazenagem fictícia");
+        long id = e.get("id").longValue();
+        var configurar =
+                Map.of(
+                        "versao",
+                        e.get("versao").longValue(),
+                        "tipoUnidadePermitido",
+                        "PALLET",
+                        "limites",
+                        Map.of(
+                                "pesoKg",
+                                "123.456",
+                                "alturaMetros",
+                                "2.125",
+                                "larguraMetros",
+                                "3.250",
+                                "profundidadeMetros",
+                                "4.500",
+                                "empilhamentoMaximo",
+                                3),
+                        "motivo",
+                        "Configuração física fictícia D30");
+        var r = enviar("PUT", "/enderecos/" + id + "/capacidade", configurar, gestor);
+        assertThat(r.statusCode()).as(r.body()).isEqualTo(200);
+        e = json(r);
+        assertThat(e.get("capacidadePesoKg").decimalValue()).isEqualByComparingTo("123.456");
+        assertThat(e.get("alturaMetros").decimalValue()).isEqualByComparingTo("2.125");
+        assertThat(e.get("larguraMetros").decimalValue()).isEqualByComparingTo("3.250");
+        assertThat(e.get("profundidadeMetros").decimalValue()).isEqualByComparingTo("4.500");
+        assertThat(e.get("empilhamentoMaximo").intValue()).isEqualTo(3);
+        assertThat(e.get("tipoUnidadePermitido").asString()).isEqualTo("PALLET");
+        var antes = D30FotografiaFisica.capturar(jdbc);
+        var alterado =
+                enviar(
+                        "PUT",
+                        "/enderecos/" + id,
+                        Map.of(
+                                "versao",
+                                e.get("versao").longValue(),
+                                "descricao",
+                                "Descrição conferida: João, ação e ç",
+                                "motivo",
+                                "Correção cadastral fictícia D30"),
+                        gestor);
+        assertThat(alterado.statusCode()).as(alterado.body()).isEqualTo(200);
+        var dto = json(alterado);
+        assertThat(dto.get("descricao").asString())
+                .isEqualTo("Descrição conferida: João, ação e ç");
+        assertThat(dto.get("versao").longValue()).isEqualTo(e.get("versao").longValue() + 1);
+        var depois = D30FotografiaFisica.capturar(jdbc);
+        var linhaAntes = new java.util.HashMap<>(antes.get("ENDERECO").get(0));
+        var linhaDepois = new java.util.HashMap<>(depois.get("ENDERECO").get(0));
+        assertThat(linhaDepois.get("DESCRICAO")).isEqualTo("Descrição conferida: João, ação e ç");
+        for (String campo : List.of("DESCRICAO", "VERSAO", "ALTERADO_EM")) {
+            linhaAntes.remove(campo);
+            linhaDepois.remove(campo);
+        }
+        assertThat(linhaDepois).isEqualTo(linhaAntes);
+        for (String tabela : antes.keySet())
+            if (!List.of("ENDERECO", "AUDITORIA_CADASTRO").contains(tabela))
+                assertThat(depois.get(tabela)).as(tabela).isEqualTo(antes.get(tabela));
+        assertThat(json(enviar("GET", "/enderecos/" + id, null, gestor))).isEqualTo(dto);
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(depois);
+    }
+
     private JsonNode criar(String recurso, Object dados) throws Exception {
         var response = enviar("POST", "/" + recurso, dados, gestor);
         assertThat(response.statusCode()).as(response.body()).isEqualTo(201);
         assertThat(response.headers().firstValue("Location")).isPresent();
-        return json(response);
+        var resultado = json(response);
+        assertThat(URI.create(response.headers().firstValue("Location").orElseThrow()).toString())
+                .isEqualTo("/api/v1/" + recurso + "/" + resultado.get("id").longValue());
+        return resultado;
     }
 
     private HttpResponse<String> enviar(String metodo, String caminho, Object dados, String token)

@@ -1,0 +1,8 @@
+node_modules
+src/contracts/types.ts
+src/contracts/schemas.json
+src/contracts/endpoints.json
+dist
+evidencias
+.tools
+package-lock.json

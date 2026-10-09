@@ -1,0 +1,110 @@
+.hint {
+    font-size: 0.85rem;
+    color: #444;
+}
+.steps,
+.action-tabs,
+.actions,
+.shortcuts {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin: 1rem 0;
+}
+.steps button {
+    flex: 1;
+    text-align: left;
+    min-width: 180px;
+}
+.operation {
+    border-top: 1px solid #aaa;
+    padding-top: 1rem;
+}
+form {
+    min-width: 0;
+}
+fieldset {
+    min-width: 0;
+    border: 1px solid #aaa;
+    padding: 1rem;
+    margin: 1rem 0;
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+legend {
+    font-weight: bold;
+    padding: 0 0.3rem;
+}
+fieldset > label,
+fieldset > .field {
+    flex: 1 1 240px;
+    min-width: 0;
+}
+fieldset > fieldset,
+.list-item {
+    flex: 1 1 100%;
+    min-width: 0;
+}
+label,
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    margin-bottom: 0.5rem;
+}
+.field > label {
+    margin-bottom: 0;
+}
+.list-item {
+    padding: 0.6rem;
+    border-left: 3px solid #124cab;
+}
+.confirmation,
+.feedback:has(p),
+.selection,
+.notice {
+    border: 1px solid #124cab;
+    padding: 1rem;
+    background: white;
+}
+.feedback[role="alert"] {
+    border: 2px solid #111;
+    background: white;
+}
+.selection button {
+    margin-left: 0.5rem;
+}
+.feedback:has(p),
+.confirmation,
+.selection {
+    margin: 1rem 0;
+    overflow-wrap: anywhere;
+}
+.feedback p:first-child,
+.confirmation p:first-child,
+.selection h2:first-child {
+    margin-top: 0;
+}
+.feedback p:last-child {
+    margin-bottom: 0;
+}
+.hint {
+    overflow-wrap: anywhere;
+}
+@media (max-width: 800px) {
+    .steps button {
+        min-width: 130px;
+    }
+    .actions button {
+        width: 100%;
+    }
+    fieldset {
+        padding: 0.6rem;
+        gap: 0.5rem;
+    }
+    fieldset > label,
+    fieldset > .field {
+        flex-basis: 100%;
+    }
+}

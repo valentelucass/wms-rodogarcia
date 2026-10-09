@@ -1,0 +1,1435 @@
+{
+  "demand": "FIM_FRONTEND_LUCAS_20261008",
+  "criteria": 22,
+  "reviewOrigin": {
+    "sourcePath": "orchestracao/.runtime/frontend-vigia-parecer-lucas-20261008.json",
+    "sha256": "fdd3047939147fb9a2fe52a080721c37da18cb2391aac3f67602d7684fbb36e0",
+    "id": "REV-FE-SUFICIENCIA-JORNADAS",
+    "emittedUtc": "2026-10-08T20:52:22.508Z",
+    "role": "delimitação essencial revisão8; adendas posteriores preservadas"
+  },
+  "execution": "Consultar execuções/resultados atuais no recibo frontend-lume-entrega-lucas-20261008.json. Provas compartilhadas não são somadas como novas jornadas.",
+  "rows": [
+    {
+      "id": "REV-FE-JOR-FE04-01",
+      "title": "Completar consulta→alteração de cadastro, escopo e revisão",
+      "observed": "Cliente1/revisão3→alteração4→consulta; produto/embalagem/endereço mantêm chaves imutáveis e Long9007199254740993; conflito não antecipa sucesso.",
+      "witnesses": [
+        {
+          "path": "frontend/tests/registry-journey.test.tsx",
+          "sha256": "b123ec6040fee841d716ca2a63c984122492c57998732e691394e5beaee1882f",
+          "cases": [
+            {
+              "line": 18,
+              "declaration": "it(\"FE04 consulta seleção alteração revisão e estado atual de cadastro\", async () => {"
+            },
+            {
+              "line": 46,
+              "declaration": "it(\"FE04 prévia Excel consulta e confirmação conservam arquivo warehouse versão e hash\", async () => {"
+            },
+            {
+              "line": 94,
+              "declaration": "it(\"FE04 prévia com erro fica pendente e não oferece confirmação\", async () => {"
+            },
+            {
+              "line": 136,
+              "declaration": "it(\"FE04 encerramento consulta impedimentos solicitação inativação e histórico\", async () => {"
+            },
+            {
+              "line": 164,
+              "declaration": "it(\"FE04 revisão antiga recusa não antecipa alteração nem apaga impedimento\", async () => {"
+            }
+          ]
+        },
+        {
+          "path": "frontend/tests/registry-frontiers.test.tsx",
+          "sha256": "ab18e97426c62a6ad5d2e8864e92e04b9ad96ef2abac7bd8bb0d366750acf1d5",
+          "cases": [
+            {
+              "line": 17,
+              "declaration": "it(\"FE04 prévia válida consultada recusa hash/revisão sem confirmar nem criar endereços\", async () => {"
+            },
+            {
+              "line": 73,
+              "declaration": "it.each(["
+            }
+          ]
+        }
+      ],
+      "essentialSteps": [
+        "Consultar/selecionar cadastro existente; alterar somente atributos mutáveis e enviar ID/revisão próprios; consultar resposta atual.",
+        "Exercitar revisão antiga e troca de cliente/armazém com resultado fictício de conflito/recusa; nenhum sucesso nem alteração local antecipada."
+      ],
+      "acceptableProof": "Uma jornada CRUD representativa, mais prova focal dos formatos/campos imutáveis diferentes (produto/embalagem/endereço) e dos escopos; não duplicar a mesma cadeia para cinco cadastros.",
+      "proofLevel": "React/jsdom + Transport fictício",
+      "limits": "Respostas preparadas, não prova de regra/backend/SQL/dispositivo/fiscal. Resultado final por caso/log no recibo MARCO02; existência deste índice não concede aceite."
+    },
+    {
+      "id": "REV-FE-JOR-FE04-02",
+      "title": "Importação de endereços por prévia e confirmação",
+      "observed": "Arquivo .xlsx fictício/multipart/armazém1→prévia2101/revisão3/hash retornado→consulta→confirmar; COM_ERROS e409 não concluem importação.",
+      "witnesses": [
+        {
+          "path": "frontend/tests/registry-journey.test.tsx",
+          "sha256": "b123ec6040fee841d716ca2a63c984122492c57998732e691394e5beaee1882f",
+          "cases": [
+            {
+              "line": 18,
+              "declaration": "it(\"FE04 consulta seleção alteração revisão e estado atual de cadastro\", async () => {"
+            },
+            {
+              "line": 46,
+              "declaration": "it(\"FE04 prévia Excel consulta e confirmação conservam arquivo warehouse versão e hash\", async () => {"
+            },
+            {
+              "line": 94,
+              "declaration": "it(\"FE04 prévia com erro fica pendente e não oferece confirmação\", async () => {"
+            },
+            {
+              "line": 136,
+              "declaration": "it(\"FE04 encerramento consulta impedimentos solicitação inativação e histórico\", async () => {"
+            },
+            {
+              "line": 164,
+              "declaration": "it(\"FE04 revisão antiga recusa não antecipa alteração nem apaga impedimento\", async () => {"
+            }
+          ]
+        },
+        {
+          "path": "frontend/tests/registry-frontiers.test.tsx",
+          "sha256": "ab18e97426c62a6ad5d2e8864e92e04b9ad96ef2abac7bd8bb0d366750acf1d5",
+          "cases": [
+            {
+              "line": 17,
+              "declaration": "it(\"FE04 prévia válida consultada recusa hash/revisão sem confirmar nem criar endereços\", async () => {"
+            },
+            {
+              "line": 73,
+              "declaration": "it.each(["
+            }
+          ]
+        }
+      ],
+      "essentialSteps": [
+        "Selecionar .xlsx fictício local; enviar multipart arquivo+comando no armazém correto; mostrar linhas/colunas/erros retornados.",
+        "Consultar a prévia selecionada; no caso sem erros, confirmar seu ID+versão+arquivoHash retornados; mostrar endereços/estado confirmado.",
+        "Provar que prévia com erro ou recusa de hash/revisão não recebe sucesso nem fica apresentada como importação concluída."
+      ],
+      "acceptableProof": "Percurso UI com arquivo fictício e resposta preparada, captura das partes multipart e confirmação; fronteira negativa por Transport. Não testar parser Excel/backend.",
+      "proofLevel": "React/jsdom + Transport fictício",
+      "limits": "Respostas preparadas, não prova de regra/backend/SQL/dispositivo/fiscal. Resultado final por caso/log no recibo MARCO02; existência deste índice não concede aceite."
+    },
+    {
+      "id": "REV-FE-JOR-FE04-03",
+      "title": "Encerramento e configuração por vigência",
+      "observed": "Impedimentos→snapshot/encerramento/inativação→histórico; serviço2501/tabela2601/vínculo2701/vigência consultados, preço2.500000 e percentual wire null.",
+      "witnesses": [
+        {
+          "path": "frontend/tests/registry-journey.test.tsx",
+          "sha256": "b123ec6040fee841d716ca2a63c984122492c57998732e691394e5beaee1882f",
+          "cases": [
+            {
+              "line": 18,
+              "declaration": "it(\"FE04 consulta seleção alteração revisão e estado atual de cadastro\", async () => {"
+            },
+            {
+              "line": 46,
+              "declaration": "it(\"FE04 prévia Excel consulta e confirmação conservam arquivo warehouse versão e hash\", async () => {"
+            },
+            {
+              "line": 94,
+              "declaration": "it(\"FE04 prévia com erro fica pendente e não oferece confirmação\", async () => {"
+            },
+            {
+              "line": 136,
+              "declaration": "it(\"FE04 encerramento consulta impedimentos solicitação inativação e histórico\", async () => {"
+            },
+            {
+              "line": 164,
+              "declaration": "it(\"FE04 revisão antiga recusa não antecipa alteração nem apaga impedimento\", async () => {"
+            }
+          ]
+        },
+        {
+          "path": "frontend/tests/billing-journey.test.tsx",
+          "sha256": "9c1d0bd6fdae588cd456eb13316f839579f8affa854865caa578b9f59ba691ef",
+          "cases": [
+            {
+              "line": 18,
+              "declaration": "it(\"FE04 FE11 serviço tabela vigência vínculo sugestão fato e cálculo com referências consultadas\", async () => {"
+            },
+            {
+              "line": 108,
+              "declaration": "it(\"FE11 memória recebida preserva dias vigências pico avaria mínimo GRIS null zero crédito e exatidão\", () => {"
+            },
+            {
+              "line": 148,
+              "declaration": "it(\"FE11 reabertura nova versão ajuste conserva origem histórica e consulta identificada\", async () => {"
+            }
+          ]
+        }
+      ],
+      "essentialSteps": [
+        "Consultar impedimentos de cadastro; solicitar/confirmar inativação conforme retorno; impedimento fica explícito e histórico não some.",
+        "Em Serviços e tabelas, usar dados fictícios declarados para serviço/tabela/vínculo de cliente/vigência; consultar o registro e sua situação após confirmação. Ausência de parâmetro não recebe zero automático."
+      ],
+      "acceptableProof": "Uma jornada de encerramento com resultado/recusa e uma jornada de configuração/vínculo; prova compartilhada com FE11, sem repetir cálculos ou todas combinações de tarifa.",
+      "proofLevel": "React/jsdom + Transport fictício",
+      "limits": "Respostas preparadas, não prova de regra/backend/SQL/dispositivo/fiscal. Resultado final por caso/log no recibo MARCO02; existência deste índice não concede aceite."
+    },
+    {
+      "id": "REV-FE-JOR-FE05-01",
+      "title": "Chegadas em partes, diferença e condição até efetivação",
+      "observed": "Pedido101100previsto→chegadas50/48→diferença2→Supervisor/motivo/aceitarDivergencias→entrada20198triagem/0quarentena/indisponível;95boa5avaria em cenário próprio e Operação não efetiva.",
+      "witnesses": [
+        {
+          "path": "frontend/tests/receiving-journey.test.tsx",
+          "sha256": "96b16a65a3eea2b59be621ebd733978b111aba3767fcf8bb8825f001e0ef6634",
+          "cases": [
+            {
+              "line": 25,
+              "declaration": "it(\"FE05 XML sem chegada partes 50+48 divergência100/98 e efetivação supervisionada\", async () => {"
+            },
+            {
+              "line": 99,
+              "declaration": "it(\"FE06 múltiplas unidades seleção explícita reimpressão divisão e reagrupamento\", async () => {"
+            }
+          ]
+        },
+        {
+          "path": "frontend/tests/receiving-frontiers.test.tsx",
+          "sha256": "4cfee5f334bc0c059f82348f36db96140833fd28a7285238457158e224185859",
+          "cases": [
+            {
+              "line": 14,
+              "declaration": "it(\"FE05 condição95boa5avaria efetivada permanece triagem/quarentena sem disponibilidade\", async () => {"
+            },
+            {
+              "line": 74,
+              "declaration": "it(\"FE05 Operação consulta conferência mas não efetiva carga\", async () => {"
+            }
+          ]
+        },
+        {
+          "path": "frontend/tests/damage-journey.test.tsx",
+          "sha256": "29408b832972c760b26b555b02bbd4b092a1b1963b03f4fb4dde6f51a067139c",
+          "cases": [
+            {
+              "line": 15,
+              "declaration": "it(\"FE05 FE10 avaria reconhecimento Gestor reparo consulta e liberação mantêm fato e identidade\", async () => {"
+            },
+            {
+              "line": 102,
+              "declaration": "it(\"FE10 Supervisor registra/repara mas reconhecimento é apresentado somente a Gestor\", async () => {"
+            }
+          ]
+        },
+        {
+          "path": "frontend/tests/browser/journeys.spec.ts",
+          "sha256": "ec7d8c332c7924df2cd7a7ddc0d365c5838a24876b4ea1ff9148d1ae5250ae45",
+          "cases": [
+            {
+              "line": 113,
+              "declaration": "test(\"Recebimento integral: nota → chegada → efetivação → unidade → etiqueta → posição sem copiar IDs\", async ({"
+            },
+            {
+              "line": 320,
+              "declaration": "test(\"Saída integral: pedido → FIFO → reserva → etiqueta → leitura → separação conserva identidades e revisões\", async ({"
+            },
+            {
+              "line": 467,
+              "declaration": "test(\"Financeiro: cálculo → fechamento → memória → aprovação → entrega → conflito externo → tratativa\", async ({"
+            },
+            {
+              "line": 700,
+              "declaration": "test(\"Desktop: cliente, entrada manual, consulta e perfil\", async ({"
+            },
+            {
+              "line": 740,
+              "declaration": "test(\"Coletor 390px: teclado, UUID, leitura posição e movimento\", async ({"
+            },
+            {
+              "line": 770,
+              "declaration": "test(\"Conflito, vazio e indisponibilidade são distintos\", async ({ page }) => {"
+            },
+            {
+              "line": 789,
+              "declaration": "test(\"Navega todos módulos em 768px e 1440px sem erro de página\", async ({"
+            },
+            {
+              "line": 828,
+              "declaration": "test(\"Teclado: página composta conserva foco ao navegar, voltar, avançar e trocar contexto\", async ({"
+            }
+          ]
+        }
+      ],
+      "essentialSteps": [
+        "Consultar pedido/itens com previsto100; registrar chegadas em partes e reconferir revisões/quantidades retornadas.",
+        "Mostrar estado intermediário100previsto/98físico e diferença2; cenário com95boas+5avariadas pode ser conclusão da mesma sequência ou prova de componente com outra resposta.",
+        "Supervisor/Gestor registra motivo e aceitarDivergencias conforme contrato/decisão recebida; Operação não efetiva. Mostrar entrada/condição/quarentena retornadas sem somar nem liberar disponibilidade no cliente."
+      ],
+      "acceptableProof": "Um percurso UI com mais de uma chegada e resposta de divergência, mais fronteira de apresentação/efetivação por perfil; quantidades e condição vindas do script, sem regra de recebimento no FE.",
+      "proofLevel": "React/Transport e/ou Chromium local",
+      "limits": "Respostas preparadas, não prova de regra/backend/SQL/dispositivo/fiscal. Resultado final por caso/log no recibo MARCO02; existência deste índice não concede aceite."
+    },
+    {
+      "id": "REV-FE-JOR-FE05-02",
+      "title": "Pedido por XML alcança conferência sem afirmar chegada",
+      "observed": "XML→pedido101/importação sem chegada→consulta itens/revisão→conferência; não confunde importação fiscal e física. XML/replay/contexto compartilham testes de fronteira.",
+      "witnesses": [
+        {
+          "path": "frontend/tests/receiving-journey.test.tsx",
+          "sha256": "96b16a65a3eea2b59be621ebd733978b111aba3767fcf8bb8825f001e0ef6634",
+          "cases": [
+            {
+              "line": 25,
+              "declaration": "it(\"FE05 XML sem chegada partes 50+48 divergência100/98 e efetivação supervisionada\", async () => {"
+            },
+            {
+              "line": 99,
+              "declaration": "it(\"FE06 múltiplas unidades seleção explícita reimpressão divisão e reagrupamento\", async () => {"
+            }
+          ]
+        },
+        {
+          "path": "frontend/tests/browser/journeys.spec.ts",
+          "sha256": "ec7d8c332c7924df2cd7a7ddc0d365c5838a24876b4ea1ff9148d1ae5250ae45",
+          "cases": [
+            {
+              "line": 113,
+              "declaration": "test(\"Recebimento integral: nota → chegada → efetivação → unidade → etiqueta → posição sem copiar IDs\", async ({"
+            },
+            {
+              "line": 320,
+              "declaration": "test(\"Saída integral: pedido → FIFO → reserva → etiqueta → leitura → separação conserva identidades e revisões\", async ({"
+            },
+            {
+              "line": 467,
+              "declaration": "test(\"Financeiro: cálculo → fechamento → memória → aprovação → entrega → conflito externo → tratativa\", async ({"
+            },
+            {
+              "line": 700,
+              "declaration": "test(\"Desktop: cliente, entrada manual, consulta e perfil\", async ({"
+            },
+            {
+              "line": 740,
+              "declaration": "test(\"Coletor 390px: teclado, UUID, leitura posição e movimento\", async ({"
+            },
+            {
+              "line": 770,
+              "declaration": "test(\"Conflito, vazio e indisponibilidade são distintos\", async ({ page }) => {"
+            },
+            {
+              "line": 789,
+              "declaration": "test(\"Navega todos módulos em 768px e 1440px sem erro de página\", async ({"
+            },
+            {
+              "line": 828,
+              "declaration": "test(\"Teclado: página composta conserva foco ao navegar, voltar, avançar e trocar contexto\", async ({"
+            }
+          ]
+        }
+      ],
+      "essentialSteps": [
+        "Selecionar XML fictício, confirmar ação xml, consultar os itens importados e continuar pelo pedido/revisão corretos.",
+        "Antes de registrar chegada, apresentação mantém importação fiscal distinta do fato físico; retomar payload original se resposta de escrita se perde."
+      ],
+      "acceptableProof": "Trecho UI usando contrato existente e respostas preparadas; replay pode aproveitar prova comum desde que seja o mesmo ciclo/snapshot.",
+      "proofLevel": "React/Transport e/ou Chromium local",
+      "limits": "Respostas preparadas, não prova de regra/backend/SQL/dispositivo/fiscal. Resultado final por caso/log no recibo MARCO02; existência deste índice não concede aceite."
+    },
+    {
+      "id": "REV-FE-JOR-FE06-01",
+      "title": "Distribuição em mais de uma unidade e seleção inequívoca",
+      "observed": "Entrada1000→duas unidades500→seleção explícita502→etiqueta por UUID; divisão/reagrupamento conservam revisões e origem sem cálculo local.",
+      "witnesses": [
+        {
+          "path": "frontend/tests/receiving-journey.test.tsx",
+          "sha256": "96b16a65a3eea2b59be621ebd733978b111aba3767fcf8bb8825f001e0ef6634",
+          "cases": [
+            {
+              "line": 25,
+              "declaration": "it(\"FE05 XML sem chegada partes 50+48 divergência100/98 e efetivação supervisionada\", async () => {"
+            },
+            {
+              "line": 99,
+              "declaration": "it(\"FE06 múltiplas unidades seleção explícita reimpressão divisão e reagrupamento\", async () => {"
+            }
+          ]
+        },
+        {
+          "path": "frontend/tests/browser/journeys.spec.ts",
+          "sha256": "ec7d8c332c7924df2cd7a7ddc0d365c5838a24876b4ea1ff9148d1ae5250ae45",
+          "cases": [
+            {
+              "line": 113,
+              "declaration": "test(\"Recebimento integral: nota → chegada → efetivação → unidade → etiqueta → posição sem copiar IDs\", async ({"
+            },
+            {
+              "line": 320,
+              "declaration": "test(\"Saída integral: pedido → FIFO → reserva → etiqueta → leitura → separação conserva identidades e revisões\", async ({"
+            },
+            {
+              "line": 467,
+              "declaration": "test(\"Financeiro: cálculo → fechamento → memória → aprovação → entrega → conflito externo → tratativa\", async ({"
+            },
+            {
+              "line": 700,
+              "declaration": "test(\"Desktop: cliente, entrada manual, consulta e perfil\", async ({"
+            },
+            {
+              "line": 740,
+              "declaration": "test(\"Coletor 390px: teclado, UUID, leitura posição e movimento\", async ({"
+            },
+            {
+              "line": 770,
+              "declaration": "test(\"Conflito, vazio e indisponibilidade são distintos\", async ({ page }) => {"
+            },
+            {
+              "line": 789,
+              "declaration": "test(\"Navega todos módulos em 768px e 1440px sem erro de página\", async ({"
+            },
+            {
+              "line": 828,
+              "declaration": "test(\"Teclado: página composta conserva foco ao navegar, voltar, avançar e trocar contexto\", async ({"
+            }
+          ]
+        }
+      ],
+      "essentialSteps": [
+        "Selecionar entrada/progresso, enviar1000→2unidades500 (ou caso equivalente de múltiplas unidades); quantidades/condições/origem no corpo exato.",
+        "Consultar progresso/unidades retornados; escolher explicitamente qual unidade será etiquetada, sem autoeleger o primeiro item nem confundir DUN com UUID."
+      ],
+      "acceptableProof": "Percurso de unitização/lista/seleção/etiqueta, com resposta preparada que informa progresso/total; não exigir soma/regra de unitização calculada pelo navegador.",
+      "proofLevel": "React/Transport e/ou Chromium local",
+      "limits": "Respostas preparadas, não prova de regra/backend/SQL/dispositivo/fiscal. Resultado final por caso/log no recibo MARCO02; existência deste índice não concede aceite."
+    },
+    {
+      "id": "REV-FE-JOR-FE06-02",
+      "title": "Reimpressão e revisão de conteúdo após mudança",
+      "observed": "Reimpressão duas GET do mesmo UUID; divisão/reagrupamento atualizam etiqueta11/12; retirada parcial do pallet recebe490/revisão11, consultada por UUID da reserva.",
+      "witnesses": [
+        {
+          "path": "frontend/tests/receiving-journey.test.tsx",
+          "sha256": "96b16a65a3eea2b59be621ebd733978b111aba3767fcf8bb8825f001e0ef6634",
+          "cases": [
+            {
+              "line": 25,
+              "declaration": "it(\"FE05 XML sem chegada partes 50+48 divergência100/98 e efetivação supervisionada\", async () => {"
+            },
+            {
+              "line": 99,
+              "declaration": "it(\"FE06 múltiplas unidades seleção explícita reimpressão divisão e reagrupamento\", async () => {"
+            }
+          ]
+        },
+        {
+          "path": "frontend/tests/browser/expedition.spec.ts",
+          "sha256": "086d10baf41b7a9c667a8858434e4d9b46fed06b8a42a80eea3497980f71cd4d",
+          "cases": [
+            {
+              "line": 84,
+              "declaration": "test(\"FE10 retirada integral e devolucao ligada a baixa\", async ({ page }) => {"
+            },
+            {
+              "line": 309,
+              "declaration": "test(\"FE10 documento simbolico cancelamento e retorno interno distintos\", async ({"
+            }
+          ]
+        }
+      ],
+      "essentialSteps": [
+        "Consultar/reimprimir duas vezes a mesma unidade: mesmo UUID e apenasGET de etiqueta; não criar estoque ou operação de unitização.",
+        "Após parcial de FE09/10, receber nova revisão de conteúdo, consultar etiqueta atual e usar essa revisão na próxima leitura; versão da unidade e revisão do conteúdo permanecem distintas."
+      ],
+      "acceptableProof": "Prova focal de UI/Transport mais trecho da jornada parcial compartilhada com FE09/10; não duplicar esse percurso em FE06.",
+      "proofLevel": "React/Transport e/ou Chromium local",
+      "limits": "Respostas preparadas, não prova de regra/backend/SQL/dispositivo/fiscal. Resultado final por caso/log no recibo MARCO02; existência deste índice não concede aceite."
+    },
+    {
+      "id": "REV-FE-JOR-FE08-01",
+      "title": "Consulta operacional de saldo→unidade→origem/movimentos",
+      "observed": "SKU11/contexto1→unidade502→entrada202/nota302/localização→histórico page1/size2; categorias sobrepostas não somadas; recusa não vira zero.",
+      "witnesses": [
+        {
+          "path": "frontend/tests/stock-queries.test.tsx",
+          "sha256": "d52a2e616252466a7f3448b40ab5521df985edce1b82a2854fc5678627a7296d",
+          "cases": [
+            {
+              "line": 17,
+              "declaration": "it(\"FE08 saldo filtro unidade selecionada origem localização histórico e paginação\", async () => {"
+            },
+            {
+              "line": 136,
+              "declaration": "it.each([null, \"0.000000\", \"9007199254740993.123456\"])("
+            },
+            {
+              "line": 183,
+              "declaration": "it(\"FE08 falha na consulta não vira vazio nem saldo zero\", async () => {"
+            },
+            {
+              "line": 201,
+              "declaration": "it(\"FE12-04 relatório auditoria Gestor consulta filtros e Operação não tem ação\", async () => {"
+            }
+          ]
+        }
+      ],
+      "essentialSteps": [
+        "Filtrar contexto/SKU nos parâmetros existentes; consultar físico/disponível/reservado/bloqueado/avaria/quarentena e estágio recebidos.",
+        "Selecionar a unidade certa; abrir origem, localização e histórico/movimentos; distinguir FIFO, chegada real e início da cobrança.",
+        "Exercitar paginação quando oferecida pelo contrato, ou demonstrar lista completa quando o contrato não pagina; erro não vira nenhum registro/zero."
+      ],
+      "acceptableProof": "Uma jornada de consulta com seleção/detalhe/histórico e capturas de query/ID; resposta com categorias sobrepostas e unidades distintas para provar que UI não as soma como total global.",
+      "proofLevel": "React/jsdom + Transport fictício",
+      "limits": "Respostas preparadas, não prova de regra/backend/SQL/dispositivo/fiscal. Resultado final por caso/log no recibo MARCO02; existência deste índice não concede aceite."
+    },
+    {
+      "id": "REV-FE-JOR-FE08-02",
+      "title": "Valor desconhecido/zero/nãozero e apresentação por perfil",
+      "observed": "null/0/9007199254740993.123456, KG/UN e paginação sem total extrapolado; Operação não pede valor=true; Supervisor/Gestor o pedem conforme contrato.",
+      "witnesses": [
+        {
+          "path": "frontend/tests/stock-queries.test.tsx",
+          "sha256": "d52a2e616252466a7f3448b40ab5521df985edce1b82a2854fc5678627a7296d",
+          "cases": [
+            {
+              "line": 17,
+              "declaration": "it(\"FE08 saldo filtro unidade selecionada origem localização histórico e paginação\", async () => {"
+            },
+            {
+              "line": 136,
+              "declaration": "it.each([null, \"0.000000\", \"9007199254740993.123456\"])("
+            },
+            {
+              "line": 183,
+              "declaration": "it(\"FE08 falha na consulta não vira vazio nem saldo zero\", async () => {"
+            },
+            {
+              "line": 201,
+              "declaration": "it(\"FE12-04 relatório auditoria Gestor consulta filtros e Operação não tem ação\", async () => {"
+            }
+          ]
+        },
+        {
+          "path": "frontend/tests/indicator-frontiers.test.tsx",
+          "sha256": "6487bd5b9a1578d0a3a4816e6355856db3d7dfe4504d05b7a335c3b690d28505",
+          "cases": [
+            {
+              "line": 12,
+              "declaration": "it.each([\"SUPERVISOR\", \"GESTOR\"] as const)("
+            }
+          ]
+        },
+        {
+          "path": "frontend/tests/browser/journeys.spec.ts",
+          "sha256": "ec7d8c332c7924df2cd7a7ddc0d365c5838a24876b4ea1ff9148d1ae5250ae45",
+          "cases": [
+            {
+              "line": 113,
+              "declaration": "test(\"Recebimento integral: nota → chegada → efetivação → unidade → etiqueta → posição sem copiar IDs\", async ({"
+            },
+            {
+              "line": 320,
+              "declaration": "test(\"Saída integral: pedido → FIFO → reserva → etiqueta → leitura → separação conserva identidades e revisões\", async ({"
+            },
+            {
+              "line": 467,
+              "declaration": "test(\"Financeiro: cálculo → fechamento → memória → aprovação → entrega → conflito externo → tratativa\", async ({"
+            },
+            {
+              "line": 700,
+              "declaration": "test(\"Desktop: cliente, entrada manual, consulta e perfil\", async ({"
+            },
+            {
+              "line": 740,
+              "declaration": "test(\"Coletor 390px: teclado, UUID, leitura posição e movimento\", async ({"
+            },
+            {
+              "line": 770,
+              "declaration": "test(\"Conflito, vazio e indisponibilidade são distintos\", async ({ page }) => {"
+            },
+            {
+              "line": 789,
+              "declaration": "test(\"Navega todos módulos em 768px e 1440px sem erro de página\", async ({"
+            },
+            {
+              "line": 828,
+              "declaration": "test(\"Teclado: página composta conserva foco ao navegar, voltar, avançar e trocar contexto\", async ({"
+            }
+          ]
+        }
+      ],
+      "essentialSteps": [
+        "Renderizar respostas de indicadores com null,0 e valor nãozero exato; não misturar KG/UN ou extrapolar total da página.",
+        "Operação não solicita valor=true; Supervisor/Gestor vê valores quando retorno/contrato permitem. Troca de filtro/contexto descarta resposta antiga."
+      ],
+      "acceptableProof": "Componentes+Transport com fixture da tela, reaproveitando a guarda comum; não verificar conciliação real nem recalcular indicador.",
+      "proofLevel": "React/Transport e/ou Chromium local",
+      "limits": "Respostas preparadas, não prova de regra/backend/SQL/dispositivo/fiscal. Resultado final por caso/log no recibo MARCO02; existência deste índice não concede aceite."
+    },
+    {
+      "id": "REV-FE-JOR-FE09-01",
+      "title": "Reserva(s) correta(s) e parcial de pallet utilizáveis",
+      "observed": "Pedido integral100 sobre pallet500, reservas701/702 quantidades30/70 selecionadas por identidade, UUID/etiqueta/destino81 e versões próprias; SEPARADO recebido, remanescente recebido em FE10.",
+      "witnesses": [
+        {
+          "path": "frontend/tests/dispatch-operational.test.tsx",
+          "sha256": "79d45c3b48495d29a063043983f5455c93fd7218d80e699567a7dc04ac743f6a",
+          "cases": [
+            {
+              "line": 40,
+              "declaration": "it(\"FE09 exceção FIFO integral duas reservas leitura UUID/revisões próprias separação completa e continuação\", async () => {"
+            },
+            {
+              "line": 223,
+              "declaration": "it(\"FE09 bobinas4/6 pedido6 usa sugestão e justificativa recebidas sem fracionar unidade no cliente\", async () => {"
+            },
+            {
+              "line": 348,
+              "declaration": "it(\"FE09 avaria/conflito não libera reserva; reversão recebe revisão própria e reconfirma estado\", async () => {"
+            },
+            {
+              "line": 433,
+              "declaration": "it(\"FE09 Operação pode registrar justificativa, mas não envia autorização da exceção\", async () => {"
+            }
+          ]
+        },
+        {
+          "path": "frontend/tests/marco02-selection.test.tsx",
+          "sha256": "e5c0990b5cea9247e9974716cf62bb6449387c422ca339b28bfff27fa21b7389",
+          "cases": [
+            {
+              "line": 83,
+              "declaration": "it(\"UI troca pedido601/reserva701 por pedido602 sem conservar ID, revisão ou opção de reserva\", async () => {"
+            },
+            {
+              "line": 127,
+              "declaration": "it(\"UI consulta FIFO de outro pedido exige selecionar esse pai antes do próximo passo\", async () => {"
+            },
+            {
+              "line": 150,
+              "declaration": "it(\"UI com escrita incerta conserva formulário e impede trocar referências para liberar outro payload\", async () => {"
+            }
+          ]
+        },
+        {
+          "path": "frontend/tests/browser/journeys.spec.ts",
+          "sha256": "ec7d8c332c7924df2cd7a7ddc0d365c5838a24876b4ea1ff9148d1ae5250ae45",
+          "cases": [
+            {
+              "line": 113,
+              "declaration": "test(\"Recebimento integral: nota → chegada → efetivação → unidade → etiqueta → posição sem copiar IDs\", async ({"
+            },
+            {
+              "line": 320,
+              "declaration": "test(\"Saída integral: pedido → FIFO → reserva → etiqueta → leitura → separação conserva identidades e revisões\", async ({"
+            },
+            {
+              "line": 467,
+              "declaration": "test(\"Financeiro: cálculo → fechamento → memória → aprovação → entrega → conflito externo → tratativa\", async ({"
+            },
+            {
+              "line": 700,
+              "declaration": "test(\"Desktop: cliente, entrada manual, consulta e perfil\", async ({"
+            },
+            {
+              "line": 740,
+              "declaration": "test(\"Coletor 390px: teclado, UUID, leitura posição e movimento\", async ({"
+            },
+            {
+              "line": 770,
+              "declaration": "test(\"Conflito, vazio e indisponibilidade são distintos\", async ({ page }) => {"
+            },
+            {
+              "line": 789,
+              "declaration": "test(\"Navega todos módulos em 768px e 1440px sem erro de página\", async ({"
+            },
+            {
+              "line": 828,
+              "declaration": "test(\"Teclado: página composta conserva foco ao navegar, voltar, avançar e trocar contexto\", async ({"
+            }
+          ]
+        },
+        {
+          "path": "frontend/tests/browser/expedition.spec.ts",
+          "sha256": "086d10baf41b7a9c667a8858434e4d9b46fed06b8a42a80eea3497980f71cd4d",
+          "cases": [
+            {
+              "line": 84,
+              "declaration": "test(\"FE10 retirada integral e devolucao ligada a baixa\", async ({ page }) => {"
+            },
+            {
+              "line": 309,
+              "declaration": "test(\"FE10 documento simbolico cancelamento e retorno interno distintos\", async ({"
+            }
+          ]
+        }
+      ],
+      "essentialSteps": [
+        "Corrigir002; consultar/selecionar outro pedido e provar que não leva reserva/FIFO/documento/revisão de pedido anterior.",
+        "Usar pedido integral100 sobre pallet500 (ou equivalente); consultar a seleção/reserva do servidor, ler etiqueta e separar com destino explícito.",
+        "No caso de lista com duas reservas, selecionar cada uma e seu UUID/revisão/destino; a UI deve permitir concluir o pedido integral e mostrar o remanescente recebido."
+      ],
+      "acceptableProof": "Percurso UI que pode compartilhar o parcial com FE10; asserções por reserva/quantidade/revisão/destino e consulta atual. Sem frontend decidir que o pedido foi integralmente atendido.",
+      "proofLevel": "React/Transport e/ou Chromium local",
+      "limits": "Respostas preparadas, não prova de regra/backend/SQL/dispositivo/fiscal. Resultado final por caso/log no recibo MARCO02; existência deste índice não concede aceite."
+    },
+    {
+      "id": "REV-FE-JOR-FE09-02",
+      "title": "Exceção FIFO e recusa do servidor",
+      "observed": "Justificativa FIFO retornada vinculada ao pedido/revisão; Operação não autoriza exceção;409avaria preserva reserva→reversão motivada/revisão2→consulta3 sem estoque liberado localmente.",
+      "witnesses": [
+        {
+          "path": "frontend/tests/dispatch-operational.test.tsx",
+          "sha256": "79d45c3b48495d29a063043983f5455c93fd7218d80e699567a7dc04ac743f6a",
+          "cases": [
+            {
+              "line": 40,
+              "declaration": "it(\"FE09 exceção FIFO integral duas reservas leitura UUID/revisões próprias separação completa e continuação\", async () => {"
+            },
+            {
+              "line": 223,
+              "declaration": "it(\"FE09 bobinas4/6 pedido6 usa sugestão e justificativa recebidas sem fracionar unidade no cliente\", async () => {"
+            },
+            {
+              "line": 348,
+              "declaration": "it(\"FE09 avaria/conflito não libera reserva; reversão recebe revisão própria e reconfirma estado\", async () => {"
+            },
+            {
+              "line": 433,
+              "declaration": "it(\"FE09 Operação pode registrar justificativa, mas não envia autorização da exceção\", async () => {"
+            }
+          ]
+        },
+        {
+          "path": "frontend/tests/dispatch-profile-contract.test.tsx",
+          "sha256": "4a2d242e83f5436d75faffd89cdb4a2acf1e5c49122f1010d32f06fb13e065ed",
+          "cases": [
+            {
+              "line": 15,
+              "declaration": "it.each([\"OPERACAO\", \"SUPERVISOR\"] as Perfil[])("
+            },
+            {
+              "line": 110,
+              "declaration": "it(\"GEN01 Gestor explicita resolverPendentes=true sem alterar o caminho comum\", async () => {"
+            }
+          ]
+        }
+      ],
+      "essentialSteps": [
+        "Resposta preparada para bobinas4/6 e pedido6 informa necessidade de exceção; registrar justificativa e usar seu ID na reserva somente para Supervisor/Gestor conforme contrato.",
+        "Resposta409 de indisponibilidade/avaria não vira sucesso/liberação nem perda silenciosa da reserva; consultar estado atual. Operação pode justificar, mas não autoriza exceção."
+      ],
+      "acceptableProof": "Trecho UI/componentes+Transport por domínio com referência exata e recusa; sem calcular FIFO/indivisibilidade ou resolver disponibilidade no navegador.",
+      "proofLevel": "React/jsdom + Transport fictício",
+      "limits": "Respostas preparadas, não prova de regra/backend/SQL/dispositivo/fiscal. Resultado final por caso/log no recibo MARCO02; existência deste índice não concede aceite."
+    },
+    {
+      "id": "REV-FE-JOR-FE10-01",
+      "title": "Documento/cobertura→retirada física→consulta do resultado",
+      "observed": "Pedido601/reserva701/nota301→documento1601/revisão3→retirada4/XML/remanescente81→consulta baixa1701/fato1801/retiradaEm/revisão5; documento AUTORIZADO sozinho não é retirada.",
+      "witnesses": [
+        {
+          "path": "frontend/tests/expedition-frontiers.test.tsx",
+          "sha256": "6695a2d0a365f70b90d10a1f9b476674154a54274bf44d90494763b38fb36dca",
+          "cases": [
+            {
+              "line": 25,
+              "declaration": "it(\"FE10 cobertura de duas notas no documento simbólico conserva reserva origem SKU e nenhum movimento físico\", async () => {"
+            },
+            {
+              "line": 135,
+              "declaration": "it.each([\"COBERTURA_INCOMPLETA\", \"DOCUMENTO_SIMBOLICO\", \"AVARIA\"])("
+            },
+            {
+              "line": 193,
+              "declaration": "it(\"FE10 Operação não dispõe de retirada física fiscal\", () => {"
+            }
+          ]
+        },
+        {
+          "path": "frontend/tests/browser/expedition.spec.ts",
+          "sha256": "086d10baf41b7a9c667a8858434e4d9b46fed06b8a42a80eea3497980f71cd4d",
+          "cases": [
+            {
+              "line": 84,
+              "declaration": "test(\"FE10 retirada integral e devolucao ligada a baixa\", async ({ page }) => {"
+            },
+            {
+              "line": 309,
+              "declaration": "test(\"FE10 documento simbolico cancelamento e retorno interno distintos\", async ({"
+            }
+          ]
+        }
+      ],
+      "essentialSteps": [
+        "Partir da separação/pedido corretos, consultar expedição e escolher documento/coberturas por reserva+notaOrigem+SKU+quantidade; registrar referência fictícia de documento existente.",
+        "Mostrar documento registrado distinto de retirada; Supervisor/Gestor informa XMLs comprovantes e destinos de todos os remanescentes retornados e confirma retirada integral.",
+        "Consultar expedição/fatos/baixas e apresentar retiradaEm, baixas/remanescente e revisão atuais. XML em branco/recusa de cobertura não recebe sucesso."
+      ],
+      "acceptableProof": "Percurso UI completo com script fictício e comandos capturados, preferencialmente continuando o caso parcial FE09; sem validar XML fiscal ou estoque real.",
+      "proofLevel": "React/Transport e/ou Chromium local",
+      "limits": "Respostas preparadas, não prova de regra/backend/SQL/dispositivo/fiscal. Resultado final por caso/log no recibo MARCO02; existência deste índice não concede aceite."
+    },
+    {
+      "id": "REV-FE-JOR-FE10-02",
+      "title": "Cancelamento de documento→retorno interno com destinos",
+      "observed": "Cenário próprio não retirado→documento simbólico1601→cancelamento4/CANCELADO sem movimento→retorno interno5/reserva701/endereço81→consulta RETORNO_INTERNO.",
+      "witnesses": [
+        {
+          "path": "frontend/tests/browser/expedition.spec.ts",
+          "sha256": "086d10baf41b7a9c667a8858434e4d9b46fed06b8a42a80eea3497980f71cd4d",
+          "cases": [
+            {
+              "line": 84,
+              "declaration": "test(\"FE10 retirada integral e devolucao ligada a baixa\", async ({ page }) => {"
+            },
+            {
+              "line": 309,
+              "declaration": "test(\"FE10 documento simbolico cancelamento e retorno interno distintos\", async ({"
+            }
+          ]
+        }
+      ],
+      "essentialSteps": [
+        "Usar cenário próprio de expedição separada ainda não retirada; selecionar documento e solicitar seu cancelamento com ID/revisão/motivo.",
+        "Consultar estado: cancelamento do documento por si só não apresenta retorno físico/saldo liberado.",
+        "Executar retorno interno permitido pelo resultado preparado, selecionar todas destinações por reserva/endereço, confirmar e consultar expedição/fatos."
+      ],
+      "acceptableProof": "Segundo ramo UI com transport/script coerente; não tentar retorno interno depois de retirada nem inferir permissão no frontend.",
+      "proofLevel": "React/Transport e/ou Chromium local",
+      "limits": "Respostas preparadas, não prova de regra/backend/SQL/dispositivo/fiscal. Resultado final por caso/log no recibo MARCO02; existência deste índice não concede aceite."
+    },
+    {
+      "id": "REV-FE-JOR-FE10-03",
+      "title": "Devolução após retirada→nova entrada ligada à baixa",
+      "observed": "Após retirada, baixa1701→devolução2.000000/revisão5→pedidoEntrada102/entrada202→consulta EFETIVADO/nota302/item402/chegada13:00/efetivação13:01/FIFOoriginal; sem copiar IDs do DTO bruto.",
+      "witnesses": [
+        {
+          "path": "frontend/tests/browser/expedition.spec.ts",
+          "sha256": "086d10baf41b7a9c667a8858434e4d9b46fed06b8a42a80eea3497980f71cd4d",
+          "cases": [
+            {
+              "line": 84,
+              "declaration": "test(\"FE10 retirada integral e devolucao ligada a baixa\", async ({ page }) => {"
+            },
+            {
+              "line": 309,
+              "declaration": "test(\"FE10 documento simbolico cancelamento e retorno interno distintos\", async ({"
+            }
+          ]
+        }
+      ],
+      "essentialSteps": [
+        "Usar cenário retirado, consultar e selecionar baixaId da expedição; informar quantidade/quantidadeAvariada/nota/chegadaReal/referência pelo contrato.",
+        "Confirmar devolução e mostrar baixa original/pedidoEntradaId/entradaNovaId/FIFO/origem recebidos.",
+        "Permitir consultar o pedido/entrada novos a partir dessas referências, sem reutilizar pedido/entrada antigos ou tratar devolução como simples desfazer."
+      ],
+      "acceptableProof": "Terceiro ramo UI em fonte estável, pode aproveitar retirada do primeiro; comprovar comando exato e encadeamento pelo resultado fictício.",
+      "proofLevel": "React/Transport e/ou Chromium local",
+      "limits": "Respostas preparadas, não prova de regra/backend/SQL/dispositivo/fiscal. Resultado final por caso/log no recibo MARCO02; existência deste índice não concede aceite."
+    },
+    {
+      "id": "REV-FE-JOR-FE10-04",
+      "title": "Cobertura incompleta/simbólico e avaria nas fronteiras",
+      "observed": "Duas notas/coberturas por reserva/SKU/origem; simbólico sem movimento; cobertura incompleta/avaria recusadas; avaria3101→reconhecimentoGestor→reparo→consulta→liberação explicitamente recebida.",
+      "witnesses": [
+        {
+          "path": "frontend/tests/expedition-frontiers.test.tsx",
+          "sha256": "6695a2d0a365f70b90d10a1f9b476674154a54274bf44d90494763b38fb36dca",
+          "cases": [
+            {
+              "line": 25,
+              "declaration": "it(\"FE10 cobertura de duas notas no documento simbólico conserva reserva origem SKU e nenhum movimento físico\", async () => {"
+            },
+            {
+              "line": 135,
+              "declaration": "it.each([\"COBERTURA_INCOMPLETA\", \"DOCUMENTO_SIMBOLICO\", \"AVARIA\"])("
+            },
+            {
+              "line": 193,
+              "declaration": "it(\"FE10 Operação não dispõe de retirada física fiscal\", () => {"
+            }
+          ]
+        },
+        {
+          "path": "frontend/tests/damage-journey.test.tsx",
+          "sha256": "29408b832972c760b26b555b02bbd4b092a1b1963b03f4fb4dde6f51a067139c",
+          "cases": [
+            {
+              "line": 15,
+              "declaration": "it(\"FE05 FE10 avaria reconhecimento Gestor reparo consulta e liberação mantêm fato e identidade\", async () => {"
+            },
+            {
+              "line": 102,
+              "declaration": "it(\"FE10 Supervisor registra/repara mas reconhecimento é apresentado somente a Gestor\", async () => {"
+            }
+          ]
+        }
+      ],
+      "essentialSteps": [
+        "Resposta com múltiplas notas/coberturas mostra vínculo correto; caso simbólico não é apresentado como retirada.",
+        "Recusa por cobertura incompleta fica visível sem movimento prometido; avaria recebida bloqueia o próximo envio conforme o resultado e preserva referência/reserva.",
+        "Avaria/reconhecimento/reparo oferecidos usam fato/unidade/quantidade/destino/motivo corretos e apresentação de Gestor quando requerida."
+      ],
+      "acceptableProof": "Provas focais de componente/Transport, sem nova cadeia fiscal para cada variação e sem implementar regras fiscais/bloqueio no FE.",
+      "proofLevel": "React/jsdom + Transport fictício",
+      "limits": "Respostas preparadas, não prova de regra/backend/SQL/dispositivo/fiscal. Resultado final por caso/log no recibo MARCO02; existência deste índice não concede aceite."
+    },
+    {
+      "id": "REV-FE-JOR-FE11-01",
+      "title": "Configuração e fato do serviço até consulta",
+      "observed": "Configuração/vigência compartilhadaFE04→sugestão com serviço2501→fato2801/quantidade2.123456→consultaVALIDO→cálculo801. Gestor seleciona compromisso901; Supervisor vê pendência sem resolução.",
+      "witnesses": [
+        {
+          "path": "frontend/tests/billing-journey.test.tsx",
+          "sha256": "9c1d0bd6fdae588cd456eb13316f839579f8affa854865caa578b9f59ba691ef",
+          "cases": [
+            {
+              "line": 18,
+              "declaration": "it(\"FE04 FE11 serviço tabela vigência vínculo sugestão fato e cálculo com referências consultadas\", async () => {"
+            },
+            {
+              "line": 108,
+              "declaration": "it(\"FE11 memória recebida preserva dias vigências pico avaria mínimo GRIS null zero crédito e exatidão\", () => {"
+            },
+            {
+              "line": 148,
+              "declaration": "it(\"FE11 reabertura nova versão ajuste conserva origem histórica e consulta identificada\", async () => {"
+            }
+          ]
+        },
+        {
+          "path": "frontend/tests/billing-frontiers.test.tsx",
+          "sha256": "634e093fa5732b02cedfe73f1c50490fea2f0beb110dbfa959664564b9cde54a",
+          "cases": [
+            {
+              "line": 20,
+              "declaration": "it(\"FE11 decisão recusada preserva ciclo integral versão e consulta histórica\", async () => {"
+            },
+            {
+              "line": 71,
+              "declaration": "it(\"FE11 Gestor escolhe compromisso consultado na resolução explícita do fato e consulta resultado\", async () => {"
+            },
+            {
+              "line": 114,
+              "declaration": "it(\"FE11 Supervisor lê pendência do fato e não recebe resolução/decisão do Gestor\", async () => {"
+            }
+          ]
+        }
+      ],
+      "essentialSteps": [
+        "Percurso de serviço/tabela/vínculo/vigência compartilhado com FE04, com valores fictícios e ausência de parâmetro preservada.",
+        "Consultar sugestões/origem; registrar um fato pelo serviço/cliente/armazém/pedido/unidade pertinentes e quantidade exata; exibir situação/pendência/resolução Gestor quando exigida pelo contrato.",
+        "Consultar o fato antes de alcançar cálculo. Nenhuma saída/fato comercial criado automaticamente só para preencher o formulário."
+      ],
+      "acceptableProof": "Jornada administrativa de configuração/fato ou trechos ligados explicitamente; aproveitar FE04 sem repetir seu teste, sem calcular cobrança.",
+      "proofLevel": "React/jsdom + Transport fictício",
+      "limits": "Respostas preparadas, não prova de regra/backend/SQL/dispositivo/fiscal. Resultado final por caso/log no recibo MARCO02; existência deste índice não concede aceite."
+    },
+    {
+      "id": "REV-FE-JOR-FE11-02",
+      "title": "Memória/decisão integral e valores distintos",
+      "observed": "Memória dias/vigências/pico/avaria/mínimo/GRIS/null/zero/crédito exatos; ciclo901 e versão1001→decisão integral/recusa409→reabertura1002/número2/hash e próprio demonstrativo; aprovação/entrega2 conservam documentos1 históricos e PREPARADA sem decisão genérica.",
+      "witnesses": [
+        {
+          "path": "frontend/tests/billing-journey.test.tsx",
+          "sha256": "9c1d0bd6fdae588cd456eb13316f839579f8affa854865caa578b9f59ba691ef",
+          "cases": [
+            {
+              "line": 18,
+              "declaration": "it(\"FE04 FE11 serviço tabela vigência vínculo sugestão fato e cálculo com referências consultadas\", async () => {"
+            },
+            {
+              "line": 108,
+              "declaration": "it(\"FE11 memória recebida preserva dias vigências pico avaria mínimo GRIS null zero crédito e exatidão\", () => {"
+            },
+            {
+              "line": 148,
+              "declaration": "it(\"FE11 reabertura nova versão ajuste conserva origem histórica e consulta identificada\", async () => {"
+            }
+          ]
+        },
+        {
+          "path": "frontend/tests/billing-frontiers.test.tsx",
+          "sha256": "634e093fa5732b02cedfe73f1c50490fea2f0beb110dbfa959664564b9cde54a",
+          "cases": [
+            {
+              "line": 20,
+              "declaration": "it(\"FE11 decisão recusada preserva ciclo integral versão e consulta histórica\", async () => {"
+            },
+            {
+              "line": 71,
+              "declaration": "it(\"FE11 Gestor escolhe compromisso consultado na resolução explícita do fato e consulta resultado\", async () => {"
+            },
+            {
+              "line": 114,
+              "declaration": "it(\"FE11 Supervisor lê pendência do fato e não recebe resolução/decisão do Gestor\", async () => {"
+            }
+          ]
+        },
+        {
+          "path": "frontend/tests/billing-version-stage.test.tsx",
+          "sha256": "84c700d233b2d3d9af20ea92349df01b528782d84af5a86afae4b7cffce49af1",
+          "cases": [
+            {
+              "line": 20,
+              "declaration": "it(\"FE11 R18 reabertura: demonstrativo deve corresponder a numero2 escolhido\", async () => {"
+            },
+            {
+              "line": 85,
+              "declaration": "it(\"FE11 R18 documentos da versao1 permanecem historicos ao entregar versao2\", () => {"
+            }
+          ]
+        },
+        {
+          "path": "frontend/tests/browser/journeys.spec.ts",
+          "sha256": "ec7d8c332c7924df2cd7a7ddc0d365c5838a24876b4ea1ff9148d1ae5250ae45",
+          "cases": [
+            {
+              "line": 113,
+              "declaration": "test(\"Recebimento integral: nota → chegada → efetivação → unidade → etiqueta → posição sem copiar IDs\", async ({"
+            },
+            {
+              "line": 320,
+              "declaration": "test(\"Saída integral: pedido → FIFO → reserva → etiqueta → leitura → separação conserva identidades e revisões\", async ({"
+            },
+            {
+              "line": 467,
+              "declaration": "test(\"Financeiro: cálculo → fechamento → memória → aprovação → entrega → conflito externo → tratativa\", async ({"
+            },
+            {
+              "line": 700,
+              "declaration": "test(\"Desktop: cliente, entrada manual, consulta e perfil\", async ({"
+            },
+            {
+              "line": 740,
+              "declaration": "test(\"Coletor 390px: teclado, UUID, leitura posição e movimento\", async ({"
+            },
+            {
+              "line": 770,
+              "declaration": "test(\"Conflito, vazio e indisponibilidade são distintos\", async ({ page }) => {"
+            },
+            {
+              "line": 789,
+              "declaration": "test(\"Navega todos módulos em 768px e 1440px sem erro de página\", async ({"
+            },
+            {
+              "line": 828,
+              "declaration": "test(\"Teclado: página composta conserva foco ao navegar, voltar, avançar e trocar contexto\", async ({"
+            }
+          ]
+        }
+      ],
+      "essentialSteps": [
+        "Renderizar memória recebida com dias/vigências/pico/avaria/minimo/GRIS/pendências que existirem no DTO; preservar null/zero/crédito e lexemas exatos.",
+        "Selecionar fechamento e sua versão; recusa/indisponibilidade de decisão fica explícita; decisão Gestor refere o ciclo integral e nunca é aprovação de linha isolada.",
+        "Na reabertura/correção da versão, a consulta/demonstrativo/entrega usam a nova referência recebida e deixam a antiga preservada."
+      ],
+      "acceptableProof": "Componentes/Transport de memória e decisão/versão, mais trecho de nova versão se a referência muda; sem comparar fórmulas comerciais esperadas nem homologar hash backend.",
+      "proofLevel": "React/Transport e/ou Chromium local",
+      "limits": "Respostas preparadas, não prova de regra/backend/SQL/dispositivo/fiscal. Resultado final por caso/log no recibo MARCO02; existência deste índice não concede aceite."
+    },
+    {
+      "id": "REV-FE-JOR-FE11-03",
+      "title": "Ajuste identificado e consulta do histórico",
+      "observed": "Selecionar Cálculos801/Fechamentos901 por tabela semântica→origem1001/destino901/cálculo801→ajuste2901/motivo/prova→consulta histórico; DTO não pede delta, FE não o calcula.",
+      "witnesses": [
+        {
+          "path": "frontend/tests/billing-journey.test.tsx",
+          "sha256": "9c1d0bd6fdae588cd456eb13316f839579f8affa854865caa578b9f59ba691ef",
+          "cases": [
+            {
+              "line": 18,
+              "declaration": "it(\"FE04 FE11 serviço tabela vigência vínculo sugestão fato e cálculo com referências consultadas\", async () => {"
+            },
+            {
+              "line": 108,
+              "declaration": "it(\"FE11 memória recebida preserva dias vigências pico avaria mínimo GRIS null zero crédito e exatidão\", () => {"
+            },
+            {
+              "line": 148,
+              "declaration": "it(\"FE11 reabertura nova versão ajuste conserva origem histórica e consulta identificada\", async () => {"
+            }
+          ]
+        }
+      ],
+      "essentialSteps": [
+        "Selecionar fechamento/versão de origem e destino/cálculo corrigido previstos; preencher motivo/base/delta nos campos contratados, confirmar ajuste e consultar ajustes/fechamento atualizado.",
+        "Provar que IDs/versões não vêm de outro ciclo e que o documento/demonstrativo antigo permanece consulta histórica."
+      ],
+      "acceptableProof": "Percurso UI curto de ajuste com resultado preparado; pode compor o caso de nova versão, sem mudar documento externo nem recalcular o delta no FE.",
+      "proofLevel": "React/jsdom + Transport fictício",
+      "limits": "Respostas preparadas, não prova de regra/backend/SQL/dispositivo/fiscal. Resultado final por caso/log no recibo MARCO02; existência deste índice não concede aceite."
+    },
+    {
+      "id": "REV-FE-JOR-FE12-01",
+      "title": "Contagem sem efeito→revisão/diferença→ajuste motivado",
+      "observed": "Unidade→contagem sem Aplicar→consulta diferença/revisão/origens→Supervisor/Gestor ajuste motivado→consulta; reserva/impedimento recusados, Operação sem ajuste.",
+      "witnesses": [
+        {
+          "path": "frontend/tests/fe12-regularization.test.ts",
+          "sha256": "e8a105c423a8ab93d296a8d2fac4182ae30bdb0093e580ba1638eb14769353c6",
+          "cases": [
+            {
+              "line": 62,
+              "declaration": "it(\"contagem conserva esperado/observado/origem e só Aplicar recebe efeito\", () => {"
+            },
+            {
+              "line": 99,
+              "declaration": "it(\"vetor reservado é preparado e recusa Aplicar sem mudar a consulta\", () => {"
+            },
+            {
+              "line": 120,
+              "declaration": "it(\"carga ausente não vira preparada; revisão conhecida mantém entrada/etiquetas\", () => {"
+            },
+            {
+              "line": 186,
+              "declaration": "it(\"repetição de registro mantém confirmação original; consulta informa conciliação atual\", () => {"
+            },
+            {
+              "line": 209,
+              "declaration": "it(\"dependência devolve pendência sem efeito; consulta conserva conteúdo e precisão\", () => {"
+            },
+            {
+              "line": 231,
+              "declaration": "it(\"VINCULAR recebe prova, versão e hash e não executa o exemplo sem prova\", () => {"
+            },
+            {
+              "line": 259,
+              "declaration": "it(\"referências carregam revisão/hash/etiquetas e nunca inventam delta ou prova\", () => {"
+            }
+          ]
+        },
+        {
+          "path": "frontend/tests/fe12-presentation.test.tsx",
+          "sha256": "48c3a9d12ef61c596e90d153fbd49c42f7e64cc1ab763ec8e5639033617dbc35",
+          "cases": [
+            {
+              "line": 16,
+              "declaration": "it.each(["
+            },
+            {
+              "line": 37,
+              "declaration": "it(\"Supervisor conta com confirmação, sem Aplicar automático e sem duplo envio\", async () => {"
+            },
+            {
+              "line": 70,
+              "declaration": "it(\"recusa recebida fica visível sem sucesso nem absorção de referências\", async () => {"
+            }
+          ]
+        },
+        {
+          "path": "frontend/tests/browser/fe12.spec.ts",
+          "sha256": "32c5b88f08329613cd760b7e7d73ddf54b0ea12acd3370a07967ed9a3301c122",
+          "cases": [
+            {
+              "line": 139,
+              "declaration": "test(\"FE12 contagem consulta ajuste motivado consulta\", async ({ page }) => {"
+            },
+            {
+              "line": 184,
+              "declaration": "test(\"FE12 reserva recusa ajuste e conserva pendencia\", async ({ page }) => {"
+            },
+            {
+              "line": 211,
+              "declaration": "test(\"FE12 carga pendente revisada preparada confirmada consulta\", async ({"
+            },
+            {
+              "line": 302,
+              "declaration": "test(\"FE12 CHEGADA consulta modo prova concilia consulta\", async ({ page }) => {"
+            },
+            {
+              "line": 393,
+              "declaration": "test(\"FE12 Operacao sem ajuste carga ou conciliacao\", async ({ page }) => {"
+            }
+          ]
+        }
+      ],
+      "essentialSteps": [
+        "Ler/consultar unidade/revisão, informar observadoEm/contado/motivo e registrar contagem.",
+        "Mostrar esperado/contado/diferença/reservado/origens/impedimento/situação retornados; contagem não envia Aplicar nem aparenta ajuste automático.",
+        "Supervisor/Gestor seleciona revisão/versão e origens/deltas/causa/destino/comprovação do contrato, confirma Aplicar quando resposta permite e consulta efeito; caso com reserva/impedimento fica recusado/explícito."
+      ],
+      "acceptableProof": "Jornada UI com resposta que permite aplicar e focal de impedimento/perfil/contagem sem efeito. Não calcular diferença/regra de reserva nem executar ajuste real.",
+      "proofLevel": "React/Transport e/ou Chromium local",
+      "limits": "Respostas preparadas, não prova de regra/backend/SQL/dispositivo/fiscal. Resultado final por caso/log no recibo MARCO02; existência deste índice não concede aceite."
+    },
+    {
+      "id": "REV-FE-JOR-FE12-02",
+      "title": "Carga inicial conhecida/pendente→revisar/preparar→confirmar",
+      "observed": "Carga fictícia com ausências→consulta pendência→revisar entrada201→preparar revisão/hash→confirmar leitura/etiquetas→consulta; criação/preparação não são confirmação.",
+      "witnesses": [
+        {
+          "path": "frontend/tests/fe12-regularization.test.ts",
+          "sha256": "e8a105c423a8ab93d296a8d2fac4182ae30bdb0093e580ba1638eb14769353c6",
+          "cases": [
+            {
+              "line": 62,
+              "declaration": "it(\"contagem conserva esperado/observado/origem e só Aplicar recebe efeito\", () => {"
+            },
+            {
+              "line": 99,
+              "declaration": "it(\"vetor reservado é preparado e recusa Aplicar sem mudar a consulta\", () => {"
+            },
+            {
+              "line": 120,
+              "declaration": "it(\"carga ausente não vira preparada; revisão conhecida mantém entrada/etiquetas\", () => {"
+            },
+            {
+              "line": 186,
+              "declaration": "it(\"repetição de registro mantém confirmação original; consulta informa conciliação atual\", () => {"
+            },
+            {
+              "line": 209,
+              "declaration": "it(\"dependência devolve pendência sem efeito; consulta conserva conteúdo e precisão\", () => {"
+            },
+            {
+              "line": 231,
+              "declaration": "it(\"VINCULAR recebe prova, versão e hash e não executa o exemplo sem prova\", () => {"
+            },
+            {
+              "line": 259,
+              "declaration": "it(\"referências carregam revisão/hash/etiquetas e nunca inventam delta ou prova\", () => {"
+            }
+          ]
+        },
+        {
+          "path": "frontend/tests/fe12-presentation.test.tsx",
+          "sha256": "48c3a9d12ef61c596e90d153fbd49c42f7e64cc1ab763ec8e5639033617dbc35",
+          "cases": [
+            {
+              "line": 16,
+              "declaration": "it.each(["
+            },
+            {
+              "line": 37,
+              "declaration": "it(\"Supervisor conta com confirmação, sem Aplicar automático e sem duplo envio\", async () => {"
+            },
+            {
+              "line": 70,
+              "declaration": "it(\"recusa recebida fica visível sem sucesso nem absorção de referências\", async () => {"
+            }
+          ]
+        },
+        {
+          "path": "frontend/tests/browser/fe12.spec.ts",
+          "sha256": "32c5b88f08329613cd760b7e7d73ddf54b0ea12acd3370a07967ed9a3301c122",
+          "cases": [
+            {
+              "line": 139,
+              "declaration": "test(\"FE12 contagem consulta ajuste motivado consulta\", async ({ page }) => {"
+            },
+            {
+              "line": 184,
+              "declaration": "test(\"FE12 reserva recusa ajuste e conserva pendencia\", async ({ page }) => {"
+            },
+            {
+              "line": 211,
+              "declaration": "test(\"FE12 carga pendente revisada preparada confirmada consulta\", async ({"
+            },
+            {
+              "line": 302,
+              "declaration": "test(\"FE12 CHEGADA consulta modo prova concilia consulta\", async ({ page }) => {"
+            },
+            {
+              "line": 393,
+              "declaration": "test(\"FE12 Operacao sem ajuste carga ou conciliacao\", async ({ page }) => {"
+            }
+          ]
+        }
+      ],
+      "essentialSteps": [
+        "Criar carga fictícia com ausência declarada de origem/FIFO/nota/valor e consultar pendências; não preencher ausência com dado inventado.",
+        "No roteiro preparado com dados fictícios conhecidos, revisar/preparar; selecionar revisão+conteudoHash retornados e etiquetas/leitura exigidas; confirmar e consultar entrada/unidades/situação.",
+        "Mostrar que criação/preparação não são saldo disponível nem confirmação; impedimento mantém próxima etapa pendente."
+      ],
+      "acceptableProof": "Jornada UI de carga excepcional com retornos coerentes, sem carga/planilha operacional ou banco real.",
+      "proofLevel": "React/Transport e/ou Chromium local",
+      "limits": "Respostas preparadas, não prova de regra/backend/SQL/dispositivo/fiscal. Resultado final por caso/log no recibo MARCO02; existência deste índice não concede aceite."
+    },
+    {
+      "id": "REV-FE-JOR-FE12-03",
+      "title": "Contingência manual registrada→consultada→conciliada",
+      "observed": "CHEGADA manual tipada Long9007199254740993/decimal8.000001→consulta→VINCULAR prova/versão/hash→consulta; duplicado/replay/divergência/dependência não causam sync automático.",
+      "witnesses": [
+        {
+          "path": "frontend/tests/fe12-regularization.test.ts",
+          "sha256": "e8a105c423a8ab93d296a8d2fac4182ae30bdb0093e580ba1638eb14769353c6",
+          "cases": [
+            {
+              "line": 62,
+              "declaration": "it(\"contagem conserva esperado/observado/origem e só Aplicar recebe efeito\", () => {"
+            },
+            {
+              "line": 99,
+              "declaration": "it(\"vetor reservado é preparado e recusa Aplicar sem mudar a consulta\", () => {"
+            },
+            {
+              "line": 120,
+              "declaration": "it(\"carga ausente não vira preparada; revisão conhecida mantém entrada/etiquetas\", () => {"
+            },
+            {
+              "line": 186,
+              "declaration": "it(\"repetição de registro mantém confirmação original; consulta informa conciliação atual\", () => {"
+            },
+            {
+              "line": 209,
+              "declaration": "it(\"dependência devolve pendência sem efeito; consulta conserva conteúdo e precisão\", () => {"
+            },
+            {
+              "line": 231,
+              "declaration": "it(\"VINCULAR recebe prova, versão e hash e não executa o exemplo sem prova\", () => {"
+            },
+            {
+              "line": 259,
+              "declaration": "it(\"referências carregam revisão/hash/etiquetas e nunca inventam delta ou prova\", () => {"
+            }
+          ]
+        },
+        {
+          "path": "frontend/tests/fe12-presentation.test.tsx",
+          "sha256": "48c3a9d12ef61c596e90d153fbd49c42f7e64cc1ab763ec8e5639033617dbc35",
+          "cases": [
+            {
+              "line": 16,
+              "declaration": "it.each(["
+            },
+            {
+              "line": 37,
+              "declaration": "it(\"Supervisor conta com confirmação, sem Aplicar automático e sem duplo envio\", async () => {"
+            },
+            {
+              "line": 70,
+              "declaration": "it(\"recusa recebida fica visível sem sucesso nem absorção de referências\", async () => {"
+            }
+          ]
+        },
+        {
+          "path": "frontend/tests/browser/fe12.spec.ts",
+          "sha256": "32c5b88f08329613cd760b7e7d73ddf54b0ea12acd3370a07967ed9a3301c122",
+          "cases": [
+            {
+              "line": 139,
+              "declaration": "test(\"FE12 contagem consulta ajuste motivado consulta\", async ({ page }) => {"
+            },
+            {
+              "line": 184,
+              "declaration": "test(\"FE12 reserva recusa ajuste e conserva pendencia\", async ({ page }) => {"
+            },
+            {
+              "line": 211,
+              "declaration": "test(\"FE12 carga pendente revisada preparada confirmada consulta\", async ({"
+            },
+            {
+              "line": 302,
+              "declaration": "test(\"FE12 CHEGADA consulta modo prova concilia consulta\", async ({ page }) => {"
+            },
+            {
+              "line": 393,
+              "declaration": "test(\"FE12 Operacao sem ajuste carga ou conciliacao\", async ({ page }) => {"
+            }
+          ]
+        }
+      ],
+      "essentialSteps": [
+        "Escolher tipo de fato, preservar identidadeFato/instante/operador/fonte/dependências e conteúdo por schema; registrar CHEGADA ou fato representativo.",
+        "Consultar fato/versão/hash/situação; enviar conciliação no modo e prova previstos no contrato; mostrar resultado/pendência recebido.",
+        "Repetição do mesmo fato/payload não gera nova intenção; dependência não resolvida ou conteúdo divergente fica explícito e não dispara sincronização automática."
+      ],
+      "acceptableProof": "Um percurso UI de conciliação manual e focais repetição/divergência/dependência; scripts retornam decisões, sem conciliar estoque no FE.",
+      "proofLevel": "React/Transport e/ou Chromium local",
+      "limits": "Respostas preparadas, não prova de regra/backend/SQL/dispositivo/fiscal. Resultado final por caso/log no recibo MARCO02; existência deste índice não concede aceite."
+    },
+    {
+      "id": "REV-FE-JOR-FE12-04",
+      "title": "Consultas de relatório e auditoria no alcance",
+      "observed": "Consultas compartilhadas por família/contexto/filtro/identidade; Gestor consulta auditoria tipoCLIENTE/registro1/página/tamanho após selecionar cliente1; Operação sem auditoria.",
+      "witnesses": [
+        {
+          "path": "frontend/tests/stock-queries.test.tsx",
+          "sha256": "d52a2e616252466a7f3448b40ab5521df985edce1b82a2854fc5678627a7296d",
+          "cases": [
+            {
+              "line": 17,
+              "declaration": "it(\"FE08 saldo filtro unidade selecionada origem localização histórico e paginação\", async () => {"
+            },
+            {
+              "line": 136,
+              "declaration": "it.each([null, \"0.000000\", \"9007199254740993.123456\"])("
+            },
+            {
+              "line": 183,
+              "declaration": "it(\"FE08 falha na consulta não vira vazio nem saldo zero\", async () => {"
+            },
+            {
+              "line": 201,
+              "declaration": "it(\"FE12-04 relatório auditoria Gestor consulta filtros e Operação não tem ação\", async () => {"
+            }
+          ]
+        },
+        {
+          "path": "frontend/tests/billing-journey.test.tsx",
+          "sha256": "9c1d0bd6fdae588cd456eb13316f839579f8affa854865caa578b9f59ba691ef",
+          "cases": [
+            {
+              "line": 18,
+              "declaration": "it(\"FE04 FE11 serviço tabela vigência vínculo sugestão fato e cálculo com referências consultadas\", async () => {"
+            },
+            {
+              "line": 108,
+              "declaration": "it(\"FE11 memória recebida preserva dias vigências pico avaria mínimo GRIS null zero crédito e exatidão\", () => {"
+            },
+            {
+              "line": 148,
+              "declaration": "it(\"FE11 reabertura nova versão ajuste conserva origem histórica e consulta identificada\", async () => {"
+            }
+          ]
+        },
+        {
+          "path": "frontend/tests/receiving-journey.test.tsx",
+          "sha256": "96b16a65a3eea2b59be621ebd733978b111aba3767fcf8bb8825f001e0ef6634",
+          "cases": [
+            {
+              "line": 25,
+              "declaration": "it(\"FE05 XML sem chegada partes 50+48 divergência100/98 e efetivação supervisionada\", async () => {"
+            },
+            {
+              "line": 99,
+              "declaration": "it(\"FE06 múltiplas unidades seleção explícita reimpressão divisão e reagrupamento\", async () => {"
+            }
+          ]
+        },
+        {
+          "path": "frontend/tests/dispatch-operational.test.tsx",
+          "sha256": "79d45c3b48495d29a063043983f5455c93fd7218d80e699567a7dc04ac743f6a",
+          "cases": [
+            {
+              "line": 40,
+              "declaration": "it(\"FE09 exceção FIFO integral duas reservas leitura UUID/revisões próprias separação completa e continuação\", async () => {"
+            },
+            {
+              "line": 223,
+              "declaration": "it(\"FE09 bobinas4/6 pedido6 usa sugestão e justificativa recebidas sem fracionar unidade no cliente\", async () => {"
+            },
+            {
+              "line": 348,
+              "declaration": "it(\"FE09 avaria/conflito não libera reserva; reversão recebe revisão própria e reconfirma estado\", async () => {"
+            },
+            {
+              "line": 433,
+              "declaration": "it(\"FE09 Operação pode registrar justificativa, mas não envia autorização da exceção\", async () => {"
+            }
+          ]
+        }
+      ],
+      "essentialSteps": [
+        "Consulta/histórico de estoque compartilhados com FE08; consulta de pedidos/serviços/fechamentos usa somente filtros/IDs existentes.",
+        "Exercitar Auditoria com Gestor e apresentar indisponibilidade a perfis sem alcance, sem edição/exclusão."
+      ],
+      "acceptableProof": "Um trecho de consulta por família com tabela/detalhe e focal de Gestor/auditoria; reutilizar FE08/FE11 para suas consultas, sem relatório genérico novo.",
+      "proofLevel": "React/jsdom + Transport fictício",
+      "limits": "Respostas preparadas, não prova de regra/backend/SQL/dispositivo/fiscal. Resultado final por caso/log no recibo MARCO02; existência deste índice não concede aceite."
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+# D27 — automação concorrente green
+
+**D2748A39681 concluída**, JAR4304/PID19664, fonte preservada CAC92281/cliente27/armazém13/SKU14/pedidos28/29. Sem nova criação/reset/reversão25/26. [Resultado compacto e hashes](d27-concorrencia-green-resultado.json), [HTTP completo](d27-D2748A39681-http.json), [SQL nativo](../../orchestracao/.runtime/d27-prumo-concorrencia-D2748A39681.json).
+
+Único aguardador71428 aceitou WaitTicket28428; mutex permaneceu durante todo filho. GETs de precondição confirmaram RASCUNHO/RASCUNHO e físico100/reservado0 antes do gate. Observador748/fixtures9/0+24/0: reader87, gate88, duas requests da API19664 suspensas em locks da família, **WITNESS_SQL_COMPROVADO/OnlineWitness=true**. Uma amostra coerente foi suficiente para liberação rápida; não era espera artificial de60s nem reconciliação retroativa. A prova cobre esta disputa, não todos interleavings.
+
+16 HTTP:14 aprovados individualmente e2 requisições confrontadas em conjunto200/409;2 assertivas aprovadas. GETs/replay: físico100/reservado80/bloqueado20/**disponível0**, reserva integral única e perdedor sem reserva. Flags capturadas também nas duas concorrentes: requestIdtrue, cookie/segredofalse. JAR/issuer encerrados; OS final será ligado ao recibo.
+
+[SELECT focal solicitado](d27-concorrencia-green-select-pedido.json): apenas família27/13/pedidos28/29, UUIDs, reservas, snapshots/auditorias e saldo. Sem refazer24/12originais/106variantes/65financeiro. D279E93BDC2/fasefalhou/OnlineWitness=false e reconciliação12/0 continuam [históricos separados](d27-concorrencia-fotografia-diagnostico.md); nova green não altera sua contagem/status.
+
+SELECT focal concluido: [24/0](../../orchestracao/.runtime/d27-prumo-concorrencia-final-select-20261007T024151964.json), fonteHTTP/hashEA853, WMSDEV/DEV, DDL/DML/grants/retry0/PRODfalse/conexaofinallyencerrada. Confirma reservas21/22 do vencedor29, pedido28RASCUNHO0, saldo100/80/20/0, unicidade/rollback/replay/snapshot e auditoria. Checks de GET estado/versao e reserva id/pedido/item/unidade/quantidade/situacao sao delimitados; nao afirmar comparacao exata FIFO em microssegundos por serializacaoDateTime de milissegundos. Snapshot/auditoria integrais sao checks separados.

@@ -1,0 +1,56 @@
+70:import org.springframework.core.env.Environment;
+71:import org.springframework.jdbc.core.JdbcTemplate;
+72:import org.springframework.security.access.AccessDeniedException;
+73:import org.springframework.security.core.context.SecurityContextHolder;
+74:import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
+75:import org.springframework.security.oauth2.jwt.JwsHeader;
+76:import org.springframework.security.oauth2.jwt.Jwt;
+77:import org.springframework.security.oauth2.jwt.JwtClaimsSet;
+78:import org.springframework.security.oauth2.jwt.JwtEncoder;
+79:import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
+80:import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+81:import org.springframework.test.context.ActiveProfiles;
+82:import org.springframework.test.context.TestPropertySource;
+83:import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
+84:import org.springframework.test.util.AopTestUtils;
+85:import org.springframework.transaction.PlatformTransactionManager;
+86:import org.springframework.transaction.support.TransactionTemplate;
+87:import tools.jackson.databind.JsonNode;
+88:import tools.jackson.databind.json.JsonMapper;
+89:
+90:@ActiveProfiles("test")
+91:@TestPropertySource(
+92:        locations = "classpath:cadastros-test.properties",
+93:        properties =
+94:                "spring.datasource.url=jdbc:h2:mem:wms-expedicao;DB_CLOSE_DELAY=-1;LOCK_TIMEOUT=10000;INIT=CREATE SCHEMA IF NOT EXISTS wms")
+95:@Import({IdentidadeTesteConfig.class, RelogioExpedicaoTesteConfig.class})
+96:@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+97:class ExpedicaoIntegrationTest {
+98:    private static final String SAIDAS = "/api/v1/pedidos-saida/";
+99:    private static final Instant FIFO = Instant.parse("2026-09-01T12:00:00Z");
+100:    private final HttpClient http =
+101:            HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build();
+102:    @Autowired private Environment environment;
+103:    @Autowired private Clock clock;
+104:    @Autowired private JsonMapper mapper;
+105:    @Autowired private JwtEncoder encoder;
+121:
+122:    private record Unidade(Long id, String codigo, Long notaId) {}
+123:
+124:    @BeforeEach
+125:    void preparar() {
+126:        SecurityContextHolder.clearContext();
+127:        jdbc.update("update wms.unidade_logistica set reserva_saida_id=null");
+128:        for (String tabela :
+129:                List.of(
+130:                        "avaria_estoque",
+131:                        "devolucao_saida",
+132:                        "baixa_saida",
+133:                        "retirada_saida",
+134:                        "cobertura_documento_saida",
+135:                        "documento_saida",
+136:                        "separacao_saida",
+137:                        "fato_permanencia",
+138:                        "operacao_saida",
+139:                        "reserva_saida",
+140:                        "item_pedido_saida",

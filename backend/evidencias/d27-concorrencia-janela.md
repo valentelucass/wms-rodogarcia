@@ -1,0 +1,2 @@
+# D27 — janela atual para Prumo
+Rodada D27C2F6B9BB, cliente25, armazém12, produto13, pedidos25/26, JAR PID33224. Pedido público aguardando-readiness em d27-concorrencia-pedido.json desde2026-10-07T01:20:59Z; timeout90s sem gate. Fonte d27-D27C2F6B9BB-http.json já salva. Observador revisto aceito/fixtures16/0 lidas. Só sinal real atestado da rodada libera gate; nenhuma callback, senha nova ou grant.

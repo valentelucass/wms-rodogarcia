@@ -1,0 +1,20 @@
+@Test
+    void memoriaBytesHashNaoMudamComAprovacaoEntregaDeclaracaoOuDocumento() throws Exception {
+        configurar("2026-09-01", "DIAS_CORRIDOS", null, 30, null);
+        fato("10", "2026-09-02T12:00:00Z");
+        var f = preparar(calcular("2026-09-01", "2026-10-01"));
+        String arquivo = get(rota(f) + "/versoes/1/demonstrativo", supervisor).body();
+        assertThat(
+                        br.com.rodogarcia.wms.services.OperacaoAdministrativaService.digest(
+                                arquivo.getBytes(StandardCharsets.UTF_8)))
+                .isEqualTo(f.get("versao").get("conteudoHash").asString());
+        f = aprovar(f);
+        f = entregar(f);
+        assertThat(f.get("versao").get("estadoExterno").asString()).isEqualTo("DESCONHECIDO");
+        f = confirmar(f);
+        f = nfse(f, "DOC1");
+        assertThat(get(rota(f) + "/versoes/1/demonstrativo", supervisor).body()).isEqualTo(arquivo);
+        assertThat(f.get("fechamento").get("situacao").asString()).isEqualTo("EMITIDO");
+        assertThat(contar("calculo_cobranca")).isEqualTo(1);
+        assertThat(contar("movimento_estoque")).isZero();
+    }

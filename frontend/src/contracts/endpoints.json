@@ -1,0 +1,4138 @@
+[
+  {
+    "id": "AjusteFechamentoController.ajustar",
+    "method": "POST",
+    "path": "/api/v1/ajustes-fechamento",
+    "request": "FechamentoCobrancaDto.Ajustar",
+    "response": "FechamentoCobrancaDto.Ajuste",
+    "query": [],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/AjusteFechamentoController.java",
+    "handler": "ajustar",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/FechamentoCobrancaService.java#ajustar"
+    ]
+  },
+  {
+    "id": "AjusteFechamentoController.listar",
+    "method": "GET",
+    "path": "/api/v1/ajustes-fechamento",
+    "request": null,
+    "response": "List<FechamentoCobrancaDto.Ajuste>",
+    "query": [
+      {
+        "name": "clienteId",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "armazemId",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/AjusteFechamentoController.java",
+    "handler": "listar",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/FechamentoCobrancaService.java#ajustes"
+    ],
+    "permissionOverride": {
+      "derived": "OPERACAO",
+      "reviewed": "SUPERVISOR",
+      "source": "frontend/tools/contratos.py#base-role-overrides"
+    }
+  },
+  {
+    "id": "ArmazemController.listar",
+    "method": "GET",
+    "path": "/api/v1/armazens",
+    "request": null,
+    "response": "PaginaResponse<ArmazemDto.Resposta>",
+    "query": [
+      {
+        "name": "pagina",
+        "type": "int",
+        "required": false,
+        "default": "0"
+      },
+      {
+        "name": "tamanho",
+        "type": "int",
+        "required": false,
+        "default": "20"
+      }
+    ],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/ArmazemController.java",
+    "handler": "listar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/ArmazemService.java#listar"
+    ]
+  },
+  {
+    "id": "ArmazemController.consultar",
+    "method": "GET",
+    "path": "/api/v1/armazens/{id}",
+    "request": null,
+    "response": "ArmazemDto.Resposta",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/ArmazemController.java",
+    "handler": "consultar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/ArmazemService.java#consultar"
+    ]
+  },
+  {
+    "id": "ArmazemController.criar",
+    "method": "POST",
+    "path": "/api/v1/armazens",
+    "request": "ArmazemDto.Criar",
+    "response": "ArmazemDto.Resposta",
+    "query": [],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/ArmazemController.java",
+    "handler": "criar",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/ArmazemService.java#criar"
+    ]
+  },
+  {
+    "id": "ArmazemController.alterar",
+    "method": "PUT",
+    "path": "/api/v1/armazens/{id}",
+    "request": "ArmazemDto.Alterar",
+    "response": "ArmazemDto.Resposta",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/ArmazemController.java",
+    "handler": "alterar",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/ArmazemService.java#alterar"
+    ]
+  },
+  {
+    "id": "ArmazemController.encerrar",
+    "method": "POST",
+    "path": "/api/v1/armazens/{id}/encerramento",
+    "request": "RevisaoCadastroRequest",
+    "response": "ArmazemDto.Resposta",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/ArmazemController.java",
+    "handler": "encerrar",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/ArmazemService.java#encerrar"
+    ]
+  },
+  {
+    "id": "ArmazemController.reativar",
+    "method": "POST",
+    "path": "/api/v1/armazens/{id}/reativacao",
+    "request": "RevisaoCadastroRequest",
+    "response": "ArmazemDto.Resposta",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/ArmazemController.java",
+    "handler": "reativar",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/ArmazemService.java#reativar"
+    ]
+  },
+  {
+    "id": "AuditoriaController.listar",
+    "method": "GET",
+    "path": "/api/v1/auditoria",
+    "request": null,
+    "response": "PaginaResponse<AuditoriaResponse>",
+    "query": [
+      {
+        "name": "tipo",
+        "type": "String",
+        "required": true
+      },
+      {
+        "name": "registroId",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "pagina",
+        "type": "int",
+        "required": false,
+        "default": "0"
+      },
+      {
+        "name": "tamanho",
+        "type": "int",
+        "required": false,
+        "default": "20"
+      }
+    ],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/AuditoriaController.java",
+    "handler": "listar",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/AuditoriaService.java#listar"
+    ]
+  },
+  {
+    "id": "AvariaController.listar",
+    "method": "GET",
+    "path": "/api/v1/estoque/unidades/{codigo}/avarias",
+    "request": null,
+    "response": "List<AvariaDto.Ocorrencia>",
+    "query": [],
+    "params": [
+      {
+        "name": "codigo",
+        "type": "UUID",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/AvariaController.java",
+    "handler": "listar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/AvariaService.java#listar"
+    ]
+  },
+  {
+    "id": "AvariaController.registrar",
+    "method": "POST",
+    "path": "/api/v1/estoque/unidades/{codigo}/avarias",
+    "request": "AvariaDto.Registrar",
+    "response": "AvariaDto.Confirmacao",
+    "query": [],
+    "params": [
+      {
+        "name": "codigo",
+        "type": "UUID",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/AvariaController.java",
+    "handler": "registrar",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/AvariaService.java#registrar"
+    ],
+    "permissionOverride": {
+      "derived": "GESTOR",
+      "reviewed": "SUPERVISOR",
+      "source": "frontend/tools/contratos.py#base-role-overrides"
+    }
+  },
+  {
+    "id": "AvariaController.reconhecer",
+    "method": "POST",
+    "path": "/api/v1/estoque/unidades/{codigo}/avarias/{id}/responsabilidade",
+    "request": "AvariaDto.Reconhecer",
+    "response": "AvariaDto.Confirmacao",
+    "query": [],
+    "params": [
+      {
+        "name": "codigo",
+        "type": "UUID",
+        "required": true
+      },
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/AvariaController.java",
+    "handler": "reconhecer",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/AvariaService.java#reconhecer"
+    ]
+  },
+  {
+    "id": "AvariaController.reparar",
+    "method": "POST",
+    "path": "/api/v1/estoque/unidades/{codigo}/avarias/{id}/reparo",
+    "request": "AvariaDto.Reparar",
+    "response": "AvariaDto.Confirmacao",
+    "query": [],
+    "params": [
+      {
+        "name": "codigo",
+        "type": "UUID",
+        "required": true
+      },
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/AvariaController.java",
+    "handler": "reparar",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/AvariaService.java#reparar"
+    ],
+    "permissionOverride": {
+      "derived": "GESTOR",
+      "reviewed": "SUPERVISOR",
+      "source": "frontend/tools/contratos.py#base-role-overrides"
+    }
+  },
+  {
+    "id": "CalculoCobrancaController.listar",
+    "method": "GET",
+    "path": "/api/v1/calculos-cobranca",
+    "request": null,
+    "response": "PaginaResponse<CalculoCobrancaDto.Resultado>",
+    "query": [
+      {
+        "name": "clienteId",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "armazemId",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "pagina",
+        "type": "int",
+        "required": false,
+        "default": "0"
+      },
+      {
+        "name": "tamanho",
+        "type": "int",
+        "required": false,
+        "default": "20"
+      }
+    ],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/CalculoCobrancaController.java",
+    "handler": "listar",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/CalculoCobrancaService.java#listar"
+    ],
+    "permissionOverride": {
+      "derived": "OPERACAO",
+      "reviewed": "SUPERVISOR",
+      "source": "frontend/tools/contratos.py#base-role-overrides"
+    }
+  },
+  {
+    "id": "CalculoCobrancaController.consultar",
+    "method": "GET",
+    "path": "/api/v1/calculos-cobranca/{id}",
+    "request": null,
+    "response": "CalculoCobrancaDto.Resultado",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/CalculoCobrancaController.java",
+    "handler": "consultar",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/CalculoCobrancaService.java#consultar"
+    ],
+    "permissionOverride": {
+      "derived": "OPERACAO",
+      "reviewed": "SUPERVISOR",
+      "source": "frontend/tools/contratos.py#base-role-overrides"
+    }
+  },
+  {
+    "id": "CalculoCobrancaController.calcular",
+    "method": "POST",
+    "path": "/api/v1/calculos-cobranca",
+    "request": "CalculoCobrancaDto.Calcular",
+    "response": "CalculoCobrancaDto.Resultado",
+    "query": [],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/CalculoCobrancaController.java",
+    "handler": "calcular",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/CalculoCobrancaService.java#calcular"
+    ],
+    "permissionOverride": {
+      "derived": "OPERACAO",
+      "reviewed": "SUPERVISOR",
+      "source": "frontend/tools/contratos.py#base-role-overrides"
+    }
+  },
+  {
+    "id": "CapacidadeController.configurar",
+    "method": "PUT",
+    "path": "/api/v1/enderecos/{id}/capacidade",
+    "request": "CapacidadeDto.ConfigurarEndereco",
+    "response": "EnderecoDto.Resposta",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/CapacidadeController.java",
+    "handler": "configurar",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/CapacidadeService.java#configurar"
+    ]
+  },
+  {
+    "id": "CapacidadeController.criar",
+    "method": "POST",
+    "path": "/api/v1/conjuntos-posicoes",
+    "request": "CapacidadeDto.CriarConjunto",
+    "response": "CapacidadeDto.Conjunto",
+    "query": [],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/CapacidadeController.java",
+    "handler": "criar",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/CapacidadeService.java#criar"
+    ]
+  },
+  {
+    "id": "CapacidadeController.listar",
+    "method": "GET",
+    "path": "/api/v1/conjuntos-posicoes",
+    "request": null,
+    "response": "PaginaResponse<CapacidadeDto.Conjunto>",
+    "query": [
+      {
+        "name": "armazemId",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "pagina",
+        "type": "int",
+        "required": false,
+        "default": "0"
+      },
+      {
+        "name": "tamanho",
+        "type": "int",
+        "required": false,
+        "default": "20"
+      }
+    ],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/CapacidadeController.java",
+    "handler": "listar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/CapacidadeService.java#listar"
+    ]
+  },
+  {
+    "id": "CapacidadeController.encerrar",
+    "method": "POST",
+    "path": "/api/v1/conjuntos-posicoes/{id}/encerramento",
+    "request": "RevisaoCadastroRequest",
+    "response": "CapacidadeDto.Conjunto",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/CapacidadeController.java",
+    "handler": "encerrar",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/CapacidadeService.java#encerrar"
+    ]
+  },
+  {
+    "id": "CargaInicialController.criar",
+    "method": "POST",
+    "path": "/api/v1/cargas-iniciais",
+    "request": "CargaInicialDto.Criar",
+    "response": "CargaInicialDto.Resultado",
+    "query": [],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/CargaInicialController.java",
+    "handler": "criar",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/CargaInicialService.java#criar"
+    ]
+  },
+  {
+    "id": "CargaInicialController.consultar",
+    "method": "GET",
+    "path": "/api/v1/cargas-iniciais/{id}",
+    "request": null,
+    "response": "CargaInicialDto.Resultado",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/CargaInicialController.java",
+    "handler": "consultar",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/CargaInicialService.java#consultar"
+    ]
+  },
+  {
+    "id": "CargaInicialController.listar",
+    "method": "GET",
+    "path": "/api/v1/cargas-iniciais",
+    "request": null,
+    "response": "PaginaResponse<CargaInicialDto.Resultado>",
+    "query": [
+      {
+        "name": "clienteId",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "armazemId",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "produtoId",
+        "type": "Long",
+        "required": false
+      },
+      {
+        "name": "referencia",
+        "type": "String",
+        "required": false
+      },
+      {
+        "name": "situacao",
+        "type": "CargaInicialDto.FiltroSituacao",
+        "required": false
+      },
+      {
+        "name": "pagina",
+        "type": "int",
+        "required": false,
+        "default": "0"
+      },
+      {
+        "name": "tamanho",
+        "type": "int",
+        "required": false,
+        "default": "20"
+      }
+    ],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/CargaInicialController.java",
+    "handler": "listar",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/CargaInicialService.java#listar"
+    ],
+    "permissionOverride": {
+      "derived": "OPERACAO",
+      "reviewed": "SUPERVISOR",
+      "source": "frontend/tools/contratos.py#base-role-overrides"
+    }
+  },
+  {
+    "id": "CargaInicialController.revisoes",
+    "method": "GET",
+    "path": "/api/v1/cargas-iniciais/{id}/revisoes",
+    "request": null,
+    "response": "PaginaResponse<CargaInicialDto.Revisao>",
+    "query": [
+      {
+        "name": "pagina",
+        "type": "int",
+        "required": false,
+        "default": "0"
+      },
+      {
+        "name": "tamanho",
+        "type": "int",
+        "required": false,
+        "default": "20"
+      }
+    ],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/CargaInicialController.java",
+    "handler": "revisoes",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/CargaInicialService.java#revisoes"
+    ]
+  },
+  {
+    "id": "CargaInicialController.revisar",
+    "method": "POST",
+    "path": "/api/v1/cargas-iniciais/{id}/revisoes",
+    "request": "CargaInicialDto.Revisar",
+    "response": "CargaInicialDto.Resultado",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/CargaInicialController.java",
+    "handler": "revisar",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/CargaInicialService.java#revisar"
+    ],
+    "permissionOverride": {
+      "derived": "GESTOR",
+      "reviewed": "SUPERVISOR",
+      "source": "frontend/tools/contratos.py#base-role-overrides"
+    }
+  },
+  {
+    "id": "CargaInicialController.preparar",
+    "method": "POST",
+    "path": "/api/v1/cargas-iniciais/{id}/preparar",
+    "request": "CargaInicialDto.Confirmar",
+    "response": "CargaInicialDto.Resultado",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/CargaInicialController.java",
+    "handler": "preparar",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/CargaInicialService.java#preparar"
+    ],
+    "permissionOverride": {
+      "derived": "GESTOR",
+      "reviewed": "SUPERVISOR",
+      "source": "frontend/tools/contratos.py#base-role-overrides"
+    }
+  },
+  {
+    "id": "CargaInicialController.confirmar",
+    "method": "POST",
+    "path": "/api/v1/cargas-iniciais/{id}/confirmar",
+    "request": "CargaInicialDto.Confirmar",
+    "response": "CargaInicialDto.Resultado",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/CargaInicialController.java",
+    "handler": "confirmar",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/CargaInicialService.java#confirmar"
+    ],
+    "permissionOverride": {
+      "derived": "GESTOR",
+      "reviewed": "SUPERVISOR",
+      "source": "frontend/tools/contratos.py#base-role-overrides"
+    }
+  },
+  {
+    "id": "CargaInicialController.cancelar",
+    "method": "POST",
+    "path": "/api/v1/cargas-iniciais/{id}/cancelar",
+    "request": "CargaInicialDto.Cancelar",
+    "response": "CargaInicialDto.Resultado",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/CargaInicialController.java",
+    "handler": "cancelar",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/CargaInicialService.java#cancelar"
+    ]
+  },
+  {
+    "id": "CargaInicialController.resolverCancelamento",
+    "method": "POST",
+    "path": "/api/v1/cargas-iniciais/{id}/resolver-cancelamento",
+    "request": "CargaInicialDto.ResolverCancelamento",
+    "response": "CargaInicialDto.Resultado",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/CargaInicialController.java",
+    "handler": "resolverCancelamento",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/CargaInicialService.java#resolverCancelamento"
+    ]
+  },
+  {
+    "id": "ClienteController.listar",
+    "method": "GET",
+    "path": "/api/v1/clientes",
+    "request": null,
+    "response": "PaginaResponse<ClienteDto.Resposta>",
+    "query": [
+      {
+        "name": "pagina",
+        "type": "int",
+        "required": false,
+        "default": "0"
+      },
+      {
+        "name": "tamanho",
+        "type": "int",
+        "required": false,
+        "default": "20"
+      }
+    ],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/ClienteController.java",
+    "handler": "listar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/ClienteService.java#listar"
+    ]
+  },
+  {
+    "id": "ClienteController.consultar",
+    "method": "GET",
+    "path": "/api/v1/clientes/{id}",
+    "request": null,
+    "response": "ClienteDto.Resposta",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/ClienteController.java",
+    "handler": "consultar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/ClienteService.java#consultar"
+    ]
+  },
+  {
+    "id": "ClienteController.criar",
+    "method": "POST",
+    "path": "/api/v1/clientes",
+    "request": "ClienteDto.Criar",
+    "response": "ClienteDto.Resposta",
+    "query": [],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/ClienteController.java",
+    "handler": "criar",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/ClienteService.java#criar"
+    ]
+  },
+  {
+    "id": "ClienteController.alterar",
+    "method": "PUT",
+    "path": "/api/v1/clientes/{id}",
+    "request": "ClienteDto.Alterar",
+    "response": "ClienteDto.Resposta",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/ClienteController.java",
+    "handler": "alterar",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/ClienteService.java#alterar"
+    ]
+  },
+  {
+    "id": "ClienteController.encerrar",
+    "method": "POST",
+    "path": "/api/v1/clientes/{id}/encerramento",
+    "request": "RevisaoCadastroRequest",
+    "response": "ClienteDto.Resposta",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/ClienteController.java",
+    "handler": "encerrar",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/ClienteService.java#encerrar"
+    ]
+  },
+  {
+    "id": "ClienteController.reativar",
+    "method": "POST",
+    "path": "/api/v1/clientes/{id}/reativacao",
+    "request": "RevisaoCadastroRequest",
+    "response": "ClienteDto.Resposta",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/ClienteController.java",
+    "handler": "reativar",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/ClienteService.java#reativar"
+    ]
+  },
+  {
+    "id": "ConfiguracaoCobrancaController.servicos",
+    "method": "GET",
+    "path": "/api/v1/servicos-cobranca",
+    "request": null,
+    "response": "PaginaResponse<ConfiguracaoCobrancaDto.Servico>",
+    "query": [
+      {
+        "name": "pagina",
+        "type": "int",
+        "required": false,
+        "default": "0"
+      },
+      {
+        "name": "tamanho",
+        "type": "int",
+        "required": false,
+        "default": "20"
+      }
+    ],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/ConfiguracaoCobrancaController.java",
+    "handler": "servicos",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/ConfiguracaoCobrancaService.java#servicos"
+    ]
+  },
+  {
+    "id": "ConfiguracaoCobrancaController.criarServico",
+    "method": "POST",
+    "path": "/api/v1/servicos-cobranca",
+    "request": "ConfiguracaoCobrancaDto.CriarServico",
+    "response": "ConfiguracaoCobrancaDto.Servico",
+    "query": [],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/ConfiguracaoCobrancaController.java",
+    "handler": "criarServico",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/ConfiguracaoCobrancaService.java#criarServico"
+    ]
+  },
+  {
+    "id": "ConfiguracaoCobrancaController.tabelas",
+    "method": "GET",
+    "path": "/api/v1/tabelas-cobranca",
+    "request": null,
+    "response": "List<ConfiguracaoCobrancaDto.Tabela>",
+    "query": [
+      {
+        "name": "armazemId",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/ConfiguracaoCobrancaController.java",
+    "handler": "tabelas",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/ConfiguracaoCobrancaService.java#tabelas"
+    ]
+  },
+  {
+    "id": "ConfiguracaoCobrancaController.tabela",
+    "method": "GET",
+    "path": "/api/v1/tabelas-cobranca/{id}",
+    "request": null,
+    "response": "ConfiguracaoCobrancaDto.Tabela",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/ConfiguracaoCobrancaController.java",
+    "handler": "tabela",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/ConfiguracaoCobrancaService.java#tabela"
+    ]
+  },
+  {
+    "id": "ConfiguracaoCobrancaController.criarTabela",
+    "method": "POST",
+    "path": "/api/v1/tabelas-cobranca",
+    "request": "ConfiguracaoCobrancaDto.CriarTabela",
+    "response": "ConfiguracaoCobrancaDto.Tabela",
+    "query": [],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/ConfiguracaoCobrancaController.java",
+    "handler": "criarTabela",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/ConfiguracaoCobrancaService.java#criarTabela"
+    ]
+  },
+  {
+    "id": "ConfiguracaoCobrancaController.encerrarTabela",
+    "method": "POST",
+    "path": "/api/v1/tabelas-cobranca/{id}/encerramento",
+    "request": "ConfiguracaoCobrancaDto.Encerrar",
+    "response": "ConfiguracaoCobrancaDto.Tabela",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/ConfiguracaoCobrancaController.java",
+    "handler": "encerrarTabela",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/ConfiguracaoCobrancaService.java#encerrarTabela"
+    ]
+  },
+  {
+    "id": "ConfiguracaoCobrancaController.vinculos",
+    "method": "GET",
+    "path": "/api/v1/vinculos-tabela",
+    "request": null,
+    "response": "List<ConfiguracaoCobrancaDto.Vinculo>",
+    "query": [
+      {
+        "name": "clienteId",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "armazemId",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/ConfiguracaoCobrancaController.java",
+    "handler": "vinculos",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/ConfiguracaoCobrancaService.java#vinculos"
+    ],
+    "permissionOverride": {
+      "derived": "OPERACAO",
+      "reviewed": "SUPERVISOR",
+      "source": "frontend/tools/contratos.py#base-role-overrides"
+    }
+  },
+  {
+    "id": "ConfiguracaoCobrancaController.vincular",
+    "method": "POST",
+    "path": "/api/v1/vinculos-tabela",
+    "request": "ConfiguracaoCobrancaDto.Vincular",
+    "response": "ConfiguracaoCobrancaDto.Vinculo",
+    "query": [],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/ConfiguracaoCobrancaController.java",
+    "handler": "vincular",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/ConfiguracaoCobrancaService.java#vincular"
+    ]
+  },
+  {
+    "id": "ConfiguracaoCobrancaController.encerrarVinculo",
+    "method": "POST",
+    "path": "/api/v1/vinculos-tabela/{id}/encerramento",
+    "request": "ConfiguracaoCobrancaDto.Encerrar",
+    "response": "ConfiguracaoCobrancaDto.Vinculo",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/ConfiguracaoCobrancaController.java",
+    "handler": "encerrarVinculo",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/ConfiguracaoCobrancaService.java#encerrarVinculo"
+    ]
+  },
+  {
+    "id": "ConfiguracaoCobrancaController.contratos",
+    "method": "GET",
+    "path": "/api/v1/contratos-cobranca",
+    "request": null,
+    "response": "List<ConfiguracaoCobrancaDto.Contrato>",
+    "query": [
+      {
+        "name": "clienteId",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "armazemId",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/ConfiguracaoCobrancaController.java",
+    "handler": "contratos",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/ConfiguracaoCobrancaService.java#contratos"
+    ],
+    "permissionOverride": {
+      "derived": "OPERACAO",
+      "reviewed": "SUPERVISOR",
+      "source": "frontend/tools/contratos.py#base-role-overrides"
+    }
+  },
+  {
+    "id": "ConfiguracaoCobrancaController.configurar",
+    "method": "POST",
+    "path": "/api/v1/contratos-cobranca",
+    "request": "ConfiguracaoCobrancaDto.ConfigurarContrato",
+    "response": "ConfiguracaoCobrancaDto.Contrato",
+    "query": [],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/ConfiguracaoCobrancaController.java",
+    "handler": "configurar",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/ConfiguracaoCobrancaService.java#configurar"
+    ]
+  },
+  {
+    "id": "ConfiguracaoCobrancaController.encerrarContrato",
+    "method": "POST",
+    "path": "/api/v1/contratos-cobranca/{id}/encerramento",
+    "request": "ConfiguracaoCobrancaDto.Encerrar",
+    "response": "ConfiguracaoCobrancaDto.Contrato",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/ConfiguracaoCobrancaController.java",
+    "handler": "encerrarContrato",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/ConfiguracaoCobrancaService.java#encerrarContrato"
+    ]
+  },
+  {
+    "id": "ContagemController.contar",
+    "method": "POST",
+    "path": "/api/v1/contagens",
+    "request": "ContagemDto.Contar",
+    "response": "ContagemDto.Resultado",
+    "query": [],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/ContagemController.java",
+    "handler": "contar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/ContagemEstoqueService.java#contar"
+    ],
+    "permissionOverride": {
+      "derived": "GESTOR",
+      "reviewed": "OPERACAO",
+      "source": "frontend/tools/contratos.py#base-role-overrides"
+    }
+  },
+  {
+    "id": "ContagemController.consultar",
+    "method": "GET",
+    "path": "/api/v1/contagens/{id}",
+    "request": null,
+    "response": "ContagemDto.Resultado",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/ContagemController.java",
+    "handler": "consultar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/ContagemEstoqueService.java#consultar"
+    ]
+  },
+  {
+    "id": "ContagemController.listar",
+    "method": "GET",
+    "path": "/api/v1/contagens",
+    "request": null,
+    "response": "PaginaResponse<ContagemDto.Resultado>",
+    "query": [
+      {
+        "name": "clienteId",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "armazemId",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "produtoId",
+        "type": "Long",
+        "required": false
+      },
+      {
+        "name": "codigoUnidade",
+        "type": "UUID",
+        "required": false
+      },
+      {
+        "name": "enderecoId",
+        "type": "Long",
+        "required": false
+      },
+      {
+        "name": "situacao",
+        "type": "ContagemDto.FiltroSituacao",
+        "required": false
+      },
+      {
+        "name": "impedimento",
+        "type": "Boolean",
+        "required": false
+      },
+      {
+        "name": "pagina",
+        "type": "int",
+        "required": false,
+        "default": "0"
+      },
+      {
+        "name": "tamanho",
+        "type": "int",
+        "required": false,
+        "default": "20"
+      }
+    ],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/ContagemController.java",
+    "handler": "listar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/ContagemEstoqueService.java#listar"
+    ]
+  },
+  {
+    "id": "ContagemController.revisoes",
+    "method": "GET",
+    "path": "/api/v1/contagens/{id}/revisoes",
+    "request": null,
+    "response": "PaginaResponse<ContagemDto.Resultado>",
+    "query": [
+      {
+        "name": "situacao",
+        "type": "ContagemDto.FiltroSituacao",
+        "required": false
+      },
+      {
+        "name": "pagina",
+        "type": "int",
+        "required": false,
+        "default": "0"
+      },
+      {
+        "name": "tamanho",
+        "type": "int",
+        "required": false,
+        "default": "20"
+      }
+    ],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/ContagemController.java",
+    "handler": "revisoes",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/ContagemEstoqueService.java#revisoes"
+    ]
+  },
+  {
+    "id": "ContagemController.aplicar",
+    "method": "POST",
+    "path": "/api/v1/contagens/{id}/aplicar",
+    "request": "ContagemDto.Aplicar",
+    "response": "ContagemDto.Resultado",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/ContagemController.java",
+    "handler": "aplicar",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/ContagemEstoqueService.java#aplicar"
+    ]
+  },
+  {
+    "id": "ContingenciaController.registrar",
+    "method": "POST",
+    "path": "/api/v1/contingencias",
+    "request": "ContingenciaDto.Registrar",
+    "response": "ContingenciaDto.Resultado",
+    "query": [],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/ContingenciaController.java",
+    "handler": "registrar",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/ContingenciaService.java#registrar"
+    ],
+    "permissionOverride": {
+      "derived": "GESTOR",
+      "reviewed": "SUPERVISOR",
+      "source": "frontend/tools/contratos.py#base-role-overrides"
+    }
+  },
+  {
+    "id": "ContingenciaController.conciliar",
+    "method": "POST",
+    "path": "/api/v1/contingencias/{id}/conciliar",
+    "request": "ContingenciaDto.Conciliar",
+    "response": "ContingenciaDto.Resultado",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/ContingenciaController.java",
+    "handler": "conciliar",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/ContingenciaService.java#conciliar"
+    ],
+    "permissionOverride": {
+      "derived": "GESTOR",
+      "reviewed": "SUPERVISOR",
+      "source": "frontend/tools/contratos.py#base-role-overrides"
+    }
+  },
+  {
+    "id": "ContingenciaController.consultar",
+    "method": "GET",
+    "path": "/api/v1/contingencias/{id}",
+    "request": null,
+    "response": "ContingenciaDto.Resultado",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/ContingenciaController.java",
+    "handler": "consultar",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/ContingenciaService.java#consultar"
+    ]
+  },
+  {
+    "id": "ContingenciaController.listar",
+    "method": "GET",
+    "path": "/api/v1/contingencias",
+    "request": null,
+    "response": "PaginaResponse<ContingenciaDto.Resultado>",
+    "query": [
+      {
+        "name": "clienteId",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "armazemId",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "identidadeFato",
+        "type": "String",
+        "required": false
+      },
+      {
+        "name": "tipo",
+        "type": "ContingenciaDto.FiltroTipo",
+        "required": false
+      },
+      {
+        "name": "situacao",
+        "type": "ContingenciaDto.FiltroSituacao",
+        "required": false
+      },
+      {
+        "name": "pendencia",
+        "type": "String",
+        "required": false
+      },
+      {
+        "name": "pagina",
+        "type": "int",
+        "required": false,
+        "default": "0"
+      },
+      {
+        "name": "tamanho",
+        "type": "int",
+        "required": false,
+        "default": "20"
+      }
+    ],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/ContingenciaController.java",
+    "handler": "listar",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/ContingenciaService.java#listar"
+    ],
+    "permissionOverride": {
+      "derived": "OPERACAO",
+      "reviewed": "SUPERVISOR",
+      "source": "frontend/tools/contratos.py#base-role-overrides"
+    }
+  },
+  {
+    "id": "EmbalagemController.listar",
+    "method": "GET",
+    "path": "/api/v1/embalagens",
+    "request": null,
+    "response": "PaginaResponse<EmbalagemDto.Resposta>",
+    "query": [
+      {
+        "name": "produtoId",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "pagina",
+        "type": "int",
+        "required": false,
+        "default": "0"
+      },
+      {
+        "name": "tamanho",
+        "type": "int",
+        "required": false,
+        "default": "20"
+      }
+    ],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/EmbalagemController.java",
+    "handler": "listar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/EmbalagemService.java#listar"
+    ]
+  },
+  {
+    "id": "EmbalagemController.consultar",
+    "method": "GET",
+    "path": "/api/v1/embalagens/{id}",
+    "request": null,
+    "response": "EmbalagemDto.Resposta",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/EmbalagemController.java",
+    "handler": "consultar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/EmbalagemService.java#consultar"
+    ]
+  },
+  {
+    "id": "EmbalagemController.criar",
+    "method": "POST",
+    "path": "/api/v1/embalagens",
+    "request": "EmbalagemDto.Criar",
+    "response": "EmbalagemDto.Resposta",
+    "query": [],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/EmbalagemController.java",
+    "handler": "criar",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/EmbalagemService.java#criar"
+    ]
+  },
+  {
+    "id": "EmbalagemController.alterar",
+    "method": "PUT",
+    "path": "/api/v1/embalagens/{id}",
+    "request": "EmbalagemDto.Alterar",
+    "response": "EmbalagemDto.Resposta",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/EmbalagemController.java",
+    "handler": "alterar",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/EmbalagemService.java#alterar"
+    ]
+  },
+  {
+    "id": "EmbalagemController.encerrar",
+    "method": "POST",
+    "path": "/api/v1/embalagens/{id}/encerramento",
+    "request": "RevisaoCadastroRequest",
+    "response": "EmbalagemDto.Resposta",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/EmbalagemController.java",
+    "handler": "encerrar",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/EmbalagemService.java#encerrar"
+    ]
+  },
+  {
+    "id": "EmbalagemController.reativar",
+    "method": "POST",
+    "path": "/api/v1/embalagens/{id}/reativacao",
+    "request": "RevisaoCadastroRequest",
+    "response": "EmbalagemDto.Resposta",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/EmbalagemController.java",
+    "handler": "reativar",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/EmbalagemService.java#reativar"
+    ]
+  },
+  {
+    "id": "EncerramentoController.consultar",
+    "method": "GET",
+    "path": "/api/v1/encerramentos/{tipo}/{id}/impedimentos",
+    "request": null,
+    "response": "EncerramentoDto.Resultado",
+    "query": [],
+    "params": [
+      {
+        "name": "tipo",
+        "type": "EncerramentoDto.Tipo",
+        "required": true
+      },
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/EncerramentoController.java",
+    "handler": "consultar",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/EncerramentoService.java#consultar"
+    ]
+  },
+  {
+    "id": "EncerramentoController.solicitar",
+    "method": "POST",
+    "path": "/api/v1/encerramentos/{tipo}/{id}/solicitar",
+    "request": "EncerramentoDto.Confirmar",
+    "response": "EncerramentoDto.Resultado",
+    "query": [],
+    "params": [
+      {
+        "name": "tipo",
+        "type": "EncerramentoDto.Tipo",
+        "required": true
+      },
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/EncerramentoController.java",
+    "handler": "solicitar",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/EncerramentoService.java#solicitar"
+    ]
+  },
+  {
+    "id": "EncerramentoController.inativar",
+    "method": "POST",
+    "path": "/api/v1/encerramentos/{tipo}/{id}/inativar",
+    "request": "EncerramentoDto.Confirmar",
+    "response": "EncerramentoDto.Resultado",
+    "query": [],
+    "params": [
+      {
+        "name": "tipo",
+        "type": "EncerramentoDto.Tipo",
+        "required": true
+      },
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/EncerramentoController.java",
+    "handler": "inativar",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/EncerramentoService.java#inativar"
+    ]
+  },
+  {
+    "id": "EncerramentoController.remanescente",
+    "method": "POST",
+    "path": "/api/v1/encerramentos/remanescente",
+    "request": "EncerramentoDto.Remanescente",
+    "response": "PedidoSaidaDto.Confirmacao",
+    "query": [],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/EncerramentoController.java",
+    "handler": "remanescente",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/PedidoSaidaService.java#resolverRemanescente"
+    ]
+  },
+  {
+    "id": "EncerramentoController.vigencia",
+    "method": "POST",
+    "path": "/api/v1/encerramentos/vigencias/{tipo}/{id}/encerrar",
+    "request": "EncerramentoDto.EncerrarVigencia",
+    "response": "EncerramentoDto.Vigencia",
+    "query": [],
+    "params": [
+      {
+        "name": "tipo",
+        "type": "String",
+        "required": true
+      },
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/EncerramentoController.java",
+    "handler": "vigencia",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/EncerramentoService.java#encerrarVigencia"
+    ]
+  },
+  {
+    "id": "EnderecoController.listar",
+    "method": "GET",
+    "path": "/api/v1/enderecos",
+    "request": null,
+    "response": "PaginaResponse<EnderecoDto.Resposta>",
+    "query": [
+      {
+        "name": "armazemId",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "pagina",
+        "type": "int",
+        "required": false,
+        "default": "0"
+      },
+      {
+        "name": "tamanho",
+        "type": "int",
+        "required": false,
+        "default": "20"
+      }
+    ],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/EnderecoController.java",
+    "handler": "listar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/EnderecoService.java#listar"
+    ]
+  },
+  {
+    "id": "EnderecoController.consultar",
+    "method": "GET",
+    "path": "/api/v1/enderecos/{id}",
+    "request": null,
+    "response": "EnderecoDto.Resposta",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/EnderecoController.java",
+    "handler": "consultar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/EnderecoService.java#consultar"
+    ]
+  },
+  {
+    "id": "EnderecoController.criar",
+    "method": "POST",
+    "path": "/api/v1/enderecos",
+    "request": "EnderecoDto.Criar",
+    "response": "EnderecoDto.Resposta",
+    "query": [],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/EnderecoController.java",
+    "handler": "criar",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/EnderecoService.java#criar"
+    ]
+  },
+  {
+    "id": "EnderecoController.alterar",
+    "method": "PUT",
+    "path": "/api/v1/enderecos/{id}",
+    "request": "EnderecoDto.Alterar",
+    "response": "EnderecoDto.Resposta",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/EnderecoController.java",
+    "handler": "alterar",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/EnderecoService.java#alterar"
+    ]
+  },
+  {
+    "id": "EnderecoController.encerrar",
+    "method": "POST",
+    "path": "/api/v1/enderecos/{id}/encerramento",
+    "request": "RevisaoCadastroRequest",
+    "response": "EnderecoDto.Resposta",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/EnderecoController.java",
+    "handler": "encerrar",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/EnderecoService.java#encerrar"
+    ]
+  },
+  {
+    "id": "EnderecoController.reativar",
+    "method": "POST",
+    "path": "/api/v1/enderecos/{id}/reativacao",
+    "request": "RevisaoCadastroRequest",
+    "response": "EnderecoDto.Resposta",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/EnderecoController.java",
+    "handler": "reativar",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/EnderecoService.java#reativar"
+    ]
+  },
+  {
+    "id": "EstoqueController.listar",
+    "method": "GET",
+    "path": "/api/v1/estoque",
+    "request": null,
+    "response": "PaginaResponse<EstoqueDto.Unidade>",
+    "query": [
+      {
+        "name": "clienteId",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "armazemId",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "produtoId",
+        "type": "Long",
+        "required": false
+      },
+      {
+        "name": "disponivel",
+        "type": "Boolean",
+        "required": false
+      },
+      {
+        "name": "codigoUnidade",
+        "type": "UUID",
+        "required": false
+      },
+      {
+        "name": "enderecoId",
+        "type": "Long",
+        "required": false
+      },
+      {
+        "name": "situacao",
+        "type": "String",
+        "required": false
+      },
+      {
+        "name": "pagina",
+        "type": "int",
+        "required": false,
+        "default": "0"
+      },
+      {
+        "name": "tamanho",
+        "type": "int",
+        "required": false,
+        "default": "20"
+      }
+    ],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/EstoqueController.java",
+    "handler": "listar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/EstoqueService.java#listar"
+    ]
+  },
+  {
+    "id": "EstoqueController.saldo",
+    "method": "GET",
+    "path": "/api/v1/estoque/saldo",
+    "request": null,
+    "response": "EstoqueDto.Saldo",
+    "query": [
+      {
+        "name": "clienteId",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "armazemId",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "produtoId",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/EstoqueController.java",
+    "handler": "saldo",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/EstoqueService.java#saldo"
+    ]
+  },
+  {
+    "id": "EstoqueController.consultar",
+    "method": "GET",
+    "path": "/api/v1/unidades-logisticas/{codigo}/estoque",
+    "request": null,
+    "response": "EstoqueDto.Unidade",
+    "query": [],
+    "params": [
+      {
+        "name": "codigo",
+        "type": "UUID",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/EstoqueController.java",
+    "handler": "consultar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/EstoqueService.java#consultar"
+    ]
+  },
+  {
+    "id": "EstoqueController.historico",
+    "method": "GET",
+    "path": "/api/v1/unidades-logisticas/{codigo}/movimentos",
+    "request": null,
+    "response": "PaginaResponse<EstoqueDto.Movimento>",
+    "query": [
+      {
+        "name": "pagina",
+        "type": "int",
+        "required": false,
+        "default": "0"
+      },
+      {
+        "name": "tamanho",
+        "type": "int",
+        "required": false,
+        "default": "20"
+      }
+    ],
+    "params": [
+      {
+        "name": "codigo",
+        "type": "UUID",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/EstoqueController.java",
+    "handler": "historico",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/EstoqueService.java#historico"
+    ]
+  },
+  {
+    "id": "EstoqueController.posicionar",
+    "method": "POST",
+    "path": "/api/v1/unidades-logisticas/{codigo}/movimentos",
+    "request": "EstoqueDto.Posicionar",
+    "response": "EstoqueDto.Confirmacao",
+    "query": [],
+    "params": [
+      {
+        "name": "codigo",
+        "type": "UUID",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/EstoqueController.java",
+    "handler": "posicionar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/MovimentacaoEstoqueService.java#posicionar"
+    ]
+  },
+  {
+    "id": "EstoqueController.bloquear",
+    "method": "POST",
+    "path": "/api/v1/unidades-logisticas/{codigo}/bloqueio",
+    "request": "EstoqueDto.Bloqueio",
+    "response": "EstoqueDto.Confirmacao",
+    "query": [],
+    "params": [
+      {
+        "name": "codigo",
+        "type": "UUID",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/EstoqueController.java",
+    "handler": "bloquear",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/MovimentacaoEstoqueService.java#bloquear"
+    ]
+  },
+  {
+    "id": "EstoqueController.liberar",
+    "method": "POST",
+    "path": "/api/v1/unidades-logisticas/{codigo}/liberacao",
+    "request": "EstoqueDto.Bloqueio",
+    "response": "EstoqueDto.Confirmacao",
+    "query": [],
+    "params": [
+      {
+        "name": "codigo",
+        "type": "UUID",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/EstoqueController.java",
+    "handler": "liberar",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/MovimentacaoEstoqueService.java#liberar"
+    ]
+  },
+  {
+    "id": "EstoqueController.avariar",
+    "method": "POST",
+    "path": "/api/v1/unidades-logisticas/{codigo}/avaria",
+    "request": "EstoqueDto.Bloqueio",
+    "response": "EstoqueDto.Confirmacao",
+    "query": [],
+    "params": [
+      {
+        "name": "codigo",
+        "type": "UUID",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/EstoqueController.java",
+    "handler": "avariar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/MovimentacaoEstoqueService.java#avariar"
+    ]
+  },
+  {
+    "id": "ExpedicaoController.consultar",
+    "method": "GET",
+    "path": "/api/v1/pedidos-saida/{id}/expedicao",
+    "request": null,
+    "response": "ExpedicaoDto.Detalhe",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/ExpedicaoController.java",
+    "handler": "consultar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/ExpedicaoService.java#consultar"
+    ]
+  },
+  {
+    "id": "ExpedicaoController.fatos",
+    "method": "GET",
+    "path": "/api/v1/pedidos-saida/{id}/fatos",
+    "request": null,
+    "response": "List<ExpedicaoDto.Fato>",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/ExpedicaoController.java",
+    "handler": "fatos",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/ExpedicaoService.java#consultar"
+    ]
+  },
+  {
+    "id": "ExpedicaoController.ler",
+    "method": "POST",
+    "path": "/api/v1/pedidos-saida/{id}/leituras",
+    "request": "ExpedicaoDto.Leitura",
+    "response": "ExpedicaoDto.Confirmacao",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/ExpedicaoController.java",
+    "handler": "ler",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/ExpedicaoService.java#ler"
+    ],
+    "permissionOverride": {
+      "derived": "GESTOR",
+      "reviewed": "OPERACAO",
+      "source": "frontend/tools/contratos.py#base-role-overrides"
+    }
+  },
+  {
+    "id": "ExpedicaoController.separar",
+    "method": "POST",
+    "path": "/api/v1/pedidos-saida/{id}/separacoes",
+    "request": "ExpedicaoDto.Separar",
+    "response": "ExpedicaoDto.Confirmacao",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/ExpedicaoController.java",
+    "handler": "separar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/ExpedicaoService.java#separar"
+    ],
+    "permissionOverride": {
+      "derived": "GESTOR",
+      "reviewed": "OPERACAO",
+      "source": "frontend/tools/contratos.py#base-role-overrides"
+    }
+  },
+  {
+    "id": "ExpedicaoController.documento",
+    "method": "POST",
+    "path": "/api/v1/pedidos-saida/{id}/documentos",
+    "request": "ExpedicaoDto.Documento",
+    "response": "ExpedicaoDto.Confirmacao",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/ExpedicaoController.java",
+    "handler": "documento",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/ExpedicaoService.java#registrarDocumento"
+    ],
+    "permissionOverride": {
+      "derived": "GESTOR",
+      "reviewed": "SUPERVISOR",
+      "source": "frontend/tools/contratos.py#base-role-overrides"
+    }
+  },
+  {
+    "id": "ExpedicaoController.cancelar",
+    "method": "POST",
+    "path": "/api/v1/pedidos-saida/{id}/documentos/{documentoId}/cancelamento",
+    "request": "ExpedicaoDto.CancelarDocumento",
+    "response": "ExpedicaoDto.Confirmacao",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "documentoId",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/ExpedicaoController.java",
+    "handler": "cancelar",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/ExpedicaoService.java#cancelarDocumento"
+    ]
+  },
+  {
+    "id": "ExpedicaoController.retirar",
+    "method": "POST",
+    "path": "/api/v1/pedidos-saida/{id}/retirada",
+    "request": "ExpedicaoDto.Retirar",
+    "response": "ExpedicaoDto.Confirmacao",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/ExpedicaoController.java",
+    "handler": "retirar",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/ExpedicaoService.java#retirar"
+    ],
+    "permissionOverride": {
+      "derived": "GESTOR",
+      "reviewed": "SUPERVISOR",
+      "source": "frontend/tools/contratos.py#base-role-overrides"
+    }
+  },
+  {
+    "id": "ExpedicaoController.retornar",
+    "method": "POST",
+    "path": "/api/v1/pedidos-saida/{id}/retorno-interno",
+    "request": "ExpedicaoDto.Retornar",
+    "response": "ExpedicaoDto.Confirmacao",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/ExpedicaoController.java",
+    "handler": "retornar",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/ExpedicaoService.java#retornarInterno"
+    ],
+    "permissionOverride": {
+      "derived": "GESTOR",
+      "reviewed": "SUPERVISOR",
+      "source": "frontend/tools/contratos.py#base-role-overrides"
+    }
+  },
+  {
+    "id": "ExpedicaoController.devolver",
+    "method": "POST",
+    "path": "/api/v1/pedidos-saida/{id}/devolucoes",
+    "request": "ExpedicaoDto.Devolver",
+    "response": "ExpedicaoDto.Confirmacao",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/ExpedicaoController.java",
+    "handler": "devolver",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/ExpedicaoService.java#devolver"
+    ],
+    "permissionOverride": {
+      "derived": "GESTOR",
+      "reviewed": "SUPERVISOR",
+      "source": "frontend/tools/contratos.py#base-role-overrides"
+    }
+  },
+  {
+    "id": "FatoServicoController.listar",
+    "method": "GET",
+    "path": "/api/v1/fatos-servico",
+    "request": null,
+    "response": "PaginaResponse<FatoServicoDto.Fato>",
+    "query": [
+      {
+        "name": "clienteId",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "armazemId",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "pagina",
+        "type": "int",
+        "required": false,
+        "default": "0"
+      },
+      {
+        "name": "tamanho",
+        "type": "int",
+        "required": false,
+        "default": "20"
+      }
+    ],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/FatoServicoController.java",
+    "handler": "listar",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/FatoServicoService.java#listar"
+    ],
+    "permissionOverride": {
+      "derived": "OPERACAO",
+      "reviewed": "SUPERVISOR",
+      "source": "frontend/tools/contratos.py#base-role-overrides"
+    }
+  },
+  {
+    "id": "FatoServicoController.consultar",
+    "method": "GET",
+    "path": "/api/v1/fatos-servico/{id}",
+    "request": null,
+    "response": "FatoServicoDto.Fato",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/FatoServicoController.java",
+    "handler": "consultar",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/FatoServicoService.java#consultar"
+    ],
+    "permissionOverride": {
+      "derived": "OPERACAO",
+      "reviewed": "SUPERVISOR",
+      "source": "frontend/tools/contratos.py#base-role-overrides"
+    }
+  },
+  {
+    "id": "FatoServicoController.sugestoes",
+    "method": "GET",
+    "path": "/api/v1/fatos-servico/sugestoes",
+    "request": null,
+    "response": "PaginaResponse<FatoServicoDto.Sugestao>",
+    "query": [
+      {
+        "name": "clienteId",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "armazemId",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "servicoId",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "pagina",
+        "type": "int",
+        "required": false,
+        "default": "0"
+      },
+      {
+        "name": "tamanho",
+        "type": "int",
+        "required": false,
+        "default": "20"
+      }
+    ],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/FatoServicoController.java",
+    "handler": "sugestoes",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/FatoServicoService.java#sugestoes"
+    ],
+    "permissionOverride": {
+      "derived": "OPERACAO",
+      "reviewed": "SUPERVISOR",
+      "source": "frontend/tools/contratos.py#base-role-overrides"
+    }
+  },
+  {
+    "id": "FatoServicoController.registrar",
+    "method": "POST",
+    "path": "/api/v1/fatos-servico",
+    "request": "FatoServicoDto.Registrar",
+    "response": "FatoServicoDto.Fato",
+    "query": [],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/FatoServicoController.java",
+    "handler": "registrar",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/FatoServicoService.java#registrar"
+    ],
+    "permissionOverride": {
+      "derived": "GESTOR",
+      "reviewed": "SUPERVISOR",
+      "source": "frontend/tools/contratos.py#base-role-overrides"
+    }
+  },
+  {
+    "id": "FatoServicoController.anular",
+    "method": "POST",
+    "path": "/api/v1/fatos-servico/{id}/anulacao",
+    "request": "FatoServicoDto.Anular",
+    "response": "FatoServicoDto.Fato",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/FatoServicoController.java",
+    "handler": "anular",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/FatoServicoService.java#anular"
+    ]
+  },
+  {
+    "id": "FatoServicoController.marcos",
+    "method": "GET",
+    "path": "/api/v1/avarias/{id}/marcos-financeiros",
+    "request": null,
+    "response": "List<FatoServicoDto.MarcoResposta>",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/FatoServicoController.java",
+    "handler": "marcos",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/MarcoFinanceiroAvariaService.java#listar"
+    ],
+    "permissionOverride": {
+      "derived": "OPERACAO",
+      "reviewed": "SUPERVISOR",
+      "source": "frontend/tools/contratos.py#base-role-overrides"
+    }
+  },
+  {
+    "id": "FatoServicoController.marco",
+    "method": "POST",
+    "path": "/api/v1/avarias/{id}/marcos-financeiros",
+    "request": "FatoServicoDto.Marco",
+    "response": "FatoServicoDto.MarcoResposta",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/FatoServicoController.java",
+    "handler": "marco",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/MarcoFinanceiroAvariaService.java#registrar"
+    ]
+  },
+  {
+    "id": "FechamentoCobrancaController.listar",
+    "method": "GET",
+    "path": "/api/v1/fechamentos-cobranca",
+    "request": null,
+    "response": "PaginaResponse<FechamentoCobrancaDto.Fechamento>",
+    "query": [
+      {
+        "name": "clienteId",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "armazemId",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "pagina",
+        "type": "int",
+        "required": false,
+        "default": "0"
+      },
+      {
+        "name": "tamanho",
+        "type": "int",
+        "required": false,
+        "default": "20"
+      }
+    ],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/FechamentoCobrancaController.java",
+    "handler": "listar",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/FechamentoCobrancaService.java#listar"
+    ],
+    "permissionOverride": {
+      "derived": "OPERACAO",
+      "reviewed": "SUPERVISOR",
+      "source": "frontend/tools/contratos.py#base-role-overrides"
+    }
+  },
+  {
+    "id": "FechamentoCobrancaController.consultar",
+    "method": "GET",
+    "path": "/api/v1/fechamentos-cobranca/{id}",
+    "request": null,
+    "response": "FechamentoCobrancaDto.Fechamento",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/FechamentoCobrancaController.java",
+    "handler": "consultar",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/FechamentoCobrancaService.java#consultar"
+    ],
+    "permissionOverride": {
+      "derived": "OPERACAO",
+      "reviewed": "SUPERVISOR",
+      "source": "frontend/tools/contratos.py#base-role-overrides"
+    }
+  },
+  {
+    "id": "FechamentoCobrancaController.versoes",
+    "method": "GET",
+    "path": "/api/v1/fechamentos-cobranca/{id}/versoes",
+    "request": null,
+    "response": "List<FechamentoCobrancaDto.Versao>",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/FechamentoCobrancaController.java",
+    "handler": "versoes",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/FechamentoCobrancaService.java#versoes"
+    ],
+    "permissionOverride": {
+      "derived": "OPERACAO",
+      "reviewed": "SUPERVISOR",
+      "source": "frontend/tools/contratos.py#base-role-overrides"
+    }
+  },
+  {
+    "id": "FechamentoCobrancaController.versao",
+    "method": "GET",
+    "path": "/api/v1/fechamentos-cobranca/{id}/versoes/{numero}",
+    "request": null,
+    "response": "FechamentoCobrancaDto.Versao",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "numero",
+        "type": "int",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/FechamentoCobrancaController.java",
+    "handler": "versao",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/FechamentoCobrancaService.java#versao"
+    ],
+    "permissionOverride": {
+      "derived": "OPERACAO",
+      "reviewed": "SUPERVISOR",
+      "source": "frontend/tools/contratos.py#base-role-overrides"
+    }
+  },
+  {
+    "id": "FechamentoCobrancaController.demonstrativo",
+    "method": "GET",
+    "path": "/api/v1/fechamentos-cobranca/{id}/versoes/{numero}/demonstrativo",
+    "request": null,
+    "response": "FechamentoCobrancaDto.Demonstrativo",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "numero",
+        "type": "int",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/FechamentoCobrancaController.java",
+    "handler": "demonstrativo",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/FechamentoCobrancaService.java#demonstrativo"
+    ],
+    "permissionOverride": {
+      "derived": "OPERACAO",
+      "reviewed": "SUPERVISOR",
+      "source": "frontend/tools/contratos.py#base-role-overrides"
+    }
+  },
+  {
+    "id": "FechamentoCobrancaController.tratativas",
+    "method": "GET",
+    "path": "/api/v1/fechamentos-cobranca/{id}/tratativas-externas",
+    "request": null,
+    "response": "List<FechamentoCobrancaDto.Tratativa>",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/FechamentoCobrancaController.java",
+    "handler": "tratativas",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/FechamentoCobrancaService.java#tratativas"
+    ],
+    "permissionOverride": {
+      "derived": "OPERACAO",
+      "reviewed": "SUPERVISOR",
+      "source": "frontend/tools/contratos.py#base-role-overrides"
+    }
+  },
+  {
+    "id": "FechamentoCobrancaController.tratar",
+    "method": "POST",
+    "path": "/api/v1/fechamentos-cobranca/{id}/tratativas-externas",
+    "request": "FechamentoCobrancaDto.Tratar",
+    "response": "FechamentoCobrancaDto.ConfirmacaoComando",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/FechamentoCobrancaController.java",
+    "handler": "tratar",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/FechamentoCobrancaService.java#tratarExterno"
+    ]
+  },
+  {
+    "id": "FechamentoCobrancaController.preparar",
+    "method": "POST",
+    "path": "/api/v1/fechamentos-cobranca",
+    "request": "FechamentoCobrancaDto.Preparar",
+    "response": "FechamentoCobrancaDto.ConfirmacaoComando",
+    "query": [],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/FechamentoCobrancaController.java",
+    "handler": "preparar",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/FechamentoCobrancaService.java#preparar"
+    ]
+  },
+  {
+    "id": "FechamentoCobrancaController.aprovar",
+    "method": "POST",
+    "path": "/api/v1/fechamentos-cobranca/{id}/aprovacao",
+    "request": "FechamentoCobrancaDto.Decidir",
+    "response": "FechamentoCobrancaDto.ConfirmacaoComando",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/FechamentoCobrancaController.java",
+    "handler": "aprovar",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/FechamentoCobrancaService.java#aprovar"
+    ]
+  },
+  {
+    "id": "FechamentoCobrancaController.rejeitar",
+    "method": "POST",
+    "path": "/api/v1/fechamentos-cobranca/{id}/rejeicao",
+    "request": "FechamentoCobrancaDto.Decidir",
+    "response": "FechamentoCobrancaDto.ConfirmacaoComando",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/FechamentoCobrancaController.java",
+    "handler": "rejeitar",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/FechamentoCobrancaService.java#rejeitar"
+    ]
+  },
+  {
+    "id": "FechamentoCobrancaController.reabrir",
+    "method": "POST",
+    "path": "/api/v1/fechamentos-cobranca/{id}/reabertura",
+    "request": "FechamentoCobrancaDto.Reabrir",
+    "response": "FechamentoCobrancaDto.ConfirmacaoComando",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/FechamentoCobrancaController.java",
+    "handler": "reabrir",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/FechamentoCobrancaService.java#reabrir"
+    ]
+  },
+  {
+    "id": "FechamentoCobrancaController.entregar",
+    "method": "POST",
+    "path": "/api/v1/fechamentos-cobranca/{id}/entregas",
+    "request": "FechamentoCobrancaDto.Entregar",
+    "response": "FechamentoCobrancaDto.ConfirmacaoComando",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/FechamentoCobrancaController.java",
+    "handler": "entregar",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/FechamentoCobrancaService.java#entregar"
+    ]
+  },
+  {
+    "id": "FechamentoCobrancaController.confirmarNaoEmissao",
+    "method": "POST",
+    "path": "/api/v1/fechamentos-cobranca/{id}/confirmacoes-externas",
+    "request": "FechamentoCobrancaDto.Confirmar",
+    "response": "FechamentoCobrancaDto.ConfirmacaoComando",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/FechamentoCobrancaController.java",
+    "handler": "confirmarNaoEmissao",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/FechamentoCobrancaService.java#confirmarNaoEmissao"
+    ]
+  },
+  {
+    "id": "FechamentoCobrancaController.registrarNfse",
+    "method": "POST",
+    "path": "/api/v1/fechamentos-cobranca/{id}/referencias-nfse",
+    "request": "FechamentoCobrancaDto.Nfse",
+    "response": "FechamentoCobrancaDto.ConfirmacaoComando",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/FechamentoCobrancaController.java",
+    "handler": "registrarNfse",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/FechamentoCobrancaService.java#registrarNfse"
+    ]
+  },
+  {
+    "id": "FechamentoCobrancaController.resolverSaldo",
+    "method": "POST",
+    "path": "/api/v1/fechamentos-cobranca/{id}/resolucao-financeira",
+    "request": "FechamentoCobrancaDto.Resolver",
+    "response": "FechamentoCobrancaDto.ConfirmacaoComando",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/FechamentoCobrancaController.java",
+    "handler": "resolverSaldo",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/FechamentoCobrancaService.java#resolverSaldo"
+    ]
+  },
+  {
+    "id": "FiscalCadastroController.cliente",
+    "method": "GET",
+    "path": "/api/v1/clientes/{id}/complemento-fiscal",
+    "request": null,
+    "response": "FiscalCadastroDto.Complemento",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/FiscalCadastroController.java",
+    "handler": "cliente",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/FiscalCadastroService.java#cliente"
+    ]
+  },
+  {
+    "id": "FiscalCadastroController.armazem",
+    "method": "GET",
+    "path": "/api/v1/armazens/{id}/complemento-fiscal",
+    "request": null,
+    "response": "FiscalCadastroDto.Complemento",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/FiscalCadastroController.java",
+    "handler": "armazem",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/FiscalCadastroService.java#armazem"
+    ]
+  },
+  {
+    "id": "FiscalCadastroController.complementarCliente",
+    "method": "POST",
+    "path": "/api/v1/clientes/{id}/complemento-fiscal",
+    "request": "FiscalCadastroDto.Complementar",
+    "response": "FiscalCadastroDto.Complemento",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/FiscalCadastroController.java",
+    "handler": "complementarCliente",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/FiscalCadastroService.java#complementarCliente"
+    ]
+  },
+  {
+    "id": "FiscalCadastroController.complementarArmazem",
+    "method": "POST",
+    "path": "/api/v1/armazens/{id}/complemento-fiscal",
+    "request": "FiscalCadastroDto.Complementar",
+    "response": "FiscalCadastroDto.Complemento",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/FiscalCadastroController.java",
+    "handler": "complementarArmazem",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/FiscalCadastroService.java#complementarArmazem"
+    ]
+  },
+  {
+    "id": "FiscalCadastroController.referencias",
+    "method": "GET",
+    "path": "/api/v1/produtos/{id}/referencias-fiscais",
+    "request": null,
+    "response": "List<FiscalCadastroDto.Referencia>",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/FiscalCadastroController.java",
+    "handler": "referencias",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/FiscalCadastroService.java#referencias"
+    ]
+  },
+  {
+    "id": "FiscalCadastroController.referenciar",
+    "method": "POST",
+    "path": "/api/v1/produtos/{id}/referencias-fiscais",
+    "request": "FiscalCadastroDto.Referenciar",
+    "response": "FiscalCadastroDto.Referencia",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/FiscalCadastroController.java",
+    "handler": "referenciar",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/FiscalCadastroService.java#referenciar"
+    ]
+  },
+  {
+    "id": "ImportacaoEnderecoController.previa",
+    "method": "POST",
+    "path": "/api/v1/armazens/{id}/importacoes-enderecos/previa",
+    "request": "ImportacaoEnderecoDto.Previa",
+    "response": "ImportacaoEnderecoDto.Resultado",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": true,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/ImportacaoEnderecoController.java",
+    "handler": "previa",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/ImportacaoEnderecoService.java#previa"
+    ]
+  },
+  {
+    "id": "ImportacaoEnderecoController.consultar",
+    "method": "GET",
+    "path": "/api/v1/importacoes-enderecos/{id}",
+    "request": null,
+    "response": "ImportacaoEnderecoDto.Resultado",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/ImportacaoEnderecoController.java",
+    "handler": "consultar",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/ImportacaoEnderecoService.java#consultar"
+    ]
+  },
+  {
+    "id": "ImportacaoEnderecoController.confirmar",
+    "method": "POST",
+    "path": "/api/v1/importacoes-enderecos/{id}/confirmacao",
+    "request": "ImportacaoEnderecoDto.Confirmar",
+    "response": "ImportacaoEnderecoDto.Resultado",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/ImportacaoEnderecoController.java",
+    "handler": "confirmar",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/ImportacaoEnderecoService.java#confirmar"
+    ]
+  },
+  {
+    "id": "IndicadorEstoqueController.listar",
+    "method": "GET",
+    "path": "/api/v1/indicadores-estoque",
+    "request": null,
+    "response": "PaginaResponse<IndicadorEstoqueDto.Resultado>",
+    "query": [
+      {
+        "name": "clienteId",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "armazemId",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "produtoId",
+        "type": "Long",
+        "required": false
+      },
+      {
+        "name": "valor",
+        "type": "boolean",
+        "required": false,
+        "default": "false"
+      },
+      {
+        "name": "fuso",
+        "type": "String",
+        "required": true
+      },
+      {
+        "name": "pagina",
+        "type": "int",
+        "required": false,
+        "default": "0"
+      },
+      {
+        "name": "tamanho",
+        "type": "int",
+        "required": false,
+        "default": "20"
+      }
+    ],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/IndicadorEstoqueController.java",
+    "handler": "listar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/IndicadorEstoqueService.java#listar"
+    ]
+  },
+  {
+    "id": "IndicadorEstoqueController.consultar",
+    "method": "GET",
+    "path": "/api/v1/avisos-validade",
+    "request": null,
+    "response": "IndicadorEstoqueDto.Configuracao",
+    "query": [
+      {
+        "name": "clienteId",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "armazemId",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/IndicadorEstoqueController.java",
+    "handler": "consultar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/IndicadorEstoqueService.java#configuracao"
+    ]
+  },
+  {
+    "id": "IndicadorEstoqueController.configurar",
+    "method": "PUT",
+    "path": "/api/v1/avisos-validade",
+    "request": "IndicadorEstoqueDto.ConfigurarAviso",
+    "response": "IndicadorEstoqueDto.Configuracao",
+    "query": [],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/IndicadorEstoqueController.java",
+    "handler": "configurar",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/IndicadorEstoqueService.java#configurar"
+    ]
+  },
+  {
+    "id": "PedidoEntradaController.criar",
+    "method": "POST",
+    "path": "/api/v1/pedidos-entrada",
+    "request": "PedidoEntradaDto.Criar",
+    "response": "PedidoEntradaDto.Resumo",
+    "query": [],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/PedidoEntradaController.java",
+    "handler": "criar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/PedidoEntradaService.java#criar"
+    ]
+  },
+  {
+    "id": "PedidoEntradaController.listar",
+    "method": "GET",
+    "path": "/api/v1/pedidos-entrada",
+    "request": null,
+    "response": "PaginaResponse<PedidoEntradaDto.Resumo>",
+    "query": [
+      {
+        "name": "clienteId",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "armazemId",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "pagina",
+        "type": "int",
+        "required": false,
+        "default": "0"
+      },
+      {
+        "name": "tamanho",
+        "type": "int",
+        "required": false,
+        "default": "20"
+      }
+    ],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/PedidoEntradaController.java",
+    "handler": "listar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/PedidoEntradaService.java#listar"
+    ]
+  },
+  {
+    "id": "PedidoEntradaController.consultar",
+    "method": "GET",
+    "path": "/api/v1/pedidos-entrada/{id}",
+    "request": null,
+    "response": "PedidoEntradaDto.Detalhe",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/PedidoEntradaController.java",
+    "handler": "consultar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/PedidoEntradaService.java#consultar"
+    ]
+  },
+  {
+    "id": "PedidoEntradaController.nota",
+    "method": "POST",
+    "path": "/api/v1/pedidos-entrada/{id}/notas",
+    "request": "PedidoEntradaDto.NotaManual",
+    "response": "PedidoEntradaDto.Resumo",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/PedidoEntradaController.java",
+    "handler": "nota",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/NotaEntradaService.java#adicionar"
+    ]
+  },
+  {
+    "id": "PedidoEntradaController.xml",
+    "method": "POST",
+    "path": "/api/v1/pedidos-entrada/{id}/notas/xml",
+    "request": "PedidoEntradaDto.ImportarXml",
+    "response": "PedidoEntradaDto.Resumo",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/PedidoEntradaController.java",
+    "handler": "xml",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/NotaEntradaService.java#importar"
+    ]
+  },
+  {
+    "id": "PedidoEntradaController.iniciar",
+    "method": "POST",
+    "path": "/api/v1/pedidos-entrada/{id}/iniciar-conferencia",
+    "request": "RevisaoCadastroRequest",
+    "response": "PedidoEntradaDto.Resumo",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/PedidoEntradaController.java",
+    "handler": "iniciar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/PedidoEntradaService.java#iniciar"
+    ]
+  },
+  {
+    "id": "PedidoEntradaController.chegada",
+    "method": "POST",
+    "path": "/api/v1/pedidos-entrada/{id}/chegadas",
+    "request": "RecebimentoDto.RegistrarChegada",
+    "response": "PedidoEntradaDto.Resumo",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/PedidoEntradaController.java",
+    "handler": "chegada",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/RecebimentoService.java#registrarChegada"
+    ]
+  },
+  {
+    "id": "PedidoEntradaController.estornar",
+    "method": "POST",
+    "path": "/api/v1/pedidos-entrada/{id}/chegadas/{chegadaId}/estorno",
+    "request": "RevisaoCadastroRequest",
+    "response": "PedidoEntradaDto.Resumo",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "chegadaId",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/PedidoEntradaController.java",
+    "handler": "estornar",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/RecebimentoService.java#estornar"
+    ]
+  },
+  {
+    "id": "PedidoEntradaController.efetivar",
+    "method": "POST",
+    "path": "/api/v1/pedidos-entrada/{id}/efetivacao",
+    "request": "PedidoEntradaDto.Efetivar",
+    "response": "PedidoEntradaDto.Resumo",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/PedidoEntradaController.java",
+    "handler": "efetivar",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/RecebimentoService.java#efetivar"
+    ]
+  },
+  {
+    "id": "PedidoEntradaController.cancelar",
+    "method": "POST",
+    "path": "/api/v1/pedidos-entrada/{id}/cancelamento",
+    "request": "RevisaoCadastroRequest",
+    "response": "PedidoEntradaDto.Resumo",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/PedidoEntradaController.java",
+    "handler": "cancelar",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/PedidoEntradaService.java#cancelar"
+    ]
+  },
+  {
+    "id": "PedidoEntradaController.chegadas",
+    "method": "GET",
+    "path": "/api/v1/pedidos-entrada/{id}/chegadas",
+    "request": null,
+    "response": "PaginaResponse<RecebimentoDto.Chegada>",
+    "query": [
+      {
+        "name": "pagina",
+        "type": "int",
+        "required": false,
+        "default": "0"
+      },
+      {
+        "name": "tamanho",
+        "type": "int",
+        "required": false,
+        "default": "20"
+      }
+    ],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/PedidoEntradaController.java",
+    "handler": "chegadas",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/RecebimentoService.java#listarChegadas"
+    ]
+  },
+  {
+    "id": "PedidoEntradaController.entradas",
+    "method": "GET",
+    "path": "/api/v1/pedidos-entrada/{id}/entradas",
+    "request": null,
+    "response": "PaginaResponse<RecebimentoDto.Entrada>",
+    "query": [
+      {
+        "name": "pagina",
+        "type": "int",
+        "required": false,
+        "default": "0"
+      },
+      {
+        "name": "tamanho",
+        "type": "int",
+        "required": false,
+        "default": "20"
+      }
+    ],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/PedidoEntradaController.java",
+    "handler": "entradas",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/RecebimentoService.java#listarEntradas"
+    ]
+  },
+  {
+    "id": "PedidoSaidaController.criar",
+    "method": "POST",
+    "path": "/api/v1/pedidos-saida",
+    "request": "PedidoSaidaDto.Criar",
+    "response": "PedidoSaidaDto.Confirmacao",
+    "query": [],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/PedidoSaidaController.java",
+    "handler": "criar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/PedidoSaidaService.java#criar"
+    ]
+  },
+  {
+    "id": "PedidoSaidaController.importarXml",
+    "method": "POST",
+    "path": "/api/v1/pedidos-saida/xml",
+    "request": "PedidoSaidaDto.ImportarXml",
+    "response": "PedidoSaidaDto.ConfirmacaoXml",
+    "query": [],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/PedidoSaidaController.java",
+    "handler": "importarXml",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/PedidoSaidaXmlService.java#importar"
+    ]
+  },
+  {
+    "id": "PedidoSaidaController.listar",
+    "method": "GET",
+    "path": "/api/v1/pedidos-saida",
+    "request": null,
+    "response": "PaginaResponse<PedidoSaidaDto.Detalhe>",
+    "query": [
+      {
+        "name": "clienteId",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "armazemId",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "pagina",
+        "type": "int",
+        "required": false,
+        "default": "0"
+      },
+      {
+        "name": "tamanho",
+        "type": "int",
+        "required": false,
+        "default": "20"
+      }
+    ],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/PedidoSaidaController.java",
+    "handler": "listar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/PedidoSaidaService.java#listar"
+    ]
+  },
+  {
+    "id": "PedidoSaidaController.consultar",
+    "method": "GET",
+    "path": "/api/v1/pedidos-saida/{id}",
+    "request": null,
+    "response": "PedidoSaidaDto.Detalhe",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/PedidoSaidaController.java",
+    "handler": "consultar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/PedidoSaidaService.java#consultar"
+    ]
+  },
+  {
+    "id": "PedidoSaidaController.sugerir",
+    "method": "GET",
+    "path": "/api/v1/pedidos-saida/{id}/fifo",
+    "request": null,
+    "response": "PedidoSaidaDto.Sugestao",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/PedidoSaidaController.java",
+    "handler": "sugerir",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/PedidoSaidaService.java#sugerir"
+    ]
+  },
+  {
+    "id": "PedidoSaidaController.justificar",
+    "method": "POST",
+    "path": "/api/v1/pedidos-saida/{id}/justificativas-fifo",
+    "request": "PedidoSaidaDto.Justificar",
+    "response": "PedidoSaidaDto.Confirmacao",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/PedidoSaidaController.java",
+    "handler": "justificar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/PedidoSaidaService.java#justificar"
+    ]
+  },
+  {
+    "id": "PedidoSaidaController.reservar",
+    "method": "POST",
+    "path": "/api/v1/pedidos-saida/{id}/reserva",
+    "request": "PedidoSaidaDto.Reservar",
+    "response": "PedidoSaidaDto.Confirmacao",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/PedidoSaidaController.java",
+    "handler": "reservar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/PedidoSaidaService.java#reservar"
+    ],
+    "permissionOverride": {
+      "derived": "SUPERVISOR",
+      "reviewed": "OPERACAO",
+      "source": "frontend/tools/contratos.py#base-role-overrides"
+    }
+  },
+  {
+    "id": "PedidoSaidaController.cancelar",
+    "method": "POST",
+    "path": "/api/v1/pedidos-saida/{id}/cancelamento",
+    "request": "PedidoSaidaDto.Comando",
+    "response": "PedidoSaidaDto.Confirmacao",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/PedidoSaidaController.java",
+    "handler": "cancelar",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/PedidoSaidaService.java#cancelar"
+    ]
+  },
+  {
+    "id": "PedidoSaidaController.reverter",
+    "method": "POST",
+    "path": "/api/v1/pedidos-saida/{id}/reversao-reserva",
+    "request": "PedidoSaidaDto.Comando",
+    "response": "PedidoSaidaDto.Confirmacao",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/PedidoSaidaController.java",
+    "handler": "reverter",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/PedidoSaidaService.java#reverter"
+    ]
+  },
+  {
+    "id": "PedidoSaidaController.revalidar",
+    "method": "POST",
+    "path": "/api/v1/pedidos-saida/{id}/revalidacao",
+    "request": null,
+    "response": "PedidoSaidaDto.Detalhe",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/PedidoSaidaController.java",
+    "handler": "revalidar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/PedidoSaidaService.java#revalidar"
+    ]
+  },
+  {
+    "id": "ProdutoController.listar",
+    "method": "GET",
+    "path": "/api/v1/produtos",
+    "request": null,
+    "response": "PaginaResponse<ProdutoDto.Resposta>",
+    "query": [
+      {
+        "name": "clienteId",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "pagina",
+        "type": "int",
+        "required": false,
+        "default": "0"
+      },
+      {
+        "name": "tamanho",
+        "type": "int",
+        "required": false,
+        "default": "20"
+      }
+    ],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/ProdutoController.java",
+    "handler": "listar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/ProdutoService.java#listar"
+    ]
+  },
+  {
+    "id": "ProdutoController.consultar",
+    "method": "GET",
+    "path": "/api/v1/produtos/{id}",
+    "request": null,
+    "response": "ProdutoDto.Resposta",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/ProdutoController.java",
+    "handler": "consultar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/ProdutoService.java#consultar"
+    ]
+  },
+  {
+    "id": "ProdutoController.criar",
+    "method": "POST",
+    "path": "/api/v1/produtos",
+    "request": "ProdutoDto.Criar",
+    "response": "ProdutoDto.Resposta",
+    "query": [],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/ProdutoController.java",
+    "handler": "criar",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/ProdutoService.java#criar"
+    ]
+  },
+  {
+    "id": "ProdutoController.alterar",
+    "method": "PUT",
+    "path": "/api/v1/produtos/{id}",
+    "request": "ProdutoDto.Alterar",
+    "response": "ProdutoDto.Resposta",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/ProdutoController.java",
+    "handler": "alterar",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/ProdutoService.java#alterar"
+    ]
+  },
+  {
+    "id": "ProdutoController.encerrar",
+    "method": "POST",
+    "path": "/api/v1/produtos/{id}/encerramento",
+    "request": "RevisaoCadastroRequest",
+    "response": "ProdutoDto.Resposta",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/ProdutoController.java",
+    "handler": "encerrar",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/ProdutoService.java#encerrar"
+    ]
+  },
+  {
+    "id": "ProdutoController.reativar",
+    "method": "POST",
+    "path": "/api/v1/produtos/{id}/reativacao",
+    "request": "RevisaoCadastroRequest",
+    "response": "ProdutoDto.Resposta",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/ProdutoController.java",
+    "handler": "reativar",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/ProdutoService.java#reativar"
+    ]
+  },
+  {
+    "id": "StatusController.consultar",
+    "method": "GET",
+    "path": "/api/v1/status",
+    "request": null,
+    "response": "StatusResponse",
+    "query": [],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/StatusController.java",
+    "handler": "consultar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/StatusService.java#consultar"
+    ]
+  },
+  {
+    "id": "UnidadeLogisticaController.unitizar",
+    "method": "POST",
+    "path": "/api/v1/pedidos-entrada/{pedidoId}/entradas/{entradaId}/unitizacao",
+    "request": "UnidadeLogisticaDto.Unitizar",
+    "response": "UnidadeLogisticaDto.Resultado",
+    "query": [],
+    "params": [
+      {
+        "name": "pedidoId",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "entradaId",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/UnidadeLogisticaController.java",
+    "handler": "unitizar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/UnidadeLogisticaService.java#unitizar"
+    ]
+  },
+  {
+    "id": "UnidadeLogisticaController.dividir",
+    "method": "POST",
+    "path": "/api/v1/pedidos-entrada/{pedidoId}/unidades/{unidadeId}/divisao",
+    "request": "UnidadeLogisticaDto.Dividir",
+    "response": "UnidadeLogisticaDto.Resultado",
+    "query": [],
+    "params": [
+      {
+        "name": "pedidoId",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "unidadeId",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/UnidadeLogisticaController.java",
+    "handler": "dividir",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/UnidadeLogisticaService.java#dividir"
+    ]
+  },
+  {
+    "id": "UnidadeLogisticaController.reagrupar",
+    "method": "POST",
+    "path": "/api/v1/pedidos-entrada/{pedidoId}/unidades/{unidadeId}/reagrupamento",
+    "request": "UnidadeLogisticaDto.Reagrupar",
+    "response": "UnidadeLogisticaDto.Resultado",
+    "query": [],
+    "params": [
+      {
+        "name": "pedidoId",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "unidadeId",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/UnidadeLogisticaController.java",
+    "handler": "reagrupar",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/UnidadeLogisticaService.java#reagrupar"
+    ]
+  },
+  {
+    "id": "UnidadeLogisticaController.progresso",
+    "method": "GET",
+    "path": "/api/v1/pedidos-entrada/{pedidoId}/unitizacao",
+    "request": null,
+    "response": "UnidadeLogisticaDto.Progresso",
+    "query": [],
+    "params": [
+      {
+        "name": "pedidoId",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/UnidadeLogisticaController.java",
+    "handler": "progresso",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/UnidadeLogisticaService.java#progresso"
+    ]
+  },
+  {
+    "id": "UnidadeLogisticaController.listar",
+    "method": "GET",
+    "path": "/api/v1/pedidos-entrada/{pedidoId}/unidades",
+    "request": null,
+    "response": "PaginaResponse<UnidadeLogisticaDto.Resumo>",
+    "query": [
+      {
+        "name": "pagina",
+        "type": "int",
+        "required": false,
+        "default": "0"
+      },
+      {
+        "name": "tamanho",
+        "type": "int",
+        "required": false,
+        "default": "20"
+      }
+    ],
+    "params": [
+      {
+        "name": "pedidoId",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/UnidadeLogisticaController.java",
+    "handler": "listar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/UnidadeLogisticaService.java#listar"
+    ]
+  },
+  {
+    "id": "UnidadeLogisticaController.consultar",
+    "method": "GET",
+    "path": "/api/v1/pedidos-entrada/{pedidoId}/unidades/{unidadeId}",
+    "request": null,
+    "response": "UnidadeLogisticaDto.Detalhe",
+    "query": [],
+    "params": [
+      {
+        "name": "pedidoId",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "unidadeId",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/UnidadeLogisticaController.java",
+    "handler": "consultar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/UnidadeLogisticaService.java#consultar"
+    ]
+  },
+  {
+    "id": "UnidadeLogisticaController.lerCodigo",
+    "method": "GET",
+    "path": "/api/v1/unidades-logisticas/{codigo}",
+    "request": null,
+    "response": "UnidadeLogisticaDto.Detalhe",
+    "query": [],
+    "params": [
+      {
+        "name": "codigo",
+        "type": "UUID",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/UnidadeLogisticaController.java",
+    "handler": "lerCodigo",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/UnidadeLogisticaService.java#lerCodigo"
+    ]
+  },
+  {
+    "id": "UnidadeLogisticaController.etiqueta",
+    "method": "GET",
+    "path": "/api/v1/unidades-logisticas/{codigo}/etiqueta",
+    "request": null,
+    "response": "UnidadeLogisticaDto.Etiqueta",
+    "query": [],
+    "params": [
+      {
+        "name": "codigo",
+        "type": "UUID",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/UnidadeLogisticaController.java",
+    "handler": "etiqueta",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/UnidadeLogisticaService.java#etiqueta"
+    ]
+  }
+]

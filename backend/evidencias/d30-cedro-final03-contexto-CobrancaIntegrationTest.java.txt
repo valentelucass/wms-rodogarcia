@@ -1,0 +1,208 @@
+121:
+122:    private record Unidade(Long id, Long pedidoId, Long notaId, String codigo) {}
+123:
+124:    @BeforeEach
+125:    void preparar() {
+126:        when(clock.instant()).thenReturn(Instant.parse("2026-10-06T12:00:00Z"));
+127:        when(clock.getZone()).thenReturn(java.time.ZoneOffset.UTC);
+128:        when(clock.withZone(org.mockito.ArgumentMatchers.any(java.time.ZoneId.class)))
+129:                .thenAnswer(inv -> Clock.fixed(clock.instant(), inv.getArgument(0)));
+130:        alvoAuditoria =
+131:                org.springframework.test.util.AopTestUtils.getUltimateTargetObject(auditoria);
+132:        reset(alvoAuditoria);
+133:        br.com.rodogarcia.wms.exceptions.ApiExceptionHandler alvoErrosD30 =
+134:                org.springframework.test.util.AopTestUtils.getUltimateTargetObject(errosD30);
+135:        reset(alvoErrosD30);
+136:        org.mockito.Mockito.doAnswer(
+137:                        inv -> {
+138:                            Exception erro = inv.getArgument(0);
+139:                            var causas = new java.util.ArrayList<Map<String, Object>>();
+140:                            for (Throwable causa = erro;
+1767:        d.put("armazemId", armazemId);
+1768:        d.put("vigenciaInicio", "2026-09-01");
+1769:        d.put("fuso", "UTC");
+1770:        d.put("moeda", "BRL");
+1771:        d.put("modalidadeCiclo", "DIAS_CORRIDOS");
+1772:        d.put("duracaoDias", 30);
+1773:        d.put("minimoModo", minimo);
+1774:        d.put("grisModo", gris);
+1775:        d.put("servicosMinimo", servicos);
+1776:        if (valor != null) {
+1777:            d.put("minimoValor", valor);
+1778:            d.put("minimoProporcao", "PROPORCIONAL_DIAS");
+1779:        }
+1780:        if (percentual != null) {
+1781:            d.put("grisPercentual", percentual);
+1782:            d.put("grisBase", "VALOR_ESTOQUE_PICO");
+1783:            d.put("grisPeriodicidade", periodicidade);
+1784:            d.put("grisProporcao", proporcao);
+1785:        }
+1786:        return resposta(post("/api/v1/contratos-cobranca", d, gestor), 200);
+2735:                    d.put("vigenciaInicio", "2026-09-01");
+2736:                    d.put("vigenciaFim", null);
+2737:                    d.put("fuso", "UTC");
+2738:                    d.put("moeda", "BRL");
+2739:                    d.put("modalidadeCiclo", "DIAS_CORRIDOS");
+2740:                    d.put("duracaoDias", 30);
+2741:                    d.put("minimoModo", familia.equals("MINIMO") ? modo : "NAO_APLICAVEL");
+2742:                    d.put("grisModo", familia.equals("GRIS") ? modo : "NAO_APLICAVEL");
+2743:                    d.put("servicosMinimo", List.of());
+2744:                    var valores =
+2745:                            Map.<String, Object>of(
+2746:                                    "minimoValor",
+2747:                                    "0",
+2748:                                    "minimoProporcao",
+2749:                                    "INTEGRAL",
+2750:                                    "servicosMinimo",
+2751:                                    List.of(s.get("id").longValue()),
+2752:                                    "grisPercentual",
+2753:                                    "0",
+2754:                                    "grisBase",
+2781:            d.put("armazemId", armazemId);
+2782:            d.put("vigenciaInicio", "2026-09-01");
+2783:            d.put("fuso", "UTC");
+2784:            d.put("moeda", "BRL");
+2785:            d.put("modalidadeCiclo", "DIAS_CORRIDOS");
+2786:            d.put("duracaoDias", 30);
+2787:            d.put("minimoModo", "APLICAVEL");
+2788:            d.put("minimoValor", "10");
+2789:            d.put("minimoProporcao", "PROPORCIONAL_DIAS");
+2790:            d.put("servicosMinimo", abrangencias.get(i));
+2791:            d.put("grisModo", "NAO_APLICAVEL");
+2792:            var antes = D30FotografiaFisica.capturar(jdbc);
+2793:            resposta(post("/api/v1/contratos-cobranca", d, gestor), i == 2 ? 404 : 400);
+2794:            assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(antes);
+2795:            assertThat(contar("contrato_cobranca")).isZero();
+2796:        }
+2797:    }
+2798:
+2799:    @Test
+2800:    void d30ServicoExecutadoConservaValorAposDesistenciaEAvaria() throws Exception {
+3069:    }
+3070:
+3071:    @Test
+3072:    void d30EncerramentoServicoIdentificaFatoETabelaSemApagarExecucao() throws Exception {
+3073:        var storage = servico("ARMAZENAGEM", "POSICAO_DIA");
+3074:        var entrada = servico("ENTRADA", "UNIDADE_LOGISTICA");
+3075:        var t =
+3076:                tabela(
+3077:                        "D30-ENC-TABELA",
+3078:                        "2026-09-01",
+3079:                        null,
+3080:                        List.of(item(storage, "", "0"), item(entrada, "", "5")));
+3081:        vincular(t, "2026-09-01", null);
+3082:        var contratoMinimo =
+3083:                contrato(
+3084:                        "APLICAVEL",
+3085:                        "10",
+3086:                        List.of(entrada.get("id").longValue()),
+3087:                        "NAO_APLICAVEL",
+3088:                        null,
+3650:                                            depois,
+3651:                                            BigDecimal.valueOf(u.getPosicoesEquivalentes()),
+3652:                                            depois.signum() == 0
+3653:                                                    ? BigDecimal.ZERO
+3654:                                                    : BigDecimal.valueOf(
+3655:                                                            u.getPosicoesEquivalentes()));
+3656:                            em.persist(f);
+3657:                            em.flush();
+3658:                            return f.getId();
+3659:                        });
+3660:    }
+3661:
+3662:    private long avaria(
+3663:            Unidade ref, String afetada, String base, String ocorrida, String resolvida) {
+3664:        return new TransactionTemplate(transactions)
+3665:                .execute(
+3666:                        tx -> {
+3667:                            var u = em.find(UnidadeLogistica.class, ref.id());
+3668:                            var a =
+3669:                                    new AvariaEstoque(
+3670:                                            u,
+3671:                                            new BigDecimal(afetada),
+3672:                                            new BigDecimal(base),
+3673:                                            BigDecimal.valueOf(u.getPosicoesEquivalentes()),
+3674:                                            UUID.randomUUID().toString(),
+3675:                                            Instant.parse(ocorrida),
+3676:                                            Instant.now(),
+3677:                                            "[]",
+3678:                                            "Dano historico ficticio comprovado");
+3679:                            em.persist(a);
+3680:                            a.reconhecer("RODOGARCIA", "gestor-fixture", Instant.now());
+3681:                            if (resolvida != null) a.reparar(Instant.parse(resolvida));
+3682:                            em.flush();
+3683:                            return a.getId();
+3684:                        });
+3685:    }
+3710:                        + "\r\nContent-Disposition: form-data; name=\"comando\"\r\nContent-Type: application/json\r\n\r\n"
+3711:                        + mapper.writeValueAsString(comando())
+3712:                        + "\r\n--"
+3713:                        + boundary
+3714:                        + "\r\nContent-Disposition: form-data; name=\"arquivo\"; filename=\"enderecos.xlsx\"\r\nContent-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet\r\n\r\n";
+3715:        String meio =
+3716:                "\r\n--"
+3717:                        + boundary
+3718:                        + "\r\nContent-Disposition: form-data; name=\"d30padding\"\r\nContent-Type: application/octet-stream\r\n\r\n";
+3719:        String fim = "\r\n--" + boundary + "--\r\n";
+3720:        byte[] a = prefixo.getBytes(StandardCharsets.UTF_8),
+3721:                b = meio.getBytes(StandardCharsets.UTF_8),
+3722:                c = fim.getBytes(StandardCharsets.UTF_8);
+3723:        int padding = tamanho - a.length - arquivo.length - b.length - c.length;
+3724:        assertThat(padding).isPositive();
+3725:        var out = new ByteArrayOutputStream();
+3726:        out.write(a);
+3727:        out.write(arquivo);
+3728:        out.write(b);
+3729:        out.write("x".repeat(padding).getBytes(StandardCharsets.UTF_8));
+3730:        out.write(c);
+3731:        byte[] corpo = out.toByteArray();
+3732:        assertThat(arquivo.length).isEqualTo(5242880);
+3733:        assertThat(corpo.length).isEqualTo(tamanho);
+3734:        return http.send(
+3735:                request("/api/v1/armazens/" + armazemId + "/importacoes-enderecos/previa", gestor)
+3736:                        .header("Content-Type", "multipart/form-data; boundary=" + boundary)
+3737:                        .expectContinue(true)
+3738:                        .POST(HttpRequest.BodyPublishers.ofByteArray(corpo))
+3739:                        .build(),
+3740:                HttpResponse.BodyHandlers.ofString());
+3741:    }
+3742:
+3743:    private byte[] excel(String caso, int linhas) throws Exception {
+3744:        try (var w = new XSSFWorkbook();
+3745:                var out = new ByteArrayOutputStream()) {
+3800:        var antes = D30FotografiaFisica.capturar(jdbc);
+3801:        var resultado =
+3802:                resposta(
+3803:                        multipart(
+3804:                                arquivo,
+3805:                                Map.of(
+3806:                                        "operacaoId",
+3807:                                        UUID.randomUUID(),
+3808:                                        "motivo",
+3809:                                        "Previa ficticia validada"),
+3810:                                perfil),
+3811:                        200);
+3812:        var depois = D30FotografiaFisica.capturar(jdbc);
+3813:        for (String tabela : antes.keySet())
+3814:            if (!List.of("IMPORTACAO_ENDERECO", "AUDITORIA_CADASTRO", "OPERACAO_ADMINISTRATIVA")
+3815:                    .contains(tabela))
+3816:                assertThat(depois.get(tabela)).as(tabela).isEqualTo(antes.get(tabela));
+3817:        return resultado;
+3818:    }
+3819:
+3820:    private Map<String, Object> confirmacao(JsonNode pre) {
+3821:        return new HashMap<>(
+3822:                Map.of(
+3823:                        "operacaoId",
+3824:                        UUID.randomUUID(),
+3825:                        "versao",
+3826:                        pre.get("versao").longValue(),
+3827:                        "arquivoHash",
+3828:                        pre.get("arquivoHash").asString(),
+3829:                        "motivo",
+3830:                        "Confirmacao integral ficticia"));
+3831:    }
+3832:
+3833:    private Map<String, Object> enderecoComando(String codigo, String posicao) {
+3834:        return Map.of(
+3835:                "armazemId",

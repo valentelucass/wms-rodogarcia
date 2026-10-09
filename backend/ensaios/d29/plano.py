@@ -1,0 +1,31 @@
+from pathlib import Path
+import json,hashlib,datetime,xml.etree.ElementTree as ET
+root=Path(__file__).resolve().parents[3];ev=root/'backend/evidencias'
+def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest().upper()
+def put(name,obj):(ev/name).write_text(json.dumps(obj,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+inv=json.loads((ev/'d29-inventario-cedro.json').read_text(encoding='utf-8'))
+oracles=json.loads((root/'orchestracao/.runtime/d29-vigia-oraculos-financeiros.json').read_text(encoding='utf-8'))
+groups=[
+('entrada','RN01 RN02 RN06 RN10 RN12 RN13 RN14 RN15 RN16 RN17 I01 I03 I04 PR02 PR03 PR05 PR06 V01 V02 V03 V04 V09 V14 V16 V26 V27 V28 V29 AC03 AC10','1000 previstas/recebidas:2 IDs500; XML previsto nao fisico; 98/102/95+5 exigem aceite rastreavel, quarentena exclui disponibilidade; repetir conserva IDs e saldo'),
+('estoque','RN02 RN04 RN05 RN10 RN11 RN17 RN18 RN19 RN20 RN21 RN23 I03 I04 I05 PR06 PR07 V05 V06 V08 V16 V23 V25 V29 V30 V38 AC04 AC05 AC10','Identidade/origem/FIFO preservados; movimentos alteram somente destino/historico; duas posicoes atomicas; capacidade ocupada e SKU/lote/nota/data incompatíveis recusados'),
+('saida','RN22 RN23 RN24 RN25 RN26 I02 I06 PR01 PR02 PR04 PR05 PR08 PR10 PR11 V07 V10 V11 V14 V17 V24 V31 V32 V33 V34 V39 AC01 AC02 AC11','Reserva mantém fisico, não expira; integral100 com retirada100 de500 deixa400; fiscal não baixa; avaria bloqueia pedido sem liberar; reversões vinculadas e replay sem repetição'),
+('carga-contagem','RN02 RN13 RN20 RN29 PR02 PR04 PR05 PR06 V15 V21 V41 V43 V44 AC12 AC14','Revisao inicial aceita carga ficticia rastreavel; contagem resolve diferenca por ajuste com motivo; saldo/reserva/ocupação consistentes; folha contingencia replay nao duplica'),
+('fiscal-servicos','RN03 RN07 RN08 RN09 RN26 RN27 RN29 PR02 PR05 PR09 PR10 V10 V18 V19 V20 V34 V40 V47 AC02 AC06 AC09 AC13','Regra fiscal por operação e vigência; documento existente sem emissão; serviço com origem/vinculo posterior não duplica; responsabilidade transporte permanece externa'),
+('financeiro','RN08 RN21 RN27 RN28 RN29 I07 PR02 PR04 PR09 V12 V19 V20 V35 V36 V37 V45 V46 V48 AC04 AC05 AC06 AC07 AC08','Todos insumos ficticios; numericos independentes F01..39; local sintetico separado de previsão real e aprovação ciclo fechado; histórico antigo imutável; PENDENTE=null'),
+('concorrencia','RN24 RN29 PR01 PR02 PR06 V13 V14 V15 V42','HTTP real barreira de inicio, repeticoes/controlos;200/409, perdedor sem efeitos, replay unico e SELECT posterior; nenhum gateSQL; sem prova nativa locks')]
+cases=[]
+for stage,ids,expected in groups:
+ cases.append({'id':'D29-'+stage.upper(),'etapa':stage,'requisitos':ids.split(),'esperadoIndependente':expected,'fontes':[r['fonte'] for r in inv['regrasCenariosRespostasAC'] if r['id'] in ids.split()],'status':'preparado; executar/decompor assertivas compostas','evidencias':[],'criterio':'HTTP esperado e efeito/historico/quantidade independente; GET final corrente + SELECT novo. Recusa de precondicao nao prova fault no meio da transacao.'})
+for o in oracles['casos']:
+ cases.append({'id':'D29-FIN-'+o['id'].split('-')[-1],'etapa':'financeiro-local' if o['modalidade']=='exemplo_documental_local' else 'financeiro','requisitos':o['regras'],'oraculoIndependente':o['id'],'esperadoIndependente':o['esperado'],'insumosFicticios':o['insumosFicticios'],'derivacao':o['derivacaoIndependente'],'status':'ligado antes de execucao; prova backend ainda nao executada','evidencias':[],'limite':'Datas sinteticas exclusivamente calculo isolado. Nunca gravar passado falso. Local/previsao nao é aprovação real.'})
+put('d29-plano-matriz-cedro.json',{'demanda':'D29','utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'casos':cases,'candidatosPendentesCuradoria':len(inv['clausulasContratos']),'clausulasIndependentesLume':{'arquivo':'orchestracao/.runtime/d29-lume-inventario.json','sha256':sha(root/'orchestracao/.runtime/d29-lume-inventario.json')},'oraculos':{'arquivo':'orchestracao/.runtime/d29-vigia-oraculos-financeiros.json','sha256':sha(root/'orchestracao/.runtime/d29-vigia-oraculos-financeiros.json')},'limites':['Frontend,dispositivos,emissor fiscal,transporte,backup/restauracao fora escopo','Dias reais distintos e ciclo encerrado dependem corte real, sem alterar Clock/fatos','Inventario candidato e assinatura HTTP nao comprovam cobertura','Falha tardia SQL sem injetor autorizado nao confundir com recusa anterior a escrita']})
+(ev/'d29-plano-matriz-cedro.md').write_text('# D29 — plano e matriz Cedro\n\nCada caso e os 39 esperados independentes estão ligados no JSON antes da execução. Fonte, insumo e efeito esperado delimitam a prova; candidatos ainda exigem curadoria.\n\n| Caso | Requisitos | Esperado |\n| --- | --- | --- |\n'+'\n'.join('| '+c['id']+' | '+', '.join(c['requisitos'])+' | '+str(c['esperadoIndependente']).replace('|','/')+' |' for c in cases)+'\n',encoding='utf-8')
+jar=root/'backend/target-d29-atual/wms-backend-0.0.1-SNAPSHOT.jar'; reports=list((jar.parent/'surefire-reports').glob('TEST-*.xml'));totals={'tests':0,'failures':0,'errors':0,'skipped':0};archive=ev/('d29-testes-'+sha(jar)[:16]);archive.mkdir(exist_ok=True)
+for p in reports:
+ doc=ET.parse(p).getroot()
+ for k in totals:totals[k]+=int(doc.attrib.get(k,0))
+ dst=archive/p.name
+ if not dst.exists():dst.write_bytes(p.read_bytes())
+put('d29-build-atual.json',{'comando':'mvnw.cmd -B -ntp -Dwms.build.directory=target-d29-atual -DargLine=-Xmx768m clean verify','profileSqlServerIT':False,'jar':str(jar.relative_to(root)),'sha256':sha(jar),'testes':totals,'relatorios':str(archive.relative_to(root)),'log':'backend/evidencias/d29-build-atual.log','resultado':'BUILD SUCCESS','semSQLServerIT':'Testes isolados nao comprovam integração SQL real'})
+put('d29-cedro-progresso.json',{'demanda':'D29','utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'estado':'BUILD_VERDE_PREPARANDO_EXECUCAO_ENTRADA','testes':totals,'jarSHA256':sha(jar),'baselinePrumo':'orchestracao/.runtime/d29-prumo-preservacao-baseline.json','negocioD29Mutado':False,'plano':'backend/evidencias/d29-plano-matriz-cedro.json','limite':'Preparo de demais jornadas em curso; não é bloqueio material'})
+print('D29 plano46 grupos/casos oraculos; build',totals,'JAR',sha(jar))

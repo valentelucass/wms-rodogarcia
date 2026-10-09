@@ -1,0 +1,5 @@
+# D27 — ligação da sugestão financeira
+
+A sugestão Farol foi lida e confrontada com AC06/ConfiguracaoCobrancaService/CalculoCobrancaService. O caminho já foi executado como nova família D275A055528, sem fatos/estoque, cliente21/armazém10/contrato6: vigênciaUTC06/10, ciclo1dia06→07 encerrado no Clock real, cálculo23 COMPLETO/subtotal0/complemento50/GRIS0/total50; fechamento14 aprovado por Gestor. RetomadaD27B63F1B22 confirmou GET/replay/snapshot/versões1→2 e recusa de versão superada; SELECT65/0 inclui cálculos22/23/24 e fechamento14APROVADO v2. Não retroagiu execução física nem reutilizou/anulou20 daD26.
+
+Fontes: [HTTP inicial](d27-D275A055528-http.json), [GET/replay/versões](d27-D27B63F1B22-http.json), [SELECT exato](../../orchestracao/.runtime/d27-prumo-casos-20261007T012544553.json). Não repetir família para inflar números. Outras variantes foram executadas separadamente com tabela específica7, mínimo proporcional100/2, GRIS1%/2, pico4→3.75 e avaria5/20, conforme pedido focald27-variantes-prumo-pedido.json; este mínimo50 não substitui essas provas. Preços e parâmetros continuam fictícios, propostasAC não homologadas.

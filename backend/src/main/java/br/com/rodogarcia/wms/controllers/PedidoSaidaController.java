@@ -3,6 +3,7 @@ package br.com.rodogarcia.wms.controllers;
 import br.com.rodogarcia.wms.dto.PaginaResponse;
 import br.com.rodogarcia.wms.dto.PedidoSaidaDto;
 import br.com.rodogarcia.wms.services.PedidoSaidaService;
+import br.com.rodogarcia.wms.services.PedidoSaidaXmlService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -21,15 +22,24 @@ import org.springframework.web.bind.annotation.RestController;
 @ConditionalOnProperty(name = "wms.cadastros.enabled", havingValue = "true")
 public class PedidoSaidaController {
     private final PedidoSaidaService pedidos;
+    private final PedidoSaidaXmlService xml;
 
-    public PedidoSaidaController(PedidoSaidaService pedidos) {
+    public PedidoSaidaController(PedidoSaidaService pedidos, PedidoSaidaXmlService xml) {
         this.pedidos = pedidos;
+        this.xml = xml;
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public PedidoSaidaDto.Confirmacao criar(@RequestBody @Valid PedidoSaidaDto.Criar dados) {
         return pedidos.criar(dados);
+    }
+
+    @PostMapping("/xml")
+    @ResponseStatus(HttpStatus.CREATED)
+    public PedidoSaidaDto.ConfirmacaoXml importarXml(
+            @RequestBody @Valid PedidoSaidaDto.ImportarXml dados) {
+        return xml.importar(dados);
     }
 
     @GetMapping

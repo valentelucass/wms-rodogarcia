@@ -52,7 +52,7 @@ public class FatoServico {
     private PedidoEntrada pedidoEntrada;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
-    @JoinColumn(name = "pedido_saida_id", nullable = true, updatable = false)
+    @JoinColumn(name = "pedido_saida_id", nullable = true)
     private PedidoSaida pedidoSaida;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
@@ -243,5 +243,14 @@ public class FatoServico {
     public void anular(Instant agora) {
         situacao = "ANULADO";
         anuladoEm = agora.truncatedTo(java.time.temporal.ChronoUnit.MICROS);
+    }
+
+    public void associarSaida(PedidoSaida saida) {
+        if (pedidoSaida != null
+                || saida == null
+                || !"CONFIRMADO".equals(situacao)
+                || !"ADICIONAL".equals(servico.getTipo()))
+            throw new IllegalStateException("Fato não permite associação de saída.");
+        pedidoSaida = saida;
     }
 }

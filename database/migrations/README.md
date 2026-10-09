@@ -1,4 +1,18 @@
-﻿**Vigente D21:** [launcher/guia atual](../README.md) faz bootstrap/upgrade manual de WMS_DEV e WMS_PROD, DEV completo primeiro, Flyway filesystem/validate antes e depois/catalogo real. [Contrato](../docs/d21-contrato-flyway.md). Abaixo, instrucoes D20/D19 preservadas como historico (PROD vazio/DEV separado supersedidos). Nenhum SQL pelo agente.
+﻿# Migrações — vigente D27
+
+V10 aplicada exclusivamente em WMS_DEV pelo [executor DEV protegido](../docs/d27-migration-dev.md), após revisão e inspeção real. Checksum -562012523; CHECK habilitado/confiável, cinco tipos antigos mais AJUSTE_ESTOQUE. V1–V9 e checksums preservados. [Resultado real](../evidencias/d27-aplicacao-20261007T005201425.json).
+
+`iniciar-bancos.bat` percorre DEV→PROD e não é preparação/continuação D27. WMS_PROD: última evidência D24/V1–V9; não conectar ou migrar PROD nesta demanda. [Guia curto](../README.md). Plan offline específico, a partir da raiz:
+
+```powershell
+powershell.exe -NoProfile -NonInteractive -File database/scripts/d27-migrate-dev.ps1
+```
+
+Os registros abaixo são históricos de suas etapas; não autorizam aplicação ou conexão atual. Não editar migration aplicada, usar clean/repair/baseline/reset ou repetir V10.
+
+---
+
+**Vigente D21:** [launcher/guia atual](../README.md) faz bootstrap/upgrade manual de WMS_DEV e WMS_PROD, DEV completo primeiro, Flyway filesystem/validate antes e depois/catalogo real. [Contrato](../docs/d21-contrato-flyway.md). Abaixo, instrucoes D20/D19 preservadas como historico (PROD vazio/DEV separado supersedidos). Nenhum SQL pelo agente.
 
 # Migrações dos cadastros, recebimento, estoque e saída
 

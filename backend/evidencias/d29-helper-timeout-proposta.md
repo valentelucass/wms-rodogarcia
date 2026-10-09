@@ -1,0 +1,5 @@
+# D29 — limite de transporte do precheck
+
+Vermelho atual observado em07/10/2026,19:41UTC: o helper30424 da rodadaD29964B4883 consumiu a leitura Prumo220/0+94/0, mas permaneceu na revalidação final `SQLServerConnection.prelogin`, conforme captura própria `d29-D29964B4883-helper-aguarda-thread.txt`. `setLoginTimeout(10)` sozinho não interrompeu esta espera; a JVM/API ficou viva após o SELECT. Isso é falha do auxiliar de execução/fecho, não defeito de reserva/capacidade ou prova de lock nativo. O processo e nascimento foram conferidos antes de jcmd; nenhum argumento/segredo foi consultado.
+
+Proposta antes da edição: estabelecer socketTimeout explícito de15s além do loginTimeout10s no datasource próprio; testar transporte isolado que aceita TCP mas não responde, com identidade/senha inteiramente fictícias em memória, sem SQLServer real/SQL/DDL/HTTPnegócio. Guardas DEV/WMSDEV/TLS/Flyway permanecem iguais. Encerraremos somente processos originais dessa rodada após seu sinal confirmado, preservando HTTP/SELECT e a falta de revalidação final. Nova rodada ainda sem negócio ficará vermelha se não obtiver alvo atual; não operar por fallback nem alterar servidor.

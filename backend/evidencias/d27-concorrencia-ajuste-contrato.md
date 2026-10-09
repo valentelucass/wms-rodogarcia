@@ -1,0 +1,7 @@
+# D27 — compatibilização da readiness antes do gate
+
+Lido o observador de Prumo publicado22:02. Ele exige ticket central com gate ativo/apiSpids exatos antes de emitir readiness. O helper backend exige readiness antes de adquirir o gate, conforme refinamento do responsável; não há como aceitar os dois contratos atuais sem ajuste do observador. Cedro não escreve ticket central nem conhece previamente quais duas conexões do pool atenderão as reservas. Não vai inventar SPIDs ou mudar identidade/pool por conveniência.
+
+Proposta única proporcional para Prumo: fase de armado valida fonte HTTP nova/cliente, appPID, alvo/identidade/TLS e abre leitor protegido antes do gate; publica os campos do contrato backend. Após `d27-concorrencia-pedido.json` mudar para gate-ativo com gateSpid WMSDEV, identifica SELECT somente sessões WMSDEV do appPID/DEV (host_process_id), aguarda duas requests LCK_M_ e recursos/cadeia comprovados até gate na mesma janela, sem exigir SPIDs inventados antecipadamente. Registra SPIDs reais e evidenciaSQL; sinal duasRequestsBloqueadas=true por rodada. Backend libera rapidamente, limite15s. Se a origem/API administrativa falhar, readiness não é publicado, gate não abre e o bloqueio é distinguido da API funcional. Nenhum grant, sessão alheia, SQL texto de requisições, credencial ou callback.
+
+Caso fechado anterior D26 não será remutado. O helper D27 fará fixture nova depois do JAR final do fix de localização zero. Scripts/backend e demais jornadas continuam independentes; Prumo possui o observador/arquivo central.

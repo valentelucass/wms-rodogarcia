@@ -1,0 +1,9 @@
+# D30 Cedro — recibo dos complementos focais03/04
+
+Focal03: 3/1/0/0, Maven exit1. MARCOS e guarda do novo contexto passaram; EMBALAGEM falhou na igualdade integral de JSON201/GET200, antes da comparação física. Quantidade2 vs2.0 é o mesmo valor; a persistência H2 apresenta datas em microssegundos. O red, fontes, classes, XML e log estão preservados no pacote vermelho v02. A correção foi somente da assertiva de teste, com disposição registrada antes do green; nenhuma mudança produtiva inferida.
+
+Focal04: somente EMBALAGEM, 1/0/0/0, Maven exit0, fontes/classes/XML/log e fotografias na mesma rodada. POST201/GET200 com quantidade2 exata; 64 tabelas fotografadas: 62 idênticas, uma embalagem nova preservando a anterior e uma auditoria CRIACAO. Estoque fictício preexistente de10 e origens20, UUIDs/unidades/movimentos/reservas/ocupação/cobrança permanecem iguais. A fixture usa DUN2 positivo no lugar do500 proposto por Lume; CT14-L022-02 não fixa esse valor, e o recibo delimita a prova ao valor2. Fotografias antes e depois são gravadas CREATE_NEW antes da comparação.
+
+MARCOS: modelo/serviço/DTO/etiqueta reais, repos simulados. FIFO01/09 e chegada02/09 distintos; TRIAGEM03/09 define primeiro endereço nãoNULL com data independente e inícioNULL; ARMAZENAGEM04/09 define início; remanejamento05/09 preserva tudo. Esse green é individual da rodada03 com outra falha; não ocultar exit1. Não prova comando HTTP/rollback/JPA ou fórmula diária. Cobranca1161 permanece histórico sem reexecução por vínculo.
+
+O novo contexto13, além dos12 originais, comprovou test/loopback/porta0/H2mem:d30-cedro-embalagem/1DataSource/1EMF/decoder local antes das fixtures. São39 fontes de teste compiladas e258 main. SQLServer/PROD/migrations/main alterados: zero; SHA D20 preservado. Resultados não se somam a54/D29/498/14. Fila integral706/1373/161 e final após últimas mudanças continuam; nenhum aceite integral.

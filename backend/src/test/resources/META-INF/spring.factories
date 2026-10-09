@@ -1,0 +1,2 @@
+org.springframework.test.context.ContextCustomizerFactory=br.com.rodogarcia.wms.config.D30ContextoLocalGuard
+org.springframework.test.context.TestExecutionListener=br.com.rodogarcia.wms.D30CasoLocalListener

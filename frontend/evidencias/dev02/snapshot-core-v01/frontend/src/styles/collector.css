@@ -1,0 +1,30 @@
+.collector {
+    max-width: 760px;
+    min-width: 0;
+}
+.collector label {
+    font-size: 1.1rem;
+}
+.collector input,
+.collector select,
+.collector button {
+    min-height: 52px;
+}
+.collector [role="alert"],
+.collector section[aria-label="Resumo confirmado no coletor"] {
+    margin: 1rem 0;
+    border: 2px solid #111;
+    padding: 0.75rem;
+    overflow-wrap: anywhere;
+}
+.collector section[aria-label="Resumo confirmado no coletor"] h3 {
+    margin-top: 0;
+}
+.collector form {
+    margin: 1rem 0;
+}
+@media (max-width: 800px) {
+    .collector button {
+        width: 100%;
+    }
+}

@@ -1,0 +1,109 @@
+80:    private String supervisor;
+81:    private String gestor;
+82:    private long numero;
+83:
+84:    @BeforeEach
+85:    void preparar() {
+86:        for (String tabela :
+87:                List.of(
+88:                        "movimento_estoque",
+89:                        "ocupacao_endereco",
+90:                        "operacao_unidade",
+91:                        "conteudo_unidade",
+92:                        "unidade_logistica",
+93:                        "conjunto_posicoes",
+94:                        "entrada_conferida",
+95:                        "item_chegada",
+96:                        "chegada_recebimento",
+97:                        "item_nota_entrada",
+98:                        "nota_entrada",
+99:                        "pedido_entrada",
+100:                        "auditoria_cadastro",
+101:                        "embalagem",
+102:                        "endereco",
+103:                        "produto",
+104:                        "cliente",
+105:                        "armazem")) jdbc.update("delete from wms." + tabela);
+106:        var agora = Instant.now();
+107:        cliente =
+108:                clientes.saveAndFlush(
+109:                        new Cliente("CLIENTE", "Cliente ficticio", "12345678000199", agora));
+110:        armazem =
+111:                armazens.saveAndFlush(
+112:                        new Armazem(
+113:                                "ARM",
+114:                                "Armazem ficticio",
+115:                                "98765432000188",
+1058:        assertThat(posicionado.get("posicoesEquivalentes").intValue()).isEqualTo(2);
+1059:        assertThat(ocupadas()).isEqualTo(2);
+1060:        String encerramento =
+1061:                "/api/v1/encerramentos/CONJUNTO_POSICOES/" + par.get("id").longValue();
+1062:        var antesGet = D30FotografiaFisica.capturar(jdbc);
+1063:        var impedimentos = resposta(get(encerramento + "/impedimentos", gestor), 200);
+1064:        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(antesGet);
+1065:        var saldos = new ArrayList<JsonNode>();
+1066:        for (var i : impedimentos.get("impedimentos")) {
+1067:            if (i.get("codigo").asString().equals("SALDO_FISICO")
+1068:                    && i.get("recurso").asString().equals("UNIDADE_LOGISTICA")
+1069:                    && i.get("id").longValue() == u.get("id").longValue()) saldos.add(i);
+1070:        }
+1071:        assertThat(saldos).hasSize(1);
+1072:        assertThat(saldos.getFirst().get("detalhe").asString()).isNotBlank();
+1073:        var solicitado =
+1074:                resposta(
+1075:                        post(
+1076:                                encerramento + "/solicitar",
+1077:                                Map.of(
+1113:    void d30EnderecoLivreAindaDependeDeConjuntoVigente(boolean segundaPosicao) throws Exception {
+1114:        var a = endereco("D30-LIVRE-A", "ARMAZENAGEM");
+1115:        var b = endereco("D30-LIVRE-B", "ARMAZENAGEM");
+1116:        var conjunto = conjunto(a, b, "D30-CONJUNTO-VIGENTE");
+1117:        long enderecoId = (segundaPosicao ? b : a).get("id").longValue();
+1118:        long conjuntoId = conjunto.get("id").longValue();
+1119:        assertThat(jdbc.queryForObject("select count(*) from wms.unidade_logistica", Integer.class))
+1120:                .isZero();
+1121:        assertThat(
+1122:                        jdbc.queryForObject(
+1123:                                "select count(*) from wms.ocupacao_endereco where unidade_id is not null",
+1124:                                Integer.class))
+1125:                .isZero();
+1126:        var original =
+1127:                new HashMap<>(
+1128:                        jdbc.queryForMap(
+1129:                                "select * from wms.conjunto_posicoes where id=?", conjuntoId));
+1130:        String rota = "/api/v1/encerramentos/ENDERECO/" + enderecoId;
+1131:        var antesGET = D30FotografiaFisica.capturar(jdbc);
+1132:        var consulta = resposta(get(rota + "/impedimentos", gestor), 200);
+1133:        var impedimentos = new ArrayList<JsonNode>();
+1134:        for (var i : consulta.get("impedimentos"))
+1135:            if (i.get("recurso").asString().equals("CONJUNTO_POSICOES")
+1136:                    && i.get("id").longValue() == conjuntoId) impedimentos.add(i);
+1137:        assertThat(impedimentos).hasSize(1);
+1138:        assertThat(impedimentos.getFirst().get("detalhe").asString()).isNotBlank();
+1139:        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(antesGET);
+1140:        var d = d30ComandoEncerramento();
+1141:        d.put("versao", consulta.get("versao").longValue());
+1142:        var pendente = resposta(post(rota + "/solicitar", d, gestor), 200);
+1143:        d = d30ComandoEncerramento();
+1144:        d.put("versao", pendente.get("versao").longValue());
+1145:        var antes = D30FotografiaFisica.capturar(jdbc);
+1146:        assertThat(resposta(post(rota + "/inativar", d, gestor), 409).get("codigo").asString())
+1147:                .isEqualTo("ENCERRAMENTO_IMPEDIDO");
+1148:        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(antes);
+1149:        String rc = "/api/v1/encerramentos/CONJUNTO_POSICOES/" + conjuntoId;
+1150:        var c = d30ComandoEncerramento();
+1151:        c.put("versao", conjunto.get("versao").longValue());
+1152:        var cp = resposta(post(rc + "/solicitar", c, gestor), 200);
+1153:        antes = D30FotografiaFisica.capturar(jdbc);
+1154:        assertThat(resposta(post(rota + "/inativar", d, gestor), 409).get("codigo").asString())
+1155:                .isEqualTo("ENCERRAMENTO_IMPEDIDO");
+1156:        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(antes);
+1157:        c = d30ComandoEncerramento();
+1158:        c.put("versao", cp.get("versao").longValue());
+1159:        assertThat(resposta(post(rc + "/inativar", c, gestor), 200).get("situacao").asString())
+1160:                .isEqualTo("INATIVO");
+1161:        assertThat(resposta(post(rota + "/inativar", d, gestor), 200).get("situacao").asString())
+1162:                .isEqualTo("INATIVO");
+1163:        var depois =
+1164:                new HashMap<>(
+1165:                        jdbc.queryForMap(

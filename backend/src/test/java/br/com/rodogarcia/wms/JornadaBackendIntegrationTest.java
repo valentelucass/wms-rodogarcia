@@ -1189,6 +1189,56 @@ class JornadaBackendIntegrationTest {
         return atual(u);
     }
 
+    @Test
+    void d30EntradaAntigaSemUuidHashPermanecePendenteSemDuplicarFisico() throws Exception {
+        long pe = iniciarEntrada("D30-ENT-SEMUUID", "100", null);
+        chegada(pe, "100", "2026-09-01T12:00:00Z");
+        avancar("2026-09-02T12:00:00Z");
+        var dados =
+                Map.<String, Object>of(
+                        "versao",
+                        versao(pe),
+                        "motivo",
+                        "Conferencia normal antiga identificada",
+                        "aceitarDivergencias",
+                        false);
+        resposta(post(PEDIDOS + pe + "/efetivacao", dados, supervisor), 200);
+        assertThat(
+                        jdbc.queryForObject(
+                                "select count(*) from wms.operacao_administrativa where tipo='ENTRADA_CONTINGENCIA'",
+                                Integer.class))
+                .isZero();
+        var originais = D30FotografiaFisica.capturar(jdbc);
+        avancar("2026-09-05T12:00:00Z");
+        var l =
+                resposta(
+                        post(
+                                "/api/v1/contingencias",
+                                linhaTemporal(
+                                        "D30-ENT-ANTIGA",
+                                        "ENTRADA",
+                                        "2026-09-02T12:00:00Z",
+                                        true,
+                                        Map.of("pedidoId", pe, "dados", dados)),
+                                supervisor),
+                        200);
+        var cmd = conciliacao(l);
+        cmd.put("modo", "VINCULAR");
+        cmd.put(
+                "prova",
+                Map.of("operacaoOriginal", UUID.randomUUID(), "conteudoHash", "0".repeat(64)));
+        var r = resposta(post(contingencia(l), cmd, supervisor), 200);
+        assertThat(r.get("situacao").asString()).isEqualTo("PENDENTE");
+        assertThat(r.get("pendencia").asString()).isEqualTo("PROVA_OPERACIONAL_AUSENTE");
+        var depois = D30FotografiaFisica.capturar(jdbc);
+        for (String t : originais.keySet())
+            if (!List.of("LINHA_CONTINGENCIA", "AUDITORIA_CADASTRO", "OPERACAO_ADMINISTRATIVA")
+                    .contains(t)) assertThat(depois.get(t)).as(t).isEqualTo(originais.get(t));
+        assertThat(jdbc.queryForObject("select count(*) from wms.entrada_conferida", Integer.class))
+                .isEqualTo(1);
+        assertThat(saldo().get("fisicoTotal").decimalValue()).isEqualByComparingTo("100");
+    }
+
     private Map<String, Object> linhaTemporal(
             String identidade,
             String tipo,

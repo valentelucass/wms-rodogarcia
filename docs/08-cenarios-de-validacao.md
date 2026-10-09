@@ -21,6 +21,8 @@ Este documento descreve verificações futuras em linguagem de negócio. Não co
 
 ## Proteções propostas para a arquitetura
 
+As bases `P04` de V15 e `P07` de V22 referem-se às propostas de arquitetura no [controle de decisões](06-decisoes-e-pendencias.md), respectivamente registro conjunto/concorrência e recuperação/piloto. Esses IDs são distintos de `PR04` (correções rastreáveis) e `PR07` (capacidade/destino) do documento03. Os cenários e suas bases originais permanecem estáveis. Esclarecimento documental D29, sem alterar regra ou converter proposta em aprovação.
+
 | ID | Situação | Resultado a validar | Proposta |
 | --- | --- | --- | --- |
 | V13 | Dois operadores confirmam reserva da mesma unidade ao mesmo tempo. | Uma reserva válida; a outra tentativa recebe conflito claro. | PR01 |

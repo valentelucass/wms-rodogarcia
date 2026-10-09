@@ -1,0 +1,135 @@
+@Test
+    void d30FiscalConservaCamposPorCallerERecusaContextosIncompletos() throws Exception {
+        var dados = new HashMap<String, Object>();
+        dados.put("razaoSocial", "Razao fiscal ficticia distinta D30");
+        dados.put("inscricaoEstadual", "IE-D30-321");
+        dados.put("logradouro", "Rua fiscal ficticia 456");
+        dados.put("numeroEndereco", "789-B");
+        dados.put("complemento", "Complemento fiscal ficticio");
+        dados.put("bairro", "Bairro fiscal ficticio");
+        dados.put("cidade", "Cidade fiscal ficticia");
+        dados.put("uf", "MG");
+        dados.put("cep", "12345678");
+        dados.put("pais", "BR");
+        dados.put("contatoNome", "Contato fiscal ficticio");
+        dados.put("contatoEmail", "contato-d30@example.invalid");
+        dados.put("contatoTelefone", "0000-1234");
+        dados.put("faturamentoEmail", "faturamento-d30@example.invalid");
+        dados.put("faturamentoReferencia", "Referencia faturamento ficticia independente");
+        String rc = "/api/v1/clientes/" + clienteId + "/complemento-fiscal";
+        String ra = "/api/v1/armazens/" + armazemId + "/complemento-fiscal";
+        var dc = comando();
+        dc.put("versao", 0);
+        dc.put("dados", dados);
+        var c = resposta(post(rc, dc, gestor), 200);
+        assertThat(c.get("id").longValue()).isEqualTo(clienteId);
+        assertThat(c.get("codigo").asString()).isEqualTo("C");
+        assertThat(c.get("documentoFiscal").asString()).isEqualTo("11111111000111");
+        assertThat(c.get("dados")).isEqualTo(mapper.valueToTree(dados));
+        var foto = D30FotografiaFisica.capturar(jdbc);
+        assertThat(resposta(get(rc, supervisor), 200)).isEqualTo(c);
+        assertThat(resposta(post(rc, dc, gestor), 200)).isEqualTo(c);
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(foto);
+
+        var da = new HashMap<>(dados);
+        da.remove("faturamentoEmail");
+        da.remove("faturamentoReferencia");
+        var comandoArmazem = comando();
+        comandoArmazem.put("versao", 0);
+        comandoArmazem.put("dados", da);
+        for (String campo : List.of("cidade", "uf", "faturamentoEmail", "faturamentoReferencia")) {
+            var ruim = new HashMap<>(da);
+            ruim.put(campo, campo.equals("cidade") || campo.equals("uf") ? null : dados.get(campo));
+            var tentativa = new HashMap<>(comandoArmazem);
+            tentativa.put("operacaoId", UUID.randomUUID());
+            tentativa.put("dados", ruim);
+            var p = resposta(post(ra, tentativa, gestor), 400);
+            assertThat(p.get("codigo").asString()).isEqualTo("DADOS_INVALIDOS");
+            assertThat(p.get("idOperacao").asString()).isNotBlank();
+            assertThat(D30FotografiaFisica.capturar(jdbc)).as(campo).isEqualTo(foto);
+        }
+        da.put("cidade", "  Cidade fiscal ficticia  ");
+        var a = resposta(post(ra, comandoArmazem, gestor), 200);
+        var esperadoArmazem = new HashMap<>(dados);
+        esperadoArmazem.put("faturamentoEmail", null);
+        esperadoArmazem.put("faturamentoReferencia", null);
+        assertThat(a.get("dados")).isEqualTo(mapper.valueToTree(esperadoArmazem));
+        assertThat(a.get("id").longValue()).isEqualTo(armazemId);
+        assertThat(a.get("codigo").asString()).isEqualTo("A");
+        assertThat(a.get("documentoFiscal").asString()).isEqualTo("22222222000122");
+        foto = D30FotografiaFisica.capturar(jdbc);
+        assertThat(resposta(get(ra, supervisor), 200)).isEqualTo(a);
+        assertThat(resposta(post(ra, comandoArmazem, gestor), 200)).isEqualTo(a);
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(foto);
+
+        String rr = "/api/v1/produtos/" + produtoId + "/referencias-fiscais";
+        var referencia = comando();
+        referencia.put("versao", 0);
+        referencia.put("armazemId", armazemId);
+        referencia.put("operacao", "SAIDA-D30");
+        referencia.put("fonte", "Fonte manual fiscal ficticia D30");
+        for (int ramo = 0; ramo < 2; ramo++) {
+            var ruim = new HashMap<>(referencia);
+            ruim.put("operacaoId", UUID.randomUUID());
+            ruim.put(
+                    "conferidaEm",
+                    ramo == 0 ? "2026-10-06T12:00:00Z" : "2026-10-06T12:00:00.000001Z");
+            if (ramo == 1) ruim.put("conferidaPor", "Conferente fiscal ficticio D30");
+            var p = resposta(post(rr, ruim, gestor), 400);
+            assertThat(p.get("codigo").asString()).isEqualTo("DADOS_INVALIDOS");
+            assertThat(p.get("idOperacao").asString()).isNotBlank();
+            assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(foto);
+        }
+        referencia.put("ncm", "12345678");
+        referencia.put("cfop", "1234");
+        referencia.put("cest", "1234567");
+        referencia.put("enquadramento", "Enquadramento ficticio D30");
+        referencia.put("conferidaPor", "Conferente fiscal ficticio D30");
+        referencia.put("conferidaEm", "2026-10-06T11:59:59.123456Z");
+        referencia.put("aliquotaIcms", new BigDecimal("0.000001"));
+        referencia.put("aliquotaIpi", new BigDecimal("100.000000"));
+        var r = resposta(post(rr, referencia, gestor), 200);
+        assertThat(r.get("produtoId").longValue()).isEqualTo(produtoId);
+        assertThat(r.get("armazemId").longValue()).isEqualTo(armazemId);
+        assertThat(r.get("operacao").asString()).isEqualTo("SAIDA-D30");
+        for (String campo :
+                List.of("ncm", "cfop", "cest", "enquadramento", "fonte", "conferidaPor"))
+            assertThat(r.get(campo).asString()).as(campo).isEqualTo(referencia.get(campo));
+        assertThat(r.get("aliquotaIcms").decimalValue()).isEqualByComparingTo("0.000001");
+        assertThat(r.get("aliquotaIpi").decimalValue()).isEqualByComparingTo("100.000000");
+        assertThat(
+                        jdbc.queryForObject(
+                                        "select conferida_em from wms.referencia_fiscal_produto where id=?",
+                                        java.sql.Timestamp.class,
+                                        r.get("id").longValue())
+                                .toLocalDateTime())
+                .isEqualTo(java.time.LocalDateTime.parse("2026-10-06T11:59:59.123456"));
+        foto = D30FotografiaFisica.capturar(jdbc);
+        assertThat(resposta(get(rr, supervisor), 200).get(0)).isEqualTo(r);
+        assertThat(resposta(post(rr, referencia, gestor), 200)).isEqualTo(r);
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(foto);
+        var zero = new HashMap<>(referencia);
+        zero.put("operacaoId", UUID.randomUUID());
+        zero.put("versao", r.get("versao").longValue());
+        zero.put("aliquotaIcms", BigDecimal.ZERO);
+        zero.put("aliquotaIpi", BigDecimal.ZERO);
+        var z = resposta(post(rr, zero, gestor), 200);
+        assertThat(z.get("id").longValue()).isEqualTo(r.get("id").longValue());
+        assertThat(z.get("aliquotaIcms").decimalValue()).isEqualByComparingTo("0");
+        assertThat(z.get("aliquotaIpi").decimalValue()).isEqualByComparingTo("0");
+        foto = D30FotografiaFisica.capturar(jdbc);
+        assertThat(resposta(post(rr, referencia, gestor), 200)).isEqualTo(r);
+        var zAtual = resposta(get(rr, supervisor), 200).get(0);
+        for (String aliquota : List.of("aliquotaIcms", "aliquotaIpi")) {
+            assertThat(z.get(aliquota).decimalValue()).isEqualByComparingTo("0");
+            assertThat(zAtual.get(aliquota).decimalValue()).isEqualByComparingTo("0");
+        }
+        var zOriginalSemAliquotas = (tools.jackson.databind.node.ObjectNode) z.deepCopy();
+        var zAtualSemAliquotas = (tools.jackson.databind.node.ObjectNode) zAtual.deepCopy();
+        for (String aliquota : List.of("aliquotaIcms", "aliquotaIpi")) {
+            zOriginalSemAliquotas.remove(aliquota);
+            zAtualSemAliquotas.remove(aliquota);
+        }
+        assertThat(zAtualSemAliquotas).isEqualTo(zOriginalSemAliquotas);
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(foto);
+    }

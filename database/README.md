@@ -1,6 +1,16 @@
 # Bancos WMS — conexão compartilhada
 
-O executor usa o padrão de [conexão dos projetos](../../.runtime/sql-server/README.md), já configurado para o usuário Windows `suporte`. Execute:
+**D27: V10 aplicada somente WMS_DEV. Não usar iniciar-bancos.bat como preparação/continuação D27:** esse launcher percorre DEV→PROD. A autorização atual não inclui aplicar V10 em PROD. [Executor e resultado DEV](docs/d27-migration-dev.md).
+
+WMS_PROD: última evidência real D24, V1–V9. Não conectar ou atualizar PROD nesta D27. [Migration README vigente](migrations/README.md).
+
+Plan offline do executor específico, a partir da raiz:
+
+```powershell
+powershell.exe -NoProfile -NonInteractive -File database/scripts/d27-migrate-dev.ps1
+```
+
+O procedimento e os resultados D24 abaixo são históricos; PROD não foi conectado na D27. O executor usa o padrão de [conexão dos projetos](../../.runtime/sql-server/README.md), configurado para o usuário Windows `suporte`. Comando normal de bootstrap, somente em escopo próprio autorizado:
 
 ```bat
 database\iniciar-bancos.bat

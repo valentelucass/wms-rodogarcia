@@ -37,12 +37,18 @@ public class LinhaTemporalEstoqueService {
 
     private record Transformacao(Instant registradaEm, BigDecimal quantidade) {}
 
-    @Transactional(propagation = Propagation.MANDATORY, readOnly = true)
+    @Transactional(
+            propagation = Propagation.MANDATORY,
+            readOnly = true,
+            noRollbackFor = RegraNegocioException.class)
     public Base noInstante(UnidadeLogistica u, Instant instante) {
         return reconstruir(u, instante, false);
     }
 
-    @Transactional(propagation = Propagation.MANDATORY, readOnly = true)
+    @Transactional(
+            propagation = Propagation.MANDATORY,
+            readOnly = true,
+            noRollbackFor = RegraNegocioException.class)
     public Base fisicoNoInstante(UnidadeLogistica u, Instant instante) {
         return reconstruir(u, instante, true);
     }

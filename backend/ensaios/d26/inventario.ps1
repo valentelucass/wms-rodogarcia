@@ -1,10 +1,10 @@
-param([string]$Resultado = 'backend/evidencias/d26-inventario.json')
+﻿param([string]$Resultado = 'backend/evidencias/d26-inventario.json')
 $ErrorActionPreference='Stop'
 $raiz = (Resolve-Path "$PSScriptRoot/../../..").Path
 $itens = @()
 $mapa = @{
  Cliente='14|RN06,AC12'; Armazem='14|RN04'; Produto='14|RN06,AC12'; Embalagem='14,20|RN15,AC10'; Endereco='14,22|RN05,RN18'; FiscalCadastro='29|RN07,AC02'; ImportacaoEndereco='29|RN05'; Auditoria='14|RN29';
- PedidoEntrada='18|RN12,RN13,RN14,AC03'; UnidadeLogistica='20|RN10,RN11,RN15,RN16,AC10'; Capacidade='22|RN18,AC04,AC05'; Estoque='22|RN19,RN20,RN21,AC04'; IndicadorEstoque='22,35|RN28'; PedidoSaida='24|RN22,RN23,RN24,AC10,AC11'; Expedicao='27|RN25,RN26,AC01,AC02'; Avaria='27|RN17,RN29,AC06'; ConfiguracaoCobranca='29|RN08,RN27,AC04,AC07,AC08'; FatoServico='29|RN09,RN27,AC06'; CalculoCobranca='29|RN27,AC04,AC07,AC08'; FechamentoCobranca='31|RN27,RN29,AC02'; AjusteFechamento='31|RN27,RN29'; Contagem='31|RN20,RN29'; Contingencia='31,35|RN29'; CargaInicial='31|RN02,RN29'; Encerramento='31|RN29,AC12'; Status='33|BE15'
+ PedidoEntrada='18|RN12,RN13,RN14,AC03'; UnidadeLogistica='20|RN10,RN11,RN15,RN16,AC10'; Capacidade='22|RN18,AC04,AC05'; Estoque='22|RN19,RN20,RN21,AC04'; IndicadorEstoque='22,35|RN28'; PedidoSaida='24|RN22,RN23,RN24,AC10,AC11'; Expedicao='27|RN25,RN26,AC01,AC02'; Avaria='27|RN17,RN29,AC08'; ConfiguracaoCobranca='29|RN08,RN27,AC04,AC06,AC07'; FatoServico='29|RN09,RN27,AC09'; CalculoCobranca='29|RN27,AC04,AC06,AC07,AC08'; FechamentoCobranca='31|RN27,RN29,AC02,AC07'; AjusteFechamento='31|RN27,RN29,AC07'; Contagem='31|RN20,RN29,AC13'; Contingencia='31,35|RN29,AC14'; CargaInicial='31|RN02,RN29,AC15'; Encerramento='31|RN29,AC12'; Status='33|BE15'
 }
 foreach($arquivo in Get-ChildItem "$raiz/backend/src/main/java/br/com/rodogarcia/wms/controllers/*Controller.java" | Sort-Object Name) {
  $fonte=[IO.File]::ReadAllText($arquivo.FullName)

@@ -1,17 +1,23 @@
 package br.com.rodogarcia.wms;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import jakarta.persistence.Entity;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.UUID;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.sql.model.PreparableMutationOperation;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import tools.jackson.databind.json.JsonMapper;
@@ -61,13 +67,11 @@ class SqlServerUpdateMappingTest {
                                         }
                                     }
                                 });
-                Files.createDirectories(Path.of("evidencias"));
-                Files.writeString(
-                        Path.of("evidencias/d20-hibernate-update-sql.json"),
-                        JsonMapper.builder()
-                                .build()
-                                .writerWithDefaultPrettyPrinter()
-                                .writeValueAsString(sql));
+                salvarEvidencia(
+                        sql,
+                        Path.of(
+                                System.getProperty("wms.test.evidencias.dir", "evidencias"),
+                                "d30-cedro-hibernate-update-sql-" + UUID.randomUUID() + ".json"));
                 assertThat(sql.get("PedidoSaida"))
                         .contains("alterado_em=?", "situacao=?", "versao=?")
                         .doesNotContain(
@@ -111,5 +115,28 @@ class SqlServerUpdateMappingTest {
         } finally {
             StandardServiceRegistryBuilder.destroy(registry);
         }
+    }
+
+    @Test
+    void preservaBytesDaEvidenciaPreexistente(@TempDir Path isolado) throws Exception {
+        var destino = isolado.resolve("evidencia-anterior.json");
+        var bytesAnteriores = "{\"historico\":\"imutavel\"}\n".getBytes(StandardCharsets.UTF_8);
+        Files.write(destino, bytesAnteriores, StandardOpenOption.CREATE_NEW);
+        assertThatThrownBy(() -> salvarEvidencia(Map.of("Novo", "sql-estatico"), destino))
+                .isInstanceOf(FileAlreadyExistsException.class);
+        assertThat(Files.readAllBytes(destino)).isEqualTo(bytesAnteriores);
+    }
+
+    private static void salvarEvidencia(Map<String, String> sql, Path destino) throws Exception {
+        Files.createDirectories(destino.getParent());
+        Files.writeString(
+                destino,
+                JsonMapper.builder()
+                        .build()
+                        .writerWithDefaultPrettyPrinter()
+                        .writeValueAsString(sql),
+                StandardCharsets.UTF_8,
+                StandardOpenOption.CREATE_NEW,
+                StandardOpenOption.WRITE);
     }
 }

@@ -1,0 +1,36 @@
+@Test
+    void avariaAntesEDepoisParcialExigeMarcoEConservaSnapshot() throws Exception {
+        configBasica("1");
+        var u = unidade("100", TipoUnidadeLogistica.PALLET, "2026-09-01T12:00:00Z", 1);
+        long evento = retirar(u, "50", "2026-09-05T12:00:00Z");
+        long a = avaria(u, "20", "100", "2026-09-02T00:00:00Z", null);
+        var antes = calcular("2026-09-01", "2026-09-07");
+        assertThat(antes.get("total").isNull()).isTrue();
+        assertThat(antes.get("pendencias").toString()).contains("DESTINO_AVARIA_INSUFICIENTE");
+        var d = comando();
+        d.put("fatoPermanenciaId", evento);
+        d.put("quantidadeAfetada", "20");
+        resposta(post("/api/v1/avarias/" + a + "/marcos-financeiros", d, gestor), 200);
+        assertThat(post("/api/v1/avarias/" + a + "/marcos-financeiros", d, supervisor).statusCode())
+                .isEqualTo(403);
+        var depois = calcular("2026-09-01", "2026-09-07");
+        assertThat(depois.get("total").decimalValue()).isEqualByComparingTo("4.8");
+        var ds = depois.get("memoria").get("diarias");
+        assertThat(ds.get(1).get("equivalenciaSuspensa").decimalValue())
+                .isEqualByComparingTo("0.2");
+        assertThat(ds.get(5).get("equivalenciaSuspensa").decimalValue())
+                .isEqualByComparingTo("0.4");
+        assertThat(
+                        resposta(
+                                get(
+                                        "/api/v1/calculos-cobranca/" + antes.get("id").longValue(),
+                                        supervisor),
+                                200))
+                .isEqualTo(antes);
+        assertThat(
+                        jdbc.queryForObject(
+                                "select quantidade from wms.unidade_logistica where id=?",
+                                BigDecimal.class,
+                                u.id()))
+                .isEqualByComparingTo("50");
+    }

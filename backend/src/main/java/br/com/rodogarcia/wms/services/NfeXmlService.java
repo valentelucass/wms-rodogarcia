@@ -63,6 +63,8 @@ public class NfeXmlService {
                     });
             Element root =
                     builder.parse(new InputSource(new StringReader(xml))).getDocumentElement();
+            if (root.getElementsByTagNameNS("http://www.w3.org/2001/XInclude", "*").getLength()
+                    != 0) throw invalido();
             Element nfe = nome(root, "nfeProc") ? unico(root, "NFe") : root;
             if (!nome(nfe, "NFe")) throw invalido();
             Element info = unico(nfe, "infNFe");

@@ -50,19 +50,21 @@ function New-WmsD21StartInfo([string]$DatabaseRoot,[string]$Banco,[string]$Servi
 }
 function Invoke-WmsD21Processo([Diagnostics.ProcessStartInfo]$Info,[Security.SecureString]$Senha,[int]$TimeoutMs=300000){
     $bstr=[IntPtr]::Zero;$p=$null;$out=$null;$err=$null;$texto=$null;$iniciado=$false
+    $script:WmsD21UltimoPid=$null
     try{
         if($null -eq $Senha -or $Senha.Length -eq 0){throw 'D21_SENHA_OCULTA_AUSENTE'}
         $bstr=[Runtime.InteropServices.Marshal]::SecureStringToBSTR($Senha)
         $Info.EnvironmentVariables['WMS_DB_BOOTSTRAP_PASSWORD']=[Runtime.InteropServices.Marshal]::PtrToStringBSTR($bstr)
         $p=New-Object Diagnostics.Process;$p.StartInfo=$Info
         $iniciado=$p.Start();if(-not $iniciado){throw 'D21_FILHO_NAO_INICIADO'}
+        $script:WmsD21UltimoPid=$p.Id
         $out=$p.StandardOutput.ReadToEndAsync();$err=$p.StandardError.ReadToEndAsync()
         if(-not $p.WaitForExit($TimeoutMs)){throw 'D21_FLYWAY_TIMEOUT'}
         $p.WaitForExit();$exit=$p.ExitCode
         $texto=$out.Result+"`n"+$err.Result
         $motivo=if($exit -eq 0){'GOAL_OK'}elseif($texto -match '(?i)checksum|validation failed|validate failed|migration.*(missing|failed)'){'HISTORICO_CHECKSUM_OU_MIGRATION'}elseif($texto -match '(?i)SSL|TLS|PKIX|certificate'){'TLS_NAO_VALIDADO'}elseif($texto -match '(?i)connection|login failed|socket|timeout'){'CONEXAO_INTERROMPIDA_OU_RECUSADA'}else{'FERRAMENTA_OU_MIGRATION_FALHOU'}
         # Nunca propagar stdout/stderr bruto, URL, SQL ou valores do ambiente.
-        [pscustomobject]@{exitCode=$exit;resultado=$motivo;saidaBrutaDescartada=$true}
+        [pscustomobject]@{exitCode=$exit;resultado=$motivo;saidaBrutaDescartada=$true;pid=$p.Id;processoEncerrado=$p.HasExited}
     }finally{
         if($null -ne $p){
             if($iniciado -and -not $p.HasExited){$null=& (Join-Path $env:SystemRoot 'System32/taskkill.exe') /PID $p.Id /T /F 2>&1}

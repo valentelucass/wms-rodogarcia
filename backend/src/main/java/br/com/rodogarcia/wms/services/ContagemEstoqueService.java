@@ -136,7 +136,7 @@ public class ContagemEstoqueService {
         var c =
                 contagens
                         .findByUnidadeId(u.getId())
-                        .orElseGet(() -> contagens.saveAndFlush(new ContagemEstoque(u, agora())));
+                        .orElseGet(() -> new ContagemEstoque(u, agora()));
         ContagemDto.Resultado antes = c.getRevisaoAtual() == 0 ? null : resultado(c, atual(c));
         if (c.getRevisaoAtual() > 0) {
             var vigente = atual(c);
@@ -149,6 +149,8 @@ public class ContagemEstoqueService {
             vigente.substituir();
         }
         c.revisar(dados.contado().compareTo(u.getQuantidade()) != 0, agora());
+        // IDENTITY insere imediatamente: a primeira linha já precisa ter revisão válida.
+        if (c.getId() == null) contagens.saveAndFlush(c);
         var origens = origens(u);
         var r =
                 revisoes.saveAndFlush(
@@ -287,8 +289,9 @@ public class ContagemEstoqueService {
         var instante = ocorridaEm == null ? agora() : ocorridaEm.truncatedTo(ChronoUnit.MICROS);
         u.alterarQuantidade(r.getContado(), instante);
         if (!u.isAtiva()) {
-            ocupacoes.deleteAll(ocupacoes.buscarDasUnidades(List.of(u.getId())));
-            u.posicionar(u.getMedidas(), null, null, instante);
+            ocupacoes.buscarDasUnidades(List.of(u.getId())).forEach(o -> o.atribuir(null));
+            // A ocupação física é liberada; os marcos/localização históricos permanecem,
+            // como na retirada integral. Não combinar tipo nulo com medidas/marcos existentes.
         }
         permanencias.save(
                 new FatoPermanencia(

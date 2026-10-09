@@ -22,6 +22,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -84,6 +85,7 @@ class EstoqueIntegrationTest {
     void preparar() {
         for (String tabela :
                 List.of(
+                        "operacao_administrativa",
                         "movimento_estoque",
                         "ocupacao_endereco",
                         "operacao_unidade",
@@ -287,6 +289,15 @@ class EstoqueIntegrationTest {
         resposta(post(rota(u, "/liberacao"), bloqueio(q.get("unidade")), gestor), 409);
         resposta(post(rota(u, "/movimentos"), posicionamento(q.get("unidade"), a), gestor), 409);
         assertSaldo("avariado", "10");
+        assertSaldo("fisicoTotal", "10");
+        assertSaldo("fisicoUnitizado", "10");
+        assertSaldo("pendenteUnitizacao", "0");
+        assertSaldo("emQuarentena", "10");
+        assertSaldo("bloqueado", "10");
+        assertSaldo("reservado", "0");
+        assertSaldo("naoEnderecado", "0");
+        assertSaldo("emTriagem", "0");
+        assertSaldo("emArmazenagem", "0");
         assertSaldo("disponivel", "0");
         assertThat(ocupadas()).isEqualTo(1);
     }
@@ -323,17 +334,27 @@ class EstoqueIntegrationTest {
         var c = endereco("C", "ARMAZENAGEM");
         var ab = conjunto(a, b, "AB");
         var bc = conjunto(b, c, "BC");
+        var ocupacoesOriginais = D30FotografiaFisica.capturar(jdbc).get("OCUPACAO_ENDERECO");
         var dados = posicionamento(u, a, b);
         resposta(post(rota(u, "/movimentos"), dados, operador), 400);
         dados.put("conjuntoId", ab.get("id").longValue());
         var primeiro = resposta(post(rota(u, "/movimentos"), dados, operador), 200).get("estoque");
         assertThat(ocupadas()).isEqualTo(2);
+        d30ConferirTodasOcupacoes(
+                ocupacoesOriginais,
+                u.get("id").longValue(),
+                List.of(a.get("id").longValue(), b.get("id").longValue()));
         assertSaldo("disponivel", "10");
+        var ocupacoesPrimeiroEndereco = D30FotografiaFisica.capturar(jdbc).get("OCUPACAO_ENDERECO");
         var remanejar = posicionamento(primeiro.get("unidade"), b, c);
         remanejar.put("conjuntoId", bc.get("id").longValue());
         var depois =
                 resposta(post(rota(u, "/movimentos"), remanejar, operador), 200).get("estoque");
         assertThat(ocupadas()).isEqualTo(2);
+        d30ConferirTodasOcupacoes(
+                ocupacoesPrimeiroEndereco,
+                u.get("id").longValue(),
+                List.of(b.get("id").longValue(), c.get("id").longValue()));
         assertThat(ocupante(a)).isNull();
         assertThat(ocupante(b)).isEqualTo(u.get("id").longValue());
         assertThat(ocupante(c)).isEqualTo(u.get("id").longValue());
@@ -673,6 +694,107 @@ class EstoqueIntegrationTest {
         assertSaldo("pendenteUnitizacao", "0");
     }
 
+    @Test
+    void d30FiltrosCodigoEEnderecoUsamAndSemAlterarEstoque() throws Exception {
+        var a = endereco("D30-A", "ARMAZENAGEM");
+        var b = endereco("D30-B", "ARMAZENAGEM");
+        var ua = posicionar(unidade(), a).get("unidade");
+        var ub = posicionar(unidade(), b).get("unidade");
+        assertThat(ua.get("id")).isNotEqualTo(ub.get("id"));
+        var antes = D30FotografiaFisica.capturar(jdbc);
+        String comuns = "&produtoId=" + produto.getId() + "&disponivel=true&situacao=ARMAZENAGEM";
+        var contraditorio =
+                listar(
+                        comuns
+                                + "&codigoUnidade="
+                                + ua.get("codigo").asString()
+                                + "&enderecoId="
+                                + b.get("id").longValue());
+        assertThat(contraditorio.get("totalItens").longValue()).isZero();
+        assertThat(contraditorio.get("itens").size()).isZero();
+        for (var par : List.of(Map.entry(ua, a), Map.entry(ub, b))) {
+            var resultado =
+                    listar(
+                            comuns
+                                    + "&codigoUnidade="
+                                    + par.getKey().get("codigo").asString()
+                                    + "&enderecoId="
+                                    + par.getValue().get("id").longValue());
+            assertThat(resultado.get("totalItens").longValue()).isEqualTo(1);
+            assertThat(resultado.get("itens").get(0).get("unidade").get("id"))
+                    .isEqualTo(par.getKey().get("id"));
+        }
+        assertThat(
+                        listar(
+                                        "&disponivel=true&situacao=ARMAZENAGEM&produtoId="
+                                                + (produto.getId() + 100000))
+                                .get("totalItens")
+                                .longValue())
+                .isZero();
+        assertThat(
+                        listar(
+                                        "&codigoUnidade="
+                                                + ua.get("codigo").asString()
+                                                + "&situacao=RESERVADO")
+                                .get("totalItens")
+                                .longValue())
+                .isZero();
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(antes);
+    }
+
+    @Test
+    void d30PesoExplicitoDaNotaManualNaoDerivaDeQuantidadeOuDun() throws Exception {
+        var u = unidade();
+        long notaId = u.get("notaId").longValue();
+        var notaOriginal = jdbc.queryForMap("select * from wms.nota_entrada where id=?", notaId);
+        var itemOriginal =
+                jdbc.queryForMap("select * from wms.item_nota_entrada where nota_id=?", notaId);
+        var documentoManual = new HashMap<String, Object>();
+        documentoManual.put(
+                "fonte",
+                "Nota manual ficticia original com peso declarado, fornecido pelo operador");
+        documentoManual.put("notaId", notaId);
+        documentoManual.put("emitente", notaOriginal.get("EMITENTE"));
+        documentoManual.put("serie", notaOriginal.get("SERIE"));
+        documentoManual.put("numero", notaOriginal.get("NUMERO"));
+        documentoManual.put("codigoUnidade", u.get("codigo").asString());
+        documentoManual.put("pesoKgDeclarado", new BigDecimal("127.321"));
+        documentoManual.put("quantidadePrevista", new BigDecimal("10"));
+        documentoManual.put("produtoId", produto.getId());
+        documentoManual.put("dunQuantidade", new BigDecimal("10"));
+        documentoManual.put(
+                "limite",
+                "Procedimento manual com correspondencia declarada: contrato atual nao guarda peso na NF nem valida essa correspondencia automaticamente; sem tag XML/tara/fator.");
+        var dir = java.nio.file.Path.of(System.getProperty("wms.test.evidencias.dir"));
+        java.nio.file.Files.createDirectories(dir);
+        java.nio.file.Files.writeString(
+                dir.resolve("d30-cedro-peso-nf-manual-antes-" + UUID.randomUUID() + ".json"),
+                mapper.writerWithDefaultPrettyPrinter().writeValueAsString(documentoManual),
+                java.nio.charset.StandardCharsets.UTF_8,
+                java.nio.file.StandardOpenOption.CREATE_NEW);
+        var destino = endereco("D30-PESO", "ARMAZENAGEM");
+        var dados = posicionamento(u, destino);
+        var med = medidas(1);
+        med.put("pesoKg", new BigDecimal("127.321"));
+        dados.put("medidas", med);
+        var estoque = resposta(post(rota(u, "/movimentos"), dados, operador), 200).get("estoque");
+        assertThat(estoque.get("medidas").get("pesoKg").decimalValue())
+                .isEqualByComparingTo("127.321");
+        assertThat(estoque.get("unidade").get("quantidade").decimalValue())
+                .isEqualByComparingTo("10");
+        assertThat(estoque.get("unidade").get("notaId").longValue()).isEqualTo(notaId);
+        var remanejado = posicionar(estoque.get("unidade"), endereco("D30-PESO-B", "ARMAZENAGEM"));
+        assertThat(remanejado.get("medidas").get("pesoKg").decimalValue())
+                .isEqualByComparingTo("127.321");
+        assertThat(jdbc.queryForMap("select * from wms.nota_entrada where id=?", notaId))
+                .isEqualTo(notaOriginal);
+        assertThat(jdbc.queryForMap("select * from wms.item_nota_entrada where nota_id=?", notaId))
+                .isEqualTo(itemOriginal);
+        assertThat(produto.getPrecisaoQuantidade()).isZero();
+        assertThat(produto.getTipoQuantidade()).isEqualTo(TipoQuantidade.CONTAGEM);
+        assertSaldo("fisicoTotal", "10");
+    }
+
     private void criarProduto() {
         produto =
                 produtos.saveAndFlush(
@@ -924,9 +1046,150 @@ class EstoqueIntegrationTest {
                         "Compatibilidade fisica conferida"));
     }
 
+    @Test
+    void d30EncerramentoConjuntoIdentificaAsDuasPosicoesFisicasSemLiberarUnidade()
+            throws Exception {
+        var u = unidade();
+        var a = endereco("D30-ENC-A", "ARMAZENAGEM");
+        var b = endereco("D30-ENC-B", "ARMAZENAGEM");
+        var par = conjunto(a, b, "D30-ENC-AB");
+        var mover = posicionamento(u, a, b);
+        mover.put("conjuntoId", par.get("id").longValue());
+        var posicionado =
+                resposta(post(rota(u, "/movimentos"), mover, operador), 200).get("estoque");
+        assertThat(posicionado.get("posicoesEquivalentes").intValue()).isEqualTo(2);
+        assertThat(ocupadas()).isEqualTo(2);
+        String encerramento =
+                "/api/v1/encerramentos/CONJUNTO_POSICOES/" + par.get("id").longValue();
+        var antesGet = D30FotografiaFisica.capturar(jdbc);
+        var impedimentos = resposta(get(encerramento + "/impedimentos", gestor), 200);
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(antesGet);
+        var saldos = new ArrayList<JsonNode>();
+        for (var i : impedimentos.get("impedimentos")) {
+            if (i.get("codigo").asString().equals("SALDO_FISICO")
+                    && i.get("recurso").asString().equals("UNIDADE_LOGISTICA")
+                    && i.get("id").longValue() == u.get("id").longValue()) saldos.add(i);
+        }
+        assertThat(saldos).hasSize(1);
+        assertThat(saldos.getFirst().get("detalhe").asString()).isNotBlank();
+        var solicitado =
+                resposta(
+                        post(
+                                encerramento + "/solicitar",
+                                Map.of(
+                                        "operacaoId",
+                                        UUID.randomUUID(),
+                                        "versao",
+                                        impedimentos.get("versao").longValue(),
+                                        "motivo",
+                                        "Encerramento conjunto ficticio identificado"),
+                                gestor),
+                        200);
+        var antes = D30FotografiaFisica.capturar(jdbc);
+        var recusado =
+                resposta(
+                        post(
+                                encerramento + "/inativar",
+                                Map.of(
+                                        "operacaoId",
+                                        UUID.randomUUID(),
+                                        "versao",
+                                        solicitado.get("versao").longValue(),
+                                        "motivo",
+                                        "Inativacao nao libera fisico existente"),
+                                gestor),
+                        409);
+        assertThat(recusado.get("codigo").asString()).isEqualTo("ENCERRAMENTO_IMPEDIDO");
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(antes);
+        assertThat(ocupadas()).isEqualTo(2);
+        assertSaldo("fisicoTotal", "10");
+    }
+
     private JsonNode conjunto(JsonNode a, JsonNode b, String codigo) throws Exception {
         return resposta(
                 post("/api/v1/conjuntos-posicoes", dadosConjunto(a, b, codigo), gestor), 201);
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    void d30EnderecoLivreAindaDependeDeConjuntoVigente(boolean segundaPosicao) throws Exception {
+        var a = endereco("D30-LIVRE-A", "ARMAZENAGEM");
+        var b = endereco("D30-LIVRE-B", "ARMAZENAGEM");
+        var conjunto = conjunto(a, b, "D30-CONJUNTO-VIGENTE");
+        long enderecoId = (segundaPosicao ? b : a).get("id").longValue();
+        long conjuntoId = conjunto.get("id").longValue();
+        assertThat(jdbc.queryForObject("select count(*) from wms.unidade_logistica", Integer.class))
+                .isZero();
+        assertThat(
+                        jdbc.queryForObject(
+                                "select count(*) from wms.ocupacao_endereco where unidade_id is not null",
+                                Integer.class))
+                .isZero();
+        var original =
+                new HashMap<>(
+                        jdbc.queryForMap(
+                                "select * from wms.conjunto_posicoes where id=?", conjuntoId));
+        String rota = "/api/v1/encerramentos/ENDERECO/" + enderecoId;
+        var antesGET = D30FotografiaFisica.capturar(jdbc);
+        var consulta = resposta(get(rota + "/impedimentos", gestor), 200);
+        var impedimentos = new ArrayList<JsonNode>();
+        for (var i : consulta.get("impedimentos"))
+            if (i.get("recurso").asString().equals("CONJUNTO_POSICOES")
+                    && i.get("id").longValue() == conjuntoId) impedimentos.add(i);
+        assertThat(impedimentos).hasSize(1);
+        assertThat(impedimentos.getFirst().get("detalhe").asString()).isNotBlank();
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(antesGET);
+        var d = d30ComandoEncerramento();
+        d.put("versao", consulta.get("versao").longValue());
+        var pendente = resposta(post(rota + "/solicitar", d, gestor), 200);
+        d = d30ComandoEncerramento();
+        d.put("versao", pendente.get("versao").longValue());
+        var antes = D30FotografiaFisica.capturar(jdbc);
+        assertThat(resposta(post(rota + "/inativar", d, gestor), 409).get("codigo").asString())
+                .isEqualTo("ENCERRAMENTO_IMPEDIDO");
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(antes);
+        String rc = "/api/v1/encerramentos/CONJUNTO_POSICOES/" + conjuntoId;
+        var c = d30ComandoEncerramento();
+        c.put("versao", conjunto.get("versao").longValue());
+        var cp = resposta(post(rc + "/solicitar", c, gestor), 200);
+        antes = D30FotografiaFisica.capturar(jdbc);
+        assertThat(resposta(post(rota + "/inativar", d, gestor), 409).get("codigo").asString())
+                .isEqualTo("ENCERRAMENTO_IMPEDIDO");
+        assertThat(D30FotografiaFisica.capturar(jdbc)).isEqualTo(antes);
+        c = d30ComandoEncerramento();
+        c.put("versao", cp.get("versao").longValue());
+        assertThat(resposta(post(rc + "/inativar", c, gestor), 200).get("situacao").asString())
+                .isEqualTo("INATIVO");
+        assertThat(resposta(post(rota + "/inativar", d, gestor), 200).get("situacao").asString())
+                .isEqualTo("INATIVO");
+        var depois =
+                new HashMap<>(
+                        jdbc.queryForMap(
+                                "select * from wms.conjunto_posicoes where id=?", conjuntoId));
+        for (String mutavel : List.of("VERSAO", "SITUACAO", "ALTERADO_EM")) {
+            original.remove(mutavel);
+            depois.remove(mutavel);
+        }
+        assertThat(depois).isEqualTo(original);
+        assertThat(
+                        resposta(
+                                        get(
+                                                "/api/v1/conjuntos-posicoes?armazemId="
+                                                        + armazem.getId(),
+                                                gestor),
+                                        200)
+                                .get("totalItens")
+                                .longValue())
+                .isEqualTo(1);
+    }
+
+    private HashMap<String, Object> d30ComandoEncerramento() {
+        return new HashMap<>(
+                Map.of(
+                        "operacaoId",
+                        UUID.randomUUID(),
+                        "motivo",
+                        "Encerramento local identificado preserva conjunto e posicoes"));
     }
 
     private Map<String, Object> medidas(int posicoes) {
@@ -1000,6 +1263,71 @@ class EstoqueIntegrationTest {
                                 "Divisao fisica solicitada"),
                         supervisor),
                 409);
+    }
+
+    private void d30ConferirTodasOcupacoes(
+            List<Map<String, Object>> originais, long unidade, List<Long> ocupados)
+            throws Exception {
+        var atuais = D30FotografiaFisica.capturar(jdbc).get("OCUPACAO_ENDERECO");
+        var enderecosAfetados = new java.util.HashSet<Long>(ocupados);
+        originais.stream()
+                .filter(r -> r.get("UNIDADE_ID") instanceof Number n && n.longValue() == unidade)
+                .forEach(r -> enderecosAfetados.add(((Number) r.get("ENDERECO_ID")).longValue()));
+        var outrasOriginais =
+                originais.stream()
+                        .filter(
+                                r ->
+                                        !enderecosAfetados.contains(
+                                                ((Number) r.get("ENDERECO_ID")).longValue()))
+                        .toList();
+        var outrasAtuais =
+                atuais.stream()
+                        .filter(
+                                r ->
+                                        !enderecosAfetados.contains(
+                                                ((Number) r.get("ENDERECO_ID")).longValue()))
+                        .toList();
+        assertThat(outrasAtuais).isEqualTo(outrasOriginais);
+        var proprias =
+                atuais.stream()
+                        .filter(
+                                r ->
+                                        r.get("UNIDADE_ID") instanceof Number n
+                                                && n.longValue() == unidade)
+                        .toList();
+        assertThat(
+                        proprias.stream()
+                                .map(r -> ((Number) r.get("ENDERECO_ID")).longValue())
+                                .sorted()
+                                .toList())
+                .isEqualTo(ocupados.stream().sorted().toList());
+        var ids = proprias.stream().map(r -> ((Number) r.get("ID")).longValue()).toList();
+        assertThat(ids).doesNotHaveDuplicates().allMatch(id -> id > 0);
+        assertThat(atuais).hasSize(outrasOriginais.size() + enderecosAfetados.size());
+        for (long endereco : enderecosAfetados) {
+            var linhas =
+                    atuais.stream()
+                            .filter(r -> ((Number) r.get("ENDERECO_ID")).longValue() == endereco)
+                            .toList();
+            assertThat(linhas).hasSize(1);
+            var atual = linhas.getFirst();
+            assertThat(((Number) atual.get("ID")).longValue()).isPositive();
+            if (ocupados.contains(endereco))
+                assertThat(((Number) atual.get("UNIDADE_ID")).longValue()).isEqualTo(unidade);
+            else assertThat(atual.get("UNIDADE_ID")).isNull();
+            originais.stream()
+                    .filter(r -> ((Number) r.get("ENDERECO_ID")).longValue() == endereco)
+                    .forEach(
+                            original -> {
+                                var esperado = new java.util.LinkedHashMap<>(original);
+                                esperado.put(
+                                        "UNIDADE_ID",
+                                        ocupados.contains(endereco)
+                                                ? original.get("UNIDADE_ID")
+                                                : null);
+                                assertThat(atual).isEqualTo(esperado);
+                            });
+        }
     }
 
     private String rota(JsonNode u, String sufixo) {

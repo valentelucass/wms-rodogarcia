@@ -1,0 +1,13 @@
+# D26 — extra após corte civil real, positivo20 bloqueado
+
+[Rodada D26A70E7FE0](d26-D26A70E7FE0-http.json), JAR412 SHA524FBE7ED0D935E3EBACE0C8D19F810141533C770F18548FC4E7FBFCC0DC2195. Relógio UTC real registrado em ids.extraClockUTC; período06/10–07/10 encerrado, contrato3 termina07/10. Sem alteração de Clock, datas, SQL Server ou histórico. Finais anteriores preservados em d26-preextra-naozero.
+
+GET do último fechamento3 confirmou fim28/09. Oito ciclos diários28/09→06/10 foram calculados e preparados por HTTP, cada um COMPLETO/zero, respeitando continuidade e dias exclusivos. IDs em extraCiclosIntermediarios. Não foram apagados ciclos nem inventado zero: valores vieram dos recálculos atuais. Nenhuma emissão/entrega/NFS-e executada.
+
+Guarda concreta: GET fato-serviço3 confirma **ANULADO**, efeito do caso positivo de anulação anterior D265CE7E9F0. O cálculo histórico5 conserva20/memória4×5; o novo cálculo06→07 reflete a anulação e retorna **COMPLETO/zero**. Preparação com snapshot antigo20 e replay são únicos, mas aprovação Operação/Supervisor retorna403 e Gestor retorna **409 CALCULO_DESATUALIZADO**; repetição conserva a mesma recusa. Não reativado fato nem criado outro serviço retroativo para obter20.
+
+Fechamento13 permanece **EM_REVISAO**, versão1/PENDENTE_REVISAO e demonstrativo histórico20. GET do cabeçalho, versões, versão1, demonstrativo e auditoria publicados na rodada; saldo de revisão não equivale a valor aprovado. Novo recálculo, fato anulado e configuração atual são referências distintas do snapshot. A recusa decorre da fonte atual, não de período futuro ou incapacidade TLS/SQL.
+
+Resultado pedido APROVADO+memória20: **não obtido; bloqueado por anulação prévia/entradas desatualizadas**. Guarda negativa testada/aprovada; não converter em positivo financeiro. Reexecutar preparo do mesmo período criaria conflito de corte; dados preservados. Pedido SELECT focal em [Markdown](d26-extra-naozero-prumo-pedido.md) e [JSON](d26-extra-naozero-prumo-pedido.json), somente15/7/IDs novos e referências antigas necessárias; fotografia236/0 anterior não foi repetida. Sem nova suíte/build/teste nativo. JVM e issuer próprios encerrados; contagens atualizadas no recibo final.
+
+[SELECT focal Prumo76/0](../../orchestracao/.runtime/d26-prumo-fechamento20-20261007T001043569.json), WMSDEV/WMS_DEV/TLS válido, confirma referências antigas preservadas, novos ciclos/recálculo/fechamento e guarda concreta. aprovacao20Concluida=false, fotografia236Refazida=false; sem DDL/DML/grants/PROD/credencial administrativa. Não somar76 a236 como fotografia única ou chamar revisão20 de aprovada.
