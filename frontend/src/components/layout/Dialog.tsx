@@ -9,12 +9,16 @@ export function Dialog({
     onClose,
     locked = false,
     wide = false,
+    account = false,
+    icon,
 }: {
     title: string;
     children: ReactNode;
     onClose: () => void;
     locked?: boolean;
     wide?: boolean;
+    account?: boolean;
+    icon?: string;
 }) {
     const ref = useRef<HTMLDialogElement>(null);
     const opener = useRef(document.activeElement);
@@ -24,11 +28,14 @@ export function Dialog({
         const trigger = opener.current;
         if (typeof dialog.showModal === "function") dialog.showModal();
         else dialog.setAttribute("open", "");
+        dialog
+            .querySelector<HTMLElement>('[data-dialog-autofocus="true"]')
+            ?.focus({ preventScroll: true });
         return () => {
             if (typeof dialog.close === "function") dialog.close();
             queueMicrotask(() => {
                 if (trigger instanceof HTMLElement && trigger.isConnected)
-                    trigger.focus();
+                    trigger.focus({ preventScroll: true });
             });
         };
     }, []);
@@ -36,7 +43,9 @@ export function Dialog({
         <dialog
             ref={ref}
             className={
-                "workspace-dialog" + (wide ? " workspace-dialog--wide" : "")
+                "workspace-dialog" +
+                (wide ? " workspace-dialog--wide" : "") +
+                (account ? " account-dialog" : "")
             }
             aria-labelledby={titleId}
             onCancel={(event) => {
@@ -69,7 +78,14 @@ export function Dialog({
             }}
         >
             <div className="dialog-header">
-                <h2 id={titleId}>{title}</h2>
+                <div className="dialog-heading">
+                    {icon && (
+                        <span className="dialog-icon">
+                            <Icon name={icon} />
+                        </span>
+                    )}
+                    <h2 id={titleId}>{title}</h2>
+                </div>
                 <button
                     type="button"
                     className="dialog-close"

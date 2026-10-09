@@ -1,3 +1,5 @@
+import { fixture } from "../src/api/mock/fixtures";
+import { toWire, stringifyExact } from "../src/contracts/codec";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
     act,
@@ -34,36 +36,58 @@ describe("006 atual DS externo, sem patch Lume", () => {
         async (mode) => {
             vi.stubGlobal(
                 "fetch",
-                vi
-                    .fn<typeof fetch>()
-                    .mockImplementation(
-                        async (input) =>
-                            new Response(
-                                JSON.stringify(
-                                    String(input).endsWith("/csrf")
+                vi.fn<typeof fetch>().mockImplementation(
+                    async (input) =>
+                        new Response(
+                            stringifyExact(
+                                toWire(
+                                    String(input).includes("clientes")
+                                        ? "PaginaResponse<ClienteDto.Resposta>"
+                                        : String(input).includes("armazens")
+                                          ? "PaginaResponse<ArmazemDto.Resposta>"
+                                          : "unknown",
+                                    String(input).includes("/api/v1/")
                                         ? {
-                                              token: "csrf-fixture",
-                                              header: "X-XSRF-TOKEN",
+                                              itens: [
+                                                  fixture(
+                                                      String(input).includes(
+                                                          "clientes",
+                                                      )
+                                                          ? "ClienteDto.Resposta"
+                                                          : "ArmazemDto.Resposta",
+                                                  ),
+                                              ],
+                                              pagina: 0,
+                                              tamanho: 100,
+                                              totalItens: 1,
+                                              totalPaginas: 1,
                                           }
-                                        : {
-                                              accessToken: "access-fixture",
-                                              expiresIn: 300,
-                                              usuario: { ...user, versao: 0 },
-                                          },
+                                        : String(input).endsWith("/csrf")
+                                          ? {
+                                                token: "csrf-fixture",
+                                                header: "X-XSRF-TOKEN",
+                                            }
+                                          : {
+                                                accessToken: "access-fixture",
+                                                expiresIn: 300,
+                                                usuario: { ...user, versao: 0 },
+                                            },
                                 ),
                             ),
-                    ),
+                        ),
+                ),
             );
             render(<AuthApp />);
             await screen.findByRole("button", { name: "Cadastros" });
             fireEvent.click(screen.getByRole("button", { name: "Cadastros" }));
             await screen.findByRole("heading", { name: "Cadastros" });
-            fireEvent.change(screen.getByLabelText("Cliente (ID)"), {
-                target: { value: "1" },
-            });
-            fireEvent.change(screen.getByLabelText("Armazém (ID)"), {
-                target: { value: "1" },
-            });
+            for (const title of ["Cliente", "Armazém"]) {
+                const input = screen.getByRole("combobox", { name: title });
+                await waitFor(() => expect(input).toBeEnabled());
+                fireEvent.click(input);
+                fireEvent.change(input, { target: { value: "Exemplo" } });
+                fireEvent.keyDown(input, { key: "Enter" });
+            }
             fireEvent.submit(
                 screen
                     .getByRole("button", { name: "Aplicar contexto" })
@@ -161,25 +185,37 @@ describe("007 consulta usuarios e003 feedback escrita", () => {
         expect(screen.queryByText("Pessoa sintetica")).toBeNull();
     });
     it("003 criar201null nao indica sucesso; resultado incerto exige consulta sem replay", async () => {
-        const fetcher = vi
-            .fn<typeof fetch>()
-            .mockImplementation(
-                async (input, init) =>
-                    new Response(
-                        JSON.stringify(
-                            String(input).endsWith("/csrf")
-                                ? { token: "fixture", header: "X-XSRF-TOKEN" }
-                                : init?.method === "POST"
-                                  ? null
-                                  : {
-                                        ...page,
-                                        content: [{ ...user, versao: 0 }],
-                                        totalElements: 1,
-                                    },
-                        ),
-                        { status: init?.method === "POST" ? 201 : 200 },
+        const fetcher = vi.fn<typeof fetch>().mockImplementation(
+            async (input, init) =>
+                new Response(
+                    JSON.stringify(
+                        String(input).includes("/api/v1/")
+                            ? {
+                                  itens: [
+                                      fixture(
+                                          String(input).includes("clientes")
+                                              ? "ClienteDto.Resposta"
+                                              : "ArmazemDto.Resposta",
+                                      ),
+                                  ],
+                                  pagina: 0,
+                                  tamanho: 100,
+                                  totalItens: 1,
+                                  totalPaginas: 1,
+                              }
+                            : String(input).endsWith("/csrf")
+                              ? { token: "fixture", header: "X-XSRF-TOKEN" }
+                              : init?.method === "POST"
+                                ? null
+                                : {
+                                      ...page,
+                                      content: [{ ...user, versao: 0 }],
+                                      totalElements: 1,
+                                  },
                     ),
-            );
+                    { status: init?.method === "POST" ? 201 : 200 },
+                ),
+        );
         render(<UsersPage auth={new AuthClient(fetcher)} current={user} />);
         await screen.findByText("Pessoa sintetica");
         fireEvent.click(screen.getByRole("button", { name: "Criar usuário" }));

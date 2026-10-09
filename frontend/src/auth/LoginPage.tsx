@@ -2,6 +2,7 @@ import { useRef, useState, type FormEvent } from "react";
 import { AuthError, type AuthClient, type User } from "./client";
 import { Icon } from "../design-system/Icon";
 import { AuthLayout } from "./AuthLayout";
+import { Dialog } from "../components/layout/Dialog";
 
 export function LoginPage({
     auth,
@@ -333,17 +334,14 @@ export function PasswordPage({
             setBusy(false);
         }
     }
-    return (
-        <section className="auth-card" aria-labelledby="password-title">
-            <h1 id="password-title">
-                {required ? "Crie sua nova senha" : "Alterar minha senha"}
-            </h1>
-            <p>
+    const content = (
+        <>
+            <p className="password-notice">
                 {required
                     ? "Sua senha é temporária. Escolha uma nova para continuar no WMS."
                     : "Ao confirmar, seus acessos atuais serão encerrados. Entre novamente com a nova senha."}
             </p>
-            <p>
+            <p className="password-guidance">
                 Use de 12 a 128 caracteres e uma senha diferente da atual. Você
                 pode usar uma frase longa e um gerenciador de senhas.
             </p>
@@ -352,14 +350,15 @@ export function PasswordPage({
                     {error}
                 </p>
             )}
-            <form onSubmit={(e) => void submit(e)}>
+            <form className="password-form" onSubmit={(e) => void submit(e)}>
                 <fieldset disabled={busy}>
-                    <label>
+                    <label className="password-current">
                         Senha atual
                         <input
                             name="senhaAtual"
                             type="password"
                             autoComplete="current-password"
+                            data-dialog-autofocus
                             maxLength={128}
                             required
                             autoFocus
@@ -387,14 +386,32 @@ export function PasswordPage({
                             required
                         />
                     </label>
-                    <button type="submit">
-                        {busy ? "Salvando…" : "Salvar nova senha"}
-                    </button>
-                    <button type="button" onClick={onCancel}>
-                        {required ? "Sair" : "Cancelar"}
-                    </button>
+                    <div className="actions">
+                        <button type="button" onClick={onCancel}>
+                            {required ? "Sair" : "Cancelar"}
+                        </button>
+                        <button type="submit" className="primary">
+                            {busy ? "Salvando…" : "Salvar nova senha"}
+                        </button>
+                    </div>
                 </fieldset>
             </form>
+        </>
+    );
+    return required ? (
+        <section className="auth-card" aria-labelledby="password-title">
+            <h1 id="password-title">Crie sua nova senha</h1>
+            {content}
         </section>
+    ) : (
+        <Dialog
+            title="Alterar minha senha"
+            account
+            icon="senha"
+            locked={busy}
+            onClose={onCancel}
+        >
+            {content}
+        </Dialog>
     );
 }

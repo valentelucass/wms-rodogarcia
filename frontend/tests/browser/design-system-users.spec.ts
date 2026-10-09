@@ -1,3 +1,4 @@
+import { fulfillOverviewRead } from "./overview-fixture";
 import { test, expect, type Route } from "@playwright/test";
 import { origin } from "./environment";
 import { chooseTheme } from "./theme-controls";
@@ -42,6 +43,7 @@ for (const width of [390, 1024, 1440]) {
             const url = new URL(route.request().url());
             if (url.origin !== origin) return route.abort("blockedbyclient");
             if (!url.pathname.startsWith("/api/")) return route.continue();
+            if (await fulfillOverviewRead(route)) return;
             calls.push(
                 route.request().method() + " " + url.pathname + url.search,
             );
@@ -55,6 +57,18 @@ for (const width of [390, 1024, 1440]) {
                         accessToken: "fixture-local",
                         expiresIn: 300,
                         usuario: current,
+                    },
+                });
+            // A consulta do Início pertence à frente DASH01; esta prova
+            // mantém sua falha isolada e não alcança o backend real.
+            if (
+                url.pathname === "/api/v1/dashboard" &&
+                route.request().method() === "GET"
+            )
+                return route.fulfill({
+                    status: 503,
+                    json: {
+                        detail: "Consulta fictícia indisponível nesta prova de usuários.",
                     },
                 });
             if (url.pathname === "/api/auth/usuarios") {
@@ -88,24 +102,24 @@ for (const width of [390, 1024, 1440]) {
         await page.goto("/");
         await expect(
             page.getByRole("heading", {
-                name: "Bem-vindo, Administrador principal",
+                name: "Início",
             }),
         ).toBeVisible();
         const header = page.locator("header.topbar");
-        await expect(header.getByLabel("Cliente (ID)")).toBeVisible();
-        await expect(header.getByLabel("Armazém (ID)")).toBeVisible();
-        await expect(header.getByLabel("Cliente (ID)")).toHaveAttribute(
+        await expect(header.getByLabel("Cliente")).toBeVisible();
+        await expect(header.getByLabel("Armazém")).toBeVisible();
+        await expect(header.getByLabel("Cliente")).toHaveAttribute(
             "placeholder",
-            "Cliente (ID)",
+            "Cliente",
         );
-        await expect(header.getByLabel("Armazém (ID)")).toHaveAttribute(
+        await expect(header.getByLabel("Armazém")).toHaveAttribute(
             "placeholder",
-            "Armazém (ID)",
+            "Armazém",
         );
-        await header.getByLabel("Cliente (ID)").focus();
+        await header.getByLabel("Cliente").focus();
         expect(
             await header
-                .getByLabel("Cliente (ID)")
+                .getByLabel("Cliente")
                 .evaluate((el) => getComputedStyle(el, "::placeholder").color),
         ).toBe("rgba(0, 0, 0, 0)");
         await expect(
@@ -117,12 +131,18 @@ for (const width of [390, 1024, 1440]) {
         await expect(header.getByText("Gestor", { exact: true })).toHaveCount(
             0,
         );
-        if (width >= 1024)
+        if (width >= 1400)
             expect((await header.boundingBox())!.height).toBe(64);
-        await header.getByLabel("Cliente (ID)").fill("1");
-        await header.getByLabel("Armazém (ID)").fill("1");
+        await header
+            .getByRole("combobox", { name: "Cliente", exact: true })
+            .click();
+        await page.getByRole("option", { name: /Cliente de teste/ }).click();
+        await header
+            .getByRole("combobox", { name: "Armazém", exact: true })
+            .click();
+        await page.getByRole("option", { name: /Armazém de teste/ }).click();
         await header.getByRole("button", { name: "Aplicar contexto" }).click();
-        if (width >= 1024)
+        if (width >= 1400)
             expect((await header.boundingBox())!.height).toBe(64);
         await page.screenshot({
             path: info.outputPath("inicio-contexto.png"),

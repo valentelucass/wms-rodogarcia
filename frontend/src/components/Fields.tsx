@@ -25,6 +25,7 @@ interface Props {
     perfil: Perfil;
     root?: Values;
     schema?: string;
+    lockedFields?: string[];
 }
 export function Fields({
     fields,
@@ -35,6 +36,7 @@ export function Fields({
     perfil,
     root = values,
     schema = "",
+    lockedFields = [],
 }: Props) {
     return (
         <>
@@ -46,7 +48,9 @@ export function Fields({
                     path={prefix ? prefix + "." + f.name : f.name}
                     onChange={(v) => onChange({ ...values, [f.name]: v })}
                     disabled={
-                        disabled || isFieldDisabled(schema, f.name, perfil)
+                        disabled ||
+                        lockedFields.includes(f.name) ||
+                        isFieldDisabled(schema, f.name, perfil)
                     }
                     perfil={perfil}
                     root={root}

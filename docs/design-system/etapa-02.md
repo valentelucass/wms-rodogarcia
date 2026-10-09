@@ -34,6 +34,8 @@ Os controles do exercício fictício passam a ser uma seção nomeada, conservan
 
 ## Cabeçalho e organização
 
+**Incremento vigente FE02-DS03:** por pedido posterior de Lucas, contexto operacional ocupa o centro do topo com altura desktop de 64 px; nome/perfil ficam somente na sidebar. Placeholders e preferência de expansão estão descritos na [etapa 03](etapa-03.md#header-e-preferências). A composição abaixo registra o fecho histórico DS02.
+
 O topo do painel alinha o módulo atual à esquerda e identidade, suporte, tema e ações da conta à direita. No desktop, mostra nome, perfil e iniciais; nomes longos têm limite visual no topo e continuam completos na lateral e no título do controle. No celular, as ações Minha senha/Sair usam ícones com nomes acessíveis; a identidade continua na lateral. Menu, ações e tema permanecem em uma linha, com quebra de título quando necessária.
 
 | Arquivo | Responsabilidade |

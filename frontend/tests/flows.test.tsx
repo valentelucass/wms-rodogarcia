@@ -129,15 +129,32 @@ describe("Jornadas e segurança de apresentação", () => {
             screen.getByLabelText("Resposta do exercício fictício"),
             "lento",
         );
-        await user.click(screen.getByRole("button", { name: "Consultar" }));
-        await user.clear(screen.getByLabelText("Cliente fictício (ID)"));
-        await user.type(screen.getByLabelText("Cliente fictício (ID)"), "2");
+        await user.click(
+            screen.getByRole("button", { name: "Atualizar lista" }),
+        );
+        const client = screen.getByRole("combobox", {
+            name: "Cliente fictício",
+        });
+        await waitFor(() => expect(client).toBeEnabled());
+        await user.click(client);
+        await user.type(client, "Cliente fictício 2");
+        await user.keyboard("{Enter}");
         await user.click(
             screen.getByRole("button", { name: "Aplicar contexto" }),
         );
-        expect(screen.queryByText(/Carregando/)).not.toBeInTheDocument();
-        await waitFor(() =>
-            expect(screen.getByLabelText("Cliente (ID) *")).toHaveValue("2"),
+        await waitFor(
+            () =>
+                expect(
+                    screen.getByRole("button", { name: "Atualizar lista" }),
+                ).toBeEnabled(),
+            { timeout: 3000 },
+        );
+        await waitFor(
+            () =>
+                expect(
+                    screen.getByRole("combobox", { name: "Cliente *" }),
+                ).toHaveValue("Cliente fictício 2"),
+            { timeout: 3000 },
         );
     });
     it("FE05 teclado submete consulta e distingue vazio de erro", async () => {

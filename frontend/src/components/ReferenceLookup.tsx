@@ -13,12 +13,14 @@ export function ReferenceLookup({
     onRecord,
     onReceipt,
     selectionLocked = false,
+    inline = false,
 }: {
     journey: Journey;
     context: Values;
     transport: Transport;
     onRecord: (v: Values, type: string) => void;
     selectionLocked?: boolean;
+    inline?: boolean;
     onReceipt: (
         r: Receipt,
         type: string,
@@ -63,7 +65,26 @@ export function ReferenceLookup({
             </div>
             {pending && <p role="status">Consultando referências…</p>}
             {error && <p role="alert">{error}</p>}
-            {result && showResult && !pending && (
+            {result && showResult && !pending && inline && (
+                <section aria-label="Referências consultadas">
+                    <Result
+                        data={result.receipt.data}
+                        type={result.type}
+                        onSelect={
+                            selectionLocked
+                                ? undefined
+                                : (v, type) => {
+                                      onRecord(v, type);
+                                      setShowResult(false);
+                                  }
+                        }
+                    />
+                    <button type="button" onClick={() => setShowResult(false)}>
+                        Fechar referências
+                    </button>
+                </section>
+            )}
+            {result && showResult && !pending && !inline && (
                 <Dialog
                     title="Referências consultadas"
                     wide

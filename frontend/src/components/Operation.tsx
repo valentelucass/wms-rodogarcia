@@ -4,6 +4,7 @@ import { OperationConfirmation } from "./operation/OperationConfirmation";
 import { OperationFeedback } from "./operation/OperationFeedback";
 import { OperationResults } from "./operation/OperationResults";
 import { actionLabel, type NextAction } from "../domain/journeys";
+import { recordActionLabel } from "../domain/recordPages";
 import type { Values } from "../contracts/runtime";
 import { useLayoutEffect } from "react";
 export interface OperationProps extends OperationOptions {
@@ -11,12 +12,22 @@ export interface OperationProps extends OperationOptions {
     onContinue?: (next: NextAction) => void;
     onSelectionLockChange?: (locked: boolean) => void;
     collector?: boolean;
+    inDialog?: boolean;
+    onEditingChange?: (
+        dirty: boolean,
+        locked: boolean,
+        uncertain: boolean,
+    ) => void;
 }
 export function Operation(props: OperationProps) {
     const s = useOperation(props);
     const referenceMismatch =
         s.params.id !== undefined && s.params.id !== props.context.id;
     const lock = props.onSelectionLockChange;
+    const editing = props.onEditingChange;
+    useLayoutEffect(() => {
+        editing?.(s.dirty, s.pending || s.uncertain, s.uncertain);
+    }, [editing, s.dirty, s.pending, s.uncertain]);
     useLayoutEffect(() => {
         lock?.(s.pending || s.uncertain);
         return () => lock?.(false);
@@ -30,12 +41,19 @@ export function Operation(props: OperationProps) {
         );
     return (
         <section className="operation">
-            <h3>{actionLabel(props.id)}</h3>
-            <OperationForm
-                state={s}
-                perfil={props.perfil}
-                collector={props.collector}
-            />
+            <h3>
+                {props.inDialog
+                    ? recordActionLabel(props.id)
+                    : actionLabel(props.id)}
+            </h3>
+            {!(props.inDialog && s.confirm) && (
+                <OperationForm
+                    state={s}
+                    perfil={props.perfil}
+                    collector={props.collector}
+                    fixedFields={props.fixedFields}
+                />
+            )}
             {s.confirm && (
                 <OperationConfirmation
                     id={props.id}
@@ -43,6 +61,7 @@ export function Operation(props: OperationProps) {
                     values={{ ...s.params, ...s.query, ...s.body }}
                     onConfirm={() => void s.send()}
                     onBack={s.cancelConfirmation}
+                    embedded={props.inDialog}
                 />
             )}
             <OperationFeedback state={s} />

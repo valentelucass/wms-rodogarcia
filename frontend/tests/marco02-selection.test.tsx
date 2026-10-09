@@ -1,6 +1,13 @@
 import { useState } from "react";
 import { it, expect, vi } from "vitest";
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import {
+    fireEvent,
+    render,
+    screen,
+    within,
+    waitFor,
+} from "@testing-library/react";
+import { click } from "./support/operationalHarness";
 import { JourneyPage } from "../src/components/JourneyPage";
 import { journeys } from "../src/modules/saida/definition";
 import { useExerciseSession } from "../src/hooks/useExerciseSession";
@@ -17,11 +24,13 @@ const reserve = obj("PedidoSaidaDto.Reserva", { id: "701" });
 const first = obj("PedidoSaidaDto.Detalhe", {
     id: "601",
     versao: "3",
+    situacao: "RASCUNHO",
     reservas: [reserve],
 });
 const second = obj("PedidoSaidaDto.Detalhe", {
     id: "602",
     versao: "1",
+    situacao: "RASCUNHO",
     reservas: [],
 });
 function Harness({ transport }: { transport: Transport }) {
@@ -42,20 +51,34 @@ function Harness({ transport }: { transport: Transport }) {
         />
     );
 }
-function transportWith(write?: (r: Request) => Promise<never>): Transport {
+function transportWith(
+    write?: (r: Request) => Promise<never>,
+    current = first,
+): Transport {
     return {
         send: vi.fn(async (r: Request) => {
             if (r.endpoint.method !== "GET" && write) return write(r);
             const data =
                 r.endpoint.id === "PedidoSaidaController.listar"
                     ? {
-                          itens: [first, second],
+                          itens: [current, second],
                           pagina: 0,
                           tamanho: 20,
                           totalItens: "2",
                           totalPaginas: 1,
                       }
-                    : obj("PedidoSaidaDto.Sugestao", { versao: "3" });
+                    : r.endpoint.id === "PedidoSaidaController.consultar"
+                      ? r.params.id === "602"
+                          ? second
+                          : current
+                      : r.endpoint.id === "ExpedicaoController.consultar"
+                        ? obj("ExpedicaoDto.Detalhe", {
+                              pedido: r.params.id === "602" ? second : current,
+                          })
+                        : obj("PedidoSaidaDto.Sugestao", {
+                              pedido: first,
+                              versao: "3",
+                          });
             return {
                 data,
                 raw: stringifyExact(toWire(r.endpoint.response, data)),
@@ -67,7 +90,6 @@ function transportWith(write?: (r: Request) => Promise<never>): Transport {
     };
 }
 async function selectOrder(number: number) {
-    fireEvent.click(screen.getByRole("button", { name: "Consultar" }));
     const table = await screen.findByRole("table", {
         name: "Pedidos de saída · 2 registros nesta resposta",
     });
@@ -75,13 +97,21 @@ async function selectOrder(number: number) {
         number - 1
     ] as HTMLElement;
     fireEvent.click(
-        within(row)
-            .getAllByRole("button", { name: "Selecionar registro " + number })
-            .at(-1)!,
+        within(row).getAllByRole("button", { name: "Ver detalhes" }).at(-1)!,
+    );
+    await waitFor(() =>
+        expect(screen.queryByText(/Carregando os dados atuais/)).toBeNull(),
     );
 }
 it("UI troca pedido601/reserva701 por pedido602 sem conservar ID, revisão ou opção de reserva", async () => {
-    render(<Harness transport={transportWith()} />);
+    render(
+        <Harness
+            transport={transportWith(undefined, {
+                ...first,
+                situacao: "RESERVADO",
+            })}
+        />,
+    );
     await selectOrder(1);
     const refs = screen.getByRole("region", {
         name: "Referências confirmadas da jornada",
@@ -91,9 +121,8 @@ it("UI troca pedido601/reserva701 por pedido602 sem conservar ID, revisão ou op
     fireEvent.click(
         screen.getByRole("button", { name: "3. Leitura e separação" }),
     );
-    fireEvent.click(
-        screen.getByRole("button", { name: "Conferir leitura da reserva" }),
-    );
+    await selectOrder(1);
+    await click("Conferir leitura da reserva");
     expect(
         screen.getByLabelText("Identificador *", { exact: true }),
     ).toHaveValue("601");
@@ -110,37 +139,31 @@ it("UI troca pedido601/reserva701 por pedido602 sem conservar ID, revisão ou op
     fireEvent.click(
         screen.getByRole("button", { name: "3. Leitura e separação" }),
     );
-    fireEvent.click(
-        screen.getByRole("button", { name: "Conferir leitura da reserva" }),
-    );
+    await selectOrder(2);
     expect(
-        screen.getByLabelText("Identificador *", { exact: true }),
-    ).toHaveValue("602");
-    expect(
-        screen.getByLabelText("Revisão atual *", { exact: true }),
-    ).toHaveValue("1");
-    expect(
-        screen.getByLabelText("Reserva (ID) *", { exact: true }),
-    ).toHaveValue("");
+        within(screen.getByRole("dialog")).queryByRole("button", {
+            name: "Conferir leitura da reserva",
+        }),
+    ).toBeNull();
+    expect(screen.getByRole("dialog")).toHaveTextContent("602");
     expect(screen.queryByRole("option", { name: /^701/ })).toBeNull();
 });
-it("UI consulta FIFO de outro pedido exige selecionar esse pai antes do próximo passo", async () => {
+it("UI consulta FIFO mantém ID imutável do pai selecionado", async () => {
     render(<Harness transport={transportWith()} />);
     await selectOrder(1);
     fireEvent.click(
         screen.getByRole("button", { name: "2. Sugestão FIFO e reserva" }),
     );
-    fireEvent.change(
-        screen.getByLabelText("Identificador *", { exact: true }),
-        { target: { value: "602" } },
-    );
-    fireEvent.click(screen.getByRole("button", { name: "Consultar" }));
-    await screen.findByText(/O pedido consultado difere da seleção da jornada/);
+    await selectOrder(1);
+    await click("Consultar sugestão FIFO");
     expect(
-        screen.queryByRole("button", {
-            name: "Confirmar reserva da sugestão do servidor",
-        }),
-    ).toBeNull();
+        screen.getByLabelText("Identificador *", { exact: true }),
+    ).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: "Consultar" }));
+    await screen.findByText(/Resposta FICTÍCIA de exercício recebida/);
+    expect(
+        screen.getByLabelText("Identificador *", { exact: true }),
+    ).toHaveValue("601");
     expect(
         screen.getByRole("region", {
             name: "Referências confirmadas da jornada",
@@ -164,9 +187,8 @@ it("UI com escrita incerta conserva formulário e impede trocar referências par
     fireEvent.click(
         screen.getByRole("button", { name: "2. Sugestão FIFO e reserva" }),
     );
-    fireEvent.click(
-        screen.getByRole("button", { name: "Confirmar reserva integral" }),
-    );
+    await selectOrder(1);
+    await click("Confirmar reserva integral");
     fireEvent.change(
         screen.getByLabelText("Motivo / justificativa *", { exact: true }),
         { target: { value: "Reserva fictícia para limite de contexto" } },
@@ -176,13 +198,12 @@ it("UI com escrita incerta conserva formulário e impede trocar referências par
     );
     fireEvent.click(screen.getByRole("button", { name: "Confirmar agora" }));
     await screen.findByText("Resultado desconhecido", { exact: true });
+    fireEvent.click(screen.getByRole("button", { name: "1. Pedido integral" }));
     expect(
         screen.getByRole("button", { name: "1. Pedido integral" }),
-    ).toBeDisabled();
+    ).not.toHaveAttribute("aria-current", "step");
     expect(
-        screen.getByRole("button", {
-            name: "Usar referências consultadas no formulário (descarta edição atual)",
-        }),
+        screen.getByRole("button", { name: "Fechar diálogo" }),
     ).toBeDisabled();
     expect(
         screen.getByLabelText("Identificador *", { exact: true }),

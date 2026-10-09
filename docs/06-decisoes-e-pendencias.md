@@ -1,5 +1,47 @@
 # Decisões e pendências do WMS Rodogarcia
 
+## FE02-REG01 — listas e ações no registro, 09/10/2026
+
+Lucas pediu expressamente refatorar as 12 áreas: abrir lista/fila/overview ao entrar, criar no cabeçalho, acessar detalhe/edição/ações pelo registro persistente e preservar etapas reais. Modal é o padrão de edição, adaptado ao mobile; operações extensas mantêm seções e comandos próprios. A apresentação segue o design system existente. Esta orientação autoriza a implementação frontend e substitui as abas artificiais dentro da página, sem mudar as regras backend. [Padrão e limites](design-system/etapa-06.md), [inventário](design-system/inventario-paginas.md). Cidade e vínculos de armazém do cliente dependem de campos/relação efetivamente expostos; o exemplo visual não autoriza inventá-los ou modificar o schema.
+
+## FE02-CTX01 / BE14-DASH02 → FE02-DASH02 — contexto por nome e mapa, 09/10/2026
+
+Lucas solicitou expressamente as três implementações: cliente por nome, armazém por nome e Início conforme o texto anexado. IDs continuam internos; nomes/códigos vêm dos cadastros autorizados, sem criação implícita. Todos significa alcance permitido. A composição atual substitui os quatro indicadores/gráficos do Início de DASH01 por dez indicadores e mapa cadastral; contrato/componente anterior ficam preservados. Capacidade física considera armazenagem ativa, enquanto o mapa mantém áreas especiais e inativos com estado próprio. Ocupação do armazém inclui seus clientes; demais indicadores seguem também o cliente escolhido. Valor reutiliza o indicador de estoque; faturamento é parcial do mês pelas NFS-e registradas, sem emitir documento ou recalcular cobrança. Operação não recebe valores financeiros; conteúdo fora do alcance é ocultado. Endereçar preenche o coletor, mantendo confirmação e regras backend. [Definições completas e conferência](design-system/etapa-05.md).
+
+## BE14-DASH01 → FE02-DASH01 — gráficos do Início, 09/10/2026
+
+Lucas autorizou aplicar a proposta proporcional de gráficos abaixo do Acesso rápido: ocupação física, disponibilidade por SKU e fila de saída, com quatro indicadores e aderência à fundação visual. O backend em `backend/` recebe contrato agregado de leitura com escopo validado no serviço; não há migration ou nova regra operacional. Totais do contexto não são inferidos de uma página de produtos. Capacidade/livres do armazém ficam somente com Gestor; quantidades mantêm SKU/unidade e reserva parcial continua bloqueando o restante da unidade. [Composição, contrato e limites](design-system/etapa-04.md). Histórico de movimentações e financeiro são evoluções propostas, sem tratá-las como autorização para mudar cobranças ou iniciar nova fase.
+
+## PROD-LAUNCH01 — launcher Windows e publicação futura, 09/10/2026
+
+Pedido expresso de Lucas: preparar e testar `iniciar-prod.bat`, com inventário de portas e domínios futuros **wms.rodogarcia.com.br** e **wms-api.rodogarcia.com.br**. BE02-PROD01 → FE02-PROD01; preparo local em candidatos isolados, preservando a frente visual e os processos existentes. Operação exclusiva WMS_PROD/identidade própria/TLS, sem testes ou escritas de negócio em PROD, migrations/grants/servidor, fallback DEV ou configuração Cloudflare/DNS/túnel. A grafia recebida `.bar` permanece no pedido original.
+
+Portas planejadas 127.0.0.1:25590 backend e :25591 frontend, conferidas novamente a cada subida. `--preparar` real passou em versão datada; execução normal real recusou AUTH PROD ausente antes de SQL/servidores. Metadados não localizaram canais próprios SQL/AUTH PROD no recorte autorizado. O gate SQL atual recusa e não possui binding operacional/ramo PASS: o canal protegido e sua integração precisam ser concluídos/revisados antes de uso, sem criar identidade ou permissões nesta entrega. HTTPS de entrada e publicação ficam separados do readiness HTTP loopback. [Uso, limites e suporte](44-launcher-producao-e-publicacao-futura.md), [recibo](../orchestracao/.runtime/launcher-producao-resultado.json).
+
+## FE02-DS03-A06 — Minha senha em modal e composição de usuários, 09/10/2026
+
+Lucas determinou que Minha senha abra em pop-up sobre a página atual e pediu melhor organização, uso de espaço e separação do fundo nos diálogos de usuários. No refinamento, rejeitou a faixa azul decorativa no topo e exigiu aderência ao design system. A versão atual remove a faixa e usa superfícies, bordas, espaçamento, ícones e ações da fundação documentada; [composição e conferência](design-system/etapa-03.md#diálogos-de-conta--fe02-ds03-a06). Regras de acesso e senha preservadas; a troca obrigatória de senha temporária mantém seu fluxo anterior à área operacional.
+
+## FE02-DS03-A05 — fundos distintos no Acesso rápido, 09/10/2026
+
+Lucas pediu cada card de Acesso rápido com fundo marcante e diferente, preservando o conteúdo interno e seguindo a documentação visual. A adaptação P do WMS usa azul cobalto, verde petróleo, índigo e grafite azulado, com detalhes geométricos em CSS e tokens próprios. Definição, origem e conferência em [etapa-03.md](design-system/etapa-03.md#fundos-dos-acessos-rápidos--fe02-ds03-a05). Cores identificam os atalhos visualmente; não indicam situação de operação nem alteram permissões ou destinos.
+
+## FE02-DS03-A04 — referências com apresentação própria, 09/10/2026
+
+Lucas pediu estilizar todo o painel Referências da jornada no contexto atual, inclusive o botão branco, nas páginas que o compartilham. Implementação visual com superfície de apoio, hierarquia interna e botão azul em [etapa-03.md](design-system/etapa-03.md#referências-da-jornada--fe02-ds03-a04). Mantidos aviso de descarte da edição, seleção explícita, dados e bloqueios existentes; não há nova regra operacional nem retomada automática da textura A01.
+
+## FE02-DS03-A02 — Coletor integrado às páginas, 09/10/2026
+
+Lucas pediu ajustar a apresentação do Coletor e corrigiu expressamente a proposta centralizada: o painel acompanha o alinhamento do título e a largura útil da página. Escolha da tarefa e leitura são organizadas lado a lado no desktop e empilhadas no mobile. Definição e conferência em [etapa-03.md](design-system/etapa-03.md#composição-do-coletor--fe02-ds03-a02). Recorte visual, sem alterar operações ou contratos; refinamento da textura A01 interrompido a seu pedido.
+
+## FE02-DS03-A03 — limite de altura global, 09/10/2026
+
+Lucas determinou que caixas de entrada redimensionáveis tenham limite de altura em todo o projeto, citando Motivo / justificativa de Cadastros → Clientes. Aplicação visual comum aos campos multilinha, com redimensionamento limitado e rolagem interna. Teto e cobertura definidos em [etapa-03.md](design-system/etapa-03.md#limite-de-altura-dos-campos--fe02-ds03-a03), sem alterar limites de caracteres ou conteúdo dos contratos.
+
+## FE02-DS03 — organização interna e contexto no topo, 09/10/2026
+
+Lucas pediu organizar todas as páginas internas, com hierarquia de ações, melhor uso de espaço, paginação junto dos resultados e diálogos centrais. Nos refinamentos expressos, definiu Cliente (ID), Armazém (ID) e Aplicar contexto no header, separado das demais ações, mantendo a altura desktop anterior de 64 px; nome e perfil permanecem na sidebar. Os textos dos campos são placeholders sem espaço reservado e desaparecem ao focar. Aplicar contexto recebe cor própria distinta do azul da marca, e a sidebar mantém a escolha expandida/minimizada após refresh. Implementação e limites estão em [etapa-03.md](design-system/etapa-03.md). Escopo visual autorizado; regras, contratos, permissões e fontes de contexto existentes preservados.
+
 ## FE02-DS01-A03 / FE02-DS02-A01 — preferência salva e destaque textual, 09/10/2026
 
 Lucas corrigiu expressamente a política de tema: detectar o sistema no primeiro acesso sem escolha salva e respeitar Light/Dark escolhido nos próximos acessos. Essa decisão substitui a reinicialização por dispositivo de A02, mantendo o botão sol/lua. Definição em [etapa-01.md](design-system/etapa-01.md#temas). Pediu também remover o destaque em torno das ações de ajuda; o ajuste A01 mantém somente sublinhado do texto e foco por teclado, descrito em [etapa-02.md](design-system/etapa-02.md). Mesmo escopo visual, sem mudança de autenticação.
@@ -14,7 +56,7 @@ Lucas pediu expressamente corrigir a expiração. Cliente WMS DEV passa de30 par
 
 **Resultado:**27 casos locais aprovados; a única abertura real nova expirou após120,19s, com consultas0. Metadados de acesso ao ERRORLOG recusados por SecurityException; causa não comprovada. [Evidências e encaminhamento](../orchestracao/.runtime/dev-conexao-20261009-con02-resultado.json). Não declarar disponibilidade resolvida nem iniciar outra tentativa automaticamente.
 
-## VALID-LOGIN-CAD01 — SQL aprovado; validação real parcial por sessão inacessível, 09/10/2026
+## VALID-LOGIN-CAD01 — fecho parcial autorizado por Lucas, 09/10/2026
 
 **BE04-COR01-DEV01 → FE03-COR01-DEV01 parcial real revisado:** reaproveitado run existente8fa3c9e6722b4170898dc66aabfa044f, frontend http://127.0.0.1:25581, BE72644/25580 e FE70328/25581 com JAR corrigido99128/configD415/preparo947D. Guarda3293 confirmou WMS_DEV/WMSDEV/TLSMandatory/trustServerCertificatefalse,26/26critérios/permissões/catálogo/V1–V11, uma Open215,5245ms e12SELECTmetadados, zero negócio. SQLPID48480/início18:31:41Z e confiança existente atual conferidos; nenhuma outraBAT/Open/renovação ou intervenção em processo nesta retomada. Relato Lucas preservado; CON02/E7B204 permanecem históricos, sem bloqueioSQL corrente diante destePASS datado.
 
@@ -26,7 +68,7 @@ Lume observou realmente18:46:53–57UTC: statusAPI200, usuários anônimo401, CS
 
 **Atualização após disponibilização da conta:** Lucas confirmou login real funcionando; CUA do Farol retornou apps[]/browsers[]/zero abas acessíveis. Não há contradição com sessão existente no computador. [Observação deste acesso](../orchestracao/.runtime/login-cadastros-validacao-dev/sessao-disponibilizada-20261009T192151Z/resultado.md); nenhuma senha usada/lida/registrada, nenhuma API/SQL/guarda/app nova. Perfil/alcance da conta ainda não observado, sem autorização de escrita por inferência.
 
-**Próximo encaminhamento único:** disponibilizar ao CUA nesta sessão a aba HTTPS WMS já autenticada. Origem técnica conhecida http://127.0.0.1:25581; URLHTTPS da aba não foi exposta à ferramenta. Novo login somente interativo pelo usuário/vault, sem senha de chat/terminal. Guarda/provas anteriores datadas preservadas,0/7operacionais nesta rodada. Sem perfil anônimo/cópia de sessão/alteração de senha/perfil/scopes/dados/provider/SQLfixture ou nova rodada automática; aguardar acesso legítimo/Lucas.
+**Decisão expressa de Lucas — encerrar parcialmente:** origem https://1z8126n0-25581.brs.devtunnels.ms/ fornecida, mas CUA sem navegador/aba WMS disponível (`No browser is available`). Não converter login funcional relatado em homologação. SQLPASS datado e sete locais aprovados preservados;0/7 critérios operacionais integrais. Responsável segue na frente visual; nenhuma nova tentativa/instalação/configuração/login/ação dele exigida. [Fecho autorizado](../orchestracao/.runtime/login-cadastros-validacao-dev/origem-https-cua-20261009T194922Z/fecho-autorizado.json). Frente visual, fonte/aplicação/estilos/launcher/mapa e processos preservados. Equipe para este escopo e aguarda nova demanda; sem revisão/ACK/rotina/Hermes/ETL.
 
 ## FE02-DEV-CON01 — relato de falha na abertura DEV, 09/10/2026
 

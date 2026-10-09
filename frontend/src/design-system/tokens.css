@@ -29,6 +29,12 @@
     --og-brand-hover: #1d4ed8;
     --og-brand-active: #1e40af;
     --og-brand-foreground: #ffffff;
+    /* P/C: séries de gráficos conforme design.md 6.6, distintas dos estados. */
+    --og-chart-blue: #2563eb;
+    --og-chart-green: #15803d;
+    --og-chart-orange: #c2410c;
+    --og-chart-purple: #a21caf;
+    --og-chart-neutral: #52525b;
     /* P: suporte de impressão mantém papel claro independentemente do tema. */
     --wms-print-background: #ffffff;
     --wms-print-text: #18181b;
@@ -75,6 +81,26 @@
     --wms-context-action: #0f766e;
     --wms-context-action-hover: #115e59;
     --wms-context-action-text: #ffffff;
+    /* P: teto visual compartilhado dos campos multilinha. */
+    --wms-textarea-max-height: 240px;
+    /* P: fundos distintos dos acessos rápidos WMS; não representam status. */
+    --wms-shortcut-entrada-from: #123b8e;
+    --wms-shortcut-entrada-to: #1e40af;
+    --wms-shortcut-coletor-from: #083e46;
+    --wms-shortcut-coletor-to: #115e59;
+    --wms-shortcut-saida-from: #2e1065;
+    --wms-shortcut-saida-to: #5b21b6;
+    --wms-shortcut-fechamento-from: #111827;
+    --wms-shortcut-fechamento-to: #334155;
+    --wms-shortcut-text: #ffffff;
+    --wms-shortcut-glow: rgb(255 255 255 / 6%);
+    --wms-shortcut-art: rgb(255 255 255 / 10%);
+    --wms-shortcut-art-soft: rgb(255 255 255 / 2%);
+    --wms-shortcut-icon-bg: rgb(255 255 255 / 12%);
+    /* P: superfície e separação dos diálogos de conta. */
+    --wms-account-surface: #ffffff;
+    --wms-account-backdrop: rgb(9 9 11 / 58%);
+    --wms-account-shadow: 0 24px 80px rgb(0 0 0 / 30%);
 }
 
 :root,
@@ -104,6 +130,13 @@
 }
 
 [data-og-theme="dark"] {
+    --og-chart-green: #16a34a;
+    --og-chart-orange: #ea580c;
+    --og-chart-purple: #c026d3;
+    --og-chart-neutral: #71717a;
+    --wms-account-surface: #18181b;
+    --wms-account-backdrop: rgb(0 0 0 / 72%);
+    --wms-account-shadow: 0 24px 80px rgb(0 0 0 / 65%);
     --wms-context-action: #5eead4;
     --wms-context-action-hover: #99f6e4;
     --wms-context-action-text: #042f2e;

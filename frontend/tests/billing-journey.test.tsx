@@ -4,6 +4,7 @@ import { FictitiousTransport } from "../src/api/fictitious";
 import { Result } from "../src/components/Result";
 import {
     Harness,
+    lastMutation,
     click,
     fill,
     confirm,
@@ -33,12 +34,12 @@ it("FE04 FE11 serviço tabela vigência vínculo sugestão fato e cálculo com r
         "Configuração fictícia autorizada no exercício",
     );
     await confirm();
-    click("Configurar tabela com este serviço fictício");
+    await click("Configurar tabela com este serviço fictício");
     fill("Código *", "FICT-TABELA");
     fill("Descricao *", "Tabela fictícia de exercício");
     fill("Tipo *", "ESPECIFICA");
     fill("Vigencia Inicio *", "2026-10-01");
-    click("Adicionar Itens");
+    await click("Adicionar Itens");
     selected("Itens / Item 1 / Serviço (ID) *", "2501");
     fill("Itens / Item 1 / Categoria *", "");
     fill("Itens / Item 1 / Preco", "2.500000");
@@ -47,7 +48,7 @@ it("FE04 FE11 serviço tabela vigência vínculo sugestão fato e cálculo com r
     await confirm();
     expect(
         (
-            body(t.requests.at(-1)!).itens as {
+            body(lastMutation(t.requests)).itens as {
                 preco: string;
                 percentual: null;
             }[]
@@ -58,23 +59,23 @@ it("FE04 FE11 serviço tabela vigência vínculo sugestão fato e cálculo com r
         preco: "2.500000",
         percentual: "",
     });
-    expect(wire(t.requests.at(-1)!)).toContain('"percentual":null');
-    click("Consultar tabela e vigência recebidas");
+    expect(wire(lastMutation(t.requests))).toContain('"percentual":null');
+    await click("Consultar tabela e vigência recebidas");
     selected("Identificador *", "2601");
     await consult();
-    click("Vincular esta tabela ao cliente do contexto");
+    await click("Vincular esta tabela ao cliente do contexto");
     selected("Tabela Id *", "2601");
     fill("Vigencia Inicio *", "2026-10-01");
     fill("Motivo / justificativa *", "Vínculo fictício do cliente1 armazém1");
     await confirm();
-    click("Consultar vínculo de tabela confirmado");
+    await click("Consultar vínculo de tabela confirmado");
     await consult();
     expect(screen.getByRole("cell", { name: "2601" })).toBeInTheDocument();
-    click("Serviços e cálculo");
-    click("Consultar sugestões de serviço");
+    await click("Serviços e cálculo");
+    await click("Consultar sugestões de serviço");
     await consult();
-    click("Selecionar registro 1");
-    click("Registrar fato");
+    await click("Selecionar registro 1");
+    await click("Registrar fato");
     selected("Serviço (ID) *", "2501");
     selected("Unidade logística (ID)", "501");
     selected("Pedido de saída (ID)", "601");
@@ -91,11 +92,11 @@ it("FE04 FE11 serviço tabela vigência vínculo sugestão fato e cálculo com r
     expect(
         t.requests.some((r) => r.endpoint.id === "PedidoSaidaController.criar"),
     ).toBe(false);
-    click("Consultar situação e origem deste fato");
+    await click("Consultar situação e origem deste fato");
     selected("Identificador *", "2801");
     await consult();
     expect(screen.getByText("VALIDO", { exact: true })).toBeInTheDocument();
-    click("Conferir solicitação de cálculo após consulta do fato");
+    await click("Conferir solicitação de cálculo após consulta do fato");
     fill("Início do período *", "2026-10-01");
     fill("Fim exclusivo do período *", "2026-11-01");
     fill("Motivo / justificativa *", "Cálculo fictício solicitado após o fato");
@@ -155,16 +156,16 @@ it("FE11 reabertura nova versão ajuste conserva origem histórica e consulta id
         />,
     );
     await consult();
-    selectResultRow("Cálculos", "801");
-    click("Fechamentos e ESL");
+    await selectResultRow("Cálculos", "801");
+    await click("Fechamentos e ESL");
     await consult();
-    selectResultRow("Fechamentos", "901");
-    click("1. Ciclo e versões");
-    click("Consultar versão e hash");
+    await selectResultRow("Fechamentos", "901");
+    await click("1. Ciclo e versões");
+    await click("Consultar versão e hash");
     await consult();
-    click("Guardar versão consultada como origem do ajuste");
-    click("2. Decisão integral do Gestor");
-    click("Reabrir ciclo");
+    await click("Guardar versão consultada como origem do ajuste");
+    await click("2. Decisão integral do Gestor");
+    await click("Reabrir ciclo");
     selected("Identificador *", "901");
     selected("Calculo Id *", "801");
     fill(
@@ -172,14 +173,16 @@ it("FE11 reabertura nova versão ajuste conserva origem histórica e consulta id
         "Reabertura fictícia para correção identificada",
     );
     await confirm();
-    click("Consultar a nova versão após reabertura");
+    await click("Consultar a nova versão após reabertura");
     selected("Numero *", "2");
     await consult();
     expect(
-        screen.getByRole("region", { name: "Origem histórica do ajuste" }),
+        screen
+            .getAllByRole("region", { name: "Origem histórica do ajuste" })
+            .at(-1),
     ).toHaveTextContent("identificador 1001");
-    click("Ajustes de ciclo");
-    click("Registrar ajuste");
+    await click("Ajustes de ciclo");
+    await click("Registrar ajuste");
     selected("Origem Versao Id *", "1001");
     selected("Destino Fechamento Id *", "901");
     selected("Calculo Corrigido Id *", "801");
@@ -189,12 +192,12 @@ it("FE11 reabertura nova versão ajuste conserva origem histórica e consulta id
     );
     fill("Evidencia *", "Documento fictício e memória corrigida recebida");
     await confirm();
-    const cmd = body(t.requests.at(-1)!);
+    const cmd = body(lastMutation(t.requests));
     expect(cmd.origemVersaoId).toBe("1001");
     expect(cmd.destinoFechamentoId).toBe("901");
     expect(cmd.calculoCorrigidoId).toBe("801");
     expect(cmd).not.toHaveProperty("delta");
-    click("Consultar ajustes identificados do fechamento");
+    await click("Consultar ajustes identificados do fechamento");
     await consult();
     expect(screen.getByRole("cell", { name: "2901" })).toBeInTheDocument();
     saveProof("FE11-02-03", t.requests);

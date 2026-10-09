@@ -11,9 +11,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 
 @Configuration(proxyBeanMethods = false)
-@Profile("sqlserver-dev")
+@Profile({"sqlserver-dev", "sqlserver-prod"})
 @EnableConfigurationProperties(SqlServerProperties.class)
 public class SqlServerConfig {
     @Bean
@@ -22,7 +23,12 @@ public class SqlServerConfig {
     }
 
     HikariConfig configuracao(SqlServerProperties properties, Environment environment) {
-        properties.validarAlvo();
+        boolean producao = environment.acceptsProfiles(Profiles.of("sqlserver-prod"));
+        if (producao) {
+            properties.validarAlvoProducao();
+        } else {
+            properties.validarAlvo();
+        }
         Map<String, String> jpa =
                 Binder.get(environment)
                         .bind("spring.jpa.properties", Bindable.mapOf(String.class, String.class))
@@ -60,7 +66,7 @@ public class SqlServerConfig {
         config.setPassword(properties.password());
         configurarTls(config, environment);
         config.setMaximumPoolSize(5);
-        config.setPoolName("wms-dev");
+        config.setPoolName(producao ? "wms-prod" : "wms-dev");
         config.setConnectionInitSql(
                 "SET ANSI_NULLS ON; SET ANSI_PADDING ON; SET ANSI_WARNINGS ON; "
                         + "SET ARITHABORT ON; SET CONCAT_NULL_YIELDS_NULL ON; "

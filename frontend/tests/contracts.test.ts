@@ -145,7 +145,7 @@ describe("Fronteira contratual exata", () => {
             }),
         ).toThrow("UUID");
     });
-    it("161 rotas operacionais estão nas jornadas; 11 rotas auth usam telas/cliente nativos", () => {
+    it("161 rotas nas jornadas; login e dashboard têm apresentação nativa", () => {
         const used = new Set(
             journeys.flatMap((j) => j.steps.flatMap((s) => s.actions)),
         );
@@ -162,6 +162,18 @@ describe("Fronteira contratual exata", () => {
             "editar",
             "redefinir",
         ].map((handler) => `LoginController.${handler}`);
+        const nativeDashboard = [
+            "DashboardController.consultar",
+            "VisaoOperacaoController.consultar",
+            "VisaoOperacaoController.detalhe",
+        ];
+        expect(
+            endpoints.find((e) => e.id === nativeDashboard[0]),
+        ).toMatchObject({
+            method: "GET",
+            path: "/api/v1/dashboard",
+            response: "DashboardDto.Resumo",
+        });
         expect(
             endpoints
                 .filter((e) => e.id.startsWith("LoginController."))
@@ -169,12 +181,17 @@ describe("Fronteira contratual exata", () => {
                 .sort(),
         ).toEqual(nativeAuth.sort());
         expect(
-            endpoints.filter((e) => !nativeAuth.includes(e.id)),
+            endpoints.filter(
+                (e) =>
+                    !nativeAuth.includes(e.id) &&
+                    !nativeDashboard.includes(e.id),
+            ),
         ).toHaveLength(161);
         expect(
             endpoints.filter(
                 (e) =>
                     !nativeAuth.includes(e.id) &&
+                    !nativeDashboard.includes(e.id) &&
                     e.id !== "StatusController.consultar" &&
                     e.id !== "EstoqueController.posicionar" &&
                     !used.has(e.id),

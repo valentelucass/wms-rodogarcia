@@ -639,6 +639,41 @@ export interface ContingenciaDto_Resultado {
   conciliadaEm: string | null;
   resultado: unknown | null;
 }
+export interface DashboardDto_Area {
+  tipo: TipoEndereco;
+  posicoesCliente: string;
+  capacidadeAtiva: string | null;
+  livresArmazem: string | null;
+}
+export interface DashboardDto_Fila {
+  situacao: SituacaoPedidoSaida;
+  pedidos: string;
+}
+export interface DashboardDto_Produto {
+  produtoId: string;
+  sku: string;
+  unidadeMedida: string;
+  fisicoTotal: string;
+  disponivel: string;
+  reservado: string;
+  indisponivel: string;
+  pendenteUnitizacao: string;
+}
+export interface DashboardDto_Resumo {
+  clienteId: string;
+  armazemId: string;
+  consultadoEm: string;
+  fuso: string;
+  posicoesCliente: string;
+  unidadesDisponiveis: string;
+  pedidosAbertos: string;
+  unidadesComAviso: string | null;
+  antecedenciaValidade: number | null;
+  visaoArmazem: boolean;
+  areas: Array<DashboardDto_Area>;
+  fila: Array<DashboardDto_Fila>;
+  produtos: PaginaResponse<DashboardDto_Produto>;
+}
 export interface EmbalagemDto_Criar {
   produtoId: string;
   codigoDun: string;
@@ -1828,6 +1863,72 @@ export interface UnidadeLogisticaDto_Etiqueta {
   codigoDun: string | null;
   quantidadeProdutoPorDun: string | null;
 }
+export interface VisaoOperacaoDto_Resumo {
+  clienteId: string | null;
+  armazemId: string | null;
+  consultadoEm: string;
+  fuso: string;
+  capacidade: string | null;
+  posicoesOcupadas: string | null;
+  posicoesLivres: string | null;
+  ocupacao: string | null;
+  unidadesArmazenadas: string;
+  valorArmazenado: string | null;
+  valorCompleto: boolean;
+  emQuarentena: string;
+  reservasAtivas: string;
+  entradasAbertas: string;
+  saidasAbertas: string;
+  faturamentoMes: string | null;
+  faturamentoParcial: boolean;
+  financeiroPermitido: boolean;
+  competencia: string;
+  mapa: PaginaResponse<VisaoOperacaoDto_Posicao>;
+}
+export interface VisaoOperacaoDto_Posicao {
+  id: string;
+  armazemId: string;
+  armazem: string;
+  codigo: string;
+  rua: string;
+  nivel: number;
+  posicao: string;
+  tipo: TipoEndereco;
+  situacao: SituacaoCadastro;
+  estado: string;
+  disponivel: boolean;
+  ocupada: boolean;
+  bloqueada: boolean;
+  reservada: boolean;
+  quarentena: boolean;
+  capacidadePesoKg: string | null;
+}
+export interface VisaoOperacaoDto_Unidade {
+  id: string;
+  clienteId: string;
+  codigo: string;
+  produto: string;
+  sku: string;
+  lote: string | null;
+  quantidade: string;
+  unidadeMedida: string;
+  pedidoEntradaId: string;
+  bloqueada: boolean;
+  reservada: boolean;
+  quarentena: boolean;
+  ultimaMovimentacao: string | null;
+}
+export interface VisaoOperacaoDto_Detalhe {
+  endereco: VisaoOperacaoDto_Posicao;
+  unidades: Array<VisaoOperacaoDto_Unidade>;
+  unidadesVisiveis: string;
+  conteudoRestrito: boolean;
+  alturaMetros: string | null;
+  larguraMetros: string | null;
+  profundidadeMetros: string | null;
+  empilhamentoMaximo: number | null;
+  tipoUnidadePermitido: TipoUnidadeLogistica | null;
+}
 export interface ApiContracts {
   "AjusteFechamentoController.ajustar": { request: FechamentoCobrancaDto_Ajustar; response: FechamentoCobrancaDto_Ajuste };
   "AjusteFechamentoController.listar": { request: undefined; response: Array<FechamentoCobrancaDto_Ajuste> };
@@ -1885,6 +1986,7 @@ export interface ApiContracts {
   "ContingenciaController.conciliar": { request: ContingenciaDto_Conciliar; response: ContingenciaDto_Resultado };
   "ContingenciaController.consultar": { request: undefined; response: ContingenciaDto_Resultado };
   "ContingenciaController.listar": { request: undefined; response: PaginaResponse<ContingenciaDto_Resultado> };
+  "DashboardController.consultar": { request: undefined; response: DashboardDto_Resumo };
   "EmbalagemController.listar": { request: undefined; response: PaginaResponse<EmbalagemDto_Resposta> };
   "EmbalagemController.consultar": { request: undefined; response: EmbalagemDto_Resposta };
   "EmbalagemController.criar": { request: EmbalagemDto_Criar; response: EmbalagemDto_Resposta };
@@ -2001,4 +2103,6 @@ export interface ApiContracts {
   "UnidadeLogisticaController.consultar": { request: undefined; response: UnidadeLogisticaDto_Detalhe };
   "UnidadeLogisticaController.lerCodigo": { request: undefined; response: UnidadeLogisticaDto_Detalhe };
   "UnidadeLogisticaController.etiqueta": { request: undefined; response: UnidadeLogisticaDto_Etiqueta };
+  "VisaoOperacaoController.consultar": { request: undefined; response: VisaoOperacaoDto_Resumo };
+  "VisaoOperacaoController.detalhe": { request: undefined; response: VisaoOperacaoDto_Detalhe };
 }

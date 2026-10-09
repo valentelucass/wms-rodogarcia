@@ -5,6 +5,7 @@ import { writeFileSync } from "node:fs";
 import type { Request } from "../src/api/client";
 import {
     Harness,
+    lastMutation,
     click,
     fill,
     confirm,
@@ -19,7 +20,7 @@ async function arrival(qty: string) {
     fill("Observacao *", "Conferência física fictícia");
     fill("Itens / Item 1 / Quantidade boa recebida *", qty);
     await confirm();
-    click("Comparar previsto e físico registrado");
+    await click("Comparar previsto e físico registrado");
     await consult();
 }
 it("FE05 XML sem chegada partes 50+48 divergência100/98 e efetivação supervisionada", async () => {
@@ -42,28 +43,29 @@ it("FE05 XML sem chegada partes 50+48 divergência100/98 e efetivação supervis
     fill("Referência *", "FICT-100-DIVERGENCIA");
     await confirm();
     expect(screen.getByText(/Pedido de entrada: 101/)).toBeInTheDocument();
-    click("2. Notas e itens");
-    click("Importar XML existente");
+    await click("2. Notas e itens");
+    await click("Importar XML existente");
     selected("Identificador *", "101");
     fill("XML existente da NF-e *", "<nfe>nota ficticia prevista100</nfe>");
     await confirm();
-    expect(body(t.requests.at(-1)!).versao).toBe("0");
-    click("Conferir itens importados (sem confirmar chegada)");
+    expect(body(lastMutation(t.requests)).versao).toBe("0");
+    await click("Conferir itens importados (sem confirmar chegada)");
     await consult();
     expect(
         screen.getAllByRole("cell", { name: "100.000000" })[0],
     ).toBeInTheDocument();
     expect(screen.queryByText("98.000000", { exact: true })).toBeNull();
-    click("3. Conferência e chegadas");
+    await click("3. Conferência e chegadas");
+    await click("Iniciar conferência");
     fill(
         "Motivo / justificativa *",
         "Conferência de XML fictício sem efeito fiscal",
     );
     await confirm();
-    click("Registrar chegada dos itens consultados");
+    await click("Registrar chegada dos itens consultados");
     await arrival("50.000000");
-    click("3. Conferência e chegadas");
-    click("Registrar chegada física");
+    await click("3. Conferência e chegadas");
+    await click("Registrar chegada física");
     selected("Revisão atual *", "3");
     await arrival("48.000000");
     expect(
@@ -72,7 +74,8 @@ it("FE05 XML sem chegada partes 50+48 divergência100/98 e efetivação supervis
     expect(
         screen.getAllByRole("cell", { name: "2.000000" })[0],
     ).toBeInTheDocument();
-    click("4. Divergência e efetivação");
+    await click("4. Divergência e efetivação");
+    await click("Efetivar carga integral");
     selected("Revisão atual *", "4");
     fill("Aceitar Divergencias *", "true");
     fill(
@@ -80,8 +83,8 @@ it("FE05 XML sem chegada partes 50+48 divergência100/98 e efetivação supervis
         "Diferença fictícia aceita por Supervisor",
     );
     await confirm();
-    expect(body(t.requests.at(-1)!).aceitarDivergencias).toBe(true);
-    click("Consultar entradas efetivadas para unitização");
+    expect(body(lastMutation(t.requests)).aceitarDivergencias).toBe(true);
+    await click("Consultar entradas efetivadas para unitização");
     await consult();
     expect(
         screen.getAllByRole("cell", { name: "98.000000" })[0],
@@ -123,24 +126,27 @@ it("FE06 múltiplas unidades seleção explícita reimpressão divisão e reagru
     );
     fill("Referência *", "FICT-1000-UNIDADES");
     await confirm();
-    click("2. Notas e itens");
-    click("Importar XML existente");
+    await click("2. Notas e itens");
+    await click("Importar XML existente");
     fill("XML existente da NF-e *", "<nfe>prevista1000 ficticia</nfe>");
     await confirm();
-    click("Conferir itens importados (sem confirmar chegada)");
+    await click("Conferir itens importados (sem confirmar chegada)");
     await consult();
-    click("3. Conferência e chegadas");
+    await click("3. Conferência e chegadas");
+    await click("Iniciar conferência");
     fill("Motivo / justificativa *", "Conferência física fictícia1000");
     await confirm();
-    click("Registrar chegada dos itens consultados");
+    await click("Registrar chegada dos itens consultados");
     await arrival("1000.000000");
-    click("4. Divergência e efetivação");
+    await click("4. Divergência e efetivação");
+    await click("Efetivar carga integral");
     fill("Motivo / justificativa *", "Efetivação física fictícia1000");
     await confirm();
-    click("Consultar entradas efetivadas para unitização");
+    await click("Consultar entradas efetivadas para unitização");
     await consult();
-    click("Unitizar a entrada conferida selecionada");
-    click("Consultar progresso");
+    await click("Selecionar registro 1");
+    await click("Unitizar a entrada conferida selecionada");
+    await click("Consultar progresso");
     selected("Pedido (ID) *", "101");
     await consult();
     expect(progress.at(-1)?.params).toEqual({ pedidoId: "101" });
@@ -151,17 +157,19 @@ it("FE06 múltiplas unidades seleção explícita reimpressão divisão e reagru
     expect(progress.at(-1)?.raw).toContain('"entradasPendentes":1');
     expect(progress.at(-1)?.raw).toContain('"concluida":false');
     expect(
-        screen.getByText("Entradas Unitizadas").nextElementSibling,
+        screen.getAllByText("Entradas Unitizadas").at(-1)?.nextElementSibling,
     ).toHaveTextContent("0");
     expect(
-        screen.getByText("Entradas Pendentes").nextElementSibling,
+        screen.getAllByText("Entradas Pendentes").at(-1)?.nextElementSibling,
     ).toHaveTextContent("1");
-    click("Distribuir em unidades");
-    click("Consultar embalagens deste SKU");
+    // Escolhe a entrada efetivada relacionada ao pedido antes de distribuir.
+    await click("Selecionar registro 1");
+    await click("Distribuir em unidades");
+    await click("Consultar embalagens deste SKU");
     await screen.findByRole("button", { name: "Selecionar registro 1" });
-    click("Selecionar registro 1");
+    await click("Selecionar registro 1");
     for (let i = 1; i <= 2; i++) {
-        click("Adicionar Unidades");
+        await click("Adicionar Unidades");
         fill(`Unidades / Item ${i} / Tipo *`, "PALLET");
         fill(`Unidades / Item ${i} / Condicao *`, "BOA");
         fill(`Unidades / Item ${i} / Quantidade *`, "500.000000");
@@ -175,8 +183,8 @@ it("FE06 múltiplas unidades seleção explícita reimpressão divisão e reagru
             name: "Referências confirmadas da jornada",
         }),
     ).not.toHaveTextContent("Unidade logística: 501");
-    click("1. Distribuir quantidades");
-    click("Consultar progresso");
+    await click("1. Distribuir quantidades");
+    await click("Consultar progresso");
     selected("Pedido (ID) *", "101");
     await consult();
     expect(progress.at(-1)?.params).toEqual({ pedidoId: "101" });
@@ -186,10 +194,10 @@ it("FE06 múltiplas unidades seleção explícita reimpressão divisão e reagru
     expect(progress.at(-1)?.raw).toContain('"entradasPendentes":0');
     expect(progress.at(-1)?.raw).toContain('"concluida":true');
     expect(
-        screen.getByText("Entradas Unitizadas").nextElementSibling,
+        screen.getAllByText("Entradas Unitizadas").at(-1)?.nextElementSibling,
     ).toHaveTextContent("1");
     expect(
-        screen.getByText("Entradas Pendentes").nextElementSibling,
+        screen.getAllByText("Entradas Pendentes").at(-1)?.nextElementSibling,
     ).toHaveTextContent("0");
     writeFileSync(
         "evidencias/marco02-fe06-progresso.json",
@@ -203,16 +211,14 @@ it("FE06 múltiplas unidades seleção explícita reimpressão divisão e reagru
             2,
         ),
     );
-    click("3. Ler e reimprimir etiqueta");
-    click("Consultar / reimprimir etiqueta");
-    // Não copia UUID: seleção do segundo detalhe retornado da unitização.
-    selected("Código *", "");
-    click("1. Distribuir quantidades");
-    click("Consultar lista");
+    // Seleção explícita da segunda unidade pela lista, sem copiar UUID.
+    await click("2. Corrigir organização física");
+    await click("Consultar lista");
     await consult();
-    click("Selecionar registro 2");
-    click("3. Ler e reimprimir etiqueta");
-    click("Consultar / reimprimir etiqueta");
+    await click("Selecionar registro 2");
+    await click("3. Ler e reimprimir etiqueta");
+    await click("Selecionar registro 2");
+    await click("Consultar / reimprimir etiqueta");
     selected("Código *", "00000000-0000-4000-8000-000000000002");
     await consult();
     await consult();
@@ -227,26 +233,28 @@ it("FE06 múltiplas unidades seleção explícita reimpressão divisão e reagru
         "00000000-0000-4000-8000-000000000002",
     ]);
 
-    click("2. Corrigir organização física");
-    click("Dividir unidade");
+    await click("2. Corrigir organização física");
+    await click("Selecionar registro 2");
+    await click("Dividir unidade");
     selected("Unidade logística (ID) *", "502");
     selected("Pedido (ID) *", "101");
     selected("Revisão atual *", "7");
     fill("Quantidade Nova Unidade *", "200.000000");
     fill("Motivo / justificativa *", "Divisão física fictícia identificada");
     await confirm();
-    expect(t.requests.at(-1)?.params).toEqual({
+    expect(lastMutation(t.requests).params).toEqual({
         pedidoId: "101",
         unidadeId: "502",
     });
-    click("Consultar identidades após divisão");
+    await click("Consultar identidades após divisão");
     await consult();
-    click("Selecionar registro 2");
-    click("2. Corrigir organização física");
-    click("Reagrupar unidades");
+    await click("Selecionar registro 2");
+    await click("2. Corrigir organização física");
+    await click("Selecionar registro 2");
+    await click("Reagrupar unidades");
     selected("Unidade logística (ID) *", "502");
     selected("Versao Destino *", "8");
-    click("Adicionar origem unidade 503 · revisão 0");
+    await click("Adicionar origem unidade 503 · revisão 0");
     fill(
         "Motivo / justificativa *",
         "Reagrupamento físico fictício identificado",
@@ -254,13 +262,13 @@ it("FE06 múltiplas unidades seleção explícita reimpressão divisão e reagru
     await confirm();
     expect(
         (
-            body(t.requests.at(-1)!).origens as {
+            body(lastMutation(t.requests)).origens as {
                 unidadeId: string;
                 versao: string;
             }[]
         )[0],
     ).toEqual({ unidadeId: "503", versao: "0" });
-    click("Reimprimir conteúdo após reagrupamento");
+    await click("Reimprimir conteúdo após reagrupamento");
     await consult();
     expect(t.requests.at(-1)?.params.codigo).toBe(
         "00000000-0000-4000-8000-000000000002",

@@ -227,7 +227,13 @@ export function absorb(
         )
             next.selected[t] = v;
     };
-    visit(type, value, explicit || !Array.isArray(value), requestOwner);
+    visit(
+        type,
+        value,
+        explicit ||
+            (!Array.isArray(value) && !type.startsWith("PaginaResponse<")),
+        requestOwner,
+    );
     if (
         request?.endpoint.id === "PedidoSaidaController.justificar" &&
         isObject(value) &&

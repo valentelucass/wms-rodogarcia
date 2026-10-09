@@ -1,5 +1,6 @@
 import type { Perfil } from "../../contracts/runtime";
 import type { ExerciseSession } from "../../hooks/useExerciseSession";
+import { ReferenceSelect } from "../context/ReferenceSelect";
 export function ExerciseContext({ session: s }: { session: ExerciseSession }) {
     return (
         <>
@@ -20,20 +21,20 @@ export function ExerciseContext({ session: s }: { session: ExerciseSession }) {
                         <option value="OPERACAO">Operação</option>
                     </select>
                 </label>
-                <label>
-                    Cliente fictício (ID)
-                    <input
-                        value={s.client}
-                        onChange={(e) => s.setClient(e.target.value)}
-                    />
-                </label>
-                <label>
-                    Armazém fictício (ID)
-                    <input
-                        value={s.warehouse}
-                        onChange={(e) => s.setWarehouse(e.target.value)}
-                    />
-                </label>
+                <ReferenceSelect
+                    kind="clientes"
+                    title="Cliente fictício"
+                    all
+                    value={s.client}
+                    onChange={s.setClient}
+                />
+                <ReferenceSelect
+                    kind="armazens"
+                    title="Armazém fictício"
+                    all
+                    value={s.warehouse}
+                    onChange={s.setWarehouse}
+                />
                 <button type="button" onClick={s.applyContext}>
                     Aplicar contexto
                 </button>

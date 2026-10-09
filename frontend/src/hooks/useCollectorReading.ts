@@ -13,7 +13,9 @@ export function useCollectorReading(
     perfil: Perfil,
 ) {
     const [code, setCode] = useState(String(context.codigo ?? ""));
-    const [position, setPosition] = useState("");
+    const [position, setPosition] = useState(
+        String(context.enderecoCodigo ?? ""),
+    );
     const [unit, setUnit] = useState<Values>();
     const [addresses, setAddresses] = useState<Values[]>([]);
     const [target, setTarget] = useState<Values>();
@@ -27,6 +29,8 @@ export function useCollectorReading(
     const contextKey = JSON.stringify([
         context.clienteId,
         context.armazemId,
+        context.enderecoId,
+        context.enderecoCodigo,
         perfil,
     ]);
     const { cancel } = scope;
@@ -37,7 +41,8 @@ export function useCollectorReading(
         setTarget(undefined);
         setAddresses([]);
         setError("");
-    }, [contextKey, cancel]);
+        setPosition(String(context.enderecoCodigo ?? ""));
+    }, [contextKey, cancel, context.enderecoCodigo]);
     const invalidate = () => {
         scope.cancel();
         setBusy(false);
@@ -91,7 +96,29 @@ export function useCollectorReading(
                 );
             captured.current = reading;
             setUnit(u.data);
-            setAddresses(a.data.itens.filter(isObject));
+            const listed = a.data.itens.filter(isObject);
+            if (
+                context.enderecoId &&
+                !listed.some((v) => String(v.id) === String(context.enderecoId))
+            ) {
+                const destination = await transport.send({
+                    endpoint: endpoint("EnderecoController.consultar"),
+                    params: { id: context.enderecoId },
+                    query: {},
+                    signal: ticket.signal,
+                });
+                if (!ticket.isCurrent()) return;
+                if (
+                    !isObject(destination.data) ||
+                    String(destination.data.armazemId) !==
+                        String(context.armazemId)
+                )
+                    throw new Error(
+                        "O destino selecionado não pertence ao armazém atual.",
+                    );
+                listed.push(destination.data);
+            }
+            setAddresses(listed);
         } catch (err) {
             if (ticket.isCurrent())
                 setError(

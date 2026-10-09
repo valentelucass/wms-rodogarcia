@@ -52,6 +52,8 @@ Anatomia: identificação WMS → destinos → identidade/perfil. O topo mostra 
 
 Desktop a partir de 1024 px: lateral fixa com rolagem própria, expandida por padrão e redução opcional. Botões reduzidos mantêm nome acessível e título. Os ícones são decorativos; o destino atual tem `aria-current="page"`, fundo de seleção e texto. A ordem dos módulos existentes é preservada.
 
+**Incremento FE02-DS03:** a escolha expandida/minimizada passa a persistir entre recargas; ausência de preferência inicia expandida. O header recebe o contexto operacional compacto e a identidade fica somente na lateral, conforme [composição atual](etapa-03.md#header-e-preferências).
+
 **FE02-DS01-A01:** “Minimizar menu” fica na própria lateral, acima da identidade. A seta aponta à esquerda; ao clicar, a largura passa de 256 para 64 px, ancorada à esquerda, e os textos desaparecem visualmente. O conteúdo ocupa o espaço liberado. A seta passa a apontar à direita para expandir. Redução/expansão preservam o formulário e a seleção; a transição respeita movimento reduzido. No mobile permanece o drawer com destinos nomeados.
 
 Abaixo de 1024 px: drawer lateral com texto e alvos de pelo menos 44 px. Esta é uma adaptação P ao menu operacional extenso do WMS; a barra inferior de cinco destinos do produto de referência não foi introduzida. O painel fecha pelo botão, pelo fundo, por Escape ou pela navegação. O diálogo nativo torna o restante da página inerte, e o ciclo de Tab/Shift+Tab permanece nos controles do painel. Escape devolve foco ao acionador; a navegação leva foco ao conteúdo. O atalho de conteúdo evita alterar o hash e preserva a edição.

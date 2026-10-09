@@ -365,6 +365,143 @@
     width: 18px;
     height: 18px;
 }
+.account-dialog {
+    width: min(620px, calc(100vw - 32px));
+    background: var(--wms-account-surface);
+    border-color: var(--og-border-strong);
+    border-radius: var(--og-radius-overlay);
+    box-shadow: var(--wms-account-shadow);
+}
+.account-dialog.workspace-dialog--wide {
+    width: min(840px, calc(100vw - 32px));
+}
+.account-dialog::backdrop {
+    background: var(--wms-account-backdrop);
+    backdrop-filter: blur(3px);
+}
+.account-dialog .dialog-header {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    align-items: center;
+    padding: var(--og-space-5) var(--og-space-6);
+    background: var(--wms-account-surface);
+}
+.account-dialog .dialog-header h2 {
+    font-size: var(--og-type-metric);
+    line-height: var(--og-leading-title);
+    overflow-wrap: anywhere;
+}
+.account-dialog .dialog-close {
+    border-color: var(--og-border);
+    background: var(--og-surface-raised);
+}
+.account-dialog .dialog-body {
+    padding: var(--og-space-6);
+}
+.account-dialog .user-form {
+    background: transparent;
+}
+.account-dialog .user-form > fieldset {
+    grid-template-columns: 1fr;
+    gap: var(--og-space-4);
+}
+.account-section {
+    min-width: 0;
+    padding: var(--og-space-4);
+    border: 1px solid var(--og-border);
+    border-radius: var(--og-radius-card);
+    background: color-mix(
+        in srgb,
+        var(--og-surface-raised) 50%,
+        var(--wms-account-surface)
+    );
+}
+.account-section h3 {
+    margin: 0 0 var(--og-space-3);
+    font-size: var(--og-type-body);
+    line-height: var(--og-leading-body);
+}
+.account-fields,
+.account-dialog .password-form > fieldset {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--og-space-4);
+    min-width: 0;
+}
+.account-dialog .password-form > fieldset {
+    border: 0;
+    padding: 0;
+    margin: var(--og-space-5) 0 0;
+}
+.account-dialog label {
+    margin: 0;
+    gap: var(--og-space-2);
+}
+.account-dialog input:not([type="checkbox"]),
+.account-dialog select {
+    width: 100%;
+    min-height: var(--og-touch-height);
+    background: var(--og-surface);
+}
+.account-section p,
+.account-section small,
+.password-guidance {
+    margin: var(--og-space-2) 0 0;
+    color: var(--og-text-muted);
+    font-size: var(--og-type-caption);
+    line-height: var(--og-leading-body);
+}
+.account-profile {
+    margin-bottom: var(--og-space-3);
+    align-items: center;
+}
+.account-profile p {
+    margin: 0;
+}
+.account-fields > :only-child {
+    grid-column: 1 / -1;
+}
+.password-notice {
+    margin: 0 0 var(--og-space-3);
+    padding: var(--og-space-3) var(--og-space-4);
+    border-left: 3px solid var(--og-brand);
+    border-radius: var(--og-radius-control);
+    background: var(--og-selection);
+    color: var(--og-selection-text);
+}
+.account-dialog .password-current,
+.account-dialog .actions {
+    grid-column: 1 / -1;
+}
+.account-dialog .actions {
+    margin: 0;
+    padding-top: var(--og-space-4);
+    justify-content: flex-end;
+}
+.account-dialog .actions button {
+    min-height: var(--og-touch-height);
+}
+@media (max-width: 600px) {
+    .account-dialog .dialog-header,
+    .account-dialog .dialog-body {
+        padding: var(--og-space-4);
+    }
+    .account-dialog .dialog-header h2 {
+        font-size: var(--og-type-section);
+        line-height: var(--og-leading-section);
+    }
+    .account-fields,
+    .account-dialog .password-form > fieldset {
+        grid-template-columns: 1fr;
+    }
+    .account-dialog .actions {
+        flex-direction: column-reverse;
+    }
+    .account-dialog .actions button {
+        width: 100%;
+    }
+}
 .table-scroll {
     overflow-x: auto;
     margin-top: var(--og-space-4);

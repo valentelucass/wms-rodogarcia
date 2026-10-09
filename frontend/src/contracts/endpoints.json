@@ -1474,6 +1474,50 @@
     }
   },
   {
+    "id": "DashboardController.consultar",
+    "method": "GET",
+    "path": "/api/v1/dashboard",
+    "request": null,
+    "response": "DashboardDto.Resumo",
+    "query": [
+      {
+        "name": "clienteId",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "armazemId",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "fuso",
+        "type": "String",
+        "required": true
+      },
+      {
+        "name": "pagina",
+        "type": "int",
+        "required": false,
+        "default": "0"
+      },
+      {
+        "name": "tamanho",
+        "type": "int",
+        "required": false,
+        "default": "6"
+      }
+    ],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/DashboardController.java",
+    "handler": "consultar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/DashboardService.java#consultar"
+    ]
+  },
+  {
     "id": "EmbalagemController.listar",
     "method": "GET",
     "path": "/api/v1/embalagens",
@@ -4326,6 +4370,83 @@
     "permission": "OPERACAO",
     "permissionSource": [
       "backend/src/main/java/br/com/rodogarcia/wms/services/UnidadeLogisticaService.java#etiqueta"
+    ]
+  },
+  {
+    "id": "VisaoOperacaoController.consultar",
+    "method": "GET",
+    "path": "/api/v1/visao-operacao",
+    "request": null,
+    "response": "VisaoOperacaoDto.Resumo",
+    "query": [
+      {
+        "name": "clienteId",
+        "type": "Long",
+        "required": false
+      },
+      {
+        "name": "armazemId",
+        "type": "Long",
+        "required": false
+      },
+      {
+        "name": "fuso",
+        "type": "String",
+        "required": true
+      },
+      {
+        "name": "codigo",
+        "type": "String",
+        "required": false
+      },
+      {
+        "name": "estado",
+        "type": "String",
+        "required": false,
+        "default": "TODAS"
+      },
+      {
+        "name": "pagina",
+        "type": "int",
+        "required": false,
+        "default": "0"
+      },
+      {
+        "name": "tamanho",
+        "type": "int",
+        "required": false,
+        "default": "100"
+      }
+    ],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/VisaoOperacaoController.java",
+    "handler": "consultar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/VisaoOperacaoService.java#consultar"
+    ]
+  },
+  {
+    "id": "VisaoOperacaoController.detalhe",
+    "method": "GET",
+    "path": "/api/v1/visao-operacao/posicoes/{id}",
+    "request": null,
+    "response": "VisaoOperacaoDto.Detalhe",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/VisaoOperacaoController.java",
+    "handler": "detalhe",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/VisaoOperacaoService.java#detalhe"
     ]
   }
 ]

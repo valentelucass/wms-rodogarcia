@@ -1,0 +1,58 @@
+{
+  "versaoContrato": 1,
+  "demanda": "PROD-LAUNCH01",
+  "estado": "BLOQUEADO_CANAL_PROD_NAO_DESCOBERTO",
+  "bancoEsperado": "WMS_PROD",
+  "identidadeEsperada": "WMSPROD",
+  "identidadeEsperadaNatureza": "Contrato futuro expresso de Lucas/Farol; nao descoberta nem atestacao de existencia.",
+  "canalAplicacaoProtegido": null,
+  "fonteIdentidadeRestrita": null,
+  "contratoPermissoesCatalogoHistorico": null,
+  "motivo": "Nao foi descoberto canal WMS_PROD proprio de aplicacao, identidade restrita nem atestacao publica correspondente. Existencia de WMSDEV e TLS DEV nao supre estes requisitos.",
+  "portasCandidatas": {
+    "bind": "127.0.0.1",
+    "backend": 25590,
+    "frontend": 25591,
+    "disponibilidade": "Leitura datada no inventario Prumo; launcher deve conferir novamente antes de iniciar, sem matar processo ocupante."
+  },
+  "origensFuturas": {
+    "frontend": "https://wms.rodogarcia.com.br",
+    "backend": "https://wms-api.rodogarcia.com.br",
+    "proxyOrigin": "",
+    "configurarCloudflareDNSAgora": false
+  },
+  "sql": {
+    "endpointConfigurado": "tcp:127.0.0.1,1433",
+    "encrypt": "Mandatory",
+    "trustServerCertificate": false,
+    "pooling": false,
+    "connectRetryCount": 0,
+    "connectTimeoutSeconds": 120,
+    "guardTimeoutSeconds": 240,
+    "progressIntervalSeconds": 10,
+    "commandTimeoutSeconds": 3,
+    "somenteLeituraMetadadosNaGuarda": true,
+    "migrationsDDLGrants": false,
+    "fallbackDEV": false
+  },
+  "helper": {
+    "path": "infra/prod/guarda-wmsprod.ps1",
+    "stdout": "Um objeto JSON sanitizado no schema original da guarda, sem logs/segredos.",
+    "exit0": "Somente PASS real atual completo. Indisponivel nesta versao sem binding PROD descoberto e implementado.",
+    "exit20": "Preflight/guarda bloqueada; nenhuma liberacao por listener, bool, recibo antigo ou convencao de nome.",
+    "aberturaNestaVersao": 0,
+    "operacaoSQLImplementada": false,
+    "limite": "Este auxiliar e o gate concreto failclosed de PROD; o binding protegido e a guarda SQL operacional exigem fonte propria descoberta. Nao prepara abertura futura automatica."
+  },
+  "descoberta": {
+    "raizMetadados": "%LOCALAPPDATA%/Rodogarcia/WMS",
+    "pastasObservadas": ["api-dev", "auth-dev", "database-runner"],
+    "conteudoCredenciaisLido": false,
+    "DPAPIImportada": false,
+    "conexaoSQL": false,
+    "alvoPRODRealConfirmado": false,
+    "identidadePRODRealConfirmada": false,
+    "permissionsCatalogHistoryPRODConfirmados": false
+  },
+  "proximoEncaminhamento": "Responsavel apresenta referencia publica do canal PROD exclusivo ja existente e atestacao da identidade restrita/contrato do alvo; nao pedir senha em chat nem criar conta/grant/provider. Farol coordena BAT unico somente depois dos pre-requisitos e binding da guarda suficientes."
+}

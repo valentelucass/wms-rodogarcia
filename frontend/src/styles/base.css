@@ -127,6 +127,8 @@ textarea::placeholder {
 }
 textarea {
     resize: vertical;
+    max-height: var(--wms-textarea-max-height);
+    overflow-y: auto;
 }
 input[type="checkbox"],
 input[type="radio"] {

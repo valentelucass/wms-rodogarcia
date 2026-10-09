@@ -39,6 +39,7 @@ export function AppShell({
     userName,
     userRole,
     onLogout,
+    onPassword,
 }: {
     page: string;
     navigate: Navigate;
@@ -51,6 +52,7 @@ export function AppShell({
     userName?: string;
     userRole?: string;
     onLogout?: () => void;
+    onPassword?: () => void;
 }) {
     const mobile = useSyncExternalStore(subscribeWidth, narrow);
     const [collapsed, setCollapsed] = useState(readSidebarPreference);
@@ -63,7 +65,7 @@ export function AppShell({
     useLayoutEffect(() => {
         if (previousContent.current !== contentKey) {
             drawer.current?.close();
-            document.getElementById("conteudo")?.focus();
+            document.getElementById("conteudo")?.focus({ preventScroll: true });
             previousContent.current = contentKey;
         }
     }, [contentKey]);
@@ -228,7 +230,10 @@ export function AppShell({
                                 <button
                                     type="button"
                                     className="account-action"
-                                    onClick={() => navigate("senha")}
+                                    aria-haspopup="dialog"
+                                    onClick={
+                                        onPassword ?? (() => navigate("senha"))
+                                    }
                                 >
                                     <Icon name="senha" />
                                     <span>Minha senha</span>

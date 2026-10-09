@@ -1,15 +1,139 @@
 # Estado e trilha de implementação do WMS Rodogarcia
 
+## FE05-PED01 — entrada centrada no pedido, 09/10/2026
+
+**Em andamento, pedido expresso de Lucas:** unificar as quatro etapas globais de Entrada e conferência em Pedidos de entrada, com criação no cabeçalho e notas/itens, conferência, divergências, histórico e efetivação no pedido persistente. Dependências FE02-REG01, FE02-DS01–DS03, BE06 → FE05. Preservar comandos, revisões, origens, permissões e efeitos backend; sem nova situação manual, migration ou fusão de entidades.
+
+- [ ] Mapear todos os comandos e estados atuais e definir seu destino no pedido.
+- [ ] Implementar lista, criação, detalhe e operações com atualização após confirmação.
+- [ ] Conferir fronteiras, temas, teclado, mobile e documentar evidências e limites.
+
+**Próximo:** concluir implementação e validação local com transporte fictício/HTTP interceptado. Filtros remotos seguem os contratos atuais; buscas complementares identificam seu alcance na página. Integração SQL Server e fonte em execução são verificações separadas, pelo fluxo autorizado e guarda vigente. Alterações preexistentes preservadas.
+
+## FE02-REG01 — listas, detalhes e ações por registro, 09/10/2026
+
+**Concluído localmente, pedido expresso de Lucas:** 12 áreas, 50 páginas e 171 ocorrências de ações inventariadas e migradas. Dependências FE02-DS01–DS03, FE04–FE12 e contratos BE04–BE14. Lista/fila/consulta principal ao entrar; criação no cabeçalho; detalhe e comandos no registro persistente; edição em diálogo, mantendo etapas operacionais, permissões, revisão, motivo e confirmação. Cada área tem fontes, colunas e comandos próprios, além da estrutura compartilhada.
+
+- [x] Inventariar fontes e ações das 12 áreas e definir seu destino por página.
+- [x] Implementar Clientes e expandir as páginas com adaptações específicas.
+- [x] Conferir integrações de transporte, estados, contexto, teclado e mobile; registrar evidências e limites.
+
+**Conferência:** tipagem/lint/builds real e fictício, 467 testes da suíte e 25 focais, seis casos Chrome HTTP interceptado, cobrindo as 50 páginas em desktop/mobile, temas, clientes e falhas. [Padrão e limites](docs/design-system/etapa-06.md), [inventário](docs/design-system/inventario-paginas.md), [recibo](orchestracao/.runtime/record-pages-resultado.json). Graphify recusou extração menor; grafo preservado sem force.
+
+**Próximo:** conferir a fonte carregada na aplicação e integração real no WMS_DEV pelo fluxo autorizado com guarda vigente. Sem SQL Server, backend, migrations, emissão/impressão real, publicação ou reinício nesta entrega. Cidade/vínculos de armazém não constam da resposta básica de Cliente; sua inclusão exige contrato/relação definidos, preservando múltiplos vínculos. Demais frentes preexistentes conservadas.
+
+## FE02-CTX01-A01 — espaço dos seletores de contexto, 09/10/2026
+
+**Concluído localmente, pedido expresso de Lucas:** ajuste somente visual do topo em Cadastros e demais páginas, preservando seleção de todos os clientes/armazéns e Aplicar contexto. Dependência FE02-CTX01; a implementação funcional CTX01/DASH02 mantém seu estado próprio.
+
+- [x] Remover largura fixa que sobrepunha as colunas, ampliar o espaço e proteger a largura das ações.
+- [x] Distribuir o contexto em outra linha no tablet/notebook e empilhar os seletores no mobile.
+- [x] Conferir formatação/build e Chrome com API interceptada em sete larguras (320–1440 px), textos completos, listas dentro da tela e temas; capturas inspecionadas.
+
+**Prova:** [medidas](frontend/evidencias/context-spacing-resultados.json), [composição](docs/design-system/etapa-03.md#espaço-dos-seletores--fe02-ctx01-a01). Alteração de apresentação em `context.css`, sem backend/banco ou regra de seleção. Preview próprio encerrado. Graphify recusou extração menor, sem forçar. **Próximo:** atualizar a página em execução para carregar o CSS; nenhuma correção visual pendente neste recorte.
+
+## FE02-CTX01 / BE14-DASH02 → FE02-DASH02 — seletores e visão geral, 09/10/2026
+
+**Concluído localmente, pedido expresso de Lucas:** três correções: seleção de cliente por nome, seleção de armazém por nome e Início conforme o texto anexado. Dependências BE05/FE04, BE08/FE07, BE09/FE08, BE12–BE14 e FE02-DS03. Substitui a composição do Início de DASH01, preservando seu contrato/componente. Catálogos e leituras respeitam alcance; IDs permanecem nos contratos. Dez indicadores, todos os armazéns permitidos, mapa paginado, detalhes e endereçamento pelo coletor existente. CTX01-A01 conserva sua entrega visual própria.
+
+- [x] Cliente pesquisável por nome/código no topo e nos campos correspondentes dos formulários operacionais.
+- [x] Armazém pesquisável, seleção de todos para a visão geral e contexto compartilhado com o mapa.
+- [x] Dez indicadores e mapa ligados à leitura backend, detalhes autorizados, filtros, atualização e destino preenchido sem gravar automaticamente.
+
+**Conferência:** `verify` backend com dez testes locais (arquitetura/JPA H2 isolada/serviço) e artefato próprio; suíte frontend com 441 aprovados e 23 focais finais, tipagem/lint/builds real/fictício. Dezoito casos Chrome com API interceptada e três do exercício fictício, incluindo temas, 320–1920px, nomes/Long/Bearer, filtros/paginação, foco e encaminhamento. Capturas inspecionadas. [Definições e limites](docs/design-system/etapa-05.md), [recibo](orchestracao/.runtime/visao-operacao-resultado.json).
+
+**Próximo:** carregar a fonte atual pelos fluxos autorizados e conferir dados/consultas no WMS_DEV após a guarda vigente. Sem SQL Server, migration, restart, publicação ou comprovação da versão já em execução neste recorte. Desempenho/dialeto reais e validação de armazém/equipamento/fiscal continuam separados. As demais frentes foram preservadas.
+
+## BE14-DASH01 → FE02-DASH01 — gráficos do Início, 09/10/2026
+
+**Concluído localmente, autorização expressa de Lucas neste chat:** contrato agregado de leitura em `backend/` e gráficos abaixo do Acesso rápido: ocupação física, disponibilidade por SKU e fila de saída, com quatro indicadores. Dependências BE04/BE08/BE09/BE14, FE02/FE03/FE08 e FE02-DS03-A05. Permissões, regras operacionais e frentes preexistentes preservadas; nenhuma migration ou intervenção em SQL Server/processos existentes. Séries históricas e cobrança permanecem evolução separada.
+
+- [x] Implementar contrato agregado com escopo validado e disponibilidade apurada no backend.
+- [x] Apresentar gráficos e indicadores nos dois modos, com estados de espera/erro/vazio, teclado e responsividade.
+- [x] Conferir backend isolado, contratos, frontend e navegador; registrar evidências e limites.
+
+**Conferência:** `verify` isolado com cinco cenários HTTP/H2 do dashboard e cinco verificações de arquitetura; tipagem/lint, 432 testes frontend e cinco focais finais, builds real/fictício próprios. Três casos Chrome no exercício e um no modo real com API interceptada aprovados, incluindo ambos os temas, cinco larguras, foco após paginação, contexto Long, erro/vazio e CSP; capturas inspecionadas. [Definição](docs/design-system/etapa-04.md), [recibo](orchestracao/.runtime/dashboard-dash01-resultado.json). Graphify recusou substituir o mapa por extração menor, sem `--force`. **Próximo:** carregar o backend atualizado pelo fluxo DEV autorizado e conferir a integração SQL Server; esta entrega local não comprova dialeto, desempenho ou versão já em execução. Previews próprios encerrados; frentes A06/PROD e manutenção do mapa conservam seus estados.
+
+## FE02-DS03-A06 — diálogos de senha e usuários, 09/10/2026
+
+**Concluído no recorte local, pedido expresso de Lucas:** Minha senha abre sobre a página atual; cadastro de usuários tem campos agrupados e diálogo destacado. Lucas rejeitou a faixa azul no topo; ela foi removida. Dependências: FE02-DS03 e BE04-AUTH01 → FE03-AUTH01. Validações, permissões e encerramento das sessões após troca de senha preservados.
+
+- [x] Abrir Minha senha como modal sem substituir a página ou perder sua edição.
+- [x] Agrupar campos de usuários/senha, destacar superfície e reorganizar ações.
+- [x] Conferir teclado, fechamento/foco, espera/erro, temas e tamanhos de tela.
+
+**Conferência:** tipagem final, lint focal, formatação e builds real/fictício aprovados; 14 testes unitários focais e 16 casos Chrome com API interceptada, incluindo cinco larguras, ambos os temas, foco inicial/retorno, edição preservada, senha obrigatória e envio incerto de usuários. Capturas inspecionadas. [Definição e limites](docs/design-system/etapa-03.md#diálogos-de-conta--fe02-ds03-a06), [prova](frontend/evidencias/account-a06-corrigido-browser-resultados.json). Preview próprio encerrado. **Próximo:** conferir a página em execução para carregar o ajuste; sem backend/banco ou reinício de processos existentes. Frentes DASH01 e PROD-LAUNCH01 preservadas.
+
+## PROD-LAUNCH01 — launcher Windows de produção, 09/10/2026
+
+**Preparo local testado e revisado; entrega parcial, operação PROD bloqueada:** BE02-PROD01 → FE02-PROD01, dependências BE02/FE02/D32/SQL-TLS-ATUAL. Entrega `iniciar-prod.bat` (grafia recebida `.bar` preservada no pedido), build candidato isolado/servidor frontend estático real, backend perfil PROD estrito e informações para os domínios futuros wms.rodogarcia.com.br e wms-api.rodogarcia.com.br. Nenhuma configuração Cloudflare/DNS/túnel nesta etapa.
+
+Farol BAT/auxiliares e canônicos; Cedro backend/configs PROD; Lume novos build/servidor frontend, fonte visual somente leitura; Prumo portas/canais protegidos/guarda; Vigia revisão independente. Portas locais25590/25591 inventariadas livres, revalidadas no launcher; bind127.0.0.1, sem kill por porta. Canal SQL/AUTH PROD próprio ainda não descoberto no recorte de metadados; não usar material DEV/admin ou fabricar identidade. [Escopo e donos](orchestracao/.runtime/launcher-producao/inicio.json).
+
+**Conferência:** BAT `--preparar` real exit0 no run5bcb; BAT normal real exit40 AUTH PROD ausente no run9626, antes de guarda SQL ou servidores. Root23 focais verdes; frontend17 focais e13 verificações HTTP de assets com upstream sintético, guard de recusa sem SQL. Builds recentes recusaram promoção quando a frente visual mudou. Três achados nos helpers/config efetiva corrigidos e reconfirmados por Vigia; zero material local aberto. Cedro15 cleanup e8 configuração externa finais, sem novo package; versões/REDS originais preservados. Build PASS não comprova startup; complemento03DE inicial histórico, DFB55 corrigido separado. [Recibo final](orchestracao/.runtime/launcher-producao-resultado.json), [revisão](orchestracao/.runtime/launcher-producao/vigia/parecer-final02.json), [uso e suporte](docs/44-launcher-producao-e-publicacao-futura.md).
+
+**Próximo:** aguardar Lucas. Encaminhamento material: responsável de produção definir/provisionar canais SQL/AUTH e principal WMS próprios; então concluir/revisar binding operacional e executar a guarda/subida autorizada. O gate atual não implementa Open/PASS; identidade/permissões/catálogo/histórico PROD e entrada HTTPS continuam não comprovados. Nenhum recurso provisionado aqui ou URL PROD ativa. Não repetir builds por handoff, testar/escrever negócio em PROD ou reiniciar processos existentes. Frente visual ativa preservada; VALID anterior permanece encerrada.
+
+## FE02-DS03-A05 — fundos dos acessos rápidos, 09/10/2026
+
+**Concluído localmente, pedido expresso de Lucas:** fundos marcantes e distintos nos quatro cards de Acesso rápido, com base no design system e preservando conteúdo interno/destinos. Dependência: FE02-DS03; ligações backend/frontend dos quatro destinos preservadas.
+
+- [x] Criar variantes de fundo com tokens próprios e geometria da fundação visual.
+- [x] Conferir contraste, temas, responsividade, teclado e destinos dos quatro cards.
+
+**Conferência:** tipagem/lint focal/formatação/builds real e fictício; seis casos Chrome em seis larguras e ambos os temas, incluindo contraste, hover, teclado e quatro destinos. Capturas inspecionadas. [Definição e limites](docs/design-system/etapa-03.md#fundos-dos-acessos-rápidos--fe02-ds03-a05), [prova](frontend/evidencias/shortcuts-a05-final-resultados.json). Preview próprio encerrado, sem backend/banco ou alteração de operações. **Próximo:** conferir a página em execução para carregar as variantes; manutenção do mapa conserva sua frente própria.
+
+## FE02-DS03-A04 — painel de referências da jornada, 09/10/2026
+
+**Concluído localmente, pedido expresso de Lucas:** painel Referências da jornada no contexto atual e botão estilizados nas 12 jornadas. Dependência: FE02-DS03; vínculos BE04–BE14 → FE03–FE13 preservados. Escopo visual compartilhado, mantendo seleção explícita, bloqueio durante confirmação e aviso de descarte da edição.
+
+- [x] Aplicar superfície de apoio, hierarquia das referências e botão destacado com tokens dos dois temas.
+- [x] Conferir painel vazio/preenchido, teclado, tamanhos de tela e aplicação das referências no formulário.
+
+**Conferência:** tipagem/lint focal/formatação/builds real e fictício; cinco testes existentes e seis casos Chrome finais nas 12 jornadas, claro/escuro e cinco larguras. Referências preenchidas e aplicação por Enter conferidas; capturas inspecionadas. [Entrega e limites](docs/design-system/etapa-03.md#referências-da-jornada--fe02-ds03-a04), [prova](frontend/evidencias/references-a04-final-resultados.json). Preview próprio encerrado, sem backend/banco/reinício de processos existentes. Graphify recusou redução do mapa, sem forçar. **Próximo:** conferir a página em execução para carregar o novo painel; manutenção do mapa e validações reais continuam separadas.
+
+## FE02-DS03-A03 — limite de altura dos campos de texto, 09/10/2026
+
+**Concluído localmente, pedido expresso de Lucas:** expansão vertical limitada globalmente, incluindo motivo/justificativa de Cadastros → Clientes. Dependência: FE02-DS03; recorte visual compartilhado, preservando valores, limites de caracteres e contratos existentes.
+
+- [x] Aplicar altura máxima global aos campos multilinha, com rolagem interna e redimensionamento vertical limitado.
+- [x] Conferir campos de justificativa e XML em desktop/mobile e registrar a regra e a prova local.
+
+**Conferência:** tipagem, formatação dos dois CSS e build fictício em diretório isolado aprovados; oito verificações Chrome de justificativa/XML, 390/1440 px e claro/escuro, com arraste real de redimensionamento, expansão forçada, rolagem interna e ausência de rolagem horizontal. [Regra e limites](docs/design-system/etapa-03.md#limite-de-altura-dos-campos--fe02-ds03-a03), [prova local](frontend/evidencias/textarea-height-final.json). Sem backend/banco; preview próprio encerrado. Manutenção do mapa registrada no mesmo documento, sem forçar redução de fontes.
+
+**Próximo:** atualizar a página já aberta para carregar o limite. As frentes A01/A02 mantêm seus estados próprios.
+
+## FE02-DS03-A02 — composição do Coletor, 09/10/2026
+
+**Concluído localmente, pedido expresso de Lucas:** Coletor integrado ao design system. Na conferência, Lucas corrigiu a proposta de centralização: o painel alinha com o título e ocupa a largura útil da página. Dependência: FE02-DS03; vínculos backend/frontend do Coletor preservados. Recorte de apresentação, sem mudar contratos ou regras de leitura/confirmação.
+
+- [x] Alinhar a área operacional à página e organizar tarefa, leitura, destino e confirmação com os tokens existentes.
+- [x] Conferir desktop/mobile, claro/escuro, teclado/scanner web e regressão focal do Coletor.
+
+**Conferência:** tipagem/lint focal/formatação/builds real e fictício; seis testes existentes e sete casos Chrome no exercício fictício. Temas e alinhamento em 320/390/1024/1440/1920 px; Enter/foco do destino/confirmação em 390/1440 px, capturas inspecionadas. [Entrega e limites](docs/design-system/etapa-03.md#composição-do-coletor--fe02-ds03-a02), [prova](frontend/evidencias/collector-a02-resultados.json). Sem banco/equipamento/reinício de processos existentes; preview próprio encerrado. **Próximo:** conferir a página já aberta para carregar o ajuste. Refinamento da textura A01 interrompido a pedido de Lucas; não retomar automaticamente. A03 mantém seus próprios critérios.
+
+## FE02-DS03-A01 — preenchimento lateral das jornadas, 09/10/2026
+
+**Interrompido por mudança expressa de foco de Lucas:** painel lateral implementado; o refinamento da textura foi deixado de lado para priorizar o Coletor (A02). Dependência: FE02-DS03; componente comum às 12 jornadas, preservando vínculos BE04–BE14 → FE03–FE13. Não há aceite visual da textura.
+
+- [ ] Compor painel decorativo com altura automática no desktop e ocultá-lo no layout empilhado.
+- [ ] Conferir mudanças de etapa/ação, temas, teclado, responsividade e deslocamento do topo.
+
+**Próximo:** aguardar nova demanda para esta textura. O fecho geral FE02-DS03 abaixo mantém seus próprios critérios.
+
 ## FE02-DS03 — organização interna das páginas, 09/10/2026
 
-**Em andamento, por pedido expresso de Lucas:** padronizar hierarquia de ações, agrupamentos, uso de espaço, paginação e diálogos nas páginas internas. Dependências: FE02-DS01-A03 e FE02-DS02-A01; ligações BE04–BE14 → FE03–FE13 existentes preservadas. Recorte visual frontend; sem alterar regras, contratos, permissões ou conexão com banco.
+**Concluído localmente, por pedido expresso de Lucas:** padronizada a hierarquia de ações, agrupamentos, uso de espaço, paginação e diálogos nas páginas internas. Dependências: FE02-DS01-A03 e FE02-DS02-A01; ligações BE04–BE14 → FE03–FE13 existentes preservadas. Recorte visual frontend; regras, contratos, permissões e conexão com banco preservados.
 
-- [ ] Organizar Início e a estrutura compartilhada das jornadas de Cadastros até Consultas/relatórios.
-- [ ] Padronizar formulários, listas, paginação e confirmações centrais.
-- [ ] Aplicar organização proporcional ao Coletor e Usuários/acessos.
-- [ ] Conferir tipagem, estados operacionais, teclado, temas e tamanhos de tela; registrar evidências e limites.
+- [x] Organizar Início e a estrutura compartilhada das jornadas de Cadastros até Consultas/relatórios.
+- [x] Padronizar formulários, listas, paginação e confirmações centrais.
+- [x] Aplicar organização proporcional ao Coletor e Usuários/acessos.
+- [x] Conferir contexto no topo desktop de 64 px, placeholders, ação em verde petróleo e persistência da sidebar, conforme refinamentos expressos de Lucas.
+- [x] Conferir tipagem, estados operacionais, teclado, temas e tamanhos de tela; registrar evidências e limites.
 
-**Próximo:** compor os componentes compartilhados e conferir o resultado em cada módulo, preservando as validações reais e frentes de ambiente abaixo.
+**Conferência:** tipagem, lint, formatação dos arquivos alterados e builds real/fictício; 424 testes unitários únicos aprovados por composição de 422 amplos + dois timeouts resolvidos em 18 focais, sem apresentar a rodada ampla como integralmente verde. 33 casos Chrome únicos: 23 de exercício e dez de aplicação nativa com API interceptada; oito casos repetidos qualificam o delta intermediário paralelo da coluna de etapas. Incrementos posteriores A01 mantêm sua própria validação. Capturas conferidas. [Composição e limites](docs/design-system/etapa-03.md), [recibo local](orchestracao/.runtime/design-system-etapa03-resultado.json). Sem integração de negócio real ou equipamentos nesta etapa. Graphify recusou redução 15.220→12.661 e o mapa principal foi preservado, sem forçar.
+
+**Próximo:** atualizar a página já aberta para carregar os ajustes; conferir novas observações de uso somente por demanda. Frentes reais e de ambiente abaixo mantêm seus estados próprios.
 
 ## FE02-DS01-A03 / FE02-DS02-A01 — preferência de tema e links de ajuda, 09/10/2026
 
@@ -40,7 +164,7 @@ Há cinco eventos Windows2004 em07–08/10 com memória comprometida acima de99%
 
 **Dependências:** FE02-DEV-CON01 e BE02 → FE02. **Evidências:** [resultado e hashes](orchestracao/.runtime/dev-conexao-20261009-con02-resultado.json), [guarda real bloqueada](orchestracao/.runtime/dev-conexao-20261009-con02-guarda.json). Conexão única WMS_DEV/WMSDEV/TLS e servidor preservados; sem nova repetição automática. Graphify recusou redução15220→12622, sem forçar. **Próximo encaminhamento:** obter extrato administrativo do ERRORLOG no intervalo14:40–14:42BRT para identificar a causa; retomar a guarda após encaminhamento concreto. Entrega local do prazo concluída, disponibilidade real permanece em validação.
 
-## VALID-LOGIN-CAD01 — SQL aprovado; validação real parcial por sessão inacessível, 09/10/2026
+## VALID-LOGIN-CAD01 — fecho parcial autorizado por Lucas, 09/10/2026
 
 **BE04-COR01-DEV01 → FE03-COR01-DEV01 parcial real revisado:** reaproveitado run existente8fa3c9e6722b4170898dc66aabfa044f, frontend http://127.0.0.1:25581, BE72644/25580 e FE70328/25581 com JAR corrigido99128/configD415/preparo947D. Guarda3293 confirmou WMS_DEV/WMSDEV/TLSMandatory/trustServerCertificatefalse,26/26critérios/permissões/catálogo/V1–V11, uma Open215,5245ms e12SELECTmetadados, zero negócio. SQLPID48480/início18:31:41Z e confiança existente atual conferidos; nenhuma outraBAT/Open/renovação ou intervenção em processo nesta retomada. Relato Lucas preservado; CON02/E7B204 permanecem históricos, sem bloqueioSQL corrente diante destePASS datado.
 
@@ -52,7 +176,7 @@ Lume observou realmente18:46:53–57UTC: statusAPI200, usuários anônimo401, CS
 
 **Atualização após disponibilização da conta:** Lucas confirmou login real funcionando; CUA do Farol retornou apps[]/browsers[]/zero abas acessíveis. Não há contradição com sessão existente no computador. [Observação deste acesso](orchestracao/.runtime/login-cadastros-validacao-dev/sessao-disponibilizada-20261009T192151Z/resultado.md); nenhuma senha usada/lida/registrada, nenhuma API/SQL/guarda/app nova. Perfil/alcance da conta ainda não observado, sem autorização de escrita por inferência.
 
-**Próximo encaminhamento único:** disponibilizar ao CUA nesta sessão a aba HTTPS WMS já autenticada. Origem técnica conhecida http://127.0.0.1:25581; URLHTTPS da aba não foi exposta à ferramenta. Novo login somente interativo pelo usuário/vault, sem senha de chat/terminal. Guarda/provas anteriores datadas preservadas,0/7operacionais nesta rodada. Sem perfil anônimo/cópia de sessão/alteração de senha/perfil/scopes/dados/provider/SQLfixture ou nova rodada automática; aguardar acesso legítimo/Lucas.
+**Fecho por decisão expressa de Lucas:** origem https://1z8126n0-25581.brs.devtunnels.ms/ fornecida pelo responsável; consulta única CUA retornou0 navegadores/abas WMS e resolução `No browser is available`. Sessão/perfil/alcance não observados, sem inferir falha WMS/login/SQL. Lucas relata login funcional e trabalha na frente visual; determinou encerrar sem novas tentativas nem outra ação exigida dele. SQLPASS datado e sete locais aprovados preservados,0/7 critérios operacionais integrais reais. [Fecho autorizado](orchestracao/.runtime/login-cadastros-validacao-dev/origem-https-cua-20261009T194922Z/fecho-autorizado.json). Somente documentação/aviso à equipe; nenhum frontend/backend/estilo/launcher/mapa/processo do usuário alterado, sem sondas/instalação/login/revisões novas. **Rodada encerrada parcialmente; participantes aguardam nova demanda.**
 
 ## FE02-DEV-CON01 — timeout do launcher relatado em 09/10/2026
 

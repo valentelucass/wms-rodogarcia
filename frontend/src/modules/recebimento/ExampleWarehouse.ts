@@ -137,11 +137,18 @@ export class ExampleWarehouse {
             };
         }
         if (
-            r.endpoint.id === "UnidadeLogisticaController.consultar" &&
+            [
+                "UnidadeLogisticaController.consultar",
+                "UnidadeLogisticaController.lerCodigo",
+            ].includes(r.endpoint.id) &&
             isObject(data)
         )
             data.unidade =
-                this.units.find((u) => u.id === r.params.unidadeId) ??
+                this.units.find((u) =>
+                    r.params.codigo
+                        ? u.codigo === r.params.codigo
+                        : u.id === r.params.unidadeId,
+                ) ??
                 this.unit ??
                 data.unidade;
         if (
@@ -206,6 +213,27 @@ export class ExampleWarehouse {
                                     : "7",
                       }
                     : {}),
+            };
+        }
+        if (
+            r.endpoint.id === "EstoqueController.listar" &&
+            isObject(data) &&
+            this.units.length
+        ) {
+            const pagina = Number(r.query.pagina ?? 0),
+                tamanho = Number(r.query.tamanho ?? 20);
+            data = {
+                ...data,
+                itens: this.units
+                    .slice(pagina * tamanho, (pagina + 1) * tamanho)
+                    .map((unidade) => ({
+                        ...(fixture("EstoqueDto.Unidade") as Values),
+                        unidade,
+                    })),
+                pagina,
+                tamanho,
+                totalItens: String(this.units.length),
+                totalPaginas: Math.ceil(this.units.length / tamanho),
             };
         }
         if (r.endpoint.id === "EstoqueController.consultar" && isObject(data))

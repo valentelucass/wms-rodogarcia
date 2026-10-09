@@ -15,9 +15,12 @@ public class AmbienteConfig {
         String[] perfis = ativos.length == 0 ? environment.getDefaultProfiles() : ativos;
         if (perfis.length != 1
                 || Arrays.stream(perfis)
-                        .anyMatch(p -> !Set.of("local", "test", "sqlserver-dev").contains(p))) {
+                        .anyMatch(
+                                p ->
+                                        !Set.of("local", "test", "sqlserver-dev", "sqlserver-prod")
+                                                .contains(p))) {
             throw new IllegalStateException(
-                    "Esta base permite somente um perfil: local, test ou sqlserver-dev. "
+                    "Esta base permite somente um perfil: local, test, sqlserver-dev ou sqlserver-prod. "
                             + "Outros ambientes dependem da preparação de implantação do WMS.");
         }
     }

@@ -1,3 +1,4 @@
+import { fulfillOverviewRead } from "./overview-fixture";
 import { chooseTheme } from "./theme-controls";
 import { test, expect, type Route } from "@playwright/test";
 import { origin } from "./environment";
@@ -36,6 +37,7 @@ for (const [width, height] of [
             const url = new URL(route.request().url());
             if (url.origin !== origin) return route.abort("blockedbyclient");
             if (!url.pathname.startsWith("/api/")) return route.continue();
+            if (await fulfillOverviewRead(route)) return;
             if (url.pathname === "/api/auth/csrf")
                 return route.fulfill({
                     json: { token: "csrf-fixture", header: "X-XSRF-TOKEN" },
@@ -255,13 +257,19 @@ for (const [width, height] of [
         });
         await expect(
             page.getByRole("heading", {
-                name: `Bem-vindo, ${user.nome}`,
+                name: "Início",
                 exact: true,
             }),
         ).toBeVisible();
         await expect(footer).toBeVisible();
-        await page.getByLabel("Cliente (ID)", { exact: true }).fill("123");
-        await page.getByLabel("Armazém (ID)", { exact: true }).fill("456");
+        await page
+            .getByRole("combobox", { name: "Cliente", exact: true })
+            .click();
+        await page.getByRole("option", { name: /Cliente de teste/ }).click();
+        await page
+            .getByRole("combobox", { name: "Armazém", exact: true })
+            .click();
+        await page.getByRole("option", { name: /Armazém de teste/ }).click();
         const before = page.url();
         await page
             .getByRole("link", { name: "Ir para o conteúdo", exact: true })
@@ -269,9 +277,9 @@ for (const [width, height] of [
         await page.keyboard.press("Enter");
         await expect(page.locator("#conteudo")).toBeFocused();
         expect(page.url()).toBe(before);
-        await expect(
-            page.getByLabel("Cliente (ID)", { exact: true }),
-        ).toHaveValue("123");
+        await expect(page.getByLabel("Cliente", { exact: true })).toHaveValue(
+            "Cliente de teste",
+        );
         await page
             .getByRole("button", { name: "Minha senha", exact: true })
             .click();
@@ -281,6 +289,14 @@ for (const [width, height] of [
                 exact: true,
             }),
         ).toBeVisible();
+        expect(page.url()).toBe(before);
+        await page
+            .getByRole("dialog", { name: "Alterar minha senha" })
+            .getByRole("button", { name: "Cancelar", exact: true })
+            .click();
+        await expect(
+            page.getByRole("button", { name: "Minha senha", exact: true }),
+        ).toBeFocused();
         if (width < 1024)
             await page
                 .getByRole("button", { name: "Abrir menu", exact: true })
@@ -329,6 +345,7 @@ for (const width of [360, 1440]) {
             const url = new URL(route.request().url());
             if (url.origin !== origin) return route.abort("blockedbyclient");
             if (!url.pathname.startsWith("/api/")) return route.continue();
+            if (await fulfillOverviewRead(route)) return;
             if (url.pathname === "/api/auth/csrf")
                 return route.fulfill({
                     json: { token: "csrf-fixture", header: "X-XSRF-TOKEN" },

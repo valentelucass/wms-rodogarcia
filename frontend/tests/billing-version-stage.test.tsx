@@ -44,24 +44,24 @@ it("FE11 R18 reabertura: demonstrativo deve corresponder a numero2 escolhido", a
         />,
     );
     await consult();
-    selectResultRow("Cálculos", "801");
-    click("Fechamentos e ESL");
+    await selectResultRow("Cálculos", "801");
+    await click("Fechamentos e ESL");
     await consult();
-    selectResultRow("Fechamentos", "901");
-    click("1. Ciclo e versões");
-    click("Consultar versão e hash");
+    await selectResultRow("Fechamentos", "901");
+    await click("1. Ciclo e versões");
+    await click("Consultar versão e hash");
     await consult();
-    click("2. Decisão integral do Gestor");
-    click("Reabrir ciclo");
+    await click("2. Decisão integral do Gestor");
+    await click("Reabrir ciclo");
     fill(
         "Motivo / justificativa *",
         "Reabertura fictícia para reconferir a versão preparada",
     );
     await confirm();
-    click("Consultar a nova versão após reabertura");
+    await click("Consultar a nova versão após reabertura");
     selected("Numero *", "2");
     await consult();
-    click("Consultar demonstrativo da versão selecionada");
+    await click("Consultar demonstrativo da versão selecionada");
     selected("Numero *", "2");
     await consult();
     saveProof("VIGIA-R18-FE11-demonstrativo-versao2", transport.requests);

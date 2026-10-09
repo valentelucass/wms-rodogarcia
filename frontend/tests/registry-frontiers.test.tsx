@@ -4,6 +4,7 @@ import { ApiError, type Request, type Transport } from "../src/api/client";
 import { Operation } from "../src/components/Operation";
 import {
     Harness,
+    lastMutation,
     click,
     fill,
     consult,
@@ -49,15 +50,15 @@ it("FE04 prévia válida consultada recusa hash/revisão sem confirmar nem criar
     );
     fill("Identificador *", "2101");
     await consult();
-    click("Confirmar a prévia consultada sem erros");
+    await click("Confirmar a prévia consultada sem erros");
     selected("Identificador *", "2101");
     selected("Revisão atual *", "3");
     selected("Arquivo Hash *", "b".repeat(64));
     fill("Motivo / justificativa *", "Confirmar a prévia fictícia consultada");
-    click("Conferir e confirmar");
-    click("Confirmar agora");
+    await click("Conferir e confirmar");
+    await click("Confirmar agora");
     await screen.findByText(/Arquivo\/revisão da prévia mudou/);
-    expect(body(calls.at(-1)!)).toMatchObject({
+    expect(body(lastMutation(calls))).toMatchObject({
         versao: "3",
         arquivoHash: "b".repeat(64),
     });

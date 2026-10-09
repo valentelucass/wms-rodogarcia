@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "database": "WMS_PROD",
+  "expectedLogin": "WMSPROD",
+  "backendPort": 25590,
+  "frontendPort": 25591,
+  "bindAddress": "127.0.0.1",
+  "frontendOrigin": "https://wms.rodogarcia.com.br",
+  "backendPublicOrigin": "https://wms-api.rodogarcia.com.br",
+  "apiBrowserBase": "/api",
+  "profile": "sqlserver-prod",
+  "secureCookie": true,
+  "cloudflareConfigured": false
+}

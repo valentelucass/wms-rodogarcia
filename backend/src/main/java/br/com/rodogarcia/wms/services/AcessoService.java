@@ -50,10 +50,14 @@ public class AcessoService {
     }
 
     public void exigirSupervisor() {
-        String perfil = identidade().getClaimAsString("wms_perfil");
-        if (!"GESTOR".equals(perfil) && !"SUPERVISOR".equals(perfil)) {
+        if (!supervisor()) {
             throw new AccessDeniedException("Acesso não autorizado.");
         }
+    }
+
+    public boolean supervisor() {
+        String perfil = identidade().getClaimAsString("wms_perfil");
+        return "GESTOR".equals(perfil) || "SUPERVISOR".equals(perfil);
     }
 
     public List<Long> clientes() {

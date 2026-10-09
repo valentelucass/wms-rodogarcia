@@ -27,7 +27,7 @@ export function HomeOverview({ navigate }: { navigate: Navigate }) {
                     <button
                         key={page}
                         type="button"
-                        className="shortcut-card"
+                        className={`shortcut-card shortcut-card--${page}`}
                         onClick={() => navigate(page)}
                     >
                         <span className="shortcut-icon">

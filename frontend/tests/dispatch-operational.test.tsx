@@ -1,7 +1,8 @@
 import { it, expect, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import {
     Harness,
+    lastMutation,
     obj,
     receipt,
     click,
@@ -68,6 +69,19 @@ it("FE09 exceção FIFO integral duas reservas leitura UUID/revisões próprias 
             calls.push(r);
             const id = r.endpoint.id;
             let data: unknown;
+            if (id === "PedidoSaidaController.listar")
+                return receipt(r, {
+                    itens: [prepared[stage]],
+                    pagina: 0,
+                    tamanho: 20,
+                    totalItens: "1",
+                    totalPaginas: 1,
+                });
+            if (id === "ExpedicaoController.consultar")
+                return receipt(
+                    r,
+                    obj("ExpedicaoDto.Detalhe", { pedido: prepared[stage] }),
+                );
             if (id === "PedidoSaidaController.consultar")
                 data = prepared[stage];
             else if (id === "PedidoSaidaController.sugerir")
@@ -138,37 +152,36 @@ it("FE09 exceção FIFO integral duas reservas leitura UUID/revisões próprias 
     );
     fill("Identificador *", "601");
     await consult();
-    click("2. Sugestão FIFO e reserva");
+    await click("2. Sugestão FIFO e reserva");
+    await click("Consultar sugestão FIFO");
     await consult();
-    click("Justificar exceção FIFO");
+    await click("Justificar exceção FIFO");
     fill(
         "Motivo / justificativa *",
         "Seleção fictícia identificada de duas bobinas",
     );
     await confirm();
-    const justification = body(calls.at(-1)!).operacaoId;
-    expect(body(calls.at(-1)!).selecoes as unknown[]).toHaveLength(2);
-    click("Conferir reserva com esta justificativa FIFO");
+    const justification = body(lastMutation(calls)).operacaoId;
+    expect(body(lastMutation(calls)).selecoes as unknown[]).toHaveLength(2);
+    await click("Conferir reserva com esta justificativa FIFO");
     selected("Justificativa Id", String(justification));
     fill(
         "Motivo / justificativa *",
         "Reserva integral fictícia conferida pelo Supervisor",
     );
     await confirm();
-    expect(body(calls.at(-1)!).justificativaId).toBe(justification);
-    click("Ler a etiqueta da reserva confirmada");
+    expect(body(lastMutation(calls)).justificativaId).toBe(justification);
+    await click("Ler a etiqueta da reserva confirmada");
     expect(screen.getByLabelText("Reserva (ID) *")).toHaveValue("");
     for (let index = 0; index < 2; index++) {
-        click(`Selecionar reserva ${701 + index} · unidade ${501 + index}`);
+        await click(
+            `Selecionar reserva ${701 + index} · unidade ${501 + index}`,
+        );
         selected("Reserva (ID) *", String(701 + index));
         selected("Código lido *", codes[index]);
-        click("Consultar etiqueta da unidade");
+        await click("Consultar etiqueta da unidade");
         await screen.findByText(index === 0 ? "11" : "12", { exact: true });
-        fireEvent.click(
-            screen.getByRole("button", {
-                name: /Usar referências consultadas/,
-            }),
-        );
+
         selected(
             "Revisão do conteúdo da etiqueta *",
             index === 0 ? "11" : "12",
@@ -178,18 +191,14 @@ it("FE09 exceção FIFO integral duas reservas leitura UUID/revisões próprias 
             "Leitura fictícia da etiqueta consultada",
         );
         await confirm();
-        expect(calls.at(-1)?.params.id).toBe("601");
-        expect(body(calls.at(-1)!).reservaId).toBe(String(701 + index));
-        expect(body(calls.at(-1)!).codigoLido).toBe(codes[index]);
-        click("Confirmar destino da reserva lida");
-        click("Consultar posições para separação");
+        expect(lastMutation(calls).params.id).toBe("601");
+        expect(body(lastMutation(calls)).reservaId).toBe(String(701 + index));
+        expect(body(lastMutation(calls)).codigoLido).toBe(codes[index]);
+        await click("Confirmar destino da reserva lida");
+        await click("Consultar posições para separação");
         await screen.findByRole("button", { name: "Selecionar registro 1" });
-        click("Selecionar registro 1");
-        fireEvent.click(
-            screen.getByRole("button", {
-                name: /Usar referências consultadas/,
-            }),
-        );
+        await click("Selecionar registro 1");
+
         selected("Destinacao / Reserva (ID) *", String(701 + index));
         fill(
             "Motivo / justificativa *",
@@ -197,7 +206,8 @@ it("FE09 exceção FIFO integral duas reservas leitura UUID/revisões próprias 
         );
         await confirm();
         expect(
-            (body(calls.at(-1)!).destinacao as { reservaId: string }).reservaId,
+            (body(lastMutation(calls)).destinacao as { reservaId: string })
+                .reservaId,
         ).toBe(String(701 + index));
         expect(
             screen.getByRole("region", {
@@ -210,7 +220,7 @@ it("FE09 exceção FIFO integral duas reservas leitura UUID/revisões próprias 
                     name: "Registrar documento existente deste pedido",
                 }),
             ).toBeNull();
-            click("Selecionar e ler outra reserva deste pedido");
+            await click("Selecionar e ler outra reserva deste pedido");
         }
     }
     expect(
@@ -251,6 +261,24 @@ it("FE09 bobinas4/6 pedido6 usa sugestão e justificativa recebidas sem fraciona
         send: vi.fn(async (r) => {
             calls.push(r);
             let data: unknown;
+            if (r.endpoint.id === "EstoqueController.listar")
+                return receipt(r, {
+                    itens: [],
+                    pagina: 0,
+                    tamanho: 20,
+                    totalItens: "0",
+                    totalPaginas: 0,
+                });
+            if (r.endpoint.id === "PedidoSaidaController.consultar")
+                return receipt(r, detail());
+            if (r.endpoint.id === "PedidoEntradaController.listar")
+                return receipt(r, {
+                    itens: [],
+                    pagina: 0,
+                    tamanho: 20,
+                    totalItens: "0",
+                    totalPaginas: 0,
+                });
             if (r.endpoint.id === "UnidadeLogisticaController.listar")
                 data = {
                     itens: ["4.000000", "6.000000"].map((quantity, index) =>
@@ -305,33 +333,34 @@ it("FE09 bobinas4/6 pedido6 usa sugestão e justificativa recebidas sem fraciona
     await consult();
     expect(screen.getByRole("cell", { name: "4.000000" })).toBeInTheDocument();
     expect(screen.getByRole("cell", { name: "6.000000" })).toBeInTheDocument();
-    selectResultRow("Unidades logísticas", "502");
-    click("Saída, FIFO e reserva");
+    await selectResultRow("Unidades logísticas", "502");
+    await click("Saída, FIFO e reserva");
     await consult();
-    selectResultRow("Pedidos de saída", "601");
-    click("2. Sugestão FIFO e reserva");
+    await selectResultRow("Pedidos de saída", "601");
+    await click("2. Sugestão FIFO e reserva");
+    await click("Consultar sugestão FIFO");
     await consult();
-    click("Justificar exceção FIFO");
+    await click("Justificar exceção FIFO");
     fill(
         "Motivo / justificativa *",
         "Bobina4/6: seleção fictícia da unidade6 inteira recebida, sem fracionar a unidade4",
     );
     await confirm();
-    expect(body(calls.at(-1)!).selecoes).toEqual([
+    expect(body(lastMutation(calls)).selecoes).toEqual([
         { unidadeId: "502", quantidade: "6.000000" },
     ]);
-    const justification = body(calls.at(-1)!).operacaoId;
-    click("Conferir reserva com esta justificativa FIFO");
+    const justification = body(lastMutation(calls)).operacaoId;
+    await click("Conferir reserva com esta justificativa FIFO");
     selected("Justificativa Id", String(justification));
     fill(
         "Motivo / justificativa *",
         "Reserva fictícia inteira6 conferida pelo Supervisor",
     );
     await confirm();
-    expect(calls.at(-1)?.params.id).toBe("601");
-    expect(body(calls.at(-1)!).justificativaId).toBe(justification);
+    expect(lastMutation(calls).params.id).toBe("601");
+    expect(body(lastMutation(calls)).justificativaId).toBe(justification);
     // Reservar recebe a identidade da justificativa, não outro catálogo de seleções.
-    expect(body(calls.at(-1)!)).not.toHaveProperty("selecoes");
+    expect(body(lastMutation(calls))).not.toHaveProperty("selecoes");
     expect(
         screen.getByRole("table", { name: /^Reservas do pedido ·/ }),
     ).toHaveTextContent("702");
@@ -380,14 +409,31 @@ it("FE09 avaria/conflito não libera reserva; reversão recebe revisão própria
             }
             return receipt(
                 r,
-                reversed
-                    ? obj("PedidoSaidaDto.Detalhe", {
-                          id: "601",
-                          versao: "3",
-                          situacao: "RASCUNHO",
-                          reservas: [],
-                      })
-                    : current,
+                r.endpoint.id === "PedidoSaidaController.listar"
+                    ? {
+                          itens: [
+                              reversed
+                                  ? {
+                                        ...current,
+                                        situacao: "RASCUNHO",
+                                        versao: "3",
+                                        reservas: [],
+                                    }
+                                  : current,
+                          ],
+                          pagina: 0,
+                          tamanho: 20,
+                          totalItens: "1",
+                          totalPaginas: 1,
+                      }
+                    : reversed
+                      ? obj("PedidoSaidaDto.Detalhe", {
+                            id: "601",
+                            versao: "3",
+                            situacao: "RASCUNHO",
+                            reservas: [],
+                        })
+                      : current,
             );
         }),
     };
@@ -400,24 +446,27 @@ it("FE09 avaria/conflito não libera reserva; reversão recebe revisão própria
     );
     fill("Identificador *", "601");
     await consult();
-    click("2. Sugestão FIFO e reserva");
-    click("Revalidar disponibilidade");
-    click("Conferir e confirmar");
-    click("Confirmar agora");
+    await click("2. Sugestão FIFO e reserva");
+    await click("Revalidar disponibilidade");
+    await click("Conferir e confirmar");
+    await click("Confirmar agora");
     await screen.findByText(/Avaria recebida/);
     expect(
-        screen.getAllByRole("button", { name: /Selecionar reserva/ }),
+        screen
+            .getAllByRole("button", { name: /Selecionar reserva/ })
+            .filter((b) => screen.getByRole("dialog").contains(b)),
     ).toHaveLength(2);
-    expect(calls).toHaveLength(2);
-    click("4. Reversão e cancelamento");
+    expect(calls.filter((r) => r.endpoint.method !== "GET")).toHaveLength(1);
+    await click("4. Reversão e cancelamento");
+    await click("Reverter reserva");
     selected("Revisão atual *", "2");
     fill(
         "Motivo / justificativa *",
         "Reversão fictícia motivada de reserva não separada",
     );
     await confirm();
-    click("1. Pedido integral");
-    click("Consultar detalhe");
+    await click("1. Pedido integral");
+    await click("Consultar detalhe");
     selected("Identificador *", "601");
     await consult();
     expect(

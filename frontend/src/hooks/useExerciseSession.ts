@@ -3,6 +3,7 @@ import { FictitiousTransport, type Scenario } from "../api/fictitious";
 import type { Receipt, Request } from "../api/client";
 import type { Perfil, Values } from "../contracts/runtime";
 import { absorb, emptyWorkflow } from "../domain/workflow";
+import { canLeavePage } from "../domain/pageLeave";
 
 // Exercise state only: identity-provider login/token routes do not exist here.
 export function useExerciseSession() {
@@ -26,6 +27,7 @@ export function useExerciseSession() {
         setRevision((x) => x + 1);
     };
     const changePerfil = (v: Perfil) => {
+        if (!canLeavePage()) return;
         const next = new FictitiousTransport(v);
         next.scenario = scenario;
         setPerfil(v);
@@ -33,20 +35,32 @@ export function useExerciseSession() {
         setActive(true);
         reset();
     };
+    const selectContext = (v: Values) => {
+        if (!canLeavePage()) return false;
+        setContext(v);
+        setClient(String(v.clienteId ?? ""));
+        setWarehouse(String(v.armazemId ?? ""));
+        reset();
+        return true;
+    };
     const applyContext = () => {
         const valid = (v: string) =>
             /^[1-9]\d*$/.test(v) && BigInt(v) <= 9223372036854775807n;
-        if (!valid(client) || !valid(warehouse)) {
+        if ((client && !valid(client)) || (warehouse && !valid(warehouse))) {
             setMessage("Informe IDs positivos dentro do domínio Long.");
             return;
         }
-        setContext({ clienteId: client, armazemId: warehouse });
-        reset();
+        const changed = selectContext({
+            clienteId: client || undefined,
+            armazemId: warehouse || undefined,
+        });
+        if (!changed) return;
         setMessage(
             "Contexto fictício alterado; dados e formulários anteriores descartados.",
         );
     };
     const exit = () => {
+        if (!canLeavePage()) return;
         setActive(false);
         setTransport(new FictitiousTransport(perfil));
         reset();
@@ -78,6 +92,7 @@ export function useExerciseSession() {
         workflow,
         changePerfil,
         applyContext,
+        selectContext,
         exit,
         changeScenario,
         onRecord,

@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
     endpoint,
     canPresent,
@@ -27,6 +27,8 @@ export interface OperationOptions {
         id: string,
         request: Pick<Request, "endpoint" | "params" | "query">,
     ) => void;
+    fixedFields?: string[];
+    onReplayReceipt?: OperationOptions["onReceipt"];
 }
 export function useOperation({
     id,
@@ -34,6 +36,7 @@ export function useOperation({
     context,
     perfil,
     onReceipt,
+    onReplayReceipt,
 }: OperationOptions) {
     const e = endpoint(id),
         scope = useRequestScope();
@@ -59,6 +62,7 @@ export function useOperation({
             : {},
     );
     const [file, setFile] = useState<File>();
+    const original = useRef(JSON.stringify({ params, query, body }));
     const [receipt, setReceipt] = useState<Receipt>();
     const [error, setError] = useState<Error>();
     const [pending, setPending] = useState(false),
@@ -69,6 +73,56 @@ export function useOperation({
         saved = useRef<Request | null>(null),
         status = useRef<HTMLDivElement>(null);
     const allowed = canPresent(perfil, e.permission);
+    const previousContext = useRef(context);
+    useEffect(() => {
+        const previous = previousContext.current;
+        previousContext.current = context;
+        if (pending || uncertain || completed) return;
+        setBody((old) => {
+            let next = old;
+            for (const field of [
+                "produtoId",
+                "embalagemId",
+                "entradaId",
+                "reservaId",
+                "enderecoId",
+                "servicoId",
+                "tabelaId",
+                "destinos",
+                "itens",
+                "codigoLido",
+                "versaoEtiqueta",
+                "revisaoConteudo",
+                "destinacao",
+                "coberturas",
+                "versaoUnidade",
+            ]) {
+                if (
+                    !(field in old) ||
+                    JSON.stringify(previous[field]) ===
+                        JSON.stringify(context[field])
+                )
+                    continue;
+                const empty =
+                    old[field] === "" ||
+                    old[field] == null ||
+                    (Array.isArray(old[field]) && old[field].length === 0);
+                if (
+                    empty ||
+                    JSON.stringify(old[field]) ===
+                        JSON.stringify(previous[field])
+                )
+                    next = {
+                        ...next,
+                        [field]:
+                            context[field] === undefined
+                                ? ""
+                                : structuredClone(context[field]),
+                    };
+            }
+            return next;
+        });
+    }, [context, pending, uncertain, completed]);
     const updateBody = (v: Values) =>
         setBody(
             id === "ContingenciaController.registrar"
@@ -95,6 +149,7 @@ export function useOperation({
             setUncertain(false);
             setCompleted(e.method !== "GET");
             if (!result.replay) onReceipt?.(result, e.response, id, request);
+            else onReplayReceipt?.(result, e.response, id, request);
         } catch (err) {
             if (!ticket.isCurrent()) return;
             const failure =
@@ -194,6 +249,10 @@ export function useOperation({
             typeof saved.current.body === "object" &&
             saved.current.body !== null &&
             "operacaoId" in saved.current.body,
+        dirty:
+            !completed &&
+            (file !== undefined ||
+                JSON.stringify({ params, query, body }) !== original.current),
     };
 }
 export type OperationState = ReturnType<typeof useOperation>;

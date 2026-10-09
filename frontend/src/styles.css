@@ -5,3 +5,8 @@
 @import "./styles/results.css";
 @import "./styles/collector.css";
 @import "./styles/workspace.css";
+@import "./styles/dashboard.css";
+@import "./styles/context.css";
+@import "./styles/overview.css";
+@import "./styles/records.css";
+@import "./styles/receiving.css";

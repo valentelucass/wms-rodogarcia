@@ -1,6 +1,53 @@
 .collector {
-    max-width: 760px;
     min-width: 0;
+}
+.collector-workspace {
+    width: 100%;
+    display: grid;
+    gap: var(--og-space-4);
+    min-width: 0;
+}
+.collector-workspace > .collector-task {
+    display: grid;
+    grid-template-columns: 280px minmax(0, 1fr);
+    padding: 0;
+    overflow: hidden;
+}
+.collector-task-picker,
+.collector-reading {
+    min-width: 0;
+    padding: var(--og-space-6);
+}
+.collector-task-picker {
+    background: var(--og-surface-raised);
+    border-right: 1px solid var(--og-border);
+}
+.collector-task h2 {
+    margin: 0 0 var(--og-space-4);
+    font-size: var(--og-type-section);
+}
+.collector-task-icon {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    margin-bottom: var(--og-space-4);
+    border: 1px solid var(--og-border);
+    border-radius: var(--og-radius-control);
+    background: var(--og-surface);
+    color: var(--og-link);
+}
+.collector-task-picker p {
+    margin: var(--og-space-3) 0 0;
+    color: var(--og-text-muted);
+    font-size: var(--og-type-caption);
+}
+.collector-workspace > .collector-unit,
+.collector-workspace > .collector-destination {
+    margin: 0;
+}
+.collector-command > .operation {
+    padding-top: 0;
 }
 .collector label {
     font-size: var(--og-type-input-touch);
@@ -26,18 +73,34 @@
 }
 .collector-task form {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 160px;
+    grid-template-columns: minmax(0, 1fr) 136px;
     align-items: end;
     gap: var(--og-space-3);
     margin-bottom: 0;
 }
 .collector-task form > button {
     grid-column: 1 / -1;
+    justify-self: end;
 }
 .collector-destination > label {
     margin-bottom: var(--og-space-3);
 }
 @media (max-width: 800px) {
+    .collector-workspace > .collector-task {
+        grid-template-columns: 1fr;
+    }
+    .collector-task-picker {
+        border-right: 0;
+        border-bottom: 1px solid var(--og-border);
+    }
+    .collector-task-icon,
+    .collector-task-picker > h2 {
+        display: none;
+    }
+    .collector-task-picker,
+    .collector-reading {
+        padding: var(--og-space-4);
+    }
     .collector-task form {
         grid-template-columns: 1fr;
     }

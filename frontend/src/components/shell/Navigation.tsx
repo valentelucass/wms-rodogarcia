@@ -27,9 +27,14 @@ export function Navigation({
     const links = navigationItems(exercise, administrator);
     const navigation = useRef<HTMLElement>(null);
     useEffect(() => {
-        navigation.current
-            ?.querySelector('[aria-current="page"]')
-            ?.scrollIntoView?.({ block: "nearest" });
+        const menu = navigation.current;
+        const selected = menu?.querySelector('[aria-current="page"]');
+        if (!menu || !selected) return;
+        const viewport = menu.getBoundingClientRect();
+        const item = selected.getBoundingClientRect();
+        if (item.top < viewport.top) menu.scrollTop += item.top - viewport.top;
+        else if (item.bottom > viewport.bottom)
+            menu.scrollTop += item.bottom - viewport.bottom;
     }, [page]);
     return (
         <nav ref={navigation} className="main-nav" aria-label="Módulos">

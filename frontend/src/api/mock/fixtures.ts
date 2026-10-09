@@ -1,5 +1,12 @@
 import { exampleValues } from "./exampleCatalog";
-import { records, enums, listType, type Values } from "../../contracts/runtime";
+import {
+    records,
+    enums,
+    listType,
+    endpoint,
+    type Values,
+} from "../../contracts/runtime";
+import { overviewExample } from "./overview";
 import { demoCode } from "./constants";
 const baseValues: Values = {
     id: "1",
@@ -67,6 +74,28 @@ const baseValues: Values = {
     conteudoHash: "a".repeat(64),
 };
 export function fixture(type: string, depth = 0): unknown {
+    if (
+        type === "VisaoOperacaoDto.Resumo" ||
+        type === "VisaoOperacaoDto.Detalhe"
+    )
+        return overviewExample(
+            {
+                endpoint: endpoint(
+                    type.endsWith("Detalhe")
+                        ? "VisaoOperacaoController.detalhe"
+                        : "VisaoOperacaoController.consultar",
+                ),
+                params: { id: "1000" },
+                query: {
+                    armazemId: "1",
+                    estado: "TODAS",
+                    fuso: "America/Sao_Paulo",
+                },
+                signal: new AbortController().signal,
+            },
+            "GESTOR",
+            false,
+        );
     if (depth > 9) return null;
     if (type.startsWith("PaginaResponse<"))
         return {

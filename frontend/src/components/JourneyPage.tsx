@@ -1,25 +1,18 @@
 import type { Request } from "../api/client";
 import { useState } from "react";
-import {
-    type Journey,
-    type NextAction,
-    actionLabel,
-    nextActions,
-} from "../domain/journeys";
-import {
-    endpoint,
-    canPresent,
-    type Perfil,
-    type Values,
-} from "../contracts/runtime";
+import { type Journey, type NextAction } from "../domain/journeys";
+import { type Perfil, type Values } from "../contracts/runtime";
 import type { Receipt, Transport } from "../api/client";
 import {
     operationContext,
     referenceCatalog,
     type Workflow,
 } from "../domain/workflow";
-import { Operation } from "./Operation";
+import { RecordWorkspace } from "./records/RecordWorkspace";
+import { recordPages } from "../domain/recordPages";
+import { canLeavePage } from "../domain/pageLeave";
 import { PageHeader } from "./layout/PageHeader";
+import { Icon } from "../design-system/Icon";
 import { FormReferences, type ReferenceOption } from "./FormReferences";
 import { ReferenceLookup } from "./ReferenceLookup";
 import { ExpeditionStatus } from "../modules/saida/ExpeditionStatus";
@@ -59,25 +52,13 @@ export function JourneyPage({
             journey.steps.findIndex((s) => s.actions.includes(startAction)),
         ),
     );
-    const [action, setAction] = useState(
-        startAction ||
-            journey.steps[0].actions.find((id) =>
-                canPresent(perfil, endpoint(id).permission),
-            ) ||
-            "",
+    const selectionLocked = false;
+    const selectRecord = (v: Values, type: string) => onRecord(v, type);
+    const derived = operationContext(
+        recordPages[journey.id][step].source,
+        context,
+        workflow,
     );
-    const [refresh, setRefresh] = useState(0);
-    const [selectionLocked, setSelectionLocked] = useState(false);
-    const selectRecord = (v: Values, type: string) => {
-        if (!selectionLocked) onRecord(v, type);
-    };
-    const current = journey.steps[step];
-    const actions = current.actions.filter((id) =>
-        canPresent(perfil, endpoint(id).permission),
-    );
-    const derived = action
-        ? operationContext(action, context, workflow)
-        : context;
     const options: Record<string, ReferenceOption[]> = {};
     for (const [field, type] of Object.entries(journey.referenceFields))
         options[field] = referenceCatalog(workflow, type).map((v) => ({
@@ -95,6 +76,13 @@ export function JourneyPage({
                 ),
         }));
     const references = journey.references;
+    if (journey.id === "entrada")
+        return <>
+            <PageHeader title="Entrada e conferência" icon="entrada" description="Encontre o pedido e acompanhe notas, itens, conferência e efetivação no mesmo contexto." />
+            <FormReferences.Provider value={{ defaults: derived, options, records: Object.fromEntries(Object.keys(workflow.catalogs).map((type) => [type, referenceCatalog(workflow, type)])) }}>
+                <RecordWorkspace key={String(context.clienteId) + ":" + String(context.armazemId) + ":" + perfil} journey={journey} step={0} transport={transport} context={context} perfil={perfil} workflow={workflow} onRecord={onRecord} onReceipt={onReceipt} startAction={startAction} onNavigate={onNavigate} />
+            </FormReferences.Provider>
+        </>;
     return (
         <>
             <PageHeader
@@ -103,40 +91,40 @@ export function JourneyPage({
                 description="Selecione uma etapa, consulte os dados e confira a operação antes de confirmar."
             />
             <div className="journey-workspace">
-                <aside className="workspace-panel journey-navigation">
-                    <h2>Etapas da jornada</h2>
-                    <nav
-                        className="steps"
-                        aria-label={"Etapas de " + journey.title}
-                    >
-                        {journey.steps.map((s, i) => (
-                            <button
-                                key={s.title}
-                                type="button"
-                                disabled={selectionLocked}
-                                aria-current={i === step ? "step" : undefined}
-                                onClick={() => {
-                                    setStep(i);
-                                    setAction(
-                                        s.actions.find((id) =>
-                                            canPresent(
-                                                perfil,
-                                                endpoint(id).permission,
-                                            ),
-                                        ) ?? "",
-                                    );
-                                }}
-                            >
-                                <span
-                                    className="step-number"
-                                    aria-hidden="true"
+                <aside className="journey-sidebar">
+                    <div className="workspace-panel journey-navigation">
+                        <h2>Etapas da jornada</h2>
+                        <nav
+                            className="steps"
+                            aria-label={"Etapas de " + journey.title}
+                        >
+                            {journey.steps.map((s, i) => (
+                                <button
+                                    key={s.title}
+                                    type="button"
+                                    disabled={selectionLocked}
+                                    aria-current={
+                                        i === step ? "step" : undefined
+                                    }
+                                    onClick={() => {
+                                        if (canLeavePage()) setStep(i);
+                                    }}
                                 >
-                                    {i + 1}
-                                </span>
-                                <span>{s.title}</span>
-                            </button>
-                        ))}
-                    </nav>
+                                    <span
+                                        className="step-number"
+                                        aria-hidden="true"
+                                    >
+                                        {i + 1}
+                                    </span>
+                                    <span>{s.title}</span>
+                                </button>
+                            ))}
+                        </nav>
+                    </div>
+                    <div
+                        className="workspace-panel journey-fill"
+                        aria-hidden="true"
+                    />
                 </aside>
                 <div className="journey-content">
                     <ReferenceLookup
@@ -177,80 +165,56 @@ export function JourneyPage({
                             <ExpeditionStatus workflow={workflow} />
                         )}
                     </div>
-                    <section className="workspace-panel stage-panel">
-                        <div className="stage-heading">
-                            <h2>{current.title}</h2>
-                            <p>{current.help}</p>
-                        </div>
-                        <div
-                            className="action-tabs"
-                            role="group"
-                            aria-label="Ações desta etapa"
-                        >
-                            {actions.map((id) => (
-                                <button
-                                    key={id}
-                                    type="button"
-                                    disabled={selectionLocked}
-                                    aria-pressed={id === action}
-                                    onClick={() => setAction(id)}
-                                >
-                                    {actionLabel(id)}
-                                </button>
-                            ))}
-                        </div>
-                        {action ? (
-                            <FormReferences.Provider
-                                value={{
-                                    defaults: derived,
-                                    options,
-                                    records: Object.fromEntries(
-                                        Object.keys(workflow.catalogs).map(
-                                            (type) => [
-                                                type,
-                                                referenceCatalog(
-                                                    workflow,
-                                                    type,
-                                                ),
-                                            ],
-                                        ),
-                                    ),
-                                }}
-                            >
-                                <Operation
-                                    key={
-                                        action +
-                                        ":" +
-                                        refresh +
-                                        ":" +
-                                        workflow.selectionRevision
-                                    }
-                                    id={action}
-                                    transport={transport}
-                                    context={derived}
-                                    perfil={perfil}
-                                    onSelect={selectRecord}
-                                    onSelectionLockChange={setSelectionLocked}
-                                    onReceipt={onReceipt}
-                                    onContinue={
-                                        nextActions[action]
-                                            ? onNavigate
-                                            : undefined
-                                    }
-                                />
-                            </FormReferences.Provider>
-                        ) : (
-                            <p>
-                                Nenhuma ação desta etapa é apresentada ao perfil
-                                atual. Selecione outra etapa.
-                            </p>
-                        )}
-                    </section>
+                    <FormReferences.Provider
+                        value={{
+                            defaults: derived,
+                            options,
+                            records: Object.fromEntries(
+                                Object.keys(workflow.catalogs).map((type) => [
+                                    type,
+                                    referenceCatalog(workflow, type),
+                                ]),
+                            ),
+                        }}
+                    >
+                        <RecordWorkspace
+                            key={
+                                step +
+                                ":" +
+                                String(context.clienteId) +
+                                ":" +
+                                String(context.armazemId) +
+                                ":" +
+                                perfil
+                            }
+                            journey={journey}
+                            step={step}
+                            transport={transport}
+                            context={context}
+                            perfil={perfil}
+                            workflow={workflow}
+                            onRecord={onRecord}
+                            onReceipt={onReceipt}
+                            startAction={
+                                journey.steps[step].actions.includes(
+                                    startAction,
+                                )
+                                    ? startAction
+                                    : ""
+                            }
+                            onNavigate={onNavigate}
+                        />
+                    </FormReferences.Provider>
                     <section
-                        className="selection"
+                        className="selection journey-references"
                         aria-label="Referências confirmadas da jornada"
                     >
-                        <h2>Referências da jornada no contexto atual</h2>
+                        <div className="journey-references-heading">
+                            <span className="journey-references-icon">
+                                <Icon name="unidades" />
+                            </span>
+                            <h2>Referências da jornada no contexto atual</h2>
+                        </div>
                         <ul>
                             {references
                                 .filter(([, t]) => workflow.selected[t])
@@ -281,27 +245,21 @@ export function JourneyPage({
                                     );
                                 })}
                         </ul>
-                        <p>
-                            Uma lista com vários registros exige seleção
-                            explícita. IDs de pedido, entrada, unidade, reserva
-                            e fechamento permanecem separados.
-                        </p>
-                        <div className="button-row">
-                            {selectionLocked && (
-                                <p role="status">
-                                    Aguarde a confirmação ou consulte o
-                                    resultado incerto. As referências do comando
-                                    enviado permanecem conservadas.
-                                </p>
-                            )}
-                            <button
-                                type="button"
-                                disabled={selectionLocked}
-                                onClick={() => setRefresh((x) => x + 1)}
-                            >
-                                Usar referências consultadas no formulário
-                                (descarta edição atual)
-                            </button>
+                        <div className="journey-references-footer">
+                            <p>
+                                Uma lista com vários registros exige seleção
+                                explícita. IDs de pedido, entrada, unidade,
+                                reserva e fechamento permanecem separados.
+                            </p>
+                            <div className="button-row">
+                                {selectionLocked && (
+                                    <p role="status">
+                                        Aguarde a confirmação ou consulte o
+                                        resultado incerto. As referências do
+                                        comando enviado permanecem conservadas.
+                                    </p>
+                                )}
+                            </div>
                         </div>
                     </section>
                 </div>

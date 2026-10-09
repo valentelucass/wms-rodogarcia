@@ -3,6 +3,8 @@ import { enums, type Field } from "../../contracts/runtime";
 import { label } from "../../domain/labels";
 import { FormReferences } from "../FormReferences";
 import { XmlField } from "./XmlField";
+import { useReferenceCatalog } from "../context/ReferenceCatalog";
+import { ReferenceSelect } from "../context/ReferenceSelect";
 export const scalarInputValue = (field: Field, value: string) =>
     value === "" && field.type === "String" && field.Pattern && !field.required
         ? null
@@ -22,11 +24,32 @@ export function ScalarField({
 }) {
     const id = useId(),
         refs = useContext(FormReferences);
+    const catalog = useReferenceCatalog();
     const title = label(f.name) + (f.required ? " *" : "");
     const choices =
         enums[f.type] ??
         f.Pattern?.match(/regexp = "([A-Z_|]+)"/)?.[1].split("|");
     const name = prefixLabel(path, title);
+    if (
+        catalog &&
+        ["clienteId", "armazemId"].includes(f.name) &&
+        ["Long", "long"].includes(f.type)
+    )
+        return (
+            <div className="field">
+                <ReferenceSelect
+                    kind={f.name === "clienteId" ? "clientes" : "armazens"}
+                    title={prefixLabel(
+                        path,
+                        f.name === "clienteId" ? "Cliente" : "Armazém",
+                    )}
+                    value={String(value ?? "")}
+                    onChange={onChange}
+                    required={f.required}
+                    disabled={disabled}
+                />
+            </div>
+        );
     if (refs.options[f.name]?.length && ["Long", "long"].includes(f.type))
         return (
             <div className="field">

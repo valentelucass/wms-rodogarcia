@@ -5,6 +5,7 @@ import { FictitiousTransport } from "../src/api/fictitious";
 import { Operation } from "../src/components/Operation";
 import {
     Harness,
+    lastMutation,
     obj,
     receipt,
     click,
@@ -35,7 +36,18 @@ it("FE11 decisão recusada preserva ciclo integral versão e consulta histórica
                     "PENDENCIA_FINANCEIRA",
                     "ciclo409",
                 );
-            return receipt(r, closure);
+            return receipt(
+                r,
+                r.endpoint.id === "FechamentoCobrancaController.listar"
+                    ? {
+                          itens: [closure],
+                          pagina: 0,
+                          tamanho: 20,
+                          totalItens: "1",
+                          totalPaginas: 1,
+                      }
+                    : closure,
+            );
         }),
     };
     render(
@@ -47,7 +59,8 @@ it("FE11 decisão recusada preserva ciclo integral versão e consulta histórica
     );
     fill("Identificador *", "901");
     await consult();
-    click("2. Decisão integral do Gestor");
+    await click("2. Decisão integral do Gestor");
+    await click("Aprovar ciclo integral");
     selected("Identificador *", "901");
     selected("Revisão atual *", "4");
     selected("Numero *", "2");
@@ -55,16 +68,18 @@ it("FE11 decisão recusada preserva ciclo integral versão e consulta histórica
         "Motivo / justificativa *",
         "Decisão fictícia de todo o ciclo conferida",
     );
-    click("Conferir e confirmar");
-    click("Confirmar agora");
+    await click("Conferir e confirmar");
+    await click("Confirmar agora");
     await screen.findByText(/Decisão impedida por pendência do ciclo integral/);
-    expect(body(calls.at(-1)!)).toMatchObject({ versao: "4", numero: 2 });
-    expect(body(calls.at(-1)!)).not.toHaveProperty("linhaId");
+    expect(body(lastMutation(calls))).toMatchObject({ versao: "4", numero: 2 });
+    expect(body(lastMutation(calls))).not.toHaveProperty("linhaId");
     expect(screen.queryByText(/Resposta FICTÍCIA/)).toBeNull();
-    click("1. Ciclo e versões");
-    click("Consultar detalhe");
+    await click("1. Ciclo e versões");
+    await click("Consultar detalhe");
     await consult();
-    expect(screen.getByText("PREPARADO", { exact: true })).toBeInTheDocument();
+    expect(
+        screen.getByText("PREPARADO", { exact: true, selector: "dd" }),
+    ).toBeInTheDocument();
     saveProof("FE11-decisao-recusa", calls);
 });
 
@@ -78,12 +93,12 @@ it("FE11 Gestor escolhe compromisso consultado na resolução explícita do fato
         />,
     );
     await consult();
-    selectResultRow("Fechamentos", "901");
-    click("Serviços e cálculo");
-    click("Registrar fato");
-    click("Consultar serviços para o fato");
+    await selectResultRow("Fechamentos", "901");
+    await click("Serviços e cálculo");
+    await click("Registrar fato");
+    await click("Consultar serviços para o fato");
     await screen.findByRole("button", { name: "Selecionar registro 1" });
-    click("Selecionar registro 1");
+    await click("Selecionar registro 1");
     fill("Origem *", "MANUAL");
     fill("Quantidade", "2.123456");
     fill("Categoria *", "");
@@ -93,19 +108,19 @@ it("FE11 Gestor escolhe compromisso consultado na resolução explícita do fato
         "Motivo / justificativa *",
         "Regularização histórica fictícia pelo Gestor",
     );
-    click("Informar Resolução financeira histórica (Gestor)");
-    click("Usar fechamento 901 como compromisso");
+    await click("Informar Resolução financeira histórica (Gestor)");
+    await click("Usar fechamento 901 como compromisso");
     selected("Resolução financeira histórica (Gestor) / Tipo *", "FECHAMENTO");
     selected(
         "Resolução financeira histórica (Gestor) / Compromisso Id *",
         "901",
     );
     await confirm();
-    expect(body(t.requests.at(-1)!).resolucao).toEqual({
+    expect(body(lastMutation(t.requests)).resolucao).toEqual({
         tipo: "FECHAMENTO",
         compromissoId: "901",
     });
-    click("Consultar situação e origem deste fato");
+    await click("Consultar situação e origem deste fato");
     await consult();
     expect(screen.getByText("VALIDO", { exact: true })).toBeInTheDocument();
     saveProof("FE11-resolucao-gestor", t.requests);
@@ -136,7 +151,7 @@ it("FE11 Supervisor lê pendência do fato e não recebe resolução/decisão do
     fill("Identificador *", "2801");
     await consult();
     expect(screen.getByText("PENDENTE", { exact: true })).toBeInTheDocument();
-    click("Registrar fato");
+    await click("Registrar fato");
     expect(
         screen.getByRole("button", {
             name: "Informar Resolução financeira histórica (Gestor)",

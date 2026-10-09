@@ -3531,6 +3531,188 @@
         "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/ContingenciaDto.java"
       }
     ],
+    "DashboardDto.Area": [
+      {
+        "name": "tipo",
+        "type": "TipoEndereco",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/DashboardDto.java"
+      },
+      {
+        "name": "posicoesCliente",
+        "type": "long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/DashboardDto.java"
+      },
+      {
+        "name": "capacidadeAtiva",
+        "type": "Long",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/DashboardDto.java"
+      },
+      {
+        "name": "livresArmazem",
+        "type": "Long",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/DashboardDto.java"
+      }
+    ],
+    "DashboardDto.Fila": [
+      {
+        "name": "situacao",
+        "type": "SituacaoPedidoSaida",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/DashboardDto.java"
+      },
+      {
+        "name": "pedidos",
+        "type": "long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/DashboardDto.java"
+      }
+    ],
+    "DashboardDto.Produto": [
+      {
+        "name": "produtoId",
+        "type": "Long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/DashboardDto.java"
+      },
+      {
+        "name": "sku",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/DashboardDto.java"
+      },
+      {
+        "name": "unidadeMedida",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/DashboardDto.java"
+      },
+      {
+        "name": "fisicoTotal",
+        "type": "BigDecimal",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/DashboardDto.java"
+      },
+      {
+        "name": "disponivel",
+        "type": "BigDecimal",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/DashboardDto.java"
+      },
+      {
+        "name": "reservado",
+        "type": "BigDecimal",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/DashboardDto.java"
+      },
+      {
+        "name": "indisponivel",
+        "type": "BigDecimal",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/DashboardDto.java"
+      },
+      {
+        "name": "pendenteUnitizacao",
+        "type": "BigDecimal",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/DashboardDto.java"
+      }
+    ],
+    "DashboardDto.Resumo": [
+      {
+        "name": "clienteId",
+        "type": "Long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/DashboardDto.java"
+      },
+      {
+        "name": "armazemId",
+        "type": "Long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/DashboardDto.java"
+      },
+      {
+        "name": "consultadoEm",
+        "type": "Instant",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/DashboardDto.java"
+      },
+      {
+        "name": "fuso",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/DashboardDto.java"
+      },
+      {
+        "name": "posicoesCliente",
+        "type": "long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/DashboardDto.java"
+      },
+      {
+        "name": "unidadesDisponiveis",
+        "type": "long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/DashboardDto.java"
+      },
+      {
+        "name": "pedidosAbertos",
+        "type": "long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/DashboardDto.java"
+      },
+      {
+        "name": "unidadesComAviso",
+        "type": "Long",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/DashboardDto.java"
+      },
+      {
+        "name": "antecedenciaValidade",
+        "type": "Integer",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/DashboardDto.java"
+      },
+      {
+        "name": "visaoArmazem",
+        "type": "boolean",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/DashboardDto.java"
+      },
+      {
+        "name": "areas",
+        "type": "List<DashboardDto.Area>",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/DashboardDto.java",
+        "element": {
+          "name": "element",
+          "type": "DashboardDto.Area",
+          "required": false,
+          "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/DashboardDto.java"
+        }
+      },
+      {
+        "name": "fila",
+        "type": "List<DashboardDto.Fila>",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/DashboardDto.java",
+        "element": {
+          "name": "element",
+          "type": "DashboardDto.Fila",
+          "required": false,
+          "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/DashboardDto.java"
+        }
+      },
+      {
+        "name": "produtos",
+        "type": "PaginaResponse<DashboardDto.Produto>",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/DashboardDto.java"
+      }
+    ],
     "EmbalagemDto.Criar": [
       {
         "name": "produtoId",
@@ -10087,6 +10269,368 @@
         "type": "BigDecimal",
         "required": false,
         "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/UnidadeLogisticaDto.java"
+      }
+    ],
+    "VisaoOperacaoDto.Resumo": [
+      {
+        "name": "clienteId",
+        "type": "Long",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "armazemId",
+        "type": "Long",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "consultadoEm",
+        "type": "Instant",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "fuso",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "capacidade",
+        "type": "Long",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "posicoesOcupadas",
+        "type": "Long",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "posicoesLivres",
+        "type": "Long",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "ocupacao",
+        "type": "BigDecimal",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "unidadesArmazenadas",
+        "type": "long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "valorArmazenado",
+        "type": "BigDecimal",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "valorCompleto",
+        "type": "boolean",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "emQuarentena",
+        "type": "long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "reservasAtivas",
+        "type": "long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "entradasAbertas",
+        "type": "long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "saidasAbertas",
+        "type": "long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "faturamentoMes",
+        "type": "BigDecimal",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "faturamentoParcial",
+        "type": "boolean",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "financeiroPermitido",
+        "type": "boolean",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "competencia",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "mapa",
+        "type": "PaginaResponse<VisaoOperacaoDto.Posicao>",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      }
+    ],
+    "VisaoOperacaoDto.Posicao": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "armazemId",
+        "type": "Long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "armazem",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "codigo",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "rua",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "nivel",
+        "type": "int",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "posicao",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "tipo",
+        "type": "TipoEndereco",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "situacao",
+        "type": "SituacaoCadastro",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "estado",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "disponivel",
+        "type": "boolean",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "ocupada",
+        "type": "boolean",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "bloqueada",
+        "type": "boolean",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "reservada",
+        "type": "boolean",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "quarentena",
+        "type": "boolean",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "capacidadePesoKg",
+        "type": "BigDecimal",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      }
+    ],
+    "VisaoOperacaoDto.Unidade": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "clienteId",
+        "type": "Long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "codigo",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "produto",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "sku",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "lote",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "quantidade",
+        "type": "BigDecimal",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "unidadeMedida",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "pedidoEntradaId",
+        "type": "Long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "bloqueada",
+        "type": "boolean",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "reservada",
+        "type": "boolean",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "quarentena",
+        "type": "boolean",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "ultimaMovimentacao",
+        "type": "Instant",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      }
+    ],
+    "VisaoOperacaoDto.Detalhe": [
+      {
+        "name": "endereco",
+        "type": "VisaoOperacaoDto.Posicao",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "unidades",
+        "type": "List<VisaoOperacaoDto.Unidade>",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java",
+        "element": {
+          "name": "element",
+          "type": "VisaoOperacaoDto.Unidade",
+          "required": false,
+          "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+        }
+      },
+      {
+        "name": "unidadesVisiveis",
+        "type": "long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "conteudoRestrito",
+        "type": "boolean",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "alturaMetros",
+        "type": "BigDecimal",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "larguraMetros",
+        "type": "BigDecimal",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "profundidadeMetros",
+        "type": "BigDecimal",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "empilhamentoMaximo",
+        "type": "Integer",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "tipoUnidadePermitido",
+        "type": "TipoUnidadeLogistica",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
       }
     ]
   },

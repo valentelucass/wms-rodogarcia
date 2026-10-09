@@ -83,14 +83,21 @@ class EstoqueIntegrationTest {
 
     @BeforeEach
     void preparar() {
+        assertThat(environment.getRequiredProperty("spring.datasource.url"))
+                .startsWith("jdbc:h2:mem:wms-estoque;");
         for (String tabela :
                 List.of(
                         "operacao_administrativa",
+                        "configuracao_aviso_validade",
+                        "reserva_saida",
+                        "operacao_saida",
                         "movimento_estoque",
                         "ocupacao_endereco",
                         "operacao_unidade",
                         "conteudo_unidade",
                         "unidade_logistica",
+                        "item_pedido_saida",
+                        "pedido_saida",
                         "conjunto_posicoes",
                         "entrada_conferida",
                         "item_chegada",
@@ -817,6 +824,212 @@ class EstoqueIntegrationTest {
                                 "Embalagem ficticia",
                                 new BigDecimal("10"),
                                 Instant.now()));
+    }
+
+    @Test
+    void dashboardConciliaSaldoEPosicoesSemEscritaNemExporArmazemAoOperador() throws Exception {
+        var u = unidade();
+        posicionar(u, endereco("DASH-OCUPADA", "ARMAZENAGEM"));
+        endereco("DASH-LIVRE", "ARMAZENAGEM");
+        receber("10", "0");
+        var antes =
+                List.of(
+                        contar("movimento_estoque"),
+                        contar("auditoria_cadastro"),
+                        contar("operacao_administrativa"),
+                        contar("unidade_logistica"),
+                        contar("ocupacao_endereco"),
+                        contar("entrada_conferida"));
+        var saldoAntes = resposta(get(saldoRota(), operador), 200);
+        var r = resposta(get(dashboardRota(), operador), 200);
+        assertThat(r.get("posicoesCliente").longValue()).isEqualTo(1);
+        assertThat(r.get("unidadesDisponiveis").longValue()).isEqualTo(1);
+        assertThat(r.get("pedidosAbertos").longValue()).isZero();
+        assertThat(r.get("unidadesComAviso").isNull()).isTrue();
+        assertThat(r.get("visaoArmazem").booleanValue()).isFalse();
+        for (var a : r.get("areas")) {
+            assertThat(a.get("capacidadeAtiva").isNull()).isTrue();
+            assertThat(a.get("livresArmazem").isNull()).isTrue();
+        }
+        var saldo = r.get("produtos").get("itens").get(0);
+        assertThat(saldo.get("fisicoTotal").decimalValue()).isEqualByComparingTo("20");
+        assertThat(saldo.get("disponivel").decimalValue()).isEqualByComparingTo("10");
+        assertThat(saldo.get("pendenteUnitizacao").decimalValue()).isEqualByComparingTo("10");
+        var a = resposta(get(dashboardRota(), gestor), 200).get("areas").get(0);
+        assertThat(a.get("capacidadeAtiva").longValue()).isEqualTo(2);
+        assertThat(a.get("livresArmazem").longValue()).isEqualTo(1);
+        assertThat(
+                        List.of(
+                                contar("movimento_estoque"),
+                                contar("auditoria_cadastro"),
+                                contar("operacao_administrativa"),
+                                contar("unidade_logistica"),
+                                contar("ocupacao_endereco"),
+                                contar("entrada_conferida")))
+                .isEqualTo(antes);
+        assertThat(resposta(get(saldoRota(), operador), 200)).isEqualTo(saldoAntes);
+    }
+
+    @Test
+    void dashboardReservaParcialNaoDisponibilizaRemanescenteDaUnidade() throws Exception {
+        posicionar(unidade(), endereco("DASH-RESERVA", "ARMAZENAGEM"));
+        var pedido =
+                resposta(
+                        post(
+                                "/api/v1/pedidos-saida",
+                                Map.of(
+                                        "operacaoId",
+                                        UUID.randomUUID(),
+                                        "clienteId",
+                                        cliente.getId(),
+                                        "armazemId",
+                                        armazem.getId(),
+                                        "referencia",
+                                        "DASH-SAIDA",
+                                        "itens",
+                                        List.of(
+                                                Map.of(
+                                                        "produtoId",
+                                                        produto.getId(),
+                                                        "quantidade",
+                                                        "4")),
+                                        "motivo",
+                                        "Pedido ficticio de dashboard"),
+                                operador),
+                        201);
+        long id = pedido.get("pedido").get("id").longValue();
+        resposta(
+                post(
+                        "/api/v1/pedidos-saida/" + id + "/reserva",
+                        Map.of(
+                                "operacaoId",
+                                UUID.randomUUID(),
+                                "versao",
+                                pedido.get("pedido").get("versao").longValue(),
+                                "motivo",
+                                "Reserva ficticia de dashboard"),
+                        operador),
+                200);
+        var r = resposta(get(dashboardRota(), operador), 200);
+        assertThat(r.get("pedidosAbertos").longValue()).isEqualTo(1);
+        assertThat(r.get("unidadesDisponiveis").longValue()).isZero();
+        var saldo = r.get("produtos").get("itens").get(0);
+        assertThat(saldo.get("fisicoTotal").decimalValue()).isEqualByComparingTo("10");
+        assertThat(saldo.get("disponivel").decimalValue()).isEqualByComparingTo("0");
+        assertThat(saldo.get("reservado").decimalValue()).isEqualByComparingTo("4");
+        assertThat(saldo.get("indisponivel").decimalValue()).isEqualByComparingTo("6");
+        assertThat(r.get("fila").get(1).get("pedidos").longValue()).isEqualTo(1);
+    }
+
+    @Test
+    void dashboardRecusaEscopoEParametrosEConservaTotalEmPaginaVazia() throws Exception {
+        var estranho = token("OPERACAO", List.of(99999L), List.of(armazem.getId()));
+        resposta(get(dashboardRota(), estranho), 403);
+        resposta(get(dashboardRota(), null), 401);
+        resposta(post("/api/v1/dashboard", Map.of(), operador), 403);
+        resposta(get(dashboardRota() + "&tamanho=13", operador), 400);
+        resposta(get(dashboardRota() + "&pagina=-1", operador), 400);
+        resposta(get(dashboardRota().replace("America/Sao_Paulo", "FusoInvalido"), operador), 400);
+        var r = resposta(get(dashboardRota() + "&pagina=1", operador), 200);
+        assertThat(r.get("produtos").get("itens").size()).isZero();
+        assertThat(r.get("produtos").get("totalItens").longValue()).isEqualTo(1);
+        assertThat(r.get("posicoesCliente").longValue()).isZero();
+    }
+
+    private String dashboardRota() {
+        return "/api/v1/dashboard?clienteId="
+                + cliente.getId()
+                + "&armazemId="
+                + armazem.getId()
+                + "&fuso=America/Sao_Paulo";
+    }
+
+    @Test
+    void dashboardIsolaClienteEArmazemMesmoComEstoqueDeOutrosEscopos() throws Exception {
+        posicionar(unidade(), endereco("DASH-PRINCIPAL", "ARMAZENAGEM"));
+        var clientePrincipal = cliente;
+        var armazemPrincipal = armazem;
+        var produtoPrincipal = produto;
+        cliente =
+                clientes.saveAndFlush(
+                        new Cliente(
+                                "OUTRO",
+                                "Outro cliente ficticio",
+                                "22345678000199",
+                                Instant.now()));
+        criarProduto();
+        operador = token("OPERACAO", List.of(cliente.getId()), List.of(armazem.getId()));
+        supervisor = token("SUPERVISOR", List.of(cliente.getId()), List.of(armazem.getId()));
+        posicionar(unidade(), endereco("DASH-OUTRO-CLIENTE", "ARMAZENAGEM"));
+        var outro = resposta(get(dashboardRota(), operador), 200);
+        assertThat(outro.get("posicoesCliente").longValue()).isEqualTo(1);
+        assertThat(outro.get("produtos").get("itens").get(0).get("produtoId").longValue())
+                .isEqualTo(produto.getId());
+        armazem =
+                armazens.saveAndFlush(
+                        new Armazem(
+                                "OUTRO",
+                                "Outro armazem ficticio",
+                                "88765432000188",
+                                "Osasco",
+                                "SP",
+                                Instant.now()));
+        operador = token("OPERACAO", List.of(cliente.getId()), List.of(armazem.getId()));
+        supervisor = token("SUPERVISOR", List.of(cliente.getId()), List.of(armazem.getId()));
+        posicionar(unidade(), endereco("DASH-OUTRO-ARMAZEM", "ARMAZENAGEM"));
+        cliente = clientePrincipal;
+        armazem = armazemPrincipal;
+        resposta(get(dashboardRota(), operador), 403);
+        resposta(
+                get(dashboardRota(), token("OPERACAO", List.of(cliente.getId()), List.of(99999L))),
+                403);
+        var r = resposta(get(dashboardRota(), gestor), 200);
+        assertThat(r.get("posicoesCliente").longValue()).isEqualTo(1);
+        assertThat(r.get("unidadesDisponiveis").longValue()).isEqualTo(1);
+        var saldo = r.get("produtos").get("itens").get(0);
+        assertThat(saldo.get("produtoId").longValue()).isEqualTo(produtoPrincipal.getId());
+        assertThat(saldo.get("fisicoTotal").decimalValue()).isEqualByComparingTo("10");
+        var area = r.get("areas").get(0);
+        assertThat(area.get("capacidadeAtiva").longValue()).isEqualTo(2);
+        assertThat(area.get("livresArmazem").longValue()).isZero();
+    }
+
+    @Test
+    void dashboardAvisoUsaConfiguracaoELimiteCivilInclusive() throws Exception {
+        var dentro = unidade();
+        var fora = unidade();
+        var vencida = unidade();
+        var hoje = java.time.LocalDate.now(java.time.ZoneId.of("America/Sao_Paulo"));
+        jdbc.update(
+                "update wms.unidade_logistica set validade=? where id=?",
+                hoje.plusDays(5),
+                dentro.get("id").longValue());
+        jdbc.update(
+                "update wms.unidade_logistica set validade=? where id=?",
+                hoje.plusDays(6),
+                fora.get("id").longValue());
+        jdbc.update(
+                "update wms.unidade_logistica set validade=? where id=?",
+                hoje.minusDays(1),
+                vencida.get("id").longValue());
+        var configuracao =
+                Map.of(
+                        "operacaoId",
+                        UUID.randomUUID(),
+                        "clienteId",
+                        cliente.getId(),
+                        "armazemId",
+                        armazem.getId(),
+                        "versao",
+                        0,
+                        "diasAntecedencia",
+                        5,
+                        "motivo",
+                        "Aviso ficticio de dashboard");
+        resposta(enviar("PUT", "/api/v1/avisos-validade", configuracao, gestor), 200);
+        var r = resposta(get(dashboardRota(), operador), 200);
+        assertThat(r.get("antecedenciaValidade").intValue()).isEqualTo(5);
+        assertThat(r.get("unidadesComAviso").longValue()).isEqualTo(2);
     }
 
     private long receber(String boa, String avariada) throws Exception {

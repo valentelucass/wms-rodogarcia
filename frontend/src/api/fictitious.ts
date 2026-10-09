@@ -12,6 +12,8 @@ import { ExampleDamage } from "../modules/estoque/ExampleDamage";
 import { exampleAudit } from "../modules/relatorios/exampleAudit";
 /** Deliberately separate example responder. It demonstrates UI states, not warehouse rules. */
 import { isObject, canPresent, type Perfil } from "../contracts/runtime";
+import { dashboardExample } from "./mock/dashboard";
+import { overviewExample } from "./mock/overview";
 import {
     toWire,
     parseResponse,
@@ -156,6 +158,10 @@ export class FictitiousTransport implements Transport {
         data = this.billing.respond(r, body, data);
         data = this.serviceConfiguration.respond(r, body, data);
         data = exampleAudit(r, data);
+        if (r.endpoint.id === "DashboardController.consultar")
+            data = dashboardExample(r, this.perfil, this.scenario === "vazio");
+        if (r.endpoint.id.startsWith("VisaoOperacaoController."))
+            data = overviewExample(r, this.perfil, this.scenario === "vazio");
         if (this.scenario === "vazio" && r.endpoint.method === "GET") {
             if (Array.isArray(data)) data = [];
             else if (isObject(data) && "itens" in data)

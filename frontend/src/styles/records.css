@@ -1,0 +1,116 @@
+.record-workspace {
+    min-width: 0;
+}
+.record-view-picker {
+    display: grid;
+    gap: var(--og-space-2);
+    margin-bottom: var(--og-space-4);
+    max-width: 360px;
+}
+.record-related,
+.record-related-references {
+    margin-block: var(--og-space-4);
+}
+.record-workspace .dialog-header {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: var(--og-surface);
+}
+.record-page-header,
+.record-toolbar {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--og-space-4);
+}
+.record-page-header h2 {
+    margin-top: 0;
+}
+.record-page-header > div:first-child {
+    flex: 1 1 280px;
+}
+.record-header-actions,
+.record-row-actions,
+.record-context-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--og-space-2);
+}
+.record-header-actions {
+    flex: 0 1 auto;
+}
+.record-toolbar {
+    align-items: flex-end;
+    margin-block: var(--og-space-4);
+}
+.record-toolbar label {
+    display: grid;
+    gap: var(--og-space-2);
+    flex: 1 1 220px;
+}
+.record-toolbar input,
+.record-toolbar select {
+    width: 100%;
+    min-width: 0;
+}
+.record-link {
+    padding: 0;
+    min-height: 44px;
+    background: transparent;
+    border: 0;
+    color: var(--og-link);
+    text-align: left;
+    overflow-wrap: anywhere;
+}
+.record-table td {
+    max-width: 360px;
+    overflow-wrap: anywhere;
+}
+.record-table th {
+    overflow-wrap: normal;
+    word-break: normal;
+}
+.record-status {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: var(--og-radius-badge);
+    background: var(--og-neutral-badge-bg);
+}
+.record-context-actions {
+    margin-block: var(--og-space-4);
+    padding-block: var(--og-space-3);
+    border-block: 1px solid var(--og-border);
+}
+.record-filters {
+    margin-block: var(--og-space-3);
+}
+.record-feedback {
+    padding: var(--og-space-3);
+    background: var(--og-success-bg);
+    color: var(--og-positive-text);
+    border-radius: var(--og-radius-control);
+}
+.record-feedback--unknown {
+    background: var(--og-warning-bg);
+    color: var(--og-warning-text);
+}
+@media (max-width: 600px) {
+    .record-header-actions,
+    .record-header-actions button {
+        width: 100%;
+    }
+    .record-toolbar {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .record-context-actions button {
+        flex: 1 1 180px;
+    }
+    .workspace-dialog:has(.record-detail),
+    .workspace-dialog:has(.operation) {
+        width: calc(100% - 16px);
+        max-height: calc(100dvh - 16px);
+    }
+}

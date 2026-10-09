@@ -3,6 +3,7 @@ import { render, screen } from "@testing-library/react";
 import { FictitiousTransport } from "../src/api/fictitious";
 import {
     Harness,
+    lastMutation,
     click,
     fill,
     confirm,
@@ -23,13 +24,13 @@ it("FE05 FE10 avaria reconhecimento Gestor reparo consulta e liberação mantêm
     );
     fill("Código *", uuid);
     await consult();
-    click("Avarias e reparos");
-    click("Registrar fato");
+    await click("Avarias e reparos");
+    await click("Registrar fato");
     selected("Código *", uuid);
     selected("Revisão atual da unidade *", "0");
-    click("Consultar posições para avaria e reparo");
+    await click("Consultar posições para avaria e reparo");
     await screen.findByRole("button", { name: "Selecionar registro 1" });
-    click("Selecionar registro 1");
+    await click("Selecionar registro 1");
     selected("Posições de destino / Item 1 / Endereço (ID) *", "81");
     fill("Quantidade *", "5.000000");
     fill(
@@ -41,13 +42,13 @@ it("FE05 FE10 avaria reconhecimento Gestor reparo consulta e liberação mantêm
         "Avaria fictícia observada com destino seguro",
     );
     await confirm();
-    expect(body(t.requests.at(-1)!).destinos).toEqual([
+    expect(body(lastMutation(t.requests)).destinos).toEqual([
         { enderecoId: "81", codigoLido: "A101" },
     ]);
-    click("Consultar ocorrência e condição registradas");
+    await click("Consultar ocorrência e condição registradas");
     await consult();
-    click("Selecionar registro 1");
-    click("Reconhecer responsabilidade");
+    await click("Selecionar registro 1");
+    await click("Reconhecer responsabilidade");
     selected("Identificador *", "3101");
     selected("Revisão atual *", "0");
     fill("Responsabilidade *", "RODOGARCIA");
@@ -56,13 +57,13 @@ it("FE05 FE10 avaria reconhecimento Gestor reparo consulta e liberação mantêm
         "Responsabilidade fictícia reconhecida por Gestor",
     );
     await confirm();
-    click("Consultar responsabilidade reconhecida");
+    await click("Consultar responsabilidade reconhecida");
     await consult();
     expect(
         screen.getByRole("cell", { name: "RODOGARCIA" }),
     ).toBeInTheDocument();
-    click("Selecionar registro 1");
-    click("Registrar reparo");
+    await click("Selecionar registro 1");
+    await click("Registrar reparo");
     selected("Identificador *", "3101");
     selected("Revisão atual *", "1");
     selected("Revisão atual da unidade *", "8");
@@ -71,20 +72,20 @@ it("FE05 FE10 avaria reconhecimento Gestor reparo consulta e liberação mantêm
         "Reparo fictício físico confirmado no exercício",
     );
     await confirm();
-    click("Consultar condição e bloqueio após reparo");
+    await click("Consultar condição e bloqueio após reparo");
     await consult();
     expect(screen.getAllByText("Sim", { exact: true }).length).toBeGreaterThan(
         0,
     );
-    click("Bloqueio e liberação");
-    click("Confirmar liberação");
+    await click("Bloqueio e liberação");
+    await click("Confirmar liberação");
     selected("Revisão atual da unidade *", "9");
     fill(
         "Motivo / justificativa *",
         "Liberação fictícia após consulta do reparo",
     );
     await confirm();
-    click("Conferir a unidade após liberação");
+    await click("Conferir a unidade após liberação");
     await consult();
     expect(
         t.requests.find((r) => r.endpoint.id === "AvariaController.reparar")
@@ -113,14 +114,16 @@ it("FE10 Supervisor registra/repara mas reconhecimento é apresentado somente a 
         screen.getByRole("button", { name: "Registrar fato" }),
     ).toBeInTheDocument();
     expect(
-        screen.getByRole("button", { name: "Registrar reparo" }),
-    ).toBeInTheDocument();
+        screen.getByLabelText("Resolver pendências (Gestor)"),
+    ).toBeDisabled();
+    await click("Voltar à lista");
+    await click("Selecionar registro 1");
+    expect(screen.getByRole("dialog").textContent).toContain(
+        "Registrar reparo",
+    );
     expect(
         screen.queryByRole("button", {
             name: "Reconhecer responsabilidade",
         }),
     ).toBeNull();
-    expect(
-        screen.getByLabelText("Resolver pendências (Gestor)"),
-    ).toBeDisabled();
 });

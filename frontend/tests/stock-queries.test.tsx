@@ -19,6 +19,16 @@ it("FE08 saldo filtro unidade selecionada origem localização histórico e pagi
     const t: Transport = {
         send: vi.fn(async (r) => {
             calls.push(r);
+            if (r.endpoint.id === "EstoqueController.consultar")
+                return receipt(
+                    r,
+                    obj("EstoqueDto.Unidade", {
+                        unidade: obj("UnidadeLogisticaDto.Resumo", {
+                            id: r.params.codigo === code ? "502" : "501",
+                            codigo: r.params.codigo,
+                        }),
+                    }),
+                );
             let data: unknown;
             if (r.endpoint.id === "ProdutoController.listar")
                 data = {
@@ -100,28 +110,30 @@ it("FE08 saldo filtro unidade selecionada origem localização histórico e pagi
             action="EstoqueController.listar"
         />,
     );
-    click("Consultar produtos para saldo");
+    await click("Consultar produtos para saldo");
     await screen.findByRole("button", { name: "Selecionar registro 1" });
-    click("Selecionar registro 1");
-    click("Consultar saldo do SKU");
+    await click("Selecionar registro 1");
+    await click("Consultar saldo do SKU");
     selected("Produto / SKU (ID) *", "11");
     await consult();
     expect(screen.getByText("500.000000", { exact: true })).toBeInTheDocument();
     expect(screen.getByText("400.000000", { exact: true })).toBeInTheDocument();
-    click("Consultar lista");
-    fill("Página (início 0)", "1");
-    fill("Itens por página (1–100)", "2");
+    await click("Consultar lista");
     await consult();
-    const main = document.querySelector(".operation .results") as HTMLElement;
+    const main = document.querySelector(".record-workspace") as HTMLElement;
     fireEvent.click(
-        within(main).getByRole("button", { name: "Selecionar registro 2" }),
+        within(main).getByRole("button", {
+            name: new RegExp("^Ver detalhes de " + code),
+        }),
     );
-    click("Consultar origem da unidade selecionada");
+    await screen.findByRole("dialog");
+    await screen.findByText("502", { selector: "dd" });
+    await click("Consultar origem da unidade selecionada");
     await screen.findByRole("heading", { name: "Origens" });
     expect(calls.at(-1)?.params.unidadeId).toBe("502");
     expect(calls.at(-1)?.params.pedidoId).toBe("101");
     expect(screen.getByRole("cell", { name: "202" })).toBeInTheDocument();
-    click("Consultar movimentos");
+    await click("Consultar movimentos");
     selected("Código *", code);
     fill("Página (início 0)", "1");
     fill("Itens por página (1–100)", "2");
@@ -192,7 +204,7 @@ it("FE08 falha na consulta não vira vazio nem saldo zero", async () => {
             onSelect={vi.fn()}
         />,
     );
-    click("Consultar");
+    await click("Consultar");
     await screen.findByText(/serviço indisponível/);
     expect(screen.queryByText("Nenhum registro encontrado.")).toBeNull();
     expect(screen.queryByText("0.000000")).toBeNull();
@@ -207,10 +219,10 @@ it("FE12-04 relatório auditoria Gestor consulta filtros e Operação não tem a
             action="AuditoriaController.listar"
         />,
     );
-    click("Consultar clientes para auditoria");
+    await click("Consultar clientes para auditoria");
     await screen.findByRole("button", { name: "Selecionar registro 1" });
-    click("Selecionar registro 1");
-    click("Auditar Cliente 1");
+    await click("Selecionar registro 1");
+    await click("Auditar Cliente 1");
     selected("Tipo *", "CLIENTE");
     selected("Registro Id *", "1");
     await consult();
@@ -232,7 +244,7 @@ it("FE12-04 relatório auditoria Gestor consulta filtros e Operação não tem a
     );
     expect(screen.queryByRole("button", { name: "Consultar" })).toBeNull();
     expect(
-        screen.getByText(/Esta ação é apresentada a GESTOR/),
+        screen.getByText(/Seu perfil não permite consultar esta página/),
     ).toBeInTheDocument();
     expect(
         screen.queryByRole("region", {

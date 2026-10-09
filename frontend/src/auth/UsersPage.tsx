@@ -212,7 +212,9 @@ export function UsersPage({
             {(editing || reset) && (
                 <Dialog
                     title={editorTitle}
-                    wide
+                    wide={!reset}
+                    account
+                    icon={reset ? "senha" : "usuarios"}
                     onClose={closeEditor}
                     locked={busy || needsCheck}
                 >
@@ -241,124 +243,169 @@ export function UsersPage({
                         <fieldset disabled={busy || needsCheck}>
                             {!reset && (
                                 <>
-                                    <label>
-                                        Nome
-                                        <input
-                                            name="nome"
-                                            required
-                                            maxLength={200}
-                                            defaultValue={selected?.nome}
-                                            autoFocus
-                                        />
-                                    </label>
-                                    {editing === "new" && (
-                                        <label>
-                                            E-mail
-                                            <input
-                                                name="email"
-                                                type="email"
-                                                required
-                                                maxLength={254}
-                                                autoComplete="off"
-                                            />
-                                        </label>
-                                    )}
-                                    <label>
-                                        Perfil operacional
-                                        <select
-                                            name="perfil"
-                                            defaultValue={
-                                                selected?.perfil ?? "OPERACAO"
-                                            }
-                                        >
-                                            <option value="OPERACAO">
-                                                Operação
-                                            </option>
-                                            <option value="SUPERVISOR">
-                                                Supervisor
-                                            </option>
-                                            <option value="GESTOR">
-                                                Gestor
-                                            </option>
-                                        </select>
-                                    </label>
-                                    <p>
-                                        Gestor tem acesso operacional a todos os
-                                        clientes e armazéns. Os demais perfis
-                                        usam os vínculos abaixo.
-                                    </p>
-                                    <label>
-                                        Clientes permitidos (IDs separados por
-                                        vírgulas)
-                                        <input
-                                            name="clientes"
-                                            defaultValue={selected?.clientes.join(
-                                                ", ",
+                                    <section
+                                        className="account-section"
+                                        aria-labelledby="user-identity-title"
+                                    >
+                                        <h3 id="user-identity-title">
+                                            Identificação
+                                        </h3>
+                                        <div className="account-fields">
+                                            <label>
+                                                Nome
+                                                <input
+                                                    name="nome"
+                                                    data-dialog-autofocus
+                                                    required
+                                                    maxLength={200}
+                                                    defaultValue={
+                                                        selected?.nome
+                                                    }
+                                                    autoFocus
+                                                />
+                                            </label>
+                                            {editing === "new" && (
+                                                <label>
+                                                    E-mail
+                                                    <input
+                                                        name="email"
+                                                        type="email"
+                                                        required
+                                                        maxLength={254}
+                                                        autoComplete="off"
+                                                    />
+                                                </label>
                                             )}
-                                            placeholder="Ex.: 1, 2"
-                                        />
-                                    </label>
-                                    <label>
-                                        Armazéns permitidos (IDs separados por
-                                        vírgulas)
-                                        <input
-                                            name="armazens"
-                                            defaultValue={selected?.armazens.join(
-                                                ", ",
-                                            )}
-                                            placeholder="Ex.: 1"
-                                        />
-                                    </label>
-                                    <p>
-                                        Para Operação e Supervisor, deixar os
-                                        vínculos vazios não libera nenhum
-                                        cliente ou armazém.
-                                    </p>
-                                    <label className="check-label">
-                                        <input
-                                            name="administrador"
-                                            type="checkbox"
-                                            defaultChecked={
-                                                selected?.administrador
-                                            }
-                                        />{" "}
-                                        Administrador de usuários
-                                    </label>
-                                    <p>
-                                        Permite criar e editar contas, conceder
-                                        administração e redefinir senhas de
-                                        outros usuários.
-                                    </p>
-                                    {selected && (
-                                        <label className="check-label">
-                                            <input
-                                                name="ativo"
-                                                type="checkbox"
-                                                defaultChecked={selected.ativo}
-                                            />{" "}
-                                            Acesso ativo
-                                        </label>
-                                    )}
+                                        </div>
+                                    </section>
+                                    <section
+                                        className="account-section"
+                                        aria-labelledby="user-access-title"
+                                    >
+                                        <h3 id="user-access-title">
+                                            Acesso operacional
+                                        </h3>
+                                        <div className="account-fields account-profile">
+                                            <label>
+                                                Perfil operacional
+                                                <select
+                                                    name="perfil"
+                                                    defaultValue={
+                                                        selected?.perfil ??
+                                                        "OPERACAO"
+                                                    }
+                                                >
+                                                    <option value="OPERACAO">
+                                                        Operação
+                                                    </option>
+                                                    <option value="SUPERVISOR">
+                                                        Supervisor
+                                                    </option>
+                                                    <option value="GESTOR">
+                                                        Gestor
+                                                    </option>
+                                                </select>
+                                            </label>
+                                            <p>
+                                                Gestor tem acesso operacional a
+                                                todos os clientes e armazéns. Os
+                                                demais perfis usam os vínculos
+                                                abaixo.
+                                            </p>
+                                        </div>
+                                        <div className="account-fields">
+                                            <label>
+                                                Clientes permitidos (IDs
+                                                separados por vírgulas)
+                                                <input
+                                                    name="clientes"
+                                                    defaultValue={selected?.clientes.join(
+                                                        ", ",
+                                                    )}
+                                                    placeholder="Ex.: 1, 2"
+                                                />
+                                            </label>
+                                            <label>
+                                                Armazéns permitidos (IDs
+                                                separados por vírgulas)
+                                                <input
+                                                    name="armazens"
+                                                    defaultValue={selected?.armazens.join(
+                                                        ", ",
+                                                    )}
+                                                    placeholder="Ex.: 1"
+                                                />
+                                            </label>
+                                        </div>
+                                        <p>
+                                            Para Operação e Supervisor, deixar
+                                            os vínculos vazios não libera nenhum
+                                            cliente ou armazém.
+                                        </p>
+                                    </section>
                                 </>
                             )}
-                            {(reset || editing === "new") && (
-                                <label>
-                                    Senha temporária
-                                    <input
-                                        name="senhaTemporaria"
-                                        type="password"
-                                        autoComplete="new-password"
-                                        minLength={12}
-                                        maxLength={128}
-                                        required
-                                    />
-                                    <small>
-                                        De 12 a 128 caracteres. Entregue
-                                        diretamente ao usuário; ele deverá
-                                        trocá-la.
-                                    </small>
-                                </label>
-                            )}
+                            <section
+                                className="account-section"
+                                aria-labelledby="user-security-title"
+                            >
+                                <h3 id="user-security-title">
+                                    Segurança da conta
+                                </h3>
+                                <div className="account-fields">
+                                    {!reset && (
+                                        <div className="account-permission">
+                                            <label className="check-label">
+                                                <input
+                                                    name="administrador"
+                                                    type="checkbox"
+                                                    defaultChecked={
+                                                        selected?.administrador
+                                                    }
+                                                />{" "}
+                                                Administrador de usuários
+                                            </label>
+                                            <p>
+                                                Permite criar e editar contas,
+                                                conceder administração e
+                                                redefinir senhas de outros
+                                                usuários.
+                                            </p>
+                                            {selected && (
+                                                <label className="check-label">
+                                                    <input
+                                                        name="ativo"
+                                                        type="checkbox"
+                                                        defaultChecked={
+                                                            selected.ativo
+                                                        }
+                                                    />{" "}
+                                                    Acesso ativo
+                                                </label>
+                                            )}
+                                        </div>
+                                    )}
+                                    {(reset || editing === "new") && (
+                                        <label>
+                                            Senha temporária
+                                            <input
+                                                name="senhaTemporaria"
+                                                data-dialog-autofocus={!!reset}
+                                                type="password"
+                                                autoComplete="new-password"
+                                                minLength={12}
+                                                maxLength={128}
+                                                required
+                                            />
+                                            <small>
+                                                De 12 a 128 caracteres. Entregue
+                                                diretamente ao usuário; ele
+                                                deverá trocá-la.
+                                            </small>
+                                        </label>
+                                    )}
+                                </div>
+                            </section>
                             <div className="actions">
                                 <button type="button" onClick={closeEditor}>
                                     Cancelar

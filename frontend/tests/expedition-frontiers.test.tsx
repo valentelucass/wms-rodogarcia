@@ -4,6 +4,7 @@ import { ApiError, type Request, type Transport } from "../src/api/client";
 import { Operation } from "../src/components/Operation";
 import {
     Harness,
+    lastMutation,
     obj,
     receipt,
     click,
@@ -48,6 +49,14 @@ it("FE10 cobertura de duas notas no documento simbólico conserva reserva origem
     const t: Transport = {
         send: vi.fn(async (r) => {
             calls.push(r);
+            if (r.endpoint.id === "PedidoSaidaController.listar")
+                return receipt(r, {
+                    itens: [order],
+                    pagina: 0,
+                    tamanho: 20,
+                    totalItens: "1",
+                    totalPaginas: 1,
+                });
             if (r.endpoint.id === "PedidoSaidaController.consultar")
                 return receipt(r, order);
             if (r.endpoint.id === "ExpedicaoController.documento") {
@@ -84,15 +93,15 @@ it("FE10 cobertura de duas notas no documento simbólico conserva reserva origem
     );
     fill("Identificador *", "601");
     await consult();
-    click("Fiscal e retirada");
+    await click("Fiscal e retirada");
     await consult();
-    click("Registrar documento existente");
-    click("Adicionar cobertura da reserva 701 · nota 301");
-    click("Adicionar cobertura da reserva 702 · nota 302");
+    await click("Registrar documento existente");
+    await click("Adicionar cobertura da reserva 701 · nota 301");
+    await click("Adicionar cobertura da reserva 702 · nota 302");
     fill("Origem *", "NOTAZZ");
     fill("Natureza *", "RETORNO_SIMBOLICO");
     fill("Protocolo existente NOTAZZ *", "SIMBOLICO-FICTICIO");
-    click("Informar Nota");
+    await click("Informar Nota");
     fill("Nota / Emitente Cnpj *", "12345678000190");
     fill("Nota / Serie *", "1");
     fill("Nota / Numero *", "456");
@@ -104,7 +113,7 @@ it("FE10 cobertura de duas notas no documento simbólico conserva reserva origem
         "Documento fictício de duas notas conferido",
     );
     await confirm();
-    expect(body(calls.at(-1)!).coberturas).toEqual([
+    expect(body(lastMutation(calls)).coberturas).toEqual([
         {
             reservaId: "701",
             notaOrigemId: "301",
@@ -119,7 +128,7 @@ it("FE10 cobertura de duas notas no documento simbólico conserva reserva origem
         },
     ]);
     expect(
-        (body(calls.at(-1)!).nota as Record<string, unknown>).chaveAcesso,
+        (body(lastMutation(calls)).nota as Record<string, unknown>).chaveAcesso,
     ).toBeNull();
     expect(
         screen.getByRole("region", {
@@ -165,14 +174,14 @@ it.each(["COBERTURA_INCOMPLETA", "DOCUMENTO_SIMBOLICO", "AVARIA"])(
                 onReceipt={onReceipt}
             />,
         );
-        click("Adicionar XMLs comprovantes da retirada");
+        await click("Adicionar XMLs comprovantes da retirada");
         fill("XMLs comprovantes da retirada / 1 *", "<nfe>ficticia</nfe>");
         fill(
             "Motivo / justificativa *",
             "Retirada fictícia consultada para confirmação",
         );
-        click("Conferir e confirmar");
-        click("Confirmar agora");
+        await click("Conferir e confirmar");
+        await click("Confirmar agora");
         await screen.findByText(new RegExp("Retirada impedida: " + code));
         expect(calls[0].params.id).toBe("601");
         expect(body(calls[0]).versao).toBe("4");

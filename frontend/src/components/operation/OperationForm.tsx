@@ -6,10 +6,12 @@ export function OperationForm({
     state: s,
     perfil,
     collector = false,
+    fixedFields = [],
 }: {
     state: OperationState;
     perfil: Perfil;
     collector?: boolean;
+    fixedFields?: string[];
 }) {
     return (
         <form
@@ -33,6 +35,7 @@ export function OperationForm({
                             values={s.params}
                             onChange={s.setParams}
                             perfil={perfil}
+                            lockedFields={fixedFields}
                         />
                     )}
                     {s.e.query.length > 0 && (
@@ -57,6 +60,7 @@ export function OperationForm({
                             onChange={s.updateBody}
                             perfil={perfil}
                             schema={s.e.request}
+                            lockedFields={fixedFields}
                         />
                     )}
                     {collector && s.e.request && (

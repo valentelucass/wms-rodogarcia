@@ -25,6 +25,8 @@ const paths: Record<string, string> = {
     expand: "M3 4h18v16H3z M9 4v16 m4-12 4 4-4 4",
     "chevron-left": "m15 5-7 7 7 7",
     "chevron-right": "m9 5 7 7-7 7",
+    "chevron-down": "m5 9 7 7 7-7",
+    armazens: "M3 21V7l9-4 9 4v14 M3 21h18 M7 21V11h10v10 M7 16h10 M12 11v10",
     moon: "M20.9 13a9 9 0 1 1-9.9-9.9A7 7 0 0 0 20.9 13z",
     sun: "M12 3v2 M12 19v2 M3 12h2 M19 12h2 m-13-7-2-2 m12 12 2 2 M7 17l-2 2 M17 7l2-2 M16 12a4 4 0 1 0-8 0 4 4 0 0 0 8 0",
     theme: "M12 3v2 M12 19v2 M3 12h2 M19 12h2 m-13-7-2-2 m12 12 2 2 M7 17l-2 2 M17 7l2-2 M16 12a4 4 0 1 0-8 0 4 4 0 0 0 8 0",

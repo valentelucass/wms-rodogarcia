@@ -84,6 +84,11 @@ public class CadastrosSegurancaConfig {
                                         .permitAll()
                                         .requestMatchers(HttpMethod.GET, "/api/v1/status")
                                         .permitAll()
+                                        .requestMatchers(HttpMethod.GET, "/api/v1/dashboard")
+                                        .hasAnyRole("GESTOR", "SUPERVISOR", "OPERACAO")
+                                        .requestMatchers(
+                                                HttpMethod.GET, "/api/v1/visao-operacao/**")
+                                        .hasAnyRole("GESTOR", "SUPERVISOR", "OPERACAO")
                                         .requestMatchers("/api/v1/auditoria/**")
                                         .hasRole("GESTOR")
                                         .requestMatchers("/api/v1/importacoes-enderecos/**")

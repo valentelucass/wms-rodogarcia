@@ -5,6 +5,7 @@ import { FictitiousTransport } from "../src/api/fictitious";
 import { ApiError, type Request, type Transport } from "../src/api/client";
 import {
     Harness,
+    lastMutation,
     click,
     fill,
     confirm,
@@ -25,8 +26,8 @@ it("FE04 consulta seleção alteração revisão e estado atual de cadastro", as
         />,
     );
     await consult();
-    click("Selecionar registro 1");
-    click("Corrigir descrição");
+    await click("Selecionar registro 1");
+    await click("Corrigir descrição");
     selected("Identificador *", "1");
     selected("Revisão atual *", "0");
     expect(screen.queryByLabelText("Código *", { exact: true })).toBeNull();
@@ -34,12 +35,15 @@ it("FE04 consulta seleção alteração revisão e estado atual de cadastro", as
     fill("Nome *", "Nome fictício atualizado");
     fill("Motivo / justificativa *", "Correção cadastral fictícia motivada");
     await confirm();
-    expect(body(t.requests.at(-1)!).versao).toBe("0");
-    expect(t.requests.at(-1)!.params.id).toBe("1");
-    click("Conferir o cadastro atualizado");
+    expect(body(lastMutation(t.requests)).versao).toBe("0");
+    expect(lastMutation(t.requests).params.id).toBe("1");
+    await click("Conferir o cadastro atualizado");
     await consult();
     expect(
-        screen.getByText("Nome fictício atualizado", { exact: true }),
+        screen.getByText("Nome fictício atualizado", {
+            exact: true,
+            selector: "dd",
+        }),
     ).toBeInTheDocument();
     saveProof("FE04-01", t.requests);
 });
@@ -73,18 +77,20 @@ it("FE04 prévia Excel consulta e confirmação conservam arquivo warehouse vers
     });
     fill("Motivo / justificativa *", "Prévia Excel fictícia conferida");
     await confirm();
-    expect(t.requests.at(-1)?.params.id).toBe("1");
-    expect(t.requests.at(-1)?.file?.name).toBe("enderecos-ficticios.xlsx");
-    click("Consultar esta prévia Excel");
+    expect(lastMutation(t.requests).params.id).toBe("1");
+    expect(lastMutation(t.requests).file?.name).toBe(
+        "enderecos-ficticios.xlsx",
+    );
+    await click("Consultar esta prévia Excel");
     selected("Identificador *", "2101");
     await consult();
-    click("Confirmar a prévia consultada sem erros");
+    await click("Confirmar a prévia consultada sem erros");
     selected("Revisão atual *", "0");
     selected("Arquivo Hash *", "a".repeat(64));
     fill("Motivo / justificativa *", "Confirmação da prévia fictícia exata");
     await confirm();
-    expect(body(t.requests.at(-1)!).arquivoHash).toBe("a".repeat(64));
-    click("Conferir endereços da importação confirmada");
+    expect(body(lastMutation(t.requests)).arquivoHash).toBe("a".repeat(64));
+    await click("Conferir endereços da importação confirmada");
     await consult();
     expect(
         screen.getByRole("region", { name: "Situação da prévia Excel" }),
@@ -145,15 +151,15 @@ it("FE04 encerramento consulta impedimentos solicitação inativação e histór
     fill("Tipo *", "CLIENTE");
     fill("Identificador *", "1");
     await consult();
-    click("Solicitar encerramento deste cadastro");
+    await click("Solicitar encerramento deste cadastro");
     selected("Revisão atual *", "0");
     fill("Motivo / justificativa *", "Encerramento fictício solicitado");
     await confirm();
-    click("Conferir inativação do cadastro solicitado");
+    await click("Conferir inativação do cadastro solicitado");
     selected("Revisão atual *", "1");
     fill("Motivo / justificativa *", "Inativação fictícia conferida");
     await confirm();
-    click("Consultar situação e impedimentos atuais");
+    await click("Consultar situação e impedimentos atuais");
     await consult();
     expect(screen.getByText("INATIVO", { exact: true })).toBeInTheDocument();
     expect(
@@ -201,10 +207,10 @@ it("FE04 revisão antiga recusa não antecipa alteração nem apaga impedimento"
     expect(
         screen.getByRole("cell", { name: "Estoque impede a inativação" }),
     ).toBeInTheDocument();
-    click("Solicitar encerramento deste cadastro");
+    await click("Solicitar encerramento deste cadastro");
     fill("Motivo / justificativa *", "Encerramento fictício motivado");
-    click("Conferir e confirmar");
-    click("Confirmar agora");
+    await click("Conferir e confirmar");
+    await click("Confirmar agora");
     await screen.findByText(/Revisão antiga/);
     expect(screen.queryByText(/Resposta FICTÍCIA/)).toBeNull();
     saveProof("FE04-03-recusa", calls);
