@@ -1,10 +1,38 @@
 # Decisões e pendências do WMS Rodogarcia
 
-## AUD-LOGIN-CAD01 — auditoria atual de login e cadastros em execução
+## CORR-LOGIN-CAD01 — sete correções concluídas e revisadas localmente, 09/10/2026
 
-Pedido expresso Lucas em 09/10/2026. BE04-AUD01 → FE03-AUD01: rastrear atributos por classe/contrato/campo/persistência e revisar segurança de login, sessão, autorização e cadastros efetivos. Fonte atual D32: login próprio e gestão de usuários existem; ativação/startup DEV04 registrados. A proposta histórica Keycloak/BFF não foi adotada. Provas anteriores são contexto, não novas verificações desta auditoria. [Escopo e posse](../orchestracao/.runtime/login-cadastros-auditoria-escopo.json).
+**BE04-COR01 → FE03-COR01 concluídos no recorte autorizado:** AUD-CONS-001 a007 corrigidos e revisados independentemente; nenhum achado material local aberto nesta entrega. Login próprio D32/DEV07 e incrementos DS01 preservados. Cedro backend004/005; Lume AUTH/UI e leitores005; Prumo contratos/persistência em arquivo; Vigia revisão; Farol consolidação/canônicos. Atalho006 já corrigido pela frente DS01, com autoria externa preservada e handler atual idêntico por diff.
 
-Cedro backend/atributos; Lume frontend/forms/tipos/sessão; Prumo JPA/migrations em arquivo; Vigia segurança/revisão independente; Farol matriz/canônicos. Aplicação somente leitura, artefatos exclusivos por dono. Testes novos somente isolados proporcionais sem banco/provider. Sem SQL/guarda/JDBC/HTTPDEV/banco/DDL/grants/processos reais/segredos/auth nova/ETL/Hermes ou reabertura FINAL14. TLS aprovado e linhagem histórica preservados, sem nova sonda. Auditoria não aprova correções amplas ou operação real; achados e próximos passos no recibo final.
+Provas: frontend253 verdes únicos por composição252+1, tipagem/lint/build e3 testes Chrome com API sintética. Backend66 verdes na fonte MARCO02 e14 novos verdes no delta final MARCO03, separados por versão; builds offline aprovados e JAR não executado. Parecer final confirma os sete critérios. Não é certificação geral de segurança, teste integral da fonte global ou integração real com banco.
+
+[Recibo final e limites](../orchestracao/.runtime/login-cadastros-correcoes-resultado.md), [JSON/hashes](../orchestracao/.runtime/login-cadastros-correcoes-resultado.json), [matriz individual](../orchestracao/.runtime/login-cadastros-correcoes/matriz-problemas-casos.md) e [parecer independente](../orchestracao/.runtime/login-cadastros-correcoes/vigia/parecer-final.md).
+
+Namespace do vínculo: `VINCULO_COBRANCA` é lógico na API/consulta/UI; carrier físico e ações já permitidos foram preservados, com `tipoFisico` aditivo. Qualquer marcador exige envelope completo/coerente e cada documento presente precisa de prova própria. Ambíguos permanecem sem reescrita, acessíveis como `LEGADO_NAO_ATRIBUIDO`; nenhum tipo SQL novo/migration. Contrato e casos completos na matriz. Esta correção não altera a arquitetura de autenticação.
+
+Fonte/provas datadas: deltas posteriores da frente visual qualificados por comparação/adenda, sem alterar os caminhos revisados dos7critérios; não declarar200fontes atuais globalmente iguais. Geração03 preserva174inputs históricos, incluindo AuditoriaService5801 anterior ao delta0F12; DTO/API/permissão/outputs permanecem iguais por adenda. Mapa AST das correções atualizado semforce/LLM, com backups; comunidades/semântica integral não recalculadas e últimos ajustes visuais externos posteriores qualificados.
+
+Nenhum SQL/banco/HTTPDEV/DDL/migration/PROD/sa/provider novo/alteração servidor/runtime/kill ou restart existente/ETL/Hermes. Auditoria original, FINAL14, TLS01/DEV04, migrations/dados e históricos preservados. Próximo passo: aguardar nova demanda de Lucas; não iniciar aplicação, banco, teste ou macrobloco automaticamente. Homologação real/custo JPA e histórico ambíguo permanecem limites próprios, sem reabrir tarefas antigas.
+
+## FE02-DS01 — primeira etapa do design system, 09/10/2026
+
+**Correção expressa FE02-DS01-A02:** Lucas pediu remover o ícone de Sistema e detectar automaticamente o tema do dispositivo ao iniciar. Esse comportamento substitui o monitor e a preferência salva de A01; permanece somente o botão circular sol/lua. [Definição atual](design-system/etapa-01.md#temas).
+
+**Histórico FE02-DS01-A01, tema substituído por A02:** Lucas pediu Sistema como padrão inicial, troca por ícone circular sol/lua e minimizar a lateral à esquerda até restarem os ícones. Implementação e comportamento registrados na [entrega visual](design-system/etapa-01.md); preferências manuais salvas continuam respeitadas, sem alterar login ou regras operacionais.
+
+Pedido expresso de Lucas: aplicar por etapas `docs/design-system/design.md`, começando pela organização, tipografia, cores, temas claro/escuro e menus superior/lateral. Fundação e navegação compartilhadas implementadas; defaults visuais e adaptações WMS, evidências e limites no [registro da etapa](design-system/etapa-01.md). A referência visual não altera regras de negócio, permissões ou contratos. CORR-LOGIN-CAD01 mantém sua autorização e posse próprias; não atribuir suas correções à entrega visual.
+
+### Histórico preservado — auditoria e incrementos anteriores
+
+## AUD-LOGIN-CAD01 — auditoria concluída com achados; correções aguardam Lucas
+
+BE04-AUD01 → FE03-AUD01, pedido expresso de 09/10/2026. Cedro, Lume, Prumo e Vigia concluíram seus recortes; Farol consolidou. Login próprio D32 e administração de usuários existem; Keycloak/BFF histórico não adotado. Sete achados materiais abertos: um P1 (401 antigo encerra sessão nova) e seis P2 (Long nativo, resposta inválida/sucesso indevido, categoria após normalização, namespace de vínculo, atalho de conteúdo e carregamento após erro). Sem vulnerabilidade crítica/escalada demonstrada; sem aceite geral de segurança ou integração real. [Recibo e propostas](../orchestracao/.runtime/login-cadastros-auditoria-resultado.md), [JSON/provas](../orchestracao/.runtime/login-cadastros-auditoria-resultado.json).
+
+Matriz individual: 74 contratos HTTP; 1395 instâncias HTTP/frontend, 240 complementos backend e 252 atributos persistentes em 22 entidades, com grãos distintos. Pareamentos JPA-DDL/direitos em arquivo252/252; divergências e limites por fronteira preservados. [Matriz](../orchestracao/.runtime/login-cadastros-auditoria/matriz-atributos.md), [atributos completos](../orchestracao/.runtime/login-cadastros-auditoria/matriz-atributos.json) e [parecer independente](../orchestracao/.runtime/login-cadastros-auditoria/vigia/parecer.md). Não somar reutilizações/contagens como cobertura ou aceite.
+
+Aplicação somente leitura. Provas novas isoladas e sintéticas; nenhuma correção app, SQL/guarda/JDBC/H2/HTTPDEV/provider/launcher/build backend integral/processo real/segredo/ETL/Hermes nesta auditoria. Fonte inicial411:404iguais/7deltas DEV06/DEV07 datados; nenhum freeze global presumido. Os15focais Origin são DEV06; DEV07 posterior lido separadamente e confiança dos headers/topologia real é limite. TLS01/DEV04, FINAL14, migrations, dados e processos existentes preservados.
+
+Próximo passo: Lucas definir o início das correções propostas; nenhum job, refatoração, auth nova ou processo iniciado automaticamente no fecho. Estado/regras D32-DEV07 abaixo continuam preservados como incremento distinto. Registro do fechoUTC: 2026-10-09T15:53:57.298249+00:00.
 
 ### Estado anterior preservado — D32 e demais entregas
 

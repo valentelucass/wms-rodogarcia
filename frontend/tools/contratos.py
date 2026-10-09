@@ -109,7 +109,7 @@ for file in (java/'controllers').glob('*.java'):
         if text[pos:pos+1]=='(': args,pos=balanced(text,pos)
         pathMatch=re.search(r'"([^"]+)"',args)
         path=prefix+(pathMatch[1] if pathMatch else '')
-        head=re.search(r'public\s+([\w.<>,\[\]]+)\s+(\w+)\s*\(',text[pos:])
+        head=re.search(r'public\s+([\w.<>,\[\] ?]+?)\s+(\w+)\s*\(',text[pos:])
         assert head, file
         params,pend=balanced(text,pos+head.end()-1)
         bodyStart=text.index('{',pend); body,bend=balanced(text,bodyStart,'{','}')
@@ -156,6 +156,7 @@ for file in (java/'controllers').glob('*.java'):
             evidence.append(str(sf.relative_to(base)).replace('\\','/')+'#'+method)
         endpoint['permission']=permission;endpoint['permissionSource']=evidence
         endpoints.append(endpoint)
+assert len({e['id'] for e in endpoints}) == len(endpoints), 'Handlers duplicados na extração; revisar assinatura antes de publicar contratos'
 # Explicit review of conditional gates/overloads: the role below is the base
 # presentation role, not authorization. Conditional historical resolutions remain Gestor.
 for e in endpoints:

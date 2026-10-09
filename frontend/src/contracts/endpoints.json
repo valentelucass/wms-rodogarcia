@@ -3237,6 +3237,199 @@
     ]
   },
   {
+    "id": "LoginController.csrf",
+    "method": "GET",
+    "path": "/api/auth/csrf",
+    "request": null,
+    "response": "Map<String,String>",
+    "query": [],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/LoginController.java",
+    "handler": "csrf",
+    "permission": "OPERACAO",
+    "permissionSource": []
+  },
+  {
+    "id": "LoginController.jwks",
+    "method": "GET",
+    "path": "/api/auth/jwks",
+    "request": null,
+    "response": "Map<String,Object>",
+    "query": [],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/LoginController.java",
+    "handler": "jwks",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/LoginService.java#chavesPublicas"
+    ]
+  },
+  {
+    "id": "LoginController.entrar",
+    "method": "POST",
+    "path": "/api/auth/entrar",
+    "request": "AcessoDtos.Login",
+    "response": "AcessoDtos.Tokens",
+    "query": [],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/LoginController.java",
+    "handler": "entrar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/LoginService.java#entrar"
+    ]
+  },
+  {
+    "id": "LoginController.renovar",
+    "method": "POST",
+    "path": "/api/auth/renovar",
+    "request": null,
+    "response": "AcessoDtos.Tokens",
+    "query": [],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/LoginController.java",
+    "handler": "renovar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/LoginService.java#renovar"
+    ]
+  },
+  {
+    "id": "LoginController.sair",
+    "method": "POST",
+    "path": "/api/auth/sair",
+    "request": null,
+    "response": "void",
+    "query": [],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/LoginController.java",
+    "handler": "sair",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/LoginService.java#sair"
+    ]
+  },
+  {
+    "id": "LoginController.senha",
+    "method": "POST",
+    "path": "/api/auth/senha",
+    "request": "AcessoDtos.TrocaSenha",
+    "response": "void",
+    "query": [],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/LoginController.java",
+    "handler": "senha",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/LoginService.java#trocarSenha"
+    ]
+  },
+  {
+    "id": "LoginController.eu",
+    "method": "GET",
+    "path": "/api/auth/eu",
+    "request": null,
+    "response": "AcessoDtos.Usuario",
+    "query": [],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/LoginController.java",
+    "handler": "eu",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/LoginService.java#eu"
+    ]
+  },
+  {
+    "id": "LoginController.usuarios",
+    "method": "GET",
+    "path": "/api/auth/usuarios",
+    "request": null,
+    "response": "AcessoDtos.PaginaUsuarios",
+    "query": [
+      {
+        "name": "pagina",
+        "type": "int",
+        "required": false,
+        "default": "0"
+      }
+    ],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/LoginController.java",
+    "handler": "usuarios",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/LoginService.java#listar"
+    ]
+  },
+  {
+    "id": "LoginController.criar",
+    "method": "POST",
+    "path": "/api/auth/usuarios",
+    "request": "AcessoDtos.CriarUsuario",
+    "response": "AcessoDtos.Usuario",
+    "query": [],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/LoginController.java",
+    "handler": "criar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/LoginService.java#criar"
+    ]
+  },
+  {
+    "id": "LoginController.editar",
+    "method": "PUT",
+    "path": "/api/auth/usuarios/{id}",
+    "request": "AcessoDtos.EditarUsuario",
+    "response": "AcessoDtos.Usuario",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "String",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/LoginController.java",
+    "handler": "editar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/LoginService.java#editar"
+    ]
+  },
+  {
+    "id": "LoginController.redefinir",
+    "method": "POST",
+    "path": "/api/auth/usuarios/{id}/senha",
+    "request": "AcessoDtos.RedefinirSenha",
+    "response": "void",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "String",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/LoginController.java",
+    "handler": "redefinir",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/LoginService.java#redefinirSenha"
+    ]
+  },
+  {
     "id": "PedidoEntradaController.criar",
     "method": "POST",
     "path": "/api/v1/pedidos-entrada",

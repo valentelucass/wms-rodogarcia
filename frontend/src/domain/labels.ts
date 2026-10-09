@@ -17,6 +17,7 @@ const labels: Record<string, string> = {
     servicoId: "Serviço (ID)",
     id: "Identificador",
     codigo: "Código",
+    tipoFisico: "Origem física da auditoria",
     codigoUnidade: "UUID da unidade",
     codigoLido: "Código lido",
     versao: "Revisão atual",

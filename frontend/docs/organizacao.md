@@ -1,5 +1,9 @@
 # Responsabilidades da fonte D31
 
+## Fundação visual FE02-DS01
+
+`src/design-system/` centraliza tokens, tipografia, cores, ícones e tema; `public/theme-init.js` aplica a preferência antes do CSS. `components/shell/AppShell.tsx` reúne topo, lateral e conteúdo para os modos real e fictício. A divisão dos estilos por responsabilidade permanece. [Escopo, decisões e validação da primeira etapa](../../docs/design-system/etapa-01.md).
+
 | Responsabilidade             | Arquivos usados                                                                                                           | Fronteira e prova                                                                                                                                                                                                  |
 | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Composição e navegação       | `src/App.tsx`, `pages/`, `components/shell/`, `hooks/useNavigation.ts`                                                    | App compõe shell e página; navegação não foca DOM antigo. Layout effect foca o main montado. Browser verifica Enter, Tab, voltar, avançar e contexto.                                                              |

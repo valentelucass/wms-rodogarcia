@@ -1,20 +1,22 @@
 :root {
-    font-family: Arial, Helvetica, sans-serif;
-    color: #111;
-    background: white;
-    font-size: 16px;
-    line-height: 1.45;
+    font-family: var(--og-font-family);
+    color: var(--og-text);
+    background: var(--og-background);
+    font-size: var(--og-type-body);
+    line-height: var(--og-leading-body);
+    font-synthesis: none;
+    -webkit-font-smoothing: antialiased;
 }
 * {
     box-sizing: border-box;
 }
 body {
     margin: 0;
-    background: white;
-    color: #111;
+    background: var(--og-background);
+    color: var(--og-text);
 }
 a {
-    color: #124cab;
+    color: var(--og-link);
     overflow-wrap: anywhere;
 }
 button,
@@ -24,31 +26,42 @@ textarea {
     font: inherit;
 }
 button {
-    min-height: 44px;
-    padding: 0.5rem 0.8rem;
-    border: 1px solid #124cab;
-    background: white;
-    color: #124cab;
+    min-height: var(--og-control-height);
+    padding: var(--og-space-2) var(--og-space-3);
+    border: var(--og-border-width) solid var(--og-border-strong);
+    background: var(--og-surface);
+    color: var(--og-text);
     cursor: pointer;
-    border-radius: 3px;
+    border-radius: var(--og-radius-control);
     max-width: 100%;
     white-space: normal;
     overflow-wrap: anywhere;
+    font-weight: var(--og-font-medium);
+    transition:
+        background-color var(--og-motion-fast) var(--og-ease),
+        border-color var(--og-motion-fast) var(--og-ease);
 }
 button:hover:not(:disabled) {
-    border-color: #111;
+    background: var(--og-surface-hover);
 }
 button:disabled {
-    cursor: default;
-    color: #555;
-    border-color: #aaa;
-    background: #eee;
+    cursor: not-allowed;
+    opacity: 0.55;
 }
 button.primary,
 button[aria-current],
 button[aria-pressed="true"] {
-    background: #124cab;
-    color: white;
+    background: var(--og-brand);
+    border-color: var(--og-brand);
+    color: var(--og-brand-foreground);
+}
+button.primary:hover:not(:disabled),
+button[aria-pressed="true"]:hover:not(:disabled) {
+    background: var(--og-brand-hover);
+    border-color: var(--og-brand-hover);
+}
+button.primary:active:not(:disabled) {
+    background: var(--og-brand-active);
 }
 button:focus-visible,
 input:focus-visible,
@@ -59,73 +72,128 @@ a:focus-visible,
 [tabindex]:focus-visible,
 .feedback:focus,
 .collector section[tabindex]:focus {
-    outline: 3px solid #125fcc;
-    outline-offset: 3px;
+    outline: var(--og-focus-width) solid var(--og-focus-ring);
+    outline-offset: var(--og-focus-offset);
+}
+[id] {
+    scroll-margin-top: calc(var(--wms-topbar-height) + var(--og-space-4));
 }
 h1 {
-    margin: 0 0 1rem;
-    font-size: 1.65rem;
+    margin: 0 0 var(--og-space-4);
+    font-size: var(--og-type-title);
+    line-height: var(--og-leading-title);
+    font-weight: var(--og-font-bold);
+    letter-spacing: -0.025em;
 }
 h2 {
-    font-size: 1.3rem;
+    font-size: var(--og-type-section);
+    line-height: var(--og-leading-section);
+    font-weight: var(--og-font-semibold);
 }
 h3 {
-    font-size: 1.15rem;
+    font-size: var(--og-type-input-touch);
+    line-height: var(--og-leading-input-touch);
+    font-weight: var(--og-font-semibold);
 }
 h4 {
-    font-size: 1rem;
+    font-size: var(--og-type-body);
+    font-weight: var(--og-font-semibold);
 }
 h1,
 h2,
 h3,
 h4 {
-    line-height: 1.25;
     overflow-wrap: anywhere;
 }
 p {
     max-width: 90ch;
     overflow-wrap: anywhere;
 }
-.action-tabs button {
-    font-size: 0.95rem;
-}
 input,
 select,
 textarea {
-    min-height: 44px;
+    min-height: var(--og-control-height);
     width: 100%;
-    padding: 0.5rem;
-    border: 1px solid #777;
-    border-radius: 2px;
-    background: white;
-    color: #111;
+    padding: var(--og-space-2) var(--og-space-3);
+    border: var(--og-border-width) solid var(--og-border-strong);
+    border-radius: var(--og-radius-control);
+    background: var(--og-surface);
+    color: var(--og-text);
+}
+input::placeholder,
+textarea::placeholder {
+    color: var(--og-text-muted);
+    opacity: 1;
 }
 textarea {
     resize: vertical;
 }
 input[type="checkbox"],
 input[type="radio"] {
-    width: 1.25rem;
-    min-height: 1.25rem;
-    accent-color: #124cab;
+    width: 18px;
+    min-height: 18px;
+    accent-color: var(--og-brand);
 }
 details {
     min-width: 0;
-    margin: 1rem 0;
-    border: 1px solid #aaa;
-    padding: 0 0.75rem;
+    margin: var(--og-space-4) 0;
+    border: var(--og-border-width) solid var(--og-border);
+    border-radius: var(--og-radius-control);
+    padding: 0 var(--og-space-3);
 }
 summary {
-    min-height: 44px;
-    padding: 0.65rem 0;
+    min-height: var(--og-touch-height);
+    padding: var(--og-space-3) 0;
     cursor: pointer;
-    font-weight: bold;
+    font-weight: var(--og-font-medium);
 }
 details[open] > summary {
-    border-bottom: 1px solid #aaa;
-    margin-bottom: 0.75rem;
+    border-bottom: var(--og-border-width) solid var(--og-border);
+    margin-bottom: var(--og-space-3);
 }
 caption {
     text-align: left;
-    padding: 0.5rem;
+    padding: var(--og-space-3);
+}
+.error,
+[role="alert"] {
+    color: var(--og-negative-text);
+}
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+}
+@media (pointer: coarse), (max-width: 767px) {
+    button,
+    input,
+    select,
+    textarea {
+        min-height: var(--og-touch-height);
+    }
+    input,
+    select,
+    textarea {
+        font-size: var(--og-type-input-touch);
+        line-height: var(--og-leading-input-touch);
+    }
+    input[type="checkbox"],
+    input[type="radio"] {
+        min-height: 18px;
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        transition: none !important;
+        animation: none !important;
+        scroll-behavior: auto !important;
+    }
 }

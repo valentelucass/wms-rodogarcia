@@ -1,15 +1,15 @@
 .hint {
-    font-size: 0.85rem;
-    color: #444;
+    font-size: var(--og-type-caption);
+    color: var(--og-text-muted);
 }
 .steps,
 .action-tabs,
 .actions,
 .shortcuts {
     display: flex;
-    gap: 0.5rem;
+    gap: var(--og-space-2);
     flex-wrap: wrap;
-    margin: 1rem 0;
+    margin: var(--og-space-4) 0;
 }
 .steps button {
     flex: 1;
@@ -17,24 +17,24 @@
     min-width: 180px;
 }
 .operation {
-    border-top: 1px solid #aaa;
-    padding-top: 1rem;
+    border-top: 1px solid var(--og-border);
+    padding-top: var(--og-space-4);
 }
 form {
     min-width: 0;
 }
 fieldset {
     min-width: 0;
-    border: 1px solid #aaa;
-    padding: 1rem;
-    margin: 1rem 0;
+    border: 1px solid var(--og-border);
+    padding: var(--og-space-4);
+    margin: var(--og-space-4) 0;
     display: flex;
-    gap: 1rem;
+    gap: var(--og-space-4);
     flex-wrap: wrap;
 }
 legend {
-    font-weight: bold;
-    padding: 0 0.3rem;
+    font-weight: var(--og-font-semibold);
+    padding: 0 var(--og-space-1);
 }
 fieldset > label,
 fieldset > .field {
@@ -50,35 +50,36 @@ label,
 .field {
     display: flex;
     flex-direction: column;
-    gap: 0.3rem;
-    margin-bottom: 0.5rem;
+    gap: var(--og-space-1);
+    margin-bottom: var(--og-space-2);
 }
 .field > label {
     margin-bottom: 0;
 }
 .list-item {
-    padding: 0.6rem;
-    border-left: 3px solid #124cab;
+    padding: var(--og-space-2);
+    border-left: 3px solid var(--og-link);
 }
 .confirmation,
 .feedback:has(p),
 .selection,
 .notice {
-    border: 1px solid #124cab;
-    padding: 1rem;
-    background: white;
+    border: var(--og-border-width) solid var(--og-border-strong);
+    border-radius: var(--og-radius-card);
+    padding: var(--og-card-padding);
+    background: var(--og-surface);
 }
 .feedback[role="alert"] {
-    border: 2px solid #111;
-    background: white;
+    border: var(--og-border-width) solid var(--og-negative-text);
+    background: var(--og-danger-bg);
 }
 .selection button {
-    margin-left: 0.5rem;
+    margin-left: var(--og-space-2);
 }
 .feedback:has(p),
 .confirmation,
 .selection {
-    margin: 1rem 0;
+    margin: var(--og-space-4) 0;
     overflow-wrap: anywhere;
 }
 .feedback p:first-child,
@@ -100,8 +101,8 @@ label,
         width: 100%;
     }
     fieldset {
-        padding: 0.6rem;
-        gap: 0.5rem;
+        padding: var(--og-space-2);
+        gap: var(--og-space-2);
     }
     fieldset > label,
     fieldset > .field {

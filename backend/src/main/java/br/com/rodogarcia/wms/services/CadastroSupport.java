@@ -18,6 +18,18 @@ public final class CadastroSupport {
         return valor.strip().toUpperCase(Locale.ROOT);
     }
 
+    /** Categoria livre, salvo a whitelist de armazenagem aplicada pelo serviço. */
+    public static String categoriaCobranca(String valor) {
+        String categoria = valor == null ? null : codigo(valor);
+        if (categoria == null || categoria.length() > 40) {
+            throw new RegraNegocioException(
+                    HttpStatus.BAD_REQUEST,
+                    "CATEGORIA_INVALIDA",
+                    "itens[].categoria: informe até 40 caracteres após a normalização.");
+        }
+        return categoria;
+    }
+
     public static String documento(String valor) {
         return codigo(valor).replaceAll("[./ -]", "");
     }

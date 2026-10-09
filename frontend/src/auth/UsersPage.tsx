@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import type { AuthClient, User, UsersPage as Page } from "./client";
+import { AuthError } from "./client";
 
 export function UsersPage({
     auth,
@@ -12,33 +13,58 @@ export function UsersPage({
         [revision, setRevision] = useState(0);
     const [result, setResult] = useState<Page | null>(null),
         [error, setError] = useState("");
+    const [loading, setLoading] = useState(true),
+        [queryError, setQueryError] = useState("");
+    const [needsCheck, setNeedsCheck] = useState(false);
     const [message, setMessage] = useState(""),
         [busy, setBusy] = useState(false);
     const [editing, setEditing] = useState<User | "new" | null>(null),
         [reset, setReset] = useState<User | null>(null);
     const sending = useRef(false);
+    const mutation = useRef<AbortController | null>(null);
+    useEffect(() => () => mutation.current?.abort(), [auth]);
     useEffect(() => {
         let active = true;
+        const controller = new AbortController();
+        setLoading(true);
+        setQueryError("");
+        setResult(null);
         void auth
-            .users(page)
+            .users(page, controller.signal)
             .then((p) => {
-                if (active) setResult(p);
+                if (active) {
+                    setResult(p);
+                    setNeedsCheck(false);
+                    setEditing(null);
+                    setReset(null);
+                    setError("");
+                }
             })
             .catch((e: unknown) => {
                 if (active)
-                    setError(
-                        e instanceof Error
-                            ? e.message
-                            : "Falha ao consultar usuários.",
+                    setQueryError(
+                        e instanceof AuthError && e.status === 401
+                            ? "Sua sessão terminou. Entre novamente."
+                            : e instanceof AuthError && e.status === 403
+                              ? "Você não tem permissão para consultar usuários."
+                              : e instanceof Error
+                                ? e.message
+                                : "Falha ao consultar usuários.",
                     );
+            })
+            .finally(() => {
+                if (active) setLoading(false);
             });
         return () => {
             active = false;
+            controller.abort();
         };
     }, [auth, page, revision]);
     async function save(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
-        if (sending.current) return;
+        if (sending.current || needsCheck) return;
+        const controller = new AbortController();
+        mutation.current = controller;
         sending.current = true;
         setBusy(true);
         setError("");
@@ -67,6 +93,7 @@ export function UsersPage({
                     reset.id,
                     String(data.get("senhaTemporaria")),
                     reset.versao,
+                    controller.signal,
                 );
                 setMessage(
                     "Senha temporária redefinida. Os acessos anteriores foram encerrados; a próxima entrada exigirá uma nova senha.",
@@ -80,32 +107,43 @@ export function UsersPage({
                     armazens: scopes("armazens"),
                 };
                 if (editing === "new")
-                    await auth.create({
-                        ...body,
-                        email: String(data.get("email")).trim(),
-                        senhaTemporaria: data.get("senhaTemporaria"),
-                    });
+                    await auth.create(
+                        {
+                            ...body,
+                            email: String(data.get("email")).trim(),
+                            senhaTemporaria: data.get("senhaTemporaria"),
+                        },
+                        controller.signal,
+                    );
                 else if (editing)
-                    await auth.edit(editing.id, {
-                        ...body,
-                        ativo: data.get("ativo") === "on",
-                        versao: editing.versao,
-                    });
+                    await auth.edit(
+                        editing.id,
+                        {
+                            ...body,
+                            ativo: data.get("ativo") === "on",
+                            versao: editing.versao,
+                        },
+                        controller.signal,
+                    );
                 setMessage(
                     editing === "new"
                         ? "Usuário criado. A senha temporária deverá ser trocada no primeiro acesso."
                         : "Usuário atualizado. Os acessos anteriores foram encerrados.",
                 );
             }
+            if (controller.signal.aborted) return;
             form.reset();
             setEditing(null);
             setReset(null);
             setRevision((v) => v + 1);
         } catch (e) {
+            if (controller.signal.aborted) return;
+            if (e instanceof AuthError && e.uncertain) setNeedsCheck(true);
             setError(
                 e instanceof Error ? e.message : "Não foi possível salvar.",
             );
         } finally {
+            if (mutation.current === controller) mutation.current = null;
             sending.current = false;
             setBusy(false);
         }
@@ -124,8 +162,23 @@ export function UsersPage({
                     {error}
                 </p>
             )}
+            {queryError && (
+                <p role="alert" className="error">
+                    {queryError}
+                </p>
+            )}
+            {(queryError || needsCheck) && (
+                <button
+                    type="button"
+                    disabled={loading || busy}
+                    onClick={() => setRevision((v) => v + 1)}
+                >
+                    Consultar novamente
+                </button>
+            )}
             {!editing && !reset && (
                 <button
+                    disabled={loading || busy || needsCheck}
                     onClick={() => {
                         setEditing("new");
                         setError("");
@@ -147,7 +200,7 @@ export function UsersPage({
                               ? `Editar ${selected.nome}`
                               : "Novo usuário"}
                     </h2>
-                    <fieldset disabled={busy}>
+                    <fieldset disabled={busy || needsCheck}>
                         {!reset && (
                             <>
                                 <label>
@@ -283,10 +336,13 @@ export function UsersPage({
                     </fieldset>
                 </form>
             )}
-            {!result ? (
+            {loading ? (
                 <p role="status">Carregando usuários…</p>
-            ) : (
+            ) : result ? (
                 <>
+                    {result.content.length === 0 && (
+                        <p role="status">Nenhum usuário encontrado.</p>
+                    )}
                     <div className="table-scroll">
                         <table>
                             <caption>Contas cadastradas</caption>
@@ -374,8 +430,8 @@ export function UsersPage({
                             Anterior
                         </button>
                         <span>
-                            Página {page + 1} de{" "}
-                            {Math.max(1, result.totalPages)}
+                            {result.totalElements} usuários · Página {page + 1}{" "}
+                            de {Math.max(1, result.totalPages)}
                         </span>
                         <button
                             disabled={page + 1 >= result.totalPages || busy}
@@ -388,7 +444,7 @@ export function UsersPage({
                         </button>
                     </div>
                 </>
-            )}
+            ) : null}
         </section>
     );
 }

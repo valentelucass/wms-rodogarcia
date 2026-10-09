@@ -1,27 +1,49 @@
 import { journeys } from "../../domain/journeys";
 import type { Navigate } from "../../hooks/useNavigation";
-export function Navigation({
-    page,
-    navigate,
-}: {
-    page: string;
-    navigate: Navigate;
-}) {
-    const links = [
+import { Icon } from "../../design-system/Icon";
+import { useEffect, useRef } from "react";
+export function navigationItems(exercise: boolean, administrator: boolean) {
+    return [
         { id: "inicio", title: "Início" },
         ...journeys,
         { id: "coletor", title: "Coletor" },
-        { id: "acesso", title: "Acesso e limites" },
+        ...(exercise ? [{ id: "acesso", title: "Acesso e limites" }] : []),
+        ...(administrator
+            ? [{ id: "usuarios", title: "Usuários e acessos" }]
+            : []),
     ];
+}
+export function Navigation({
+    page,
+    navigate,
+    exercise = true,
+    administrator = false,
+}: {
+    page: string;
+    navigate: Navigate;
+    exercise?: boolean;
+    administrator?: boolean;
+}) {
+    const links = navigationItems(exercise, administrator);
+    const navigation = useRef<HTMLElement>(null);
+    useEffect(() => {
+        navigation.current
+            ?.querySelector('[aria-current="page"]')
+            ?.scrollIntoView?.({ block: "nearest" });
+    }, [page]);
     return (
-        <nav className="main-nav" aria-label="Módulos">
+        <nav ref={navigation} className="main-nav" aria-label="Módulos">
             {links.map((link) => (
                 <button
+                    type="button"
                     key={link.id}
+                    title={link.title}
+                    aria-label={link.title}
                     onClick={() => navigate(link.id)}
                     aria-current={page === link.id ? "page" : undefined}
                 >
-                    {link.title}
+                    <Icon name={link.id} />
+                    <span className="nav-label">{link.title}</span>
                 </button>
             ))}
         </nav>

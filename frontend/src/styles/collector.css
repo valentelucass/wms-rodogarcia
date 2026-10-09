@@ -3,7 +3,7 @@
     min-width: 0;
 }
 .collector label {
-    font-size: 1.1rem;
+    font-size: var(--og-type-input-touch);
 }
 .collector input,
 .collector select,
@@ -12,16 +12,17 @@
 }
 .collector [role="alert"],
 .collector section[aria-label="Resumo confirmado no coletor"] {
-    margin: 1rem 0;
-    border: 2px solid #111;
-    padding: 0.75rem;
+    margin: var(--og-space-4) 0;
+    border: var(--og-border-width) solid var(--og-border-strong);
+    border-radius: var(--og-radius-card);
+    padding: var(--og-space-3);
     overflow-wrap: anywhere;
 }
 .collector section[aria-label="Resumo confirmado no coletor"] h3 {
     margin-top: 0;
 }
 .collector form {
-    margin: 1rem 0;
+    margin: var(--og-space-4) 0;
 }
 @media (max-width: 800px) {
     .collector button {

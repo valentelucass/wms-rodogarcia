@@ -13,11 +13,41 @@ public record AuditoriaResponse(
         String idOperacao,
         String motivo,
         String dadosAntes,
-        String dadosDepois) {
+        String dadosDepois,
+        String tipoFisico) {
+    public AuditoriaResponse(
+            Long id,
+            String tipo,
+            Long registroId,
+            String acao,
+            String usuario,
+            Instant instante,
+            String idOperacao,
+            String motivo,
+            String dadosAntes,
+            String dadosDepois) {
+        this(
+                id,
+                tipo,
+                registroId,
+                acao,
+                usuario,
+                instante,
+                idOperacao,
+                motivo,
+                dadosAntes,
+                dadosDepois,
+                tipo);
+    }
+
     public static AuditoriaResponse de(AuditoriaCadastro e) {
+        return de(e, e.getTipo());
+    }
+
+    public static AuditoriaResponse de(AuditoriaCadastro e, String tipoLogico) {
         return new AuditoriaResponse(
                 e.getId(),
-                e.getTipo(),
+                tipoLogico,
                 e.getRegistroId(),
                 e.getAcao(),
                 e.getUsuario(),
@@ -25,6 +55,7 @@ public record AuditoriaResponse(
                 e.getIdOperacao(),
                 e.getMotivo(),
                 e.getDadosAntes(),
-                e.getDadosDepois());
+                e.getDadosDepois(),
+                e.getTipo());
     }
 }

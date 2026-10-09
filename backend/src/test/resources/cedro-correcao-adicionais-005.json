@@ -1,0 +1,49 @@
+{
+  "id": "CORR-LOGIN-CAD01-PRUMO-CASOS-005-COMPLEMENTO",
+  "natureza": "Critérios declarativos sintéticos da fronteira JSON; não foram executados na aplicação ou banco.",
+  "origem": "Complemento ao contrato de parser estrito informado por Cedro; preservar as26 fixtures B01E sem substituição.",
+  "casos": [
+    {
+      "id": "P005-F27",
+      "tipoFisico": "TABELA_COBRANCA",
+      "acao": "ENCERRAMENTO_VIGENCIA",
+      "registroIdDecimalExato": "7",
+      "dadosDepois": "{\"tipo\":\"TABELA\",\"tipo\":\"VINCULO\",\"id\":7}",
+      "esperado": "LEGADO_NAO_ATRIBUIDO",
+      "motivo": "Duplicata de chave não pode ser resolvida por last-match/first-match."
+    },
+    {
+      "id": "P005-F28",
+      "tipoFisico": "TABELA_COBRANCA",
+      "acao": "ENCERRAMENTO_VIGENCIA",
+      "registroIdDecimalExato": "7",
+      "dadosDepois": "{\"tipo\":\"VINCULO\",\"id\":7,\"id\":8}",
+      "esperado": "LEGADO_NAO_ATRIBUIDO",
+      "motivo": "Duplicata de ID é informação contraditória; não escolher uma ocorrência."
+    },
+    {
+      "id": "P005-F29",
+      "tipoFisico": "CONTRATO_COBRANCA",
+      "acao": "ENCERRAMENTO_VIGENCIA",
+      "registroIdDecimalExato": "7",
+      "dadosDepois": "{\"tipoRegistro\":null,\"registroId\":7,\"resultado\":{\"tipo\":\"VINCULO\",\"id\":7}}",
+      "esperado": "LEGADO_NAO_ATRIBUIDO",
+      "motivo": "Envelope presente inválido não é envelope ausente; evitar fallback que esconda a contradição."
+    },
+    {
+      "id": "P005-F30",
+      "tipoFisico": "CONTRATO_COBRANCA",
+      "acao": "ENCERRAMENTO_VIGENCIA",
+      "registroIdDecimalExato": "7",
+      "dadosAntes": "{\"tipo\":\"VINCULO\",\"id\":7}",
+      "dadosDepois": "{\"tipoRegistro\":\"VINCULO_COBRANCA\",\"registroId\":7,\"resultado\":{\"resultado\":{\"tipo\":\"VINCULO\",\"id\":7},\"resolucao\":{\"tipo\":\"FECHAMENTO_COBRANCA\",\"id\":8}}}",
+      "esperado": "VINCULO_COBRANCA",
+      "motivo": "ID da resolução financeira8 pode diferir do vínculo7; conferir somente cadeia real resultado/envelope, não resolucao.id."
+    }
+  ],
+  "limites": [
+    "Dados inteiramente sintéticos, nenhum token, credencial ou segredo material.",
+    "Esperados são critérios de revisão; green depende da versão/testtrace do autor.",
+    "Não foi criada interpretação genérica de SQL/JSON ou proposta de reescrita histórica."
+  ]
+}

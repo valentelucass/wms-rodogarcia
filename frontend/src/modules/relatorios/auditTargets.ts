@@ -33,6 +33,11 @@ export const auditTargets = [
         label: "Contrato",
     },
     {
+        dto: "ConfiguracaoCobrancaDto.Vinculo",
+        tipo: "VINCULO_COBRANCA",
+        label: "Vínculo",
+    },
+    {
         dto: "FatoServicoDto.Fato",
         tipo: "FATO_SERVICO",
         label: "Fato de serviço",
@@ -67,8 +72,9 @@ export function applyAuditTarget(state: Workflow, value: Values): void {
     const target = auditTargets.find((t) => t.dto === value.dto);
     const selected = target && state.selected[target.dto];
     if (!selected || selected.id !== value.registroId) return;
+    if (value.legado && target.tipo !== "VINCULO_COBRANCA") return;
     state.followUps["AuditoriaController.listar"] = {
-        tipo: target.tipo,
+        tipo: value.legado ? "VINCULO_COBRANCA_LEGADO" : target.tipo,
         registroId: selected.id,
     };
 }

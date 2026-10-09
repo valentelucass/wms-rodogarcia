@@ -1,5 +1,6 @@
 import { useRef, useState, type FormEvent } from "react";
 import type { AuthClient, User } from "./client";
+import { ThemeSelector } from "../design-system/ThemeSelector";
 
 export function LoginPage({
     auth,
@@ -41,6 +42,9 @@ export function LoginPage({
     }
     return (
         <main className="auth-shell">
+            <div className="auth-theme">
+                <ThemeSelector />
+            </div>
             <section className="auth-card" aria-labelledby="login-title">
                 <p className="auth-brand">WMS · RODOGARCIA</p>
                 <h1 id="login-title">Entrar no WMS</h1>
@@ -75,7 +79,7 @@ export function LoginPage({
                             disabled={busy}
                         />
                     </label>
-                    <button type="submit" disabled={busy}>
+                    <button className="primary" type="submit" disabled={busy}>
                         {busy ? "Entrando…" : "Entrar"}
                     </button>
                 </form>

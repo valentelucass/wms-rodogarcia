@@ -1,0 +1,122 @@
+@font-face {
+    font-family: "Inter";
+    src: url("/fonts/InterVariable.woff2") format("woff2");
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* C, E e P conforme docs/design-system/design.md, apêndice A. */
+:root {
+    --og-font-family: "Inter", Arial, sans-serif;
+    --og-font-regular: 400;
+    --og-font-medium: 500;
+    --og-font-semibold: 600;
+    --og-font-bold: 700;
+    --og-type-caption: 12px;
+    --og-type-body: 14px;
+    --og-type-input-touch: 16px;
+    --og-type-section: 18px;
+    --og-type-metric: 24px;
+    --og-type-title: 28px;
+    --og-leading-caption: 16px;
+    --og-leading-body: 20px;
+    --og-leading-input-touch: 24px;
+    --og-leading-section: 24px;
+    --og-leading-title: 36px;
+    --og-brand: #2563eb;
+    --og-brand-dark: #18181a;
+    --og-brand-hover: #1d4ed8;
+    --og-brand-active: #1e40af;
+    --og-brand-foreground: #ffffff;
+    /* P: suporte de impressão mantém papel claro independentemente do tema. */
+    --wms-print-background: #ffffff;
+    --wms-print-text: #18181b;
+    --og-success: #16a34a;
+    --og-danger: #dc2626;
+    --og-danger-hover: #b91c1c;
+    --og-warning: #ca8a04;
+    --og-space-1: 4px;
+    --og-space-2: 8px;
+    --og-space-3: 12px;
+    --og-space-4: 16px;
+    --og-space-5: 20px;
+    --og-space-6: 24px;
+    --og-space-8: 32px;
+    --og-radius-badge: 4px;
+    --og-radius-control: 6px;
+    --og-radius-card: 12px;
+    --og-radius-overlay: 16px;
+    --og-radius-avatar: 50%;
+    --og-border-width: 1px;
+    --og-focus-width: 2px;
+    --og-focus-offset: 2px;
+    --og-control-height: 36px;
+    --og-touch-height: 44px;
+    --og-sidebar-width: 256px;
+    --og-sidebar-collapsed-width: 64px;
+    --og-nav-item-height: 40px;
+    --og-table-row-height: 48px;
+    --og-page-padding: 24px;
+    --og-page-padding-mobile: 16px;
+    --og-card-padding: 16px;
+    --og-card-gap: 16px;
+    --og-motion-fast: 120ms;
+    --og-motion-normal: 180ms;
+    --og-ease: cubic-bezier(0.2, 0, 0, 1);
+    --og-z-sticky: 10;
+    --og-z-overlay: 30;
+    /* Adaptação P: altura do topo compartilhado WMS. */
+    --wms-topbar-height: 64px;
+}
+
+:root,
+[data-og-theme="light"] {
+    color-scheme: light;
+    --og-background: #ffffff;
+    --og-surface: #ffffff;
+    --og-sidebar: #f4f4f5;
+    --og-surface-raised: #f4f4f5;
+    --og-surface-hover: #f4f4f5;
+    --og-border: #e4e4e7;
+    --og-border-strong: #71717a;
+    --og-text: #18181b;
+    --og-text-muted: #6b6b74;
+    --og-link: #1d4ed8;
+    --og-focus-ring: #2563eb;
+    --og-selection: #dbeafe;
+    --og-selection-text: #1e40af;
+    --og-positive-text: #15803d;
+    --og-success-bg: #dcfce7;
+    --og-negative-text: #b91c1c;
+    --og-danger-bg: #fee2e2;
+    --og-warning-text: #854d0e;
+    --og-warning-bg: #fef3c7;
+    --og-neutral-badge-bg: #f4f4f5;
+    --og-overlay: rgb(0 0 0 / 40%);
+}
+
+[data-og-theme="dark"] {
+    color-scheme: dark;
+    --og-background: #09090b;
+    --og-surface: #09090b;
+    --og-sidebar: #18181a;
+    --og-surface-raised: #27272a;
+    --og-surface-hover: #18181a;
+    --og-border: #27272a;
+    --og-border-strong: #71717a;
+    --og-text: #fafafa;
+    --og-text-muted: #a1a1aa;
+    --og-link: #60a5fa;
+    --og-focus-ring: #60a5fa;
+    --og-selection: #1e3a8a;
+    --og-selection-text: #eff6ff;
+    --og-positive-text: #4ade80;
+    --og-success-bg: #052e16;
+    --og-negative-text: #f87171;
+    --og-danger-bg: #450a0a;
+    --og-warning-text: #facc15;
+    --og-warning-bg: #422006;
+    --og-neutral-badge-bg: #27272a;
+    --og-overlay: rgb(0 0 0 / 60%);
+}

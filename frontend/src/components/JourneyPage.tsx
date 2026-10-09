@@ -107,13 +107,14 @@ export function JourneyPage({
             {journey.id === "entrada" && (
                 <ReceivingSummary workflow={workflow} />
             )}
-            {journey.id === "relatorios" && perfil === "GESTOR" && (
-                <AuditSelection
-                    workflow={workflow}
-                    onSelect={selectRecord}
-                    disabled={selectionLocked}
-                />
-            )}
+            {["relatorios", "precos"].includes(journey.id) &&
+                perfil === "GESTOR" && (
+                    <AuditSelection
+                        workflow={workflow}
+                        onSelect={selectRecord}
+                        disabled={selectionLocked}
+                    />
+                )}
             {journey.id === "fechamento" && (
                 <AdjustmentOrigin
                     workflow={workflow}

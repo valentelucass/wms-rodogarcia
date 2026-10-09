@@ -16,6 +16,60 @@ export type TipoContingencia = "CHEGADA" | "RESERVA" | "SEPARACAO" | "RETIRADA" 
 export type TipoEndereco = "ARMAZENAGEM" | "TRIAGEM" | "QUARENTENA" | "SEPARACAO";
 export type TipoQuantidade = "CONTAGEM" | "MEDIDA";
 export type TipoUnidadeLogistica = "PALLET" | "BOBINA" | "VOLUME";
+export interface AcessoDtos_Login {
+  email: string;
+  senha: string;
+}
+export interface AcessoDtos_TrocaSenha {
+  senhaAtual: string;
+  novaSenha: string;
+}
+export interface AcessoDtos_CriarUsuario {
+  nome: string;
+  email: string;
+  senhaTemporaria: string;
+  perfil: string;
+  administrador: boolean;
+  clientes: Array<string>;
+  armazens: Array<string>;
+}
+export interface AcessoDtos_EditarUsuario {
+  nome: string;
+  perfil: string;
+  administrador: boolean;
+  ativo: boolean;
+  clientes: Array<string>;
+  armazens: Array<string>;
+  versao: string;
+}
+export interface AcessoDtos_RedefinirSenha {
+  senhaTemporaria: string;
+  versao: string;
+}
+export interface AcessoDtos_Usuario {
+  id: string | null;
+  nome: string | null;
+  email: string | null;
+  perfil: string | null;
+  administrador: boolean;
+  principal: boolean;
+  ativo: boolean;
+  trocarSenha: boolean;
+  clientes: Array<string> | null;
+  armazens: Array<string> | null;
+  versao: string;
+}
+export interface AcessoDtos_Tokens {
+  accessToken: string | null;
+  expiresIn: string;
+  usuario: AcessoDtos_Usuario | null;
+}
+export interface AcessoDtos_PaginaUsuarios {
+  content: Array<AcessoDtos_Usuario> | null;
+  number: number;
+  totalPages: number;
+  totalElements: string;
+}
 export interface ArmazemDto_Criar {
   codigo: string;
   nome: string;
@@ -51,6 +105,7 @@ export interface AuditoriaResponse {
   motivo: string | null;
   dadosAntes: string | null;
   dadosDepois: string | null;
+  tipoFisico: string | null;
 }
 export interface AvariaDto_Registrar {
   operacaoId: string;
@@ -1898,6 +1953,17 @@ export interface ApiContracts {
   "IndicadorEstoqueController.listar": { request: undefined; response: PaginaResponse<IndicadorEstoqueDto_Resultado> };
   "IndicadorEstoqueController.consultar": { request: undefined; response: IndicadorEstoqueDto_Configuracao };
   "IndicadorEstoqueController.configurar": { request: IndicadorEstoqueDto_ConfigurarAviso; response: IndicadorEstoqueDto_Configuracao };
+  "LoginController.csrf": { request: undefined; response: Record<string, unknown> };
+  "LoginController.jwks": { request: undefined; response: Record<string, unknown> };
+  "LoginController.entrar": { request: AcessoDtos_Login; response: AcessoDtos_Tokens };
+  "LoginController.renovar": { request: undefined; response: AcessoDtos_Tokens };
+  "LoginController.sair": { request: undefined; response: void };
+  "LoginController.senha": { request: AcessoDtos_TrocaSenha; response: void };
+  "LoginController.eu": { request: undefined; response: AcessoDtos_Usuario };
+  "LoginController.usuarios": { request: undefined; response: AcessoDtos_PaginaUsuarios };
+  "LoginController.criar": { request: AcessoDtos_CriarUsuario; response: AcessoDtos_Usuario };
+  "LoginController.editar": { request: AcessoDtos_EditarUsuario; response: AcessoDtos_Usuario };
+  "LoginController.redefinir": { request: AcessoDtos_RedefinirSenha; response: void };
   "PedidoEntradaController.criar": { request: PedidoEntradaDto_Criar; response: PedidoEntradaDto_Resumo };
   "PedidoEntradaController.listar": { request: undefined; response: PaginaResponse<PedidoEntradaDto_Resumo> };
   "PedidoEntradaController.consultar": { request: undefined; response: PedidoEntradaDto_Detalhe };

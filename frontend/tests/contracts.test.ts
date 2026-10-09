@@ -145,13 +145,36 @@ describe("Fronteira contratual exata", () => {
             }),
         ).toThrow("UUID");
     });
-    it("todo formulário/rota tem contrato e toda rota de negócio está nas jornadas", () => {
+    it("161 rotas operacionais estão nas jornadas; 11 rotas auth usam telas/cliente nativos", () => {
         const used = new Set(
             journeys.flatMap((j) => j.steps.flatMap((s) => s.actions)),
         );
+        const nativeAuth = [
+            "csrf",
+            "jwks",
+            "entrar",
+            "renovar",
+            "sair",
+            "senha",
+            "eu",
+            "usuarios",
+            "criar",
+            "editar",
+            "redefinir",
+        ].map((handler) => `LoginController.${handler}`);
+        expect(
+            endpoints
+                .filter((e) => e.id.startsWith("LoginController."))
+                .map((e) => e.id)
+                .sort(),
+        ).toEqual(nativeAuth.sort());
+        expect(
+            endpoints.filter((e) => !nativeAuth.includes(e.id)),
+        ).toHaveLength(161);
         expect(
             endpoints.filter(
                 (e) =>
+                    !nativeAuth.includes(e.id) &&
                     e.id !== "StatusController.consultar" &&
                     e.id !== "EstoqueController.posicionar" &&
                     !used.has(e.id),

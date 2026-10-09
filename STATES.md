@@ -1,10 +1,45 @@
 # Estado e trilha de implementação do WMS Rodogarcia
 
-## AUD-LOGIN-CAD01 — auditoria atual de login e cadastros em execução
+## CORR-LOGIN-CAD01 — sete correções concluídas e revisadas localmente, 09/10/2026
 
-Pedido expresso Lucas em 09/10/2026. BE04-AUD01 → FE03-AUD01: rastrear atributos por classe/contrato/campo/persistência e revisar segurança de login, sessão, autorização e cadastros efetivos. Fonte atual D32: login próprio e gestão de usuários existem; ativação/startup DEV04 registrados. A proposta histórica Keycloak/BFF não foi adotada. Provas anteriores são contexto, não novas verificações desta auditoria. [Escopo e posse](orchestracao/.runtime/login-cadastros-auditoria-escopo.json).
+**BE04-COR01 → FE03-COR01 concluídos no recorte autorizado:** AUD-CONS-001 a007 corrigidos e revisados independentemente; nenhum achado material local aberto nesta entrega. Login próprio D32/DEV07 e incrementos DS01 preservados. Cedro backend004/005; Lume AUTH/UI e leitores005; Prumo contratos/persistência em arquivo; Vigia revisão; Farol consolidação/canônicos. Atalho006 já corrigido pela frente DS01, com autoria externa preservada e handler atual idêntico por diff.
 
-Cedro backend/atributos; Lume frontend/forms/tipos/sessão; Prumo JPA/migrations em arquivo; Vigia segurança/revisão independente; Farol matriz/canônicos. Aplicação somente leitura, artefatos exclusivos por dono. Testes novos somente isolados proporcionais sem banco/provider. Sem SQL/guarda/JDBC/HTTPDEV/banco/DDL/grants/processos reais/segredos/auth nova/ETL/Hermes ou reabertura FINAL14. TLS aprovado e linhagem histórica preservados, sem nova sonda. Auditoria não aprova correções amplas ou operação real; achados e próximos passos no recibo final.
+Provas: frontend253 verdes únicos por composição252+1, tipagem/lint/build e3 testes Chrome com API sintética. Backend66 verdes na fonte MARCO02 e14 novos verdes no delta final MARCO03, separados por versão; builds offline aprovados e JAR não executado. Parecer final confirma os sete critérios. Não é certificação geral de segurança, teste integral da fonte global ou integração real com banco.
+
+[Recibo final e limites](orchestracao/.runtime/login-cadastros-correcoes-resultado.md), [JSON/hashes](orchestracao/.runtime/login-cadastros-correcoes-resultado.json), [matriz individual](orchestracao/.runtime/login-cadastros-correcoes/matriz-problemas-casos.md) e [parecer independente](orchestracao/.runtime/login-cadastros-correcoes/vigia/parecer-final.md).
+
+Fonte/provas datadas: deltas posteriores da frente visual qualificados por comparação/adenda, sem alterar os caminhos revisados dos7critérios; não declarar200fontes atuais globalmente iguais. Geração03 preserva174inputs históricos, incluindo AuditoriaService5801 anterior ao delta0F12; DTO/API/permissão/outputs permanecem iguais por adenda. Mapa AST das correções atualizado semforce/LLM, com backups; comunidades/semântica integral não recalculadas e últimos ajustes visuais externos posteriores qualificados.
+
+Nenhum SQL/banco/HTTPDEV/DDL/migration/PROD/sa/provider novo/alteração servidor/runtime/kill ou restart existente/ETL/Hermes. Auditoria original, FINAL14, TLS01/DEV04, migrations/dados e históricos preservados. Próximo passo: aguardar nova demanda de Lucas; não iniciar aplicação, banco, teste ou macrobloco automaticamente. Homologação real/custo JPA e histórico ambíguo permanecem limites próprios, sem reabrir tarefas antigas.
+
+### Histórico preservado — auditoria e incrementos anteriores
+
+## FE02-DS01 — fundação visual e navegação, 09/10/2026
+
+**FE02-DS01-A02 — detecção automática sem ícone de Sistema:** concluído localmente, por correção expressa de Lucas. Somente o botão circular sol/lua; cada abertura/recarga inicia pelo tema do dispositivo. Escolha manual vale durante o uso e substitui a persistência de A01. Dependência: FE02-DS01-A01; tipagem/lint/builds e 14 casos de navegador aprovados, com inicialização, sistema, teclado, edição e aparência em sete larguras. Login/painel com API interceptada; contratos BE→FE preservados. [Detalhes e limites](docs/design-system/etapa-01.md).
+
+**FE02-DS01-A01 — ajuste solicitado de tema e lateral, histórico anterior a A02:** concluído localmente. Sistema permanece o padrão sem preferência salva; botão circular sol/lua alterna claro/escuro, com retorno ao sistema pelo monitor. “Minimizar menu” na própria lateral recolhe à esquerda de 256 para 64 px, somente ícones; seta direita expande. Dependência: FE02-DS01; contratos BE→FE preservados. Tipagem/lint/formatação/builds e 14 casos de navegador aprovados; recarga, sistema/abas, teclado, formulários preservados, sete larguras e capturas conferidos. API nativa interceptada, sem banco real. [Detalhes e limites](docs/design-system/etapa-01.md). Graphify recusou redução do mapa atual, sem forçar. Próximo passo visual permanece a composição de componentes e páginas.
+
+**Status:** Concluído no recorte visual local. **Dependências:** FE02, FE03 e [design system fornecido](docs/design-system/design.md). Pedido expresso de Lucas: primeira etapa com organização, tipografia, cores, temas claro/escuro, topo e lateral. Implementação visual local autorizada; sem mudança de regras, contratos ou backend.
+
+- [x] Centralizar tokens, fonte Inter local, escala tipográfica e cores semânticas.
+- [x] Aplicar tema antes do CSS; a detecção automática e o botão sol/lua seguem o ajuste A02, com escolha manual durante o uso da página.
+- [x] Compartilhar topo e lateral entre aplicação real e exercício fictício; conferir menu mobile e teclado.
+- [x] Conferir tipagem, lint, regressão pertinente, builds e aparência nos dois temas.
+
+**Evidência:** [entrega, fontes e limites](docs/design-system/etapa-01.md). Tipagem/lint/formatação/builds aprovados; 14 testes de navegador aprovados (12 fictícios + 2 da aplicação real com API interceptada), sete larguras 320–1440 px e revisão de capturas claro/escuro. Regressão inicial374/374; execução posterior401 aprovados/1 falha no teste do novo argumento AbortSignal da frente paralela CORR-LOGIN-CAD01. Não declara check integral atual aprovado nem integração SQL/autenticação real. Graphify recusou redução; mapa oficial preservado.
+
+**Ligação BE → FE:** preserva BE04-AUTH01 → FE03-AUTH01 e os contratos operacionais existentes. **Próximo passo do design system:** componentes compartilhados e composição de páginas em nova etapa. Pendências da frente de autenticação e manutenção do mapa permanecem nos respectivos escopos; detalhes na entrega visual.
+
+## AUD-LOGIN-CAD01 — auditoria concluída com achados; correções aguardam Lucas
+
+BE04-AUD01 → FE03-AUD01, pedido expresso de 09/10/2026. Cedro, Lume, Prumo e Vigia concluíram seus recortes; Farol consolidou. Login próprio D32 e administração de usuários existem; Keycloak/BFF histórico não adotado. Sete achados materiais abertos: um P1 (401 antigo encerra sessão nova) e seis P2 (Long nativo, resposta inválida/sucesso indevido, categoria após normalização, namespace de vínculo, atalho de conteúdo e carregamento após erro). Sem vulnerabilidade crítica/escalada demonstrada; sem aceite geral de segurança ou integração real. [Recibo e propostas](orchestracao/.runtime/login-cadastros-auditoria-resultado.md), [JSON/provas](orchestracao/.runtime/login-cadastros-auditoria-resultado.json).
+
+Matriz individual: 74 contratos HTTP; 1395 instâncias HTTP/frontend, 240 complementos backend e 252 atributos persistentes em 22 entidades, com grãos distintos. Pareamentos JPA-DDL/direitos em arquivo252/252; divergências e limites por fronteira preservados. [Matriz](orchestracao/.runtime/login-cadastros-auditoria/matriz-atributos.md), [atributos completos](orchestracao/.runtime/login-cadastros-auditoria/matriz-atributos.json) e [parecer independente](orchestracao/.runtime/login-cadastros-auditoria/vigia/parecer.md). Não somar reutilizações/contagens como cobertura ou aceite.
+
+Aplicação somente leitura. Provas novas isoladas e sintéticas; nenhuma correção app, SQL/guarda/JDBC/H2/HTTPDEV/provider/launcher/build backend integral/processo real/segredo/ETL/Hermes nesta auditoria. Fonte inicial411:404iguais/7deltas DEV06/DEV07 datados; nenhum freeze global presumido. Os15focais Origin são DEV06; DEV07 posterior lido separadamente e confiança dos headers/topologia real é limite. TLS01/DEV04, FINAL14, migrations, dados e processos existentes preservados.
+
+Próximo passo: Lucas definir o início das correções propostas; nenhum job, refatoração, auth nova ou processo iniciado automaticamente no fecho. Estado/regras D32-DEV07 abaixo continuam preservados como incremento distinto. Registro do fechoUTC: 2026-10-09T15:53:57.298249+00:00.
 
 ### Estado anterior preservado — D32 e demais entregas
 
@@ -724,7 +759,7 @@ As entregas desta trilha ficam em `backend` e, quando necessário, `database` e 
 
 ### BE04 Identidade, permissões e auditoria
 
-**Atual D32 / AUD-LOGIN-CAD01:** login e usuários próprios implementados; mecanismo nativo, contratos e ativação DEV04 descritos no [documento 43](docs/43-login-e-administracao-de-usuarios.md). Revalidação de segurança e atributos em auditoria BE04-AUD01/FE03-AUD01; primeiro login real/negócio autenticado não presumido.
+**Atual D32 / AUD-LOGIN-CAD01:** login e usuários próprios implementados; mecanismo nativo, contratos e ativação DEV04 descritos no [documento 43](docs/43-login-e-administracao-de-usuarios.md). Auditoria BE04-AUD01/FE03-AUD01 concluída com sete achados abertos e propostas no [recibo](orchestracao/.runtime/login-cadastros-auditoria-resultado.md); correções aguardam Lucas. Primeiro login real/negócio autenticado não presumido por esta auditoria.
 
 #### Histórico do item antes de D32 — preservado
 
@@ -1215,7 +1250,7 @@ As entregas desta trilha ficam em `frontend`. Telas de gestão e coletor usam Re
 
 ### FE03 Acesso e navegação por perfil
 
-**Atual D32 / AUD-LOGIN-CAD01:** login e usuários próprios implementados; mecanismo nativo, contratos e ativação DEV04 descritos no [documento 43](docs/43-login-e-administracao-de-usuarios.md). Revalidação de segurança e atributos em auditoria BE04-AUD01/FE03-AUD01; primeiro login real/negócio autenticado não presumido.
+**Atual D32 / AUD-LOGIN-CAD01:** login e usuários próprios implementados; mecanismo nativo, contratos e ativação DEV04 descritos no [documento 43](docs/43-login-e-administracao-de-usuarios.md). Auditoria BE04-AUD01/FE03-AUD01 concluída com sete achados abertos e propostas no [recibo](orchestracao/.runtime/login-cadastros-auditoria-resultado.md); correções aguardam Lucas. Primeiro login real/negócio autenticado não presumido por esta auditoria.
 
 #### Histórico do item antes de D32 — preservado
 

@@ -1,5 +1,321 @@
 {
   "records": {
+    "AcessoDtos.Login": [
+      {
+        "name": "email",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/AcessoDtos.java",
+        "notBlank": true,
+        "Size": "max = 254"
+      },
+      {
+        "name": "senha",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/AcessoDtos.java",
+        "notBlank": true,
+        "Size": "max = 128"
+      }
+    ],
+    "AcessoDtos.TrocaSenha": [
+      {
+        "name": "senhaAtual",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/AcessoDtos.java",
+        "notBlank": true,
+        "Size": "max = 128"
+      },
+      {
+        "name": "novaSenha",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/AcessoDtos.java",
+        "notBlank": true,
+        "Size": "min = 12, max = 128"
+      }
+    ],
+    "AcessoDtos.CriarUsuario": [
+      {
+        "name": "nome",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/AcessoDtos.java",
+        "notBlank": true,
+        "Size": "max = 200"
+      },
+      {
+        "name": "email",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/AcessoDtos.java",
+        "notBlank": true,
+        "Size": "max = 254"
+      },
+      {
+        "name": "senhaTemporaria",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/AcessoDtos.java",
+        "notBlank": true,
+        "Size": "min = 12, max = 128"
+      },
+      {
+        "name": "perfil",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/AcessoDtos.java",
+        "notBlank": true,
+        "Pattern": "regexp = \"GESTOR|SUPERVISOR|OPERACAO\""
+      },
+      {
+        "name": "administrador",
+        "type": "boolean",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/AcessoDtos.java"
+      },
+      {
+        "name": "clientes",
+        "type": "List<Long>",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/AcessoDtos.java",
+        "Size": "max = 500",
+        "element": {
+          "name": "element",
+          "type": "Long",
+          "required": true,
+          "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/AcessoDtos.java",
+          "positive": true
+        }
+      },
+      {
+        "name": "armazens",
+        "type": "List<Long>",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/AcessoDtos.java",
+        "Size": "max = 500",
+        "element": {
+          "name": "element",
+          "type": "Long",
+          "required": true,
+          "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/AcessoDtos.java",
+          "positive": true
+        }
+      }
+    ],
+    "AcessoDtos.EditarUsuario": [
+      {
+        "name": "nome",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/AcessoDtos.java",
+        "notBlank": true,
+        "Size": "max = 200"
+      },
+      {
+        "name": "perfil",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/AcessoDtos.java",
+        "notBlank": true,
+        "Pattern": "regexp = \"GESTOR|SUPERVISOR|OPERACAO\""
+      },
+      {
+        "name": "administrador",
+        "type": "boolean",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/AcessoDtos.java"
+      },
+      {
+        "name": "ativo",
+        "type": "boolean",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/AcessoDtos.java"
+      },
+      {
+        "name": "clientes",
+        "type": "List<Long>",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/AcessoDtos.java",
+        "Size": "max = 500",
+        "element": {
+          "name": "element",
+          "type": "Long",
+          "required": true,
+          "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/AcessoDtos.java",
+          "positive": true
+        }
+      },
+      {
+        "name": "armazens",
+        "type": "List<Long>",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/AcessoDtos.java",
+        "Size": "max = 500",
+        "element": {
+          "name": "element",
+          "type": "Long",
+          "required": true,
+          "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/AcessoDtos.java",
+          "positive": true
+        }
+      },
+      {
+        "name": "versao",
+        "type": "long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/AcessoDtos.java"
+      }
+    ],
+    "AcessoDtos.RedefinirSenha": [
+      {
+        "name": "senhaTemporaria",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/AcessoDtos.java",
+        "notBlank": true,
+        "Size": "min = 12, max = 128"
+      },
+      {
+        "name": "versao",
+        "type": "long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/AcessoDtos.java"
+      }
+    ],
+    "AcessoDtos.Usuario": [
+      {
+        "name": "id",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/AcessoDtos.java"
+      },
+      {
+        "name": "nome",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/AcessoDtos.java"
+      },
+      {
+        "name": "email",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/AcessoDtos.java"
+      },
+      {
+        "name": "perfil",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/AcessoDtos.java"
+      },
+      {
+        "name": "administrador",
+        "type": "boolean",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/AcessoDtos.java"
+      },
+      {
+        "name": "principal",
+        "type": "boolean",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/AcessoDtos.java"
+      },
+      {
+        "name": "ativo",
+        "type": "boolean",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/AcessoDtos.java"
+      },
+      {
+        "name": "trocarSenha",
+        "type": "boolean",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/AcessoDtos.java"
+      },
+      {
+        "name": "clientes",
+        "type": "List<String>",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/AcessoDtos.java",
+        "element": {
+          "name": "element",
+          "type": "String",
+          "required": false,
+          "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/AcessoDtos.java"
+        }
+      },
+      {
+        "name": "armazens",
+        "type": "List<String>",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/AcessoDtos.java",
+        "element": {
+          "name": "element",
+          "type": "String",
+          "required": false,
+          "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/AcessoDtos.java"
+        }
+      },
+      {
+        "name": "versao",
+        "type": "long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/AcessoDtos.java"
+      }
+    ],
+    "AcessoDtos.Tokens": [
+      {
+        "name": "accessToken",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/AcessoDtos.java"
+      },
+      {
+        "name": "expiresIn",
+        "type": "long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/AcessoDtos.java"
+      },
+      {
+        "name": "usuario",
+        "type": "AcessoDtos.Usuario",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/AcessoDtos.java"
+      }
+    ],
+    "AcessoDtos.PaginaUsuarios": [
+      {
+        "name": "content",
+        "type": "List<AcessoDtos.Usuario>",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/AcessoDtos.java",
+        "element": {
+          "name": "element",
+          "type": "AcessoDtos.Usuario",
+          "required": false,
+          "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/AcessoDtos.java"
+        }
+      },
+      {
+        "name": "number",
+        "type": "int",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/AcessoDtos.java"
+      },
+      {
+        "name": "totalPages",
+        "type": "int",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/AcessoDtos.java"
+      },
+      {
+        "name": "totalElements",
+        "type": "long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/AcessoDtos.java"
+      }
+    ],
     "ArmazemDto.Criar": [
       {
         "name": "codigo",
@@ -188,6 +504,12 @@
       },
       {
         "name": "dadosDepois",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/AuditoriaResponse.java"
+      },
+      {
+        "name": "tipoFisico",
         "type": "String",
         "required": false,
         "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/AuditoriaResponse.java"

@@ -834,7 +834,12 @@ public class EncerramentoService {
                                 : ((VinculoTabelaCliente) entidade).getVersao();
         var resposta = new EncerramentoDto.Vigencia(tipo, id, nova, inicio, d.corte());
         auditoria.registrar(
-                tipo.equals("CONTRATO") ? "CONTRATO_COBRANCA" : "TABELA_COBRANCA",
+                switch (tipo) {
+                    case "CONTRATO" -> "CONTRATO_COBRANCA";
+                    case "TABELA" -> "TABELA_COBRANCA";
+                    case "VINCULO" -> "VINCULO_COBRANCA";
+                    default -> throw CadastroSupport.invalido("Tipo de vigência inválido.");
+                },
                 id,
                 "ENCERRAMENTO_VIGENCIA",
                 CadastroSupport.motivo(d.motivo()),

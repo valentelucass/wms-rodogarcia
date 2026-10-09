@@ -1,44 +1,24 @@
-import type { Perfil } from "../contracts/runtime";
+import { stringifyExact } from "../contracts/codec";
+import {
+    decodeTokens,
+    decodeUser,
+    decodeUsersPage,
+    encodeRevisionBody,
+    type Tokens,
+    type User,
+} from "./contracts";
+import { AuthError, requestAuth, type AuthScope } from "./request";
+export { AuthError } from "./request";
+export type { User, UsersPage } from "./contracts";
 
-export interface User {
-    id: string;
-    nome: string;
-    email: string;
-    perfil: Perfil;
-    administrador: boolean;
-    principal: boolean;
-    ativo: boolean;
-    trocarSenha: boolean;
-    clientes: string[];
-    armazens: string[];
-    versao: number;
-}
-interface Tokens {
-    accessToken: string;
-    expiresIn: number;
-    usuario: User;
-}
-export interface UsersPage {
-    content: User[];
-    number: number;
-    totalPages: number;
-    totalElements: number;
-}
-export class AuthError extends Error {
-    constructor(
-        message: string,
-        public status: number,
-    ) {
-        super(message);
-    }
-}
-
-/** Access token somente em memória; refresh somente em cookie HttpOnly. Sem repetição de escrita. */
+/** Access somente em memória; refresh em cookie HttpOnly. Sem replay de escrita. */
 export class AuthClient {
     private access: string | null = null;
     private expires = 0;
-    private refreshing: Promise<User> | null = null;
     private generation = 0;
+    private lifetime = new AbortController();
+    private refreshing: Promise<User> | null = null;
+    private cookieQueue: Promise<unknown> = Promise.resolve();
     private onExpired: () => void = () => {};
     constructor(
         private fetcher: typeof fetch = (input, init) => fetch(input, init),
@@ -48,166 +28,190 @@ export class AuthClient {
     }
     token = () => this.access;
     clear() {
+        this.lifetime.abort();
+        this.lifetime = new AbortController();
         this.generation++;
         this.access = null;
         this.expires = 0;
+        this.refreshing = null;
     }
-    private async request<T>(
-        path: string,
-        method = "GET",
-        body?: unknown,
-        bearer = true,
-    ): Promise<T> {
-        const headers: Record<string, string> = { Accept: "application/json" };
-        if (bearer && this.access)
-            headers.Authorization = `Bearer ${this.access}`;
-        if (method !== "GET") {
-            const csrf = await this.request<{ token: string; header: string }>(
-                "/csrf",
-                "GET",
-                undefined,
-                false,
-            );
-            headers[csrf.header] = csrf.token;
-            headers["Content-Type"] = "application/json";
-        }
-        let response: Response;
-        try {
-            response = await this.fetcher(`/api/auth${path}`, {
-                method,
-                headers,
-                body: body === undefined ? undefined : JSON.stringify(body),
-                credentials: "same-origin",
-                cache: "no-store",
-                redirect: "error",
-                signal: AbortSignal.timeout(20000),
-            });
-        } catch {
-            throw new AuthError(
-                "Não foi possível confirmar a resposta. Consulte o estado atual antes de repetir.",
-                0,
-            );
-        }
-        if (!response.ok) {
-            if (response.status === 401 && bearer) {
+    private scope(bearer = true): AuthScope {
+        const generation = this.generation,
+            token = this.access;
+        return {
+            signal: this.lifetime.signal,
+            token,
+            current: () =>
+                generation === this.generation &&
+                (!bearer || token === this.access),
+            expire: () => {
+                // Uma rotação também pode substituir Bearer sem trocar usuário.
+                if (
+                    generation !== this.generation ||
+                    (bearer && token !== this.access)
+                )
+                    return;
                 this.clear();
                 this.onExpired();
-            }
-            let detail =
-                "Não foi possível concluir. Confira os dados e tente novamente.";
-            try {
-                const problem = (await response.json()) as { detail?: unknown };
-                if (typeof problem.detail === "string") detail = problem.detail;
-            } catch {
-                /* Resposta sem JSON. */
-            }
-            throw new AuthError(detail, response.status);
-        }
-        if (response.status === 204) return undefined as T;
-        return (await response.json()) as T;
+            },
+        };
     }
-    private accept(result: Tokens, generation: number): User {
-        if (generation !== this.generation)
-            throw new AuthError("A sessão foi encerrada.", 401);
-        if (
-            typeof result.accessToken !== "string" ||
-            result.expiresIn !== 300 ||
-            !result.usuario?.id ||
-            !["GESTOR", "SUPERVISOR", "OPERACAO"].includes(
-                result.usuario.perfil,
-            )
-        ) {
-            this.clear();
-            throw new AuthError("Resposta de login inválida.", 0);
-        }
+    private accept(
+        result: Tokens,
+        scope: AuthScope,
+        signal?: AbortSignal,
+    ): User {
+        if (!scope.current() || scope.signal.aborted || signal?.aborted)
+            throw new AuthError(
+                "A sessão foi encerrada.",
+                401,
+                false,
+                "AUTH_CONTEXT_ENDED",
+            );
         this.access = result.accessToken;
-        this.expires = Date.now() + result.expiresIn * 1000;
+        this.expires = Date.now() + 300000;
         return result.usuario;
     }
-    async login(email: string, senha: string) {
+    private cookieLock<T>(action: () => Promise<T>): Promise<T> {
+        // A fila local existe também onde Web Locks não está disponível.
+        const run = () =>
+            typeof navigator !== "undefined" && navigator.locks
+                ? navigator.locks.request("wms-refresh", action)
+                : action();
+        const pending = this.cookieQueue.then(run, run);
+        this.cookieQueue = pending.catch(() => {});
+        return pending;
+    }
+    async login(email: string, senha: string, signal?: AbortSignal) {
         this.clear();
-        const generation = this.generation;
+        const scope = this.scope(false),
+            body = stringifyExact({ email, senha });
         return this.cookieLock(async () =>
             this.accept(
-                await this.request<Tokens>(
-                    "/entrar",
-                    "POST",
-                    { email, senha },
-                    false,
-                ),
-                generation,
+                await requestAuth(this.fetcher, scope, {
+                    path: "/entrar",
+                    method: "POST",
+                    body,
+                    bearer: false,
+                    decode: decodeTokens,
+                    signal,
+                }),
+                scope,
+                signal,
             ),
         );
     }
-    private cookieLock<T>(action: () => Promise<T>): Promise<T> {
-        return typeof navigator !== "undefined" && navigator.locks
-            ? navigator.locks.request("wms-refresh", action)
-            : action();
-    }
     refresh(): Promise<User> {
         if (this.refreshing) return this.refreshing;
-        const generation = this.generation;
-        const run = async () =>
+        const scope = this.scope(false);
+        const pending = this.cookieLock(async () =>
             this.accept(
-                await this.request<Tokens>(
-                    "/renovar",
-                    "POST",
-                    undefined,
-                    false,
-                ),
-                generation,
-            );
-        // Abas da mesma origem compartilham o cookie; serializar sua rotação.
-        this.refreshing = this.cookieLock(run)
+                await requestAuth(this.fetcher, scope, {
+                    path: "/renovar",
+                    method: "POST",
+                    bearer: false,
+                    decode: decodeTokens,
+                }),
+                scope,
+            ),
+        )
             .catch((error: unknown) => {
-                if (generation === this.generation) {
+                if (scope.current()) {
                     this.clear();
                     this.onExpired();
                 }
                 throw error;
             })
             .finally(() => {
-                this.refreshing = null;
+                if (this.refreshing === pending) this.refreshing = null;
             });
-        return this.refreshing;
+        this.refreshing = pending;
+        return pending;
     }
     async fresh() {
         if (this.access && Date.now() >= this.expires - 30000)
             await this.refresh();
     }
+    private async authenticatedScope(signal?: AbortSignal) {
+        const scope = this.scope(false);
+        await this.fresh();
+        if (!scope.current() || signal?.aborted)
+            throw new AuthError(
+                "A sessão foi encerrada.",
+                401,
+                false,
+                "AUTH_CONTEXT_ENDED",
+            );
+        return this.scope();
+    }
     async logout() {
         this.clear();
+        const scope = this.scope(false);
         await this.cookieLock(() =>
-            this.request<void>("/sair", "POST", undefined, false),
+            requestAuth<void>(this.fetcher, scope, {
+                path: "/sair",
+                method: "POST",
+                bearer: false,
+            }),
         );
     }
-    async changePassword(senhaAtual: string, novaSenha: string) {
-        await this.fresh();
-        await this.request<void>("/senha", "POST", { senhaAtual, novaSenha });
-        this.clear();
+    async changePassword(
+        senhaAtual: string,
+        novaSenha: string,
+        signal?: AbortSignal,
+    ) {
+        const scope = await this.authenticatedScope(signal);
+        await requestAuth<void>(this.fetcher, scope, {
+            path: "/senha",
+            method: "POST",
+            body: stringifyExact({ senhaAtual, novaSenha }),
+            signal,
+        });
+        if (scope.current()) this.clear();
     }
-    async users(page: number) {
-        await this.fresh();
-        return this.request<UsersPage>(`/usuarios?pagina=${page}`);
+    async users(page: number, signal?: AbortSignal) {
+        const scope = await this.authenticatedScope(signal);
+        return requestAuth(this.fetcher, scope, {
+            path: `/usuarios?pagina=${page}`,
+            decode: decodeUsersPage,
+            signal,
+        });
     }
-    async create(body: unknown) {
-        await this.fresh();
-        return this.request<User>("/usuarios", "POST", body);
+    async create(body: unknown, signal?: AbortSignal) {
+        const wire = stringifyExact(body),
+            scope = await this.authenticatedScope(signal);
+        return requestAuth(this.fetcher, scope, {
+            path: "/usuarios",
+            method: "POST",
+            body: wire,
+            decode: decodeUser,
+            signal,
+        });
     }
-    async edit(id: string, body: unknown) {
-        await this.fresh();
-        return this.request<User>(
-            `/usuarios/${encodeURIComponent(id)}`,
-            "PUT",
-            body,
-        );
+    async edit(id: string, body: unknown, signal?: AbortSignal) {
+        const wire = encodeRevisionBody(body),
+            scope = await this.authenticatedScope(signal);
+        return requestAuth(this.fetcher, scope, {
+            path: `/usuarios/${encodeURIComponent(id)}`,
+            method: "PUT",
+            body: wire,
+            decode: decodeUser,
+            signal,
+        });
     }
-    async reset(id: string, senhaTemporaria: string, versao: number) {
-        await this.fresh();
-        return this.request<void>(
-            `/usuarios/${encodeURIComponent(id)}/senha`,
-            "POST",
-            { senhaTemporaria, versao },
-        );
+    async reset(
+        id: string,
+        senhaTemporaria: string,
+        versao: string,
+        signal?: AbortSignal,
+    ) {
+        const wire = encodeRevisionBody({ senhaTemporaria, versao }),
+            scope = await this.authenticatedScope(signal);
+        return requestAuth<void>(this.fetcher, scope, {
+            path: `/usuarios/${encodeURIComponent(id)}/senha`,
+            method: "POST",
+            body: wire,
+            signal,
+        });
     }
 }

@@ -26,6 +26,7 @@ import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -190,6 +191,7 @@ public class ConfiguracaoCobrancaService {
         if (tabelas.existsByArmazemIdAndCodigo(a.getId(), codigo))
             throw conflito("TABELA_DUPLICADA");
         var chaves = new HashSet<String>();
+        var categorias = new HashMap<ConfiguracaoCobrancaDto.Item, String>();
         for (var i :
                 d.itens().stream()
                         .sorted(
@@ -208,7 +210,8 @@ public class ConfiguracaoCobrancaService {
                                                     .atZone(ZoneId.of("UTC"))
                                                     .toLocalDate())))
                 throw conflito("SERVICO_INATIVO");
-            String categoria = CadastroSupport.codigo(i.categoria());
+            String categoria = CadastroSupport.categoriaCobranca(i.categoria());
+            categorias.put(i, categoria);
             if (!chaves.add(s.getId() + ":" + categoria)) throw conflito("ITEM_DUPLICADO");
             if ("PERCENTUAL".equals(s.getUnidade())
                     ? (i.percentual() == null || i.preco() != null)
@@ -239,7 +242,7 @@ public class ConfiguracaoCobrancaService {
                     new ItemTabelaCobranca(
                             t,
                             servicos.getReferenceById(i.servicoId()),
-                            CadastroSupport.codigo(i.categoria()),
+                            categorias.get(i),
                             i.preco(),
                             i.percentual()));
         itens.flush();
@@ -353,7 +356,7 @@ public class ConfiguracaoCobrancaService {
                                 agora));
         var r = ConfiguracaoCobrancaDto.Vinculo.de(v);
         auditoria.registrar(
-                "CONTRATO_COBRANCA",
+                "VINCULO_COBRANCA",
                 v.getId(),
                 "VINCULO_TABELA",
                 CadastroSupport.motivo(d.motivo()),
@@ -391,7 +394,7 @@ public class ConfiguracaoCobrancaService {
         vinculos.flush();
         var r = ConfiguracaoCobrancaDto.Vinculo.de(v);
         auditoria.registrar(
-                "CONTRATO_COBRANCA",
+                "VINCULO_COBRANCA",
                 id,
                 "VINCULO_TABELA",
                 CadastroSupport.motivo(d.motivo()),

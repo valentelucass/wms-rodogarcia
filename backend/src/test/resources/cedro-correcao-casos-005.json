@@ -1,0 +1,639 @@
+{
+  "id": "CORR-LOGIN-CAD01-PRUMO-CASOS-005",
+  "emitidoUtc": "2026-10-09T16:18:00.589Z",
+  "natureza": "Fixtures apenas declarativas/sintéticas. Nenhum classifier produtivo executado; não são banco/mockSQL ou red-green da aplicação.",
+  "todosIdsEDatasFicticios": true,
+  "casos": [
+    {
+      "id": "P005-F01",
+      "registro": {
+        "idAuditoria": "101",
+        "tipoFisico": "CONTRATO_COBRANCA",
+        "registroIdDecimalExato": "7",
+        "acao": "VINCULO_TABELA",
+        "dadosAntes": null,
+        "dadosDepois": "{\"id\":7,\"versao\":0,\"clienteId\":1,\"armazemId\":1,\"tabelaId\":7,\"vigenciaInicio\":\"2026-01-01\",\"vigenciaFim\":null}"
+      },
+      "esperado": {
+        "tipoLogico": "VINCULO_COBRANCA",
+        "justificativa": "Ação exclusiva do escritor legado e snapshot id coerente."
+      },
+      "criterios": [
+        "005-C03",
+        "005-C04",
+        "005-C05",
+        "005-C06",
+        "005-C08"
+      ],
+      "estado": "FIXTURE_CRITERIO_NAO_EXECUTADA_NA_APLICACAO"
+    },
+    {
+      "id": "P005-F02",
+      "registro": {
+        "idAuditoria": "102",
+        "tipoFisico": "CONTRATO_COBRANCA",
+        "registroIdDecimalExato": "7",
+        "acao": "VINCULO_TABELA",
+        "dadosAntes": null,
+        "dadosDepois": "{\"tipoRegistro\":\"VINCULO_COBRANCA\",\"registroId\":7,\"resultado\":{\"id\":7,\"versao\":0,\"clienteId\":1,\"armazemId\":1,\"tabelaId\":7,\"vigenciaInicio\":\"2026-01-01\",\"vigenciaFim\":null}}"
+      },
+      "esperado": {
+        "tipoLogico": "VINCULO_COBRANCA",
+        "justificativa": "Envelope novo com carrier permitido."
+      },
+      "criterios": [
+        "005-C03",
+        "005-C04",
+        "005-C05",
+        "005-C06",
+        "005-C08"
+      ],
+      "estado": "FIXTURE_CRITERIO_NAO_EXECUTADA_NA_APLICACAO"
+    },
+    {
+      "id": "P005-F03",
+      "registro": {
+        "idAuditoria": "103",
+        "tipoFisico": "CONTRATO_COBRANCA",
+        "registroIdDecimalExato": "7",
+        "acao": "ENCERRAMENTO_VIGENCIA",
+        "dadosAntes": "{\"tipoRegistro\":\"VINCULO_COBRANCA\",\"registroId\":7,\"resultado\":{\"tipo\":\"VINCULO\",\"id\":7,\"versao\":0,\"inicio\":\"2026-01-01\",\"fim\":\"2026-10-09\"}}",
+        "dadosDepois": "{\"tipoRegistro\":\"VINCULO_COBRANCA\",\"registroId\":7,\"resultado\":{\"resultado\":{\"tipo\":\"VINCULO\",\"id\":7,\"versao\":0,\"inicio\":\"2026-01-01\",\"fim\":\"2026-10-09\"},\"resolucao\":{\"tipo\":\"FECHAMENTO_COBRANCA\",\"id\":7}}}"
+      },
+      "esperado": {
+        "tipoLogico": "VINCULO_COBRANCA",
+        "justificativa": "Ambos escritores convergem; wrapper financeiro preservado."
+      },
+      "criterios": [
+        "005-C03",
+        "005-C04",
+        "005-C05",
+        "005-C06",
+        "005-C08"
+      ],
+      "estado": "FIXTURE_CRITERIO_NAO_EXECUTADA_NA_APLICACAO"
+    },
+    {
+      "id": "P005-F04",
+      "registro": {
+        "idAuditoria": "104",
+        "tipoFisico": "TABELA_COBRANCA",
+        "registroIdDecimalExato": "7",
+        "acao": "ENCERRAMENTO_VIGENCIA",
+        "dadosAntes": "{\"tipo\":\"VINCULO\",\"id\":7,\"versao\":0,\"inicio\":\"2026-01-01\",\"fim\":\"2026-10-09\"}",
+        "dadosDepois": "{\"resultado\":{\"tipo\":\"VINCULO\",\"id\":7,\"versao\":0,\"inicio\":\"2026-01-01\",\"fim\":\"2026-10-09\"},\"resolucao\":{\"tipo\":\"FECHAMENTO_COBRANCA\",\"id\":7}}"
+      },
+      "esperado": {
+        "tipoLogico": "VINCULO_COBRANCA",
+        "justificativa": "Encerramento legado reconhecível pelo tipo/id de snapshot."
+      },
+      "criterios": [
+        "005-C03",
+        "005-C04",
+        "005-C05",
+        "005-C06",
+        "005-C08"
+      ],
+      "estado": "FIXTURE_CRITERIO_NAO_EXECUTADA_NA_APLICACAO"
+    },
+    {
+      "id": "P005-F05",
+      "registro": {
+        "idAuditoria": "105",
+        "tipoFisico": "CONTRATO_COBRANCA",
+        "registroIdDecimalExato": "7",
+        "acao": "ENCERRAMENTO_VIGENCIA",
+        "dadosAntes": "{\"tipo\":\"VINCULO\",\"id\":7,\"versao\":0,\"inicio\":\"2026-01-01\",\"fim\":\"2026-10-09\"}",
+        "dadosDepois": "{\"tipo\":\"VINCULO\",\"id\":7,\"versao\":0,\"inicio\":\"2026-01-01\",\"fim\":\"2026-10-09\"}"
+      },
+      "esperado": {
+        "tipoLogico": "VINCULO_COBRANCA",
+        "justificativa": "Carrier alternativo legado, igual identificação."
+      },
+      "criterios": [
+        "005-C03",
+        "005-C04",
+        "005-C05",
+        "005-C06",
+        "005-C08"
+      ],
+      "estado": "FIXTURE_CRITERIO_NAO_EXECUTADA_NA_APLICACAO"
+    },
+    {
+      "id": "P005-F06",
+      "registro": {
+        "idAuditoria": "106",
+        "tipoFisico": "CONTRATO_COBRANCA",
+        "registroIdDecimalExato": "7",
+        "acao": "CONFIGURACAO",
+        "dadosAntes": null,
+        "dadosDepois": "{\"id\":7,\"versao\":0,\"moeda\":\"BRL\"}"
+      },
+      "esperado": {
+        "tipoLogico": "CONTRATO_COBRANCA",
+        "justificativa": "Contrato verdadeiro não vira vínculo por id coincidente."
+      },
+      "criterios": [
+        "005-C03",
+        "005-C04",
+        "005-C05",
+        "005-C06",
+        "005-C08"
+      ],
+      "estado": "FIXTURE_CRITERIO_NAO_EXECUTADA_NA_APLICACAO"
+    },
+    {
+      "id": "P005-F07",
+      "registro": {
+        "idAuditoria": "107",
+        "tipoFisico": "TABELA_COBRANCA",
+        "registroIdDecimalExato": "7",
+        "acao": "CRIACAO",
+        "dadosAntes": null,
+        "dadosDepois": "{\"id\":7,\"tipo\":\"PADRAO\",\"codigo\":\"FICTICIA\"}"
+      },
+      "esperado": {
+        "tipoLogico": "TABELA_COBRANCA",
+        "justificativa": "Tabela verdadeira de mesmo id não é vínculo."
+      },
+      "criterios": [
+        "005-C03",
+        "005-C04",
+        "005-C05",
+        "005-C06",
+        "005-C08"
+      ],
+      "estado": "FIXTURE_CRITERIO_NAO_EXECUTADA_NA_APLICACAO"
+    },
+    {
+      "id": "P005-F08",
+      "registro": {
+        "idAuditoria": "108",
+        "tipoFisico": "TABELA_COBRANCA",
+        "registroIdDecimalExato": "7",
+        "acao": "ENCERRAMENTO_VIGENCIA",
+        "dadosAntes": "{\"tipo\":\"TABELA\",\"id\":7,\"versao\":0,\"inicio\":\"2026-01-01\",\"fim\":\"2026-10-09\"}",
+        "dadosDepois": "{\"resultado\":{\"tipo\":\"TABELA\",\"id\":7,\"versao\":0,\"inicio\":\"2026-01-01\",\"fim\":\"2026-10-09\"},\"resolucao\":{\"tipo\":\"FECHAMENTO_COBRANCA\",\"id\":7}}"
+      },
+      "esperado": {
+        "tipoLogico": "TABELA_COBRANCA",
+        "justificativa": "Discriminador e id consistentes da tabela."
+      },
+      "criterios": [
+        "005-C03",
+        "005-C04",
+        "005-C05",
+        "005-C06",
+        "005-C08"
+      ],
+      "estado": "FIXTURE_CRITERIO_NAO_EXECUTADA_NA_APLICACAO"
+    },
+    {
+      "id": "P005-F09",
+      "registro": {
+        "idAuditoria": "109",
+        "tipoFisico": "CONTRATO_COBRANCA",
+        "registroIdDecimalExato": "7",
+        "acao": "ENCERRAMENTO_VIGENCIA",
+        "dadosAntes": "{\"tipo\":\"CONTRATO\",\"id\":7,\"versao\":0,\"inicio\":\"2026-01-01\",\"fim\":\"2026-10-09\"}",
+        "dadosDepois": "{\"resultado\":{\"tipo\":\"CONTRATO\",\"id\":7,\"versao\":0,\"inicio\":\"2026-01-01\",\"fim\":\"2026-10-09\"},\"resolucao\":{\"tipo\":\"FECHAMENTO_COBRANCA\",\"id\":7}}"
+      },
+      "esperado": {
+        "tipoLogico": "CONTRATO_COBRANCA",
+        "justificativa": "Discriminador e id consistentes do contrato."
+      },
+      "criterios": [
+        "005-C03",
+        "005-C04",
+        "005-C05",
+        "005-C06",
+        "005-C08"
+      ],
+      "estado": "FIXTURE_CRITERIO_NAO_EXECUTADA_NA_APLICACAO"
+    },
+    {
+      "id": "P005-F10",
+      "registro": {
+        "idAuditoria": "110",
+        "tipoFisico": "TABELA_COBRANCA",
+        "registroIdDecimalExato": "7",
+        "acao": "ENCERRAMENTO_VIGENCIA",
+        "dadosAntes": null,
+        "dadosDepois": null
+      },
+      "esperado": {
+        "tipoLogico": "LEGADO_NAO_ATRIBUIDO",
+        "justificativa": "Sem discriminador de encerramento, não atribuir por carrier/id."
+      },
+      "criterios": [
+        "005-C03",
+        "005-C04",
+        "005-C05",
+        "005-C06",
+        "005-C08"
+      ],
+      "estado": "FIXTURE_CRITERIO_NAO_EXECUTADA_NA_APLICACAO"
+    },
+    {
+      "id": "P005-F11",
+      "registro": {
+        "idAuditoria": "111",
+        "tipoFisico": "TABELA_COBRANCA",
+        "registroIdDecimalExato": "7",
+        "acao": "ENCERRAMENTO_VIGENCIA",
+        "dadosAntes": null,
+        "dadosDepois": "{malformed"
+      },
+      "esperado": {
+        "tipoLogico": "LEGADO_NAO_ATRIBUIDO",
+        "justificativa": "JSON inválido não prova entidade."
+      },
+      "criterios": [
+        "005-C03",
+        "005-C04",
+        "005-C05",
+        "005-C06",
+        "005-C08"
+      ],
+      "estado": "FIXTURE_CRITERIO_NAO_EXECUTADA_NA_APLICACAO"
+    },
+    {
+      "id": "P005-F12",
+      "registro": {
+        "idAuditoria": "112",
+        "tipoFisico": "TABELA_COBRANCA",
+        "registroIdDecimalExato": "7",
+        "acao": "ENCERRAMENTO_VIGENCIA",
+        "dadosAntes": "{\"tipo\":\"VINCULO\",\"id\":7,\"versao\":0,\"inicio\":\"2026-01-01\",\"fim\":\"2026-10-09\"}",
+        "dadosDepois": "{\"resultado\":{\"tipo\":\"TABELA\",\"id\":7,\"versao\":0,\"inicio\":\"2026-01-01\",\"fim\":\"2026-10-09\"},\"resolucao\":{\"tipo\":\"FECHAMENTO_COBRANCA\",\"id\":7}}"
+      },
+      "esperado": {
+        "tipoLogico": "LEGADO_NAO_ATRIBUIDO",
+        "justificativa": "Antes vínculo / depois tabela é contradição."
+      },
+      "criterios": [
+        "005-C03",
+        "005-C04",
+        "005-C05",
+        "005-C06",
+        "005-C08"
+      ],
+      "estado": "FIXTURE_CRITERIO_NAO_EXECUTADA_NA_APLICACAO"
+    },
+    {
+      "id": "P005-F13",
+      "registro": {
+        "idAuditoria": "113",
+        "tipoFisico": "TABELA_COBRANCA",
+        "registroIdDecimalExato": "7",
+        "acao": "ENCERRAMENTO_VIGENCIA",
+        "dadosAntes": "{\"tipo\":\"VINCULO\",\"id\":8,\"versao\":0,\"inicio\":\"2026-01-01\",\"fim\":\"2026-10-09\"}",
+        "dadosDepois": "{\"resultado\":{\"tipo\":\"VINCULO\",\"id\":7,\"versao\":0,\"inicio\":\"2026-01-01\",\"fim\":\"2026-10-09\"},\"resolucao\":{\"tipo\":\"FECHAMENTO_COBRANCA\",\"id\":7}}"
+      },
+      "esperado": {
+        "tipoLogico": "LEGADO_NAO_ATRIBUIDO",
+        "justificativa": "ID antes diverge de registro_id."
+      },
+      "criterios": [
+        "005-C03",
+        "005-C04",
+        "005-C05",
+        "005-C06",
+        "005-C08"
+      ],
+      "estado": "FIXTURE_CRITERIO_NAO_EXECUTADA_NA_APLICACAO"
+    },
+    {
+      "id": "P005-F14",
+      "registro": {
+        "idAuditoria": "114",
+        "tipoFisico": "TABELA_COBRANCA",
+        "registroIdDecimalExato": "7",
+        "acao": "ENCERRAMENTO_VIGENCIA",
+        "dadosAntes": "{\"tipo\":\"VINCULO\",\"id\":7,\"versao\":0,\"inicio\":\"2026-01-01\",\"fim\":\"2026-10-09\"}",
+        "dadosDepois": "{\"resultado\":{\"tipo\":\"VINCULO\",\"id\":8,\"versao\":0,\"inicio\":\"2026-01-01\",\"fim\":\"2026-10-09\"},\"resolucao\":{\"tipo\":\"FECHAMENTO_COBRANCA\",\"id\":7}}"
+      },
+      "esperado": {
+        "tipoLogico": "LEGADO_NAO_ATRIBUIDO",
+        "justificativa": "ID depois diverge de registro_id."
+      },
+      "criterios": [
+        "005-C03",
+        "005-C04",
+        "005-C05",
+        "005-C06",
+        "005-C08"
+      ],
+      "estado": "FIXTURE_CRITERIO_NAO_EXECUTADA_NA_APLICACAO"
+    },
+    {
+      "id": "P005-F15",
+      "registro": {
+        "idAuditoria": "115",
+        "tipoFisico": "CONTRATO_COBRANCA",
+        "registroIdDecimalExato": "7",
+        "acao": "ENCERRAMENTO_VIGENCIA",
+        "dadosAntes": null,
+        "dadosDepois": "{\"tipoRegistro\":\"VINCULO_COBRANCA\",\"registroId\":7,\"resultado\":{\"tipo\":\"CONTRATO\",\"id\":7,\"versao\":0,\"inicio\":\"2026-01-01\",\"fim\":\"2026-10-09\"}}"
+      },
+      "esperado": {
+        "tipoLogico": "LEGADO_NAO_ATRIBUIDO",
+        "justificativa": "Envelope vínculo contradiz tipo interno contrato."
+      },
+      "criterios": [
+        "005-C03",
+        "005-C04",
+        "005-C05",
+        "005-C06",
+        "005-C08"
+      ],
+      "estado": "FIXTURE_CRITERIO_NAO_EXECUTADA_NA_APLICACAO"
+    },
+    {
+      "id": "P005-F16",
+      "registro": {
+        "idAuditoria": "116",
+        "tipoFisico": "CONTRATO_COBRANCA",
+        "registroIdDecimalExato": "7",
+        "acao": "ENCERRAMENTO_VIGENCIA",
+        "dadosAntes": null,
+        "dadosDepois": "{\"tipoRegistro\":\"VINCULO_COBRANCA\",\"registroId\":8,\"resultado\":{\"tipo\":\"VINCULO\",\"id\":7,\"versao\":0,\"inicio\":\"2026-01-01\",\"fim\":\"2026-10-09\"}}"
+      },
+      "esperado": {
+        "tipoLogico": "LEGADO_NAO_ATRIBUIDO",
+        "justificativa": "Envelope id8 contradiz registro e resultado id7."
+      },
+      "criterios": [
+        "005-C03",
+        "005-C04",
+        "005-C05",
+        "005-C06",
+        "005-C08"
+      ],
+      "estado": "FIXTURE_CRITERIO_NAO_EXECUTADA_NA_APLICACAO"
+    },
+    {
+      "id": "P005-F17",
+      "registro": {
+        "idAuditoria": "117",
+        "tipoFisico": "CONTRATO_COBRANCA",
+        "registroIdDecimalExato": "7",
+        "acao": "ENCERRAMENTO_VIGENCIA",
+        "dadosAntes": null,
+        "dadosDepois": "{\"tipo\":\"VINCULO\",\"id\":7,\"resultado\":{\"tipo\":\"TABELA\",\"id\":7}}"
+      },
+      "esperado": {
+        "tipoLogico": "LEGADO_NAO_ATRIBUIDO",
+        "justificativa": "Raiz e wrapper em conflito não admitem first-match."
+      },
+      "criterios": [
+        "005-C03",
+        "005-C04",
+        "005-C05",
+        "005-C06",
+        "005-C08"
+      ],
+      "estado": "FIXTURE_CRITERIO_NAO_EXECUTADA_NA_APLICACAO"
+    },
+    {
+      "id": "P005-F18",
+      "registro": {
+        "idAuditoria": "118",
+        "tipoFisico": "TABELA_COBRANCA",
+        "registroIdDecimalExato": "7",
+        "acao": "ENCERRAMENTO_VIGENCIA",
+        "dadosAntes": null,
+        "dadosDepois": "{\"resolucao\":{\"tipo\":\"VINCULO\",\"id\":7}}"
+      },
+      "esperado": {
+        "tipoLogico": "LEGADO_NAO_ATRIBUIDO",
+        "justificativa": "resolucao não identifica cadastro."
+      },
+      "criterios": [
+        "005-C03",
+        "005-C04",
+        "005-C05",
+        "005-C06",
+        "005-C08"
+      ],
+      "estado": "FIXTURE_CRITERIO_NAO_EXECUTADA_NA_APLICACAO"
+    },
+    {
+      "id": "P005-F19",
+      "registro": {
+        "idAuditoria": "119",
+        "tipoFisico": "TABELA_COBRANCA",
+        "registroIdDecimalExato": "7",
+        "acao": "ENCERRAMENTO_VIGENCIA",
+        "dadosAntes": null,
+        "dadosDepois": "{\"resultado\":[]}"
+      },
+      "esperado": {
+        "tipoLogico": "LEGADO_NAO_ATRIBUIDO",
+        "justificativa": "Forma desconhecida, não objeto de vigência."
+      },
+      "criterios": [
+        "005-C03",
+        "005-C04",
+        "005-C05",
+        "005-C06",
+        "005-C08"
+      ],
+      "estado": "FIXTURE_CRITERIO_NAO_EXECUTADA_NA_APLICACAO"
+    },
+    {
+      "id": "P005-F20",
+      "registro": {
+        "idAuditoria": "120",
+        "tipoFisico": "TABELA_COBRANCA",
+        "registroIdDecimalExato": "7",
+        "acao": "ENCERRAMENTO_VIGENCIA",
+        "dadosAntes": null,
+        "dadosDepois": "{\"tipo\":\"VINCULO\",\"id\":7.5}"
+      },
+      "esperado": {
+        "tipoLogico": "LEGADO_NAO_ATRIBUIDO",
+        "justificativa": "ID fracionário não é Long."
+      },
+      "criterios": [
+        "005-C03",
+        "005-C04",
+        "005-C05",
+        "005-C06",
+        "005-C08"
+      ],
+      "estado": "FIXTURE_CRITERIO_NAO_EXECUTADA_NA_APLICACAO"
+    },
+    {
+      "id": "P005-F21",
+      "registro": {
+        "idAuditoria": "121",
+        "tipoFisico": "TABELA_COBRANCA",
+        "registroIdDecimalExato": "7",
+        "acao": "ENCERRAMENTO_VIGENCIA",
+        "dadosAntes": null,
+        "dadosDepois": "{\"tipo\":\"VINCULO\",\"id\":9223372036854775808}"
+      },
+      "esperado": {
+        "tipoLogico": "LEGADO_NAO_ATRIBUIDO",
+        "justificativa": "Acima Long.MAX, sem arredondar/fallback."
+      },
+      "criterios": [
+        "005-C03",
+        "005-C04",
+        "005-C05",
+        "005-C06",
+        "005-C08"
+      ],
+      "estado": "FIXTURE_CRITERIO_NAO_EXECUTADA_NA_APLICACAO"
+    },
+    {
+      "id": "P005-F22",
+      "registro": {
+        "idAuditoria": "122",
+        "tipoFisico": "CONTRATO_COBRANCA",
+        "registroIdDecimalExato": "9007199254740993",
+        "acao": "VINCULO_TABELA",
+        "dadosAntes": null,
+        "dadosDepois": "{\"tipoRegistro\":\"VINCULO_COBRANCA\",\"registroId\":9007199254740993,\"resultado\":{\"id\":9007199254740993,\"versao\":0,\"clienteId\":1,\"armazemId\":1,\"tabelaId\":7,\"vigenciaInicio\":\"2026-01-01\",\"vigenciaFim\":null}}"
+      },
+      "esperado": {
+        "tipoLogico": "VINCULO_COBRANCA",
+        "justificativa": "Long acima2^53 mantém igualdade exata."
+      },
+      "criterios": [
+        "005-C03",
+        "005-C04",
+        "005-C05",
+        "005-C06",
+        "005-C08"
+      ],
+      "estado": "FIXTURE_CRITERIO_NAO_EXECUTADA_NA_APLICACAO"
+    },
+    {
+      "id": "P005-F23",
+      "registro": {
+        "idAuditoria": "123",
+        "tipoFisico": "TABELA_COBRANCA",
+        "registroIdDecimalExato": "9223372036854775807",
+        "acao": "ENCERRAMENTO_VIGENCIA",
+        "dadosAntes": "{\"tipo\":\"VINCULO\",\"id\":9223372036854775807,\"versao\":0,\"inicio\":\"2026-01-01\",\"fim\":\"2026-10-09\"}",
+        "dadosDepois": "{\"resultado\":{\"tipo\":\"VINCULO\",\"id\":9223372036854775807,\"versao\":0,\"inicio\":\"2026-01-01\",\"fim\":\"2026-10-09\"},\"resolucao\":{\"tipo\":\"FECHAMENTO_COBRANCA\",\"id\":7}}"
+      },
+      "esperado": {
+        "tipoLogico": "VINCULO_COBRANCA",
+        "justificativa": "Long.MAX_VALUE sem coerção JS Number."
+      },
+      "criterios": [
+        "005-C03",
+        "005-C04",
+        "005-C05",
+        "005-C06",
+        "005-C08"
+      ],
+      "estado": "FIXTURE_CRITERIO_NAO_EXECUTADA_NA_APLICACAO"
+    },
+    {
+      "id": "P005-F24",
+      "registro": {
+        "idAuditoria": "124",
+        "tipoFisico": "CONTRATO_COBRANCA",
+        "registroIdDecimalExato": "9007199254740993",
+        "acao": "ENCERRAMENTO_VIGENCIA",
+        "dadosAntes": null,
+        "dadosDepois": "{\"tipoRegistro\":\"VINCULO_COBRANCA\",\"registroId\":9007199254740993,\"resultado\":{\"tipo\":\"VINCULO\",\"id\":9007199254740992,\"versao\":0,\"inicio\":\"2026-01-01\",\"fim\":\"2026-10-09\"}}"
+      },
+      "esperado": {
+        "tipoLogico": "LEGADO_NAO_ATRIBUIDO",
+        "justificativa": "Inteiros consecutivos acima2^53 continuam distintos."
+      },
+      "criterios": [
+        "005-C03",
+        "005-C04",
+        "005-C05",
+        "005-C06",
+        "005-C08"
+      ],
+      "estado": "FIXTURE_CRITERIO_NAO_EXECUTADA_NA_APLICACAO"
+    },
+    {
+      "id": "P005-F25",
+      "registro": {
+        "idAuditoria": "125",
+        "tipoFisico": "CONTRATO_COBRANCA",
+        "registroIdDecimalExato": "7",
+        "acao": "VINCULO_TABELA",
+        "dadosAntes": "{\"id\":7,\"versao\":0,\"clienteId\":1,\"armazemId\":1,\"tabelaId\":7,\"vigenciaInicio\":\"2026-01-01\",\"vigenciaFim\":null}",
+        "dadosDepois": "{malformed"
+      },
+      "esperado": {
+        "tipoLogico": "LEGADO_NAO_ATRIBUIDO",
+        "justificativa": "Payload presente inválido não deve fabricar associação normalizada. Conferir regra de compatibilidade aprovada."
+      },
+      "criterios": [
+        "005-C03",
+        "005-C04",
+        "005-C05",
+        "005-C06",
+        "005-C08"
+      ],
+      "estado": "FIXTURE_CRITERIO_NAO_EXECUTADA_NA_APLICACAO"
+    },
+    {
+      "id": "P005-F26",
+      "natureza": "PAGINACAO_SINTETICA_CRITERIO",
+      "pagina": 0,
+      "tamanho": 1,
+      "candidatosEmOrdemRecebida": [
+        {
+          "idAuditoria": "104",
+          "classe": "VINCULO_COBRANCA"
+        },
+        {
+          "idAuditoria": "100",
+          "classe": "CONTRATO_COBRANCA"
+        },
+        {
+          "idAuditoria": "103",
+          "classe": "LEGADO_NAO_ATRIBUIDO"
+        },
+        {
+          "idAuditoria": "102",
+          "classe": "TABELA_COBRANCA"
+        },
+        {
+          "idAuditoria": "101",
+          "classe": "VINCULO_COBRANCA"
+        }
+      ],
+      "esperado": {
+        "confirmadosOrdenados": [
+          "101",
+          "104"
+        ],
+        "totalElementsConfirmados": 2,
+        "totalPagesTamanho1": 2,
+        "paginas": [
+          [
+            "101"
+          ],
+          [
+            "104"
+          ],
+          []
+        ],
+        "legadoOrdenado": [
+          "103"
+        ],
+        "totalElementsLegado": 1
+      },
+      "efeito": "Classificar antes de count/paginação, sem OR por ID nem filtrar apenas a primeira página física.",
+      "estado": "FIXTURE_CRITERIO_NAO_EXECUTADA_NA_APLICACAO"
+    }
+  ],
+  "limites": [
+    "F25 exige conferir política concreta de malformed para ação exclusiva; não aceitar contradições por first-match.",
+    "Ausência/malformação de payload físico legado não informa quantos registros reais existem.",
+    "Fonte SQL usada somente como texto; CHECK nativo não executado."
+  ]
+}

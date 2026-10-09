@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { stringifyExact, toWire } from "../src/contracts/codec";
 import { AuthClient, type User } from "../src/auth/client";
 import { LoginPage, PasswordPage } from "../src/auth/LoginPage";
 import { UsersPage } from "../src/auth/UsersPage";
@@ -15,7 +16,7 @@ const user: User = {
     trocarSenha: false,
     clientes: [],
     armazens: [],
-    versao: 0,
+    versao: "0",
 };
 const csrf = () =>
     new Response(
@@ -24,10 +25,10 @@ const csrf = () =>
     );
 const tokens = () =>
     new Response(
-        JSON.stringify({
+        stringifyExact({
             accessToken: "jwt-fixture",
             expiresIn: 300,
-            usuario: user,
+            usuario: { ...user, versao: toWire("long", user.versao) },
         }),
         { status: 200 },
     );
@@ -39,16 +40,36 @@ afterEach(() => {
 
 describe("login real", () => {
     it.each([
-        ["Fixture-atual-123!", "A nova senha precisa ser diferente da senha atual."],
+        [
+            "Fixture-atual-123!",
+            "A nova senha precisa ser diferente da senha atual.",
+        ],
         ["curta", "A nova senha precisa ter de 12 a 128 caracteres."],
     ])("explica senha invalida antes de enviar: %s", async (next, message) => {
         const auth = new AuthClient();
         const change = vi.spyOn(auth, "changePassword");
-        render(<PasswordPage auth={auth} required onChanged={vi.fn()} onCancel={vi.fn()} />);
-        fireEvent.change(screen.getByLabelText("Senha atual"), { target: { value: "Fixture-atual-123!" } });
-        fireEvent.change(screen.getByLabelText("Nova senha"), { target: { value: next } });
-        fireEvent.change(screen.getByLabelText("Repita a nova senha"), { target: { value: next } });
-        fireEvent.submit(screen.getByRole("button", { name: "Salvar nova senha" }).closest("form")!);
+        render(
+            <PasswordPage
+                auth={auth}
+                required
+                onChanged={vi.fn()}
+                onCancel={vi.fn()}
+            />,
+        );
+        fireEvent.change(screen.getByLabelText("Senha atual"), {
+            target: { value: "Fixture-atual-123!" },
+        });
+        fireEvent.change(screen.getByLabelText("Nova senha"), {
+            target: { value: next },
+        });
+        fireEvent.change(screen.getByLabelText("Repita a nova senha"), {
+            target: { value: next },
+        });
+        fireEvent.submit(
+            screen
+                .getByRole("button", { name: "Salvar nova senha" })
+                .closest("form")!,
+        );
         expect(await screen.findByRole("alert")).toHaveTextContent(message);
         expect(change).not.toHaveBeenCalled();
     });
@@ -158,7 +179,7 @@ describe("login real", () => {
             content: [{ ...user, principal: true }],
             number: 0,
             totalPages: 1,
-            totalElements: 1,
+            totalElements: "1",
         });
         const create = vi
             .spyOn(auth, "create")
@@ -186,9 +207,10 @@ describe("login real", () => {
                     administrador: true,
                     perfil: "OPERACAO",
                 }),
+                expect.any(AbortSignal),
             ),
         );
-        expect(await screen.findByRole("status")).toHaveTextContent(
+        expect(await screen.findByText(/Usuário criado\./)).toHaveTextContent(
             "primeiro acesso",
         );
     });
