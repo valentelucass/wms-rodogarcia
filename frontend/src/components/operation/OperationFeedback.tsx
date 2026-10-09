@@ -42,7 +42,7 @@ export function OperationFeedback({ state: s }: { state: OperationState }) {
                     )}
                 </>
             )}
-            {s.receipt && (
+            {s.receipt && !s.pending && (
                 <p>
                     {s.receipt.ficticio
                         ? "Resposta FICTÍCIA de exercício recebida."

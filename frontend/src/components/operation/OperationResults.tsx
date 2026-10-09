@@ -16,6 +16,8 @@ export function OperationResults({
     onSelect,
     onContinue,
     collector = false,
+    pending = false,
+    onPage,
 }: {
     id: string;
     receipt: Receipt;
@@ -23,10 +25,17 @@ export function OperationResults({
     onSelect: (v: Values, type: string) => void;
     onContinue?: (next: NextAction) => void;
     collector?: boolean;
+    pending?: boolean;
+    onPage?: (page: number) => void;
 }) {
     const next = dispatchContinuation(id, receipt, nextActions[id]);
     return (
         <div className="results">
+            <h4 className="results-heading">
+                {pending
+                    ? "Resultado anterior · aguardando atualização"
+                    : "Resultado da operação"}
+            </h4>
             {id.startsWith("ImportacaoEnderecoController.") && (
                 <ImportPreview data={receipt.data} />
             )}
@@ -37,7 +46,13 @@ export function OperationResults({
                     onSelect={onSelect}
                 />
             ) : (
-                <Result data={receipt.data} type={type} onSelect={onSelect} />
+                <Result
+                    data={receipt.data}
+                    type={type}
+                    onSelect={onSelect}
+                    onPage={onPage}
+                    pending={pending}
+                />
             )}
             {id === "UnidadeLogisticaController.etiqueta" && (
                 <LabelPreview data={receipt.data} />

@@ -1,5 +1,37 @@
 # Decisões e pendências do WMS Rodogarcia
 
+## FE02-DS01-A03 / FE02-DS02-A01 — preferência salva e destaque textual, 09/10/2026
+
+Lucas corrigiu expressamente a política de tema: detectar o sistema no primeiro acesso sem escolha salva e respeitar Light/Dark escolhido nos próximos acessos. Essa decisão substitui a reinicialização por dispositivo de A02, mantendo o botão sol/lua. Definição em [etapa-01.md](design-system/etapa-01.md#temas). Pediu também remover o destaque em torno das ações de ajuda; o ajuste A01 mantém somente sublinhado do texto e foco por teclado, descrito em [etapa-02.md](design-system/etapa-02.md). Mesmo escopo visual, sem mudança de autenticação.
+
+## FE02-DS02 — login, topo e rodapé, 09/10/2026
+
+Lucas pediu melhorar o login e seu card, alinhar e completar o cabeçalho e acrescentar rodapé com suas informações encontradas nos outros projetos da pasta `projetos`. Na mesma entrega, pediu login sem rolagem, correção da apresentação dos erros, ajuda sem movimento da tela e troca do ícone de suporte. Autorizada a alteração visual local com a fundação FE02-DS01-A02, mantendo contratos e autenticação D32. Fontes visuais consultadas em leitura confirmam Lucas Andrade, LinkedIn `dev-lucasandrade` e suporte `lucasmac.dev@gmail.com`. Composição, informações, conferência e origem das adaptações estão em [etapa-02.md](design-system/etapa-02.md). Consulta a rodapés não concede acesso a bancos, processos ou integrações desses projetos.
+
+## FE02-DEV-CON02 — correção do prazo solicitada em 09/10/2026
+
+Lucas pediu expressamente corrigir a expiração. Cliente WMS DEV passa de30 para120s de abertura SQL; launcher passa de90 para240s para a guarda completa, com andamento a cada10s. Política central em `infra/dev/espera-conexao.ps1`, consumida pelos dois auxiliares. Inclui verificação local e uma guarda atual pelo canal próprio WMS_DEV/WMSDEV; não altera servidor, TLS, direitos ou regra de conexão única. O prazo maior é um ajuste do cliente e não uma conclusão sobre a causa da indisponibilidade.
+
+**Resultado:**27 casos locais aprovados; a única abertura real nova expirou após120,19s, com consultas0. Metadados de acesso ao ERRORLOG recusados por SecurityException; causa não comprovada. [Evidências e encaminhamento](../orchestracao/.runtime/dev-conexao-20261009-con02-resultado.json). Não declarar disponibilidade resolvida nem iniciar outra tentativa automaticamente.
+
+## VALID-LOGIN-CAD01 — SQL aprovado; validação real parcial por sessão inacessível, 09/10/2026
+
+**BE04-COR01-DEV01 → FE03-COR01-DEV01 parcial real revisado:** reaproveitado run existente8fa3c9e6722b4170898dc66aabfa044f, frontend http://127.0.0.1:25581, BE72644/25580 e FE70328/25581 com JAR corrigido99128/configD415/preparo947D. Guarda3293 confirmou WMS_DEV/WMSDEV/TLSMandatory/trustServerCertificatefalse,26/26critérios/permissões/catálogo/V1–V11, uma Open215,5245ms e12SELECTmetadados, zero negócio. SQLPID48480/início18:31:41Z e confiança existente atual conferidos; nenhuma outraBAT/Open/renovação ou intervenção em processo nesta retomada. Relato Lucas preservado; CON02/E7B204 permanecem históricos, sem bloqueioSQL corrente diante destePASS datado.
+
+Lume observou realmente18:46:53–57UTC: statusAPI200, usuários anônimo401, CSS/Inter/foco/clique/Tab/Enter1440+390,24asserções públicas aprovadas sem mock/interceptação. CSRF200/renovação automática403,0pageerror/CSP e1consolemetadata sem texto; causa do403 não inferida. Chrome próprio encerrado, servidores preservados. Deltas visuais externos durante/depois da prova qualificados; DOM/capturas datados, sem freeze geral ou equivalência integral posterior.
+
+**7 locais aprovados preservados/0 critérios integrais operacionais reais:** não disponível à equipe sessão WMS própria autenticada; hash bootstrap não recupera senha. Workspace006, Users007 e demais jornadas protegidas não executados. Login nativo D32/DEV07 existe; não retomar proposta histórica Keycloak/BFF. Link loopback é superfície técnica, modo tunnel/Secure preservado; entrada HTTPS operacional e sessão não comprovadas por status/listener. Long gigante/201null/corrida específica continuam complementos locais, sem injeção no banco/API.
+
+[Recibo atual e limites por001–007](../orchestracao/.runtime/login-cadastros-validacao-dev-resultado.md), [JSON/hashes](../orchestracao/.runtime/login-cadastros-validacao-dev-resultado.json), [parecer independente](../orchestracao/.runtime/login-cadastros-validacao-dev/vigia/parecer-retomada-02.md), [prova pública real](../orchestracao/.runtime/login-cadastros-validacao-dev/lume/browser-publico-real02/resultado.json) e [parcial anterior literal](../orchestracao/.runtime/login-cadastros-validacao-dev/retomada-20261009T183735Z/historico/login-cadastros-validacao-dev-resultado.md). Prumo ambiente/guarda; Cedro fonte/JAR/API; Lume browser; Vigia confronto independente; Farol consolidação. Nenhum material novo demonstrado, sem homologação operacional001–007/roundtrip de negócio.
+
+**Atualização após disponibilização da conta:** Lucas confirmou login real funcionando; CUA do Farol retornou apps[]/browsers[]/zero abas acessíveis. Não há contradição com sessão existente no computador. [Observação deste acesso](../orchestracao/.runtime/login-cadastros-validacao-dev/sessao-disponibilizada-20261009T192151Z/resultado.md); nenhuma senha usada/lida/registrada, nenhuma API/SQL/guarda/app nova. Perfil/alcance da conta ainda não observado, sem autorização de escrita por inferência.
+
+**Próximo encaminhamento único:** disponibilizar ao CUA nesta sessão a aba HTTPS WMS já autenticada. Origem técnica conhecida http://127.0.0.1:25581; URLHTTPS da aba não foi exposta à ferramenta. Novo login somente interativo pelo usuário/vault, sem senha de chat/terminal. Guarda/provas anteriores datadas preservadas,0/7operacionais nesta rodada. Sem perfil anônimo/cópia de sessão/alteração de senha/perfil/scopes/dados/provider/SQLfixture ou nova rodada automática; aguardar acesso legítimo/Lucas.
+
+## FE02-DEV-CON01 — relato de falha na abertura DEV, 09/10/2026
+
+**Observação, sem nova decisão de ambiente:** Lucas apresentou timeout do launcher no run `874b0c4b965c4e9f831487a48ec94acd`. Revisão de recibos/código e metadados Windows confirma abertura expirada após30,2s, sem consultas ou aplicação iniciada; causa ainda não demonstrada. [Evidências e próximo encaminhamento](../orchestracao/.runtime/dev-conexao-20261009-874b0c4b.md). Preservar limite existente de não repetir sondas após falha de transporte e não mudar SQL Server/runtime; o relato não autoriza reinício ou alteração global.
+
 ## CORR-LOGIN-CAD01 — sete correções concluídas e revisadas localmente, 09/10/2026
 
 **BE04-COR01 → FE03-COR01 concluídos no recorte autorizado:** AUD-CONS-001 a007 corrigidos e revisados independentemente; nenhum achado material local aberto nesta entrega. Login próprio D32/DEV07 e incrementos DS01 preservados. Cedro backend004/005; Lume AUTH/UI e leitores005; Prumo contratos/persistência em arquivo; Vigia revisão; Farol consolidação/canônicos. Atalho006 já corrigido pela frente DS01, com autoria externa preservada e handler atual idêntico por diff.

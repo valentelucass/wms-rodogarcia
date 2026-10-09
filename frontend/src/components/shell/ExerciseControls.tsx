@@ -2,7 +2,10 @@ import type { ExerciseSession } from "../../hooks/useExerciseSession";
 import type { Scenario } from "../../api/fictitious";
 export function ExerciseControls({ session: s }: { session: ExerciseSession }) {
     return (
-        <footer>
+        <section
+            className="exercise-controls"
+            aria-label="Controles do exercício fictício"
+        >
             <label>
                 Resposta do exercício fictício
                 <select
@@ -29,6 +32,6 @@ export function ExerciseControls({ session: s }: { session: ExerciseSession }) {
                 Dados somente em memória. Recarregar encerra o exercício.
                 Nenhuma sincronização offline.
             </p>
-        </footer>
+        </section>
     );
 }

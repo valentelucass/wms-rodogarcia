@@ -1,11 +1,10 @@
 import { chooseTheme } from "./theme-controls";
 import { test, expect } from "./support";
 
-test("FE02-DS01-A02 inicia pelo sistema e alterna com um único botão circular", async ({
+test("FE02-DS01-A03 inicia pelo sistema e preserva a escolha manual entre acessos e abas", async ({
     page,
     context,
 }) => {
-    await page.addInitScript(() => localStorage.setItem("wms.theme", "light"));
     await page.emulateMedia({ colorScheme: "dark" });
     await page.goto("/");
     const root = page.locator("html");
@@ -35,22 +34,90 @@ test("FE02-DS01-A02 inicia pelo sistema e alterna com um único botão circular"
     await page.keyboard.press("Enter");
     await expect(root).toHaveAttribute("data-og-theme", "light");
     await expect(root).toHaveAttribute("data-wms-theme-preference", "light");
+    expect(await page.evaluate(() => localStorage.getItem("wms.theme"))).toBe(
+        "light",
+    );
     await page.emulateMedia({ colorScheme: "light" });
     await page.emulateMedia({ colorScheme: "dark" });
     await expect(root).toHaveAttribute("data-og-theme", "light");
+    await page.reload();
+    await expect(root).toHaveAttribute("data-og-theme", "light");
+    await expect(root).toHaveAttribute("data-wms-theme-preference", "light");
     const second = await context.newPage();
     await second.emulateMedia({ colorScheme: "light" });
     await second.goto("/");
+    await expect(second.locator("html")).toHaveAttribute(
+        "data-wms-theme-preference",
+        "light",
+    );
     await chooseTheme(second, "dark");
-    await expect(root).toHaveAttribute("data-og-theme", "light");
+    await expect(root).toHaveAttribute("data-og-theme", "dark");
     await page.reload();
     await expect(root).toHaveAttribute("data-og-theme", "dark");
-    await expect(root).toHaveAttribute("data-wms-theme-preference", "system");
+    await expect(root).toHaveAttribute("data-wms-theme-preference", "dark");
     await page.emulateMedia({ colorScheme: "light" });
-    await expect(root).toHaveAttribute("data-og-theme", "light");
+    await expect(root).toHaveAttribute("data-og-theme", "dark");
     await page.emulateMedia({ colorScheme: "dark" });
     await expect(root).toHaveAttribute("data-og-theme", "dark");
     await second.close();
+});
+
+for (const [preference, system] of [
+    ["light", "dark"],
+    ["dark", "light"],
+] as const) {
+    test(`FE02-DS01-A03 escolha ${preference} salva prevalece sobre sistema ${system}`, async ({
+        page,
+    }) => {
+        await page.addInitScript(
+            (value) => localStorage.setItem("wms.theme", value),
+            preference,
+        );
+        await page.emulateMedia({ colorScheme: system });
+        await page.goto("/");
+        await expect(page.locator("html")).toHaveAttribute(
+            "data-og-theme",
+            preference,
+        );
+        await expect(page.locator("html")).toHaveAttribute(
+            "data-wms-theme-preference",
+            preference,
+        );
+        await page.emulateMedia({ colorScheme: preference });
+        await page.emulateMedia({ colorScheme: system });
+        await expect(page.locator("html")).toHaveAttribute(
+            "data-og-theme",
+            preference,
+        );
+        await page.reload();
+        await expect(page.locator("html")).toHaveAttribute(
+            "data-og-theme",
+            preference,
+        );
+    });
+}
+
+test("FE02-DS01-A03 preferência inválida usa o sistema sem apagar outros dados", async ({
+    page,
+}) => {
+    await page.addInitScript(() => {
+        localStorage.setItem("wms.theme", "invalid");
+        localStorage.setItem("wms.example", "preservar");
+    });
+    await page.emulateMedia({ colorScheme: "dark" });
+    await page.goto("/");
+    await expect(page.locator("html")).toHaveAttribute("data-og-theme", "dark");
+    await expect(page.locator("html")).toHaveAttribute(
+        "data-wms-theme-preference",
+        "system",
+    );
+    await chooseTheme(page, "light");
+    expect(await page.evaluate(() => localStorage.getItem("wms.theme"))).toBe(
+        "light",
+    );
+    expect(await page.evaluate(() => localStorage.getItem("wms.example"))).toBe(
+        "preservar",
+    );
 });
 
 test("FE02-DS01 menu desktop preserva nomes, seleção e formulário ao trocar tema", async ({
@@ -139,7 +206,7 @@ test("FE02-DS01 drawer móvel fecha com Escape, contém foco e navega para conte
     ).toHaveAttribute("aria-current", "page");
 });
 
-test("FE02-DS01-A02 tema automático e botão funcionam sem armazenamento", async ({
+test("FE02-DS01-A03 tema automático e botão funcionam sem armazenamento", async ({
     page,
 }) => {
     await page.addInitScript(() => {

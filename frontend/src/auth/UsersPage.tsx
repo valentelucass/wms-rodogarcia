@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import type { AuthClient, User, UsersPage as Page } from "./client";
 import { AuthError } from "./client";
+import { PageHeader } from "../components/layout/PageHeader";
+import { Dialog } from "../components/layout/Dialog";
+import { Pagination } from "../components/layout/Pagination";
 
 export function UsersPage({
     auth,
@@ -149,25 +152,55 @@ export function UsersPage({
         }
     }
     const selected = editing && editing !== "new" ? editing : null;
+    const closeEditor = () => {
+        if (busy || needsCheck) return;
+        setEditing(null);
+        setReset(null);
+        setError("");
+    };
+    const editorTitle = reset
+        ? `Redefinir senha de ${reset.nome}`
+        : selected
+          ? `Editar ${selected.nome}`
+          : "Novo usuário";
     return (
         <section>
-            <h1>Usuários e acessos</h1>
-            <p>
-                Cadastre pessoas, defina suas permissões e redefina senhas
-                temporárias.
-            </p>
+            <PageHeader
+                title="Usuários e acessos"
+                icon="usuarios"
+                description="Cadastre pessoas, defina suas permissões e redefina senhas temporárias."
+                actions={
+                    <button
+                        type="button"
+                        className="primary"
+                        disabled={
+                            loading ||
+                            busy ||
+                            needsCheck ||
+                            !!editing ||
+                            !!reset
+                        }
+                        onClick={() => {
+                            setEditing("new");
+                            setError("");
+                        }}
+                    >
+                        Criar usuário
+                    </button>
+                }
+            />
             {message && <p role="status">{message}</p>}
-            {error && (
+            {error && !editing && !reset && (
                 <p role="alert" className="error">
                     {error}
                 </p>
             )}
-            {queryError && (
+            {queryError && !editing && !reset && (
                 <p role="alert" className="error">
                     {queryError}
                 </p>
             )}
-            {(queryError || needsCheck) && (
+            {(queryError || needsCheck) && !editing && !reset && (
                 <button
                     type="button"
                     disabled={loading || busy}
@@ -176,170 +209,179 @@ export function UsersPage({
                     Consultar novamente
                 </button>
             )}
-            {!editing && !reset && (
-                <button
-                    disabled={loading || busy || needsCheck}
-                    onClick={() => {
-                        setEditing("new");
-                        setError("");
-                    }}
-                >
-                    Criar usuário
-                </button>
-            )}
             {(editing || reset) && (
-                <form
-                    className="user-form"
-                    onSubmit={(e) => void save(e)}
-                    key={reset?.id ?? selected?.id ?? "new"}
+                <Dialog
+                    title={editorTitle}
+                    wide
+                    onClose={closeEditor}
+                    locked={busy || needsCheck}
                 >
-                    <h2>
-                        {reset
-                            ? `Redefinir senha de ${reset.nome}`
-                            : selected
-                              ? `Editar ${selected.nome}`
-                              : "Novo usuário"}
-                    </h2>
-                    <fieldset disabled={busy || needsCheck}>
-                        {!reset && (
-                            <>
-                                <label>
-                                    Nome
-                                    <input
-                                        name="nome"
-                                        required
-                                        maxLength={200}
-                                        defaultValue={selected?.nome}
-                                        autoFocus
-                                    />
-                                </label>
-                                {editing === "new" && (
-                                    <label>
-                                        E-mail
-                                        <input
-                                            name="email"
-                                            type="email"
-                                            required
-                                            maxLength={254}
-                                            autoComplete="off"
-                                        />
-                                    </label>
-                                )}
-                                <label>
-                                    Perfil operacional
-                                    <select
-                                        name="perfil"
-                                        defaultValue={
-                                            selected?.perfil ?? "OPERACAO"
-                                        }
-                                    >
-                                        <option value="OPERACAO">
-                                            Operação
-                                        </option>
-                                        <option value="SUPERVISOR">
-                                            Supervisor
-                                        </option>
-                                        <option value="GESTOR">Gestor</option>
-                                    </select>
-                                </label>
-                                <p>
-                                    Gestor tem acesso operacional a todos os
-                                    clientes e armazéns. Os demais perfis usam
-                                    os vínculos abaixo.
-                                </p>
-                                <label>
-                                    Clientes permitidos (IDs separados por
-                                    vírgulas)
-                                    <input
-                                        name="clientes"
-                                        defaultValue={selected?.clientes.join(
-                                            ", ",
-                                        )}
-                                        placeholder="Ex.: 1, 2"
-                                    />
-                                </label>
-                                <label>
-                                    Armazéns permitidos (IDs separados por
-                                    vírgulas)
-                                    <input
-                                        name="armazens"
-                                        defaultValue={selected?.armazens.join(
-                                            ", ",
-                                        )}
-                                        placeholder="Ex.: 1"
-                                    />
-                                </label>
-                                <p>
-                                    Para Operação e Supervisor, deixar os
-                                    vínculos vazios não libera nenhum cliente ou
-                                    armazém.
-                                </p>
-                                <label className="check-label">
-                                    <input
-                                        name="administrador"
-                                        type="checkbox"
-                                        defaultChecked={selected?.administrador}
-                                    />{" "}
-                                    Administrador de usuários
-                                </label>
-                                <p>
-                                    Permite criar e editar contas, conceder
-                                    administração e redefinir senhas de outros
-                                    usuários.
-                                </p>
-                                {selected && (
-                                    <label className="check-label">
-                                        <input
-                                            name="ativo"
-                                            type="checkbox"
-                                            defaultChecked={selected.ativo}
-                                        />{" "}
-                                        Acesso ativo
-                                    </label>
-                                )}
-                            </>
-                        )}
-                        {(reset || editing === "new") && (
-                            <label>
-                                Senha temporária
-                                <input
-                                    name="senhaTemporaria"
-                                    type="password"
-                                    autoComplete="new-password"
-                                    minLength={12}
-                                    maxLength={128}
-                                    required
-                                />
-                                <small>
-                                    De 12 a 128 caracteres. Entregue diretamente
-                                    ao usuário; ele deverá trocá-la.
-                                </small>
-                            </label>
-                        )}
-                        <button type="submit">
-                            {busy
-                                ? "Salvando…"
-                                : reset
-                                  ? "Confirmar nova senha temporária"
-                                  : "Salvar usuário"}
-                        </button>
+                    {error && (
+                        <p role="alert" className="error">
+                            {error}
+                        </p>
+                    )}
+                    {queryError && needsCheck && (
+                        <p role="alert">{queryError}</p>
+                    )}
+                    {needsCheck && (
                         <button
                             type="button"
-                            onClick={() => {
-                                setEditing(null);
-                                setReset(null);
-                                setError("");
-                            }}
+                            disabled={loading || busy}
+                            onClick={() => setRevision((v) => v + 1)}
                         >
-                            Cancelar
+                            Consultar novamente
                         </button>
-                    </fieldset>
-                </form>
+                    )}
+                    <form
+                        className="user-form"
+                        onSubmit={(e) => void save(e)}
+                        key={reset?.id ?? selected?.id ?? "new"}
+                    >
+                        <fieldset disabled={busy || needsCheck}>
+                            {!reset && (
+                                <>
+                                    <label>
+                                        Nome
+                                        <input
+                                            name="nome"
+                                            required
+                                            maxLength={200}
+                                            defaultValue={selected?.nome}
+                                            autoFocus
+                                        />
+                                    </label>
+                                    {editing === "new" && (
+                                        <label>
+                                            E-mail
+                                            <input
+                                                name="email"
+                                                type="email"
+                                                required
+                                                maxLength={254}
+                                                autoComplete="off"
+                                            />
+                                        </label>
+                                    )}
+                                    <label>
+                                        Perfil operacional
+                                        <select
+                                            name="perfil"
+                                            defaultValue={
+                                                selected?.perfil ?? "OPERACAO"
+                                            }
+                                        >
+                                            <option value="OPERACAO">
+                                                Operação
+                                            </option>
+                                            <option value="SUPERVISOR">
+                                                Supervisor
+                                            </option>
+                                            <option value="GESTOR">
+                                                Gestor
+                                            </option>
+                                        </select>
+                                    </label>
+                                    <p>
+                                        Gestor tem acesso operacional a todos os
+                                        clientes e armazéns. Os demais perfis
+                                        usam os vínculos abaixo.
+                                    </p>
+                                    <label>
+                                        Clientes permitidos (IDs separados por
+                                        vírgulas)
+                                        <input
+                                            name="clientes"
+                                            defaultValue={selected?.clientes.join(
+                                                ", ",
+                                            )}
+                                            placeholder="Ex.: 1, 2"
+                                        />
+                                    </label>
+                                    <label>
+                                        Armazéns permitidos (IDs separados por
+                                        vírgulas)
+                                        <input
+                                            name="armazens"
+                                            defaultValue={selected?.armazens.join(
+                                                ", ",
+                                            )}
+                                            placeholder="Ex.: 1"
+                                        />
+                                    </label>
+                                    <p>
+                                        Para Operação e Supervisor, deixar os
+                                        vínculos vazios não libera nenhum
+                                        cliente ou armazém.
+                                    </p>
+                                    <label className="check-label">
+                                        <input
+                                            name="administrador"
+                                            type="checkbox"
+                                            defaultChecked={
+                                                selected?.administrador
+                                            }
+                                        />{" "}
+                                        Administrador de usuários
+                                    </label>
+                                    <p>
+                                        Permite criar e editar contas, conceder
+                                        administração e redefinir senhas de
+                                        outros usuários.
+                                    </p>
+                                    {selected && (
+                                        <label className="check-label">
+                                            <input
+                                                name="ativo"
+                                                type="checkbox"
+                                                defaultChecked={selected.ativo}
+                                            />{" "}
+                                            Acesso ativo
+                                        </label>
+                                    )}
+                                </>
+                            )}
+                            {(reset || editing === "new") && (
+                                <label>
+                                    Senha temporária
+                                    <input
+                                        name="senhaTemporaria"
+                                        type="password"
+                                        autoComplete="new-password"
+                                        minLength={12}
+                                        maxLength={128}
+                                        required
+                                    />
+                                    <small>
+                                        De 12 a 128 caracteres. Entregue
+                                        diretamente ao usuário; ele deverá
+                                        trocá-la.
+                                    </small>
+                                </label>
+                            )}
+                            <div className="actions">
+                                <button type="button" onClick={closeEditor}>
+                                    Cancelar
+                                </button>
+                                <button type="submit" className="primary">
+                                    {busy
+                                        ? "Salvando…"
+                                        : reset
+                                          ? "Confirmar nova senha temporária"
+                                          : "Salvar usuário"}
+                                </button>
+                            </div>
+                        </fieldset>
+                    </form>
+                </Dialog>
             )}
             {loading ? (
                 <p role="status">Carregando usuários…</p>
             ) : result ? (
-                <>
+                <section
+                    className="workspace-panel users-list"
+                    aria-label="Lista de usuários"
+                >
                     {result.content.length === 0 && (
                         <p role="status">Nenhum usuário encontrado.</p>
                     )}
@@ -379,24 +421,11 @@ export function UsersPage({
                                                   : "Ativo"}
                                         </td>
                                         <td>
-                                            {u.principal ? (
-                                                "Conta protegida"
-                                            ) : (
-                                                <>
-                                                    <button
-                                                        disabled={
-                                                            busy ||
-                                                            !!editing ||
-                                                            !!reset
-                                                        }
-                                                        onClick={() => {
-                                                            setEditing(u);
-                                                            setError("");
-                                                        }}
-                                                    >
-                                                        Editar
-                                                    </button>
-                                                    {u.id !== current.id && (
+                                            <div className="row-actions">
+                                                {u.principal ? (
+                                                    "Conta protegida"
+                                                ) : (
+                                                    <>
                                                         <button
                                                             disabled={
                                                                 busy ||
@@ -404,46 +433,57 @@ export function UsersPage({
                                                                 !!reset
                                                             }
                                                             onClick={() => {
-                                                                setReset(u);
+                                                                setEditing(u);
                                                                 setError("");
                                                             }}
                                                         >
-                                                            Redefinir senha
+                                                            Editar
                                                         </button>
-                                                    )}
-                                                </>
-                                            )}
+                                                        {u.id !==
+                                                            current.id && (
+                                                            <button
+                                                                disabled={
+                                                                    busy ||
+                                                                    !!editing ||
+                                                                    !!reset
+                                                                }
+                                                                onClick={() => {
+                                                                    setReset(u);
+                                                                    setError(
+                                                                        "",
+                                                                    );
+                                                                }}
+                                                            >
+                                                                Redefinir senha
+                                                            </button>
+                                                        )}
+                                                    </>
+                                                )}
+                                            </div>
                                         </td>
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
                     </div>
-                    <div className="pagination">
-                        <button
-                            disabled={page === 0 || busy}
-                            onClick={() => {
-                                setResult(null);
-                                setPage((p) => p - 1);
-                            }}
-                        >
-                            Anterior
-                        </button>
-                        <span>
-                            {result.totalElements} usuários · Página {page + 1}{" "}
-                            de {Math.max(1, result.totalPages)}
-                        </span>
-                        <button
-                            disabled={page + 1 >= result.totalPages || busy}
-                            onClick={() => {
-                                setResult(null);
-                                setPage((p) => p + 1);
-                            }}
-                        >
-                            Próxima
-                        </button>
-                    </div>
-                </>
+                    <Pagination
+                        page={page}
+                        pages={result.totalPages}
+                        total={result.totalElements}
+                        count={result.content.length}
+                        disabled={
+                            loading ||
+                            busy ||
+                            !!editing ||
+                            !!reset ||
+                            needsCheck
+                        }
+                        onPage={(next) => {
+                            setResult(null);
+                            setPage(next);
+                        }}
+                    />
+                </section>
             ) : null}
         </section>
     );

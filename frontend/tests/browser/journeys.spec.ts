@@ -390,6 +390,10 @@ test("Saída integral: pedido → FIFO → reserva → etiqueta → leitura → 
         }),
     ).toContainText(code);
     await page
+        .getByRole("dialog", { name: "Referências consultadas" })
+        .getByRole("button", { name: "Fechar diálogo" })
+        .click();
+    await page
         .getByRole("button", {
             name: "Usar referências consultadas no formulário (descarta edição atual)",
             exact: true,
@@ -810,6 +814,10 @@ test("Navega todos módulos em 768px e 1440px sem erro de página", async ({
             "Coletor",
             "Acesso e limites",
         ]) {
+            if (width < 1024)
+                await page
+                    .getByRole("button", { name: "Abrir menu", exact: true })
+                    .click();
             await page
                 .getByRole("button", { name: title, exact: true })
                 .click();

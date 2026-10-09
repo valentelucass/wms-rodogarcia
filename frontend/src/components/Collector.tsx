@@ -5,6 +5,7 @@ import type { Receipt, Transport } from "../api/client";
 import { Result } from "./Result";
 import { Operation } from "./Operation";
 import { useLayoutEffect } from "react";
+import { PageHeader } from "./layout/PageHeader";
 export function Collector({
     transport,
     context,
@@ -58,62 +59,70 @@ export function Collector({
             : {};
     return (
         <div className="collector">
-            <h1>Coletor</h1>
-            <p>
-                Leitura por teclado/scanner web. Confirmações aguardam resposta;
-                equipamento real ainda não validado. Interromper espera não
-                comprova desfazer uma operação.
-            </p>
-            <label>
-                Tarefa
-                <select
-                    value={mode}
-                    onChange={(e) => {
-                        invalidate();
-                        setMode(e.target.value);
-                    }}
-                >
-                    <option value="posicionar">Endereçar / movimentar</option>
-                    <option value="ler">Conferir reserva para separação</option>
-                    <option value="separar">Separar reserva</option>
-                    <option value="contar">Contar unidade</option>
-                </select>
-            </label>
-            <form
-                onSubmit={(e) => {
-                    e.preventDefault();
-                    void load();
-                }}
+            <PageHeader
+                title="Coletor"
+                icon="coletor"
+                description="Leitura por teclado/scanner web. Confirmações aguardam resposta; equipamento real ainda não validado. Interromper espera não comprova desfazer uma operação."
+            />
+            <section
+                className="workspace-panel collector-task"
+                aria-label="Tarefa e leitura da unidade"
             >
                 <label>
-                    1. Leia o UUID da unidade
-                    <input
-                        value={code}
+                    Tarefa
+                    <select
+                        value={mode}
                         onChange={(e) => {
                             invalidate();
-                            setCode(e.target.value.trim());
+                            setMode(e.target.value);
                         }}
-                        autoComplete="off"
-                        autoCapitalize="off"
-                    />
+                    >
+                        <option value="posicionar">
+                            Endereçar / movimentar
+                        </option>
+                        <option value="ler">
+                            Conferir reserva para separação
+                        </option>
+                        <option value="separar">Separar reserva</option>
+                        <option value="contar">Contar unidade</option>
+                    </select>
                 </label>
-                <label>
-                    Página das posições
-                    <input
-                        type="number"
-                        min="0"
-                        value={page}
-                        onChange={(e) => {
-                            invalidate();
-                            setPage(Number(e.target.value));
-                        }}
-                    />
-                </label>
-                <button className="primary" disabled={busy}>
-                    {busy ? "Consultando…" : "Consultar unidade e posições"}
-                </button>
-            </form>
-            {error && <p role="alert">{error}</p>}
+                <form
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        void load();
+                    }}
+                >
+                    <label>
+                        1. Leia o UUID da unidade
+                        <input
+                            value={code}
+                            onChange={(e) => {
+                                invalidate();
+                                setCode(e.target.value.trim());
+                            }}
+                            autoComplete="off"
+                            autoCapitalize="off"
+                        />
+                    </label>
+                    <label>
+                        Página das posições
+                        <input
+                            type="number"
+                            min="0"
+                            value={page}
+                            onChange={(e) => {
+                                invalidate();
+                                setPage(Number(e.target.value));
+                            }}
+                        />
+                    </label>
+                    <button className="primary" disabled={busy}>
+                        {busy ? "Consultando…" : "Consultar unidade e posições"}
+                    </button>
+                </form>
+                {error && <p role="alert">{error}</p>}
+            </section>
             {unit && captured.current === code && (
                 <>
                     <details>
@@ -125,6 +134,7 @@ export function Collector({
                     {mode === "posicionar" ? (
                         <>
                             <form
+                                className="workspace-panel collector-destination"
                                 onSubmit={(e) => {
                                     e.preventDefault();
                                     match();

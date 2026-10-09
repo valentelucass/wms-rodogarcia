@@ -77,7 +77,7 @@ export function useOperation({
         );
     const prepare = () =>
         prepareCommand({ endpoint: e, params, query, body, file, perfil });
-    const send = async (repeat = false) => {
+    const send = async (repeat = false, pageRequest?: Request) => {
         if (running.current || !allowed) return;
         running.current = true;
         setConfirm(false);
@@ -85,7 +85,7 @@ export function useOperation({
         setError(undefined);
         const ticket = scope.begin();
         try {
-            const r = repeat ? saved.current : prepare();
+            const r = repeat ? saved.current : (pageRequest ?? prepare());
             if (!r) throw new Error("Nenhuma operação para repetir.");
             const request = { ...r, signal: ticket.signal };
             saved.current = request;
@@ -146,6 +146,25 @@ export function useOperation({
                 : {},
         );
     };
+    const changePage = (page: number) => {
+        // Use the filters of the received list, never unsubmitted edits.
+        if (
+            running.current ||
+            e.method !== "GET" ||
+            !saved.current ||
+            !e.query.some((f) => f.name === "pagina") ||
+            !Number.isSafeInteger(page) ||
+            page < 0
+        )
+            return;
+        const request = {
+            ...saved.current,
+            query: { ...saved.current.query, pagina: page },
+        };
+        setParams(request.params);
+        setQuery(request.query);
+        void send(false, request);
+    };
     return {
         e,
         params,
@@ -167,6 +186,7 @@ export function useOperation({
         submit,
         send,
         startNew,
+        changePage,
         interrupt: scope.interrupt,
         cancelConfirmation: () => setConfirm(false),
         canReplay:

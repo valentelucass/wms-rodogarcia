@@ -29,6 +29,14 @@ const paths: Record<string, string> = {
     sun: "M12 3v2 M12 19v2 M3 12h2 M19 12h2 m-13-7-2-2 m12 12 2 2 M7 17l-2 2 M17 7l2-2 M16 12a4 4 0 1 0-8 0 4 4 0 0 0 8 0",
     theme: "M12 3v2 M12 19v2 M3 12h2 M19 12h2 m-13-7-2-2 m12 12 2 2 M7 17l-2 2 M17 7l2-2 M16 12a4 4 0 1 0-8 0 4 4 0 0 0 8 0",
     logout: "M9 3H4v18h5 M9 12h12 m-4-4 4 4-4 4",
+    mail: "M3 5h18v14H3z m0 0 9 7 9-7",
+    help: "M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20 M9 8a3 3 0 0 1 6 0c0 2-3 2-3 5 M12 17h.01",
+    eye: "M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12 M15 12a3 3 0 1 0-6 0 3 3 0 0 0 6 0",
+    "eye-off":
+        "m3 3 18 18 M10 5c5-1 10 4 12 7l-3 4 M6 6c-2 2-3 4-4 6 3 5 7 8 12 7l3-1 M10 10a3 3 0 0 0 4 4",
+    arrow: "M4 12h16 m-6-6 6 6-6 6",
+    support:
+        "M3 14v-3a9 9 0 0 1 18 0v3 M3 13h4v7H5a2 2 0 0 1-2-2z M21 13h-4v7h2a2 2 0 0 0 2-2z",
 };
 export function Icon({ name }: { name: string }) {
     return (

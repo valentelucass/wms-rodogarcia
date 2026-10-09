@@ -1,5 +1,65 @@
 # Estado e trilha de implementação do WMS Rodogarcia
 
+## FE02-DS03 — organização interna das páginas, 09/10/2026
+
+**Em andamento, por pedido expresso de Lucas:** padronizar hierarquia de ações, agrupamentos, uso de espaço, paginação e diálogos nas páginas internas. Dependências: FE02-DS01-A03 e FE02-DS02-A01; ligações BE04–BE14 → FE03–FE13 existentes preservadas. Recorte visual frontend; sem alterar regras, contratos, permissões ou conexão com banco.
+
+- [ ] Organizar Início e a estrutura compartilhada das jornadas de Cadastros até Consultas/relatórios.
+- [ ] Padronizar formulários, listas, paginação e confirmações centrais.
+- [ ] Aplicar organização proporcional ao Coletor e Usuários/acessos.
+- [ ] Conferir tipagem, estados operacionais, teclado, temas e tamanhos de tela; registrar evidências e limites.
+
+**Próximo:** compor os componentes compartilhados e conferir o resultado em cada módulo, preservando as validações reais e frentes de ambiente abaixo.
+
+## FE02-DS01-A03 / FE02-DS02-A01 — preferência de tema e links de ajuda, 09/10/2026
+
+**Concluído localmente:** A03 substitui a reinicialização automática de A02, conforme [regra atual](docs/design-system/etapa-01.md#temas). A01 restringe o destaque das ações de ajuda ao texto, com sublinhado e foco por teclado, preservando diálogos e alvos de toque. Dependências: FE02-DS01-A02 e FE02-DS02; sem alterar contratos BE04-AUTH01 → FE03-AUTH01. Builds real/fictício, tipagem, lint focal e formatação aprovados; 22 casos Chrome passaram (7 login/API interceptada + 15 preferência/navegação fictícia), com capturas de foco conferidas. Provas `frontend/evidencias/design-system-a03-{login,preferencia}-browser-resultados.json`. Graphify mantém recusa anterior, sem forçar. Próximo: atualizar a página para carregar a correção; composição interna segue na nova FE02-DS03.
+
+## FE02-DS02 — login, topo e rodapé, 09/10/2026
+
+**Concluído no recorte visual local:** login informativo e compacto, ajuda em diálogo sem deslocar o card, área reservada para avisos, mensagens de falha próprias de acesso e ícone de headset. Topo alinhado e rodapé compartilhado com Lucas Andrade, LinkedIn e suporte confirmados nos projetos vizinhos em leitura. Dependências: FE02-DS01-A02 e BE04-AUTH01 → FE03-AUTH01. Contratos e regras de autenticação preservados; sem SQL ou reinício de processos existentes.
+
+- [x] Melhorar composição e orientações do login usando os tokens existentes.
+- [x] Compartilhar rodapé com crédito, LinkedIn e contato confirmados nas referências.
+- [x] Alinhar identificação e ações do topo nos tamanhos desktop/mobile.
+- [x] Conferir tipagem, lint, build, fluxos de autenticação e aparência no navegador.
+
+**Evidência:** [entrega e limites](docs/design-system/etapa-02.md), [recibo](orchestracao/.runtime/design-system-etapa02-resultado.json). Tipagem/lint/formatação e builds real/fictício aprovados; 66 testes focais e 19 casos de Chrome (7 com API interceptada, 12 fictícios). Login sem rolagem entre 320×640 e 1440×720, sem deslocamento por ajuda/erros; capturas claro/escuro conferidas. Mapa Graphify mantém impedimento próprio de atualização, sem força.
+
+**Próximo:** atualizar a página aberta para carregar o visual. Próxima composição de páginas depende de nova demanda; investigação SQL e validações reais mantêm os estados próprios abaixo.
+
+## BE02-SQL-DIAG01 — investigação de indisponibilidade SQL, 09/10/2026
+
+**Em andamento, somente diagnóstico:** Lucas confirmou timeout também ao acessar o SQL Server e pediu investigação aprofundada. Dependências: BE02/BE03 → FE02 e FE02-DEV-CON02. Escopo atual: eventos Windows/SQL, recursos do host, processo/listener e ERRORLOG com acesso permitido; sem nova conexão SQL após a falha, reinício, mudança de servidor/ACL ou acesso a dados de outros projetos.
+
+Há cinco eventos Windows2004 em07–08/10 com memória comprometida acima de99% do limite; PowerShell14–17,55GiB e Python20–21,87GiB aparecem como maiores consumidores. Os eventos de07/10 cercam os quatro erros SQL701 históricos. Serviço/PID atual permanecem ligados desde07/10; essa correlação histórica ainda não explica o timeout de09/10. Evidências em `orchestracao/.runtime/sql-investigacao-20261009-*.json`. Próximo: cruzar os recursos atuais e obter os diagnósticos internos delimitados do SQL; origem dos processos antigos não atribuída.
+
+## FE02-DEV-CON02 — prazo de conexão DEV, 09/10/2026
+
+**Ajuste do cliente validado; inicialização real bloqueada:** por pedido expresso de Lucas, abertura SQL120s, guarda completa240s e andamento a cada10s, por política compartilhada. Sete casos de espera/progresso,20 focais do consumo da guarda e sintaxe de quatro scripts aprovados. A única guarda real nova expirou após120,19s em prelogin/handshake (-2/258), sem consultas ou BE/FE; o prazo maior não resolveu a indisponibilidade. Metadados SQLArg1/ERRORLOG recusados pelo Registro Windows com SecurityException, sem elevacao ou leitura do log.
+
+**Dependências:** FE02-DEV-CON01 e BE02 → FE02. **Evidências:** [resultado e hashes](orchestracao/.runtime/dev-conexao-20261009-con02-resultado.json), [guarda real bloqueada](orchestracao/.runtime/dev-conexao-20261009-con02-guarda.json). Conexão única WMS_DEV/WMSDEV/TLS e servidor preservados; sem nova repetição automática. Graphify recusou redução15220→12622, sem forçar. **Próximo encaminhamento:** obter extrato administrativo do ERRORLOG no intervalo14:40–14:42BRT para identificar a causa; retomar a guarda após encaminhamento concreto. Entrega local do prazo concluída, disponibilidade real permanece em validação.
+
+## VALID-LOGIN-CAD01 — SQL aprovado; validação real parcial por sessão inacessível, 09/10/2026
+
+**BE04-COR01-DEV01 → FE03-COR01-DEV01 parcial real revisado:** reaproveitado run existente8fa3c9e6722b4170898dc66aabfa044f, frontend http://127.0.0.1:25581, BE72644/25580 e FE70328/25581 com JAR corrigido99128/configD415/preparo947D. Guarda3293 confirmou WMS_DEV/WMSDEV/TLSMandatory/trustServerCertificatefalse,26/26critérios/permissões/catálogo/V1–V11, uma Open215,5245ms e12SELECTmetadados, zero negócio. SQLPID48480/início18:31:41Z e confiança existente atual conferidos; nenhuma outraBAT/Open/renovação ou intervenção em processo nesta retomada. Relato Lucas preservado; CON02/E7B204 permanecem históricos, sem bloqueioSQL corrente diante destePASS datado.
+
+Lume observou realmente18:46:53–57UTC: statusAPI200, usuários anônimo401, CSS/Inter/foco/clique/Tab/Enter1440+390,24asserções públicas aprovadas sem mock/interceptação. CSRF200/renovação automática403,0pageerror/CSP e1consolemetadata sem texto; causa do403 não inferida. Chrome próprio encerrado, servidores preservados. Deltas visuais externos durante/depois da prova qualificados; DOM/capturas datados, sem freeze geral ou equivalência integral posterior.
+
+**7 locais aprovados preservados/0 critérios integrais operacionais reais:** não disponível à equipe sessão WMS própria autenticada; hash bootstrap não recupera senha. Workspace006, Users007 e demais jornadas protegidas não executados. Login nativo D32/DEV07 existe; não retomar proposta histórica Keycloak/BFF. Link loopback é superfície técnica, modo tunnel/Secure preservado; entrada HTTPS operacional e sessão não comprovadas por status/listener. Long gigante/201null/corrida específica continuam complementos locais, sem injeção no banco/API.
+
+[Recibo atual e limites por001–007](orchestracao/.runtime/login-cadastros-validacao-dev-resultado.md), [JSON/hashes](orchestracao/.runtime/login-cadastros-validacao-dev-resultado.json), [parecer independente](orchestracao/.runtime/login-cadastros-validacao-dev/vigia/parecer-retomada-02.md), [prova pública real](orchestracao/.runtime/login-cadastros-validacao-dev/lume/browser-publico-real02/resultado.json) e [parcial anterior literal](orchestracao/.runtime/login-cadastros-validacao-dev/retomada-20261009T183735Z/historico/login-cadastros-validacao-dev-resultado.md). Prumo ambiente/guarda; Cedro fonte/JAR/API; Lume browser; Vigia confronto independente; Farol consolidação. Nenhum material novo demonstrado, sem homologação operacional001–007/roundtrip de negócio.
+
+**Atualização após disponibilização da conta:** Lucas confirmou login real funcionando; CUA do Farol retornou apps[]/browsers[]/zero abas acessíveis. Não há contradição com sessão existente no computador. [Observação deste acesso](orchestracao/.runtime/login-cadastros-validacao-dev/sessao-disponibilizada-20261009T192151Z/resultado.md); nenhuma senha usada/lida/registrada, nenhuma API/SQL/guarda/app nova. Perfil/alcance da conta ainda não observado, sem autorização de escrita por inferência.
+
+**Próximo encaminhamento único:** disponibilizar ao CUA nesta sessão a aba HTTPS WMS já autenticada. Origem técnica conhecida http://127.0.0.1:25581; URLHTTPS da aba não foi exposta à ferramenta. Novo login somente interativo pelo usuário/vault, sem senha de chat/terminal. Guarda/provas anteriores datadas preservadas,0/7operacionais nesta rodada. Sem perfil anônimo/cópia de sessão/alteração de senha/perfil/scopes/dados/provider/SQLfixture ou nova rodada automática; aguardar acesso legítimo/Lucas.
+
+## FE02-DEV-CON01 — timeout do launcher relatado em 09/10/2026
+
+**Diagnóstico local concluído; inicialização real bloqueada:** Lucas apresentou o run `874b0c4b965c4e9f831487a48ec94acd` de 14:27 BRT. Abertura única WMS_DEV/WMSDEV expirou após 30.217 ms em prelogin/handshake (-2/258), sem identidade confirmada, consultas ou backend/frontend iniciados. Serviço SQL Running/PID21812 e listener1433 observados em leitura; isso não comprova resposta SQL. Helper, módulo cliente, SqlClient e hashes TLS coincidem com a guarda aprovada de 12:06 BRT (232 ms); nenhuma causa ou alteração do servidor demonstrada.
+
+**Dependências:** BE02 → FE02, guarda atual de D31-DEV02 e limites D32-DEV04. **Evidência:** [diagnóstico delimitado](orchestracao/.runtime/dev-conexao-20261009-874b0c4b.md). Nenhuma nova conexão, SQL, mudança de aplicação/servidor/runtime ou reinício. **Próximo encaminhamento:** esclarecer se a falha foi observada somente no WMS ou também em outro cliente e obter evidência atual da disponibilidade antes de nova guarda autorizada. Etapas visuais e correções locais concluídas abaixo permanecem concluídas.
+
 ## CORR-LOGIN-CAD01 — sete correções concluídas e revisadas localmente, 09/10/2026
 
 **BE04-COR01 → FE03-COR01 concluídos no recorte autorizado:** AUD-CONS-001 a007 corrigidos e revisados independentemente; nenhum achado material local aberto nesta entrega. Login próprio D32/DEV07 e incrementos DS01 preservados. Cedro backend004/005; Lume AUTH/UI e leitores005; Prumo contratos/persistência em arquivo; Vigia revisão; Farol consolidação/canônicos. Atalho006 já corrigido pela frente DS01, com autoria externa preservada e handler atual idêntico por diff.

@@ -40,6 +40,7 @@ export function Operation(props: OperationProps) {
                 <OperationConfirmation
                     id={props.id}
                     context={props.context}
+                    values={{ ...s.params, ...s.query, ...s.body }}
                     onConfirm={() => void s.send()}
                     onBack={s.cancelConfirmation}
                 />
@@ -60,6 +61,13 @@ export function Operation(props: OperationProps) {
                         type={s.e.response}
                         collector={props.collector}
                         onSelect={props.onSelect}
+                        pending={s.pending}
+                        onPage={
+                            s.e.method === "GET" &&
+                            s.e.query.some((f) => f.name === "pagina")
+                                ? s.changePage
+                                : undefined
+                        }
                         onContinue={
                             referenceMismatch ? undefined : props.onContinue
                         }

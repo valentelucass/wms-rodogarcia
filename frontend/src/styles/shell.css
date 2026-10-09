@@ -7,6 +7,9 @@
 }
 .shell-workspace {
     margin-left: var(--shell-width);
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
     min-width: 0;
     transition: margin-left var(--og-motion-normal) var(--og-ease);
 }
@@ -183,7 +186,7 @@
     align-items: center;
     justify-content: space-between;
     gap: var(--og-space-4);
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     background: var(--og-surface);
     color: var(--og-text);
     border-bottom: var(--og-border-width) solid var(--og-border);
@@ -194,7 +197,187 @@
     gap: var(--og-space-3);
     align-items: center;
     min-width: 0;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+}
+.topbar-location {
+    flex: 1;
+}
+.topbar-actions {
+    flex-shrink: 0;
+    gap: var(--og-space-2);
+}
+.topbar-user {
+    display: flex;
+    align-items: center;
+    gap: var(--og-space-3);
+    padding-right: var(--og-space-4);
+    margin-right: var(--og-space-2);
+    border-right: var(--og-border-width) solid var(--og-border);
+    min-width: 0;
+}
+.topbar-avatar {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    border-radius: var(--og-radius-avatar);
+    color: var(--og-selection-text);
+    background: var(--og-selection);
+    font-size: var(--og-type-caption);
+    font-weight: var(--og-font-semibold);
+}
+.topbar-user > div {
+    display: grid;
+    gap: var(--og-space-1);
+    min-width: 0;
+    max-width: 180px;
+}
+.topbar-user strong {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: var(--og-type-caption);
+    font-weight: var(--og-font-semibold);
+}
+.topbar-user > div > span {
+    font-size: var(--og-type-caption);
+    line-height: var(--og-leading-caption);
+    color: var(--og-text-muted);
+}
+.topbar-support {
+    text-decoration: none;
+    color: var(--og-text-muted);
+}
+.topbar--context {
+    display: grid;
+    grid-template-columns: minmax(100px, 1fr) minmax(368px, 460px) auto;
+    padding-block: 7px;
+    gap: var(--og-space-3);
+}
+.topbar--context .topbar-title strong {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.topbar-context {
+    min-width: 0;
+    padding-inline: var(--og-space-4);
+    border-inline: 1px solid var(--og-border);
+}
+.topbar-context .auth-context {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(64px, 1fr) minmax(64px, 1fr) auto;
+    align-items: end;
+    gap: var(--og-space-2);
+    padding: 0;
+}
+.topbar-context .auth-context label {
+    position: relative;
+    gap: 0;
+    font-size: var(--og-type-caption);
+    line-height: 12px;
+}
+.topbar-context input {
+    height: 36px;
+    min-height: 36px;
+    padding: var(--og-space-1) var(--og-space-2);
+}
+.topbar-context input:focus::placeholder {
+    color: transparent;
+}
+.topbar-context .context-apply {
+    color: var(--wms-context-action-text);
+    border-color: var(--wms-context-action);
+    background: var(--wms-context-action);
+}
+.topbar-context .context-apply:hover:not(:disabled) {
+    background: var(--wms-context-action-hover);
+    border-color: var(--wms-context-action-hover);
+}
+.topbar-context .auth-context > button {
+    height: 36px;
+    min-height: 36px;
+    white-space: nowrap;
+    padding-block: var(--og-space-1);
+}
+.context-error:empty {
+    display: none;
+}
+.context-error:not(:empty) {
+    position: absolute;
+    right: 0;
+    top: calc(100% + var(--og-space-3));
+    z-index: var(--og-z-overlay);
+    width: min(320px, calc(100vw - 32px));
+    padding: var(--og-space-3);
+    border: 1px solid var(--og-negative-text);
+    border-radius: var(--og-radius-control);
+    color: var(--og-negative-text);
+    background: var(--og-danger-bg);
+    overflow-wrap: anywhere;
+}
+@media (min-width: 1024px) and (max-width: 1279px) {
+    .topbar--context .account-action {
+        width: var(--og-touch-height);
+        justify-content: center;
+        padding-inline: var(--og-space-2);
+    }
+    .topbar--context .account-action > span {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
+    }
+    .topbar-context {
+        padding-inline: var(--og-space-3);
+    }
+    .topbar--context {
+        grid-template-columns: minmax(0, 1fr) 392px auto;
+        padding-inline: var(--og-space-4);
+        gap: var(--og-space-2);
+    }
+}
+@media (max-width: 1023px) {
+    .topbar--context {
+        display: flex;
+        flex-wrap: wrap;
+    }
+    .topbar--context .topbar-location {
+        flex: 1;
+    }
+    .topbar-context {
+        order: 3;
+        width: 100%;
+        padding: var(--og-space-3) 0 0;
+        border: 0;
+        border-top: 1px solid var(--og-border);
+    }
+}
+@media (max-width: 767px), (pointer: coarse) {
+    .topbar-context .auth-context label {
+        line-height: var(--og-leading-caption);
+    }
+    .topbar-context input,
+    .topbar-context .auth-context > button {
+        height: var(--og-touch-height);
+        min-height: var(--og-touch-height);
+    }
+}
+@media (max-width: 479px) {
+    .topbar-context .auth-context {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .topbar-context .auth-context > button {
+        grid-column: 1 / -1;
+    }
+}
+.topbar-support:hover {
+    color: var(--og-link);
+    background: var(--og-surface-hover);
 }
 .topbar-title {
     display: grid;
@@ -284,16 +467,57 @@ main {
     padding: var(--og-page-padding);
     min-width: 0;
 }
+.shell-workspace > main {
+    flex: 1;
+}
 .notice {
     margin: var(--og-space-4) var(--og-page-padding);
 }
-footer {
+footer,
+.exercise-controls {
     padding: var(--og-page-padding);
     border-top: var(--og-border-width) solid var(--og-border);
     background: var(--og-surface);
 }
-footer label {
+.exercise-controls label {
     max-width: 400px;
+}
+.app-footer {
+    padding: var(--og-space-5) var(--og-page-padding);
+    color: var(--og-text-muted);
+    font-size: var(--og-type-caption);
+    line-height: var(--og-leading-caption);
+}
+.app-footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--og-space-4) var(--og-space-8);
+    flex-wrap: wrap;
+}
+.app-footer-product,
+.app-footer-credit {
+    display: grid;
+    gap: var(--og-space-1);
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+.app-footer-product strong {
+    color: var(--og-text);
+    font-weight: var(--og-font-semibold);
+}
+.app-footer-product strong > span {
+    padding-inline: var(--og-space-1);
+    color: var(--og-text-muted);
+}
+.app-footer-credit {
+    text-align: right;
+}
+.app-footer a {
+    text-decoration: none;
+}
+.app-footer a:hover {
+    text-decoration: underline;
 }
 .skip {
     position: fixed;
@@ -333,6 +557,9 @@ footer label {
     .main-nav button {
         min-height: var(--og-touch-height);
     }
+    .topbar-user > div {
+        max-width: 120px;
+    }
 }
 @media (max-width: 767px) {
     .topbar {
@@ -341,16 +568,35 @@ footer label {
         gap: var(--og-space-3);
     }
     .topbar-location {
-        flex: 1 1 100%;
+        flex: 1;
     }
     .topbar-actions {
-        width: 100%;
-        gap: var(--og-space-2);
+        width: auto;
+        gap: var(--og-space-1);
         justify-content: flex-end;
     }
+    .topbar-title > span,
+    .topbar-user,
+    .topbar-support {
+        display: none;
+    }
+    .topbar-title strong {
+        font-size: var(--og-type-body);
+    }
     .account-action {
+        width: var(--og-touch-height);
+        min-height: var(--og-touch-height);
+        justify-content: center;
         gap: var(--og-space-1);
         padding-inline: var(--og-space-1);
+    }
+    .account-action > span {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
     }
     .environment-badge {
         display: none;
@@ -359,8 +605,19 @@ footer label {
         padding-inline: var(--og-page-padding-mobile);
     }
     main,
-    footer {
+    footer,
+    .exercise-controls {
         padding: var(--og-page-padding-mobile);
+    }
+    .app-footer {
+        padding: var(--og-space-5) var(--og-space-4);
+    }
+    .app-footer-content {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .app-footer-credit {
+        text-align: left;
     }
     .context,
     .auth-context {

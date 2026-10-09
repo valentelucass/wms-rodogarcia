@@ -8,6 +8,8 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $repository = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 . (Join-Path $PSScriptRoot 'console-dev.ps1')
+. (Join-Path $PSScriptRoot 'espera-conexao.ps1')
+$connectionWaitPolicy = Get-WmsDevConnectionWaitPolicy
 $runsRoot = Join-Path $repository 'orchestracao/.runtime/frontend-integracao-dev-runs'
 $runId = [guid]::NewGuid().ToString('N')
 $runDirectory = Join-Path $runsRoot $runId
@@ -115,6 +117,8 @@ try {
     if (-not (Test-Path -LiteralPath $vitePath -PathType Leaf)) { Fail-Startup 60 'FRONTEND_DEPENDENCIES_MISSING' }
     Write-WmsDevConsoleStep 1 'Configuracao inicial conferida' -Done
     Write-WmsDevConsoleStep 2 'Verificando conexao e estrutura do WMS_DEV...'
+    Write-Host ('  Abertura SQL: ate '+$connectionWaitPolicy.ConnectTimeoutSeconds+'s. Aguarde a verificacao.') -ForegroundColor DarkGray
+    $receipt['connectionWaitPolicy'] = $connectionWaitPolicy
 
     # Uma guarda ATUAL neste run; nunca reutilizar bool, recibo antigo ou alvo presumido.
     $guardHash = (Get-FileHash -LiteralPath $guardHelper -Algorithm SHA256).Hash
@@ -133,7 +137,11 @@ try {
     $guardStarted=$true
     $guardStdout = $guardProcess.StandardOutput.ReadToEndAsync()
     $guardStderr = $guardProcess.StandardError.ReadToEndAsync()
-    if (-not $guardProcess.WaitForExit(90000)) { Fail-Startup 20 'GUARD_PROCESS_TIMEOUT' }
+    $guardFinished = Wait-WmsDevGuardExit -Process $guardProcess -Timeout ([TimeSpan]::FromSeconds($connectionWaitPolicy.GuardTimeoutSeconds)) -ProgressInterval ([TimeSpan]::FromSeconds($connectionWaitPolicy.ProgressIntervalSeconds)) -OnProgress {
+        param($elapsed, $maximum)
+        Write-Host ('  {0}  Verificacao do banco em andamento... {1:N0}s / {2:N0}s' -f (Get-Date -Format 'HH:mm:ss'), $elapsed, $maximum) -ForegroundColor DarkGray
+    }
+    if (-not $guardFinished) { Fail-Startup 20 'GUARD_PROCESS_TIMEOUT' }
     $guardOutput=$guardStdout.Result
     $null=$guardStderr.Result # Erros nao sao copiados para evitar dados nao sanitizados.
     $guardReceiptPath = Join-Path $runDirectory 'guarda.json'
@@ -143,7 +151,7 @@ try {
     $receipt['guard']=@{ path=$guardReceiptPath; sha256=$guardReceiptHash; helperSha256=$guardHash; processId=$guardProcess.Id; exitCode=$guardProcess.ExitCode }
     if ($guardProcess.ExitCode -ne 0) {
         if ($guard.erro -and $guard.erro.marcadores.timeout) {
-            Write-Host '[WMS DEV] A conexao com o SQL Server excedeu o tempo de espera. O banco nao foi liberado para uso.'
+            Write-Host ('[WMS DEV] O SQL Server nao concluiu a conexao em '+$connectionWaitPolicy.ConnectTimeoutSeconds+'s. O banco nao foi liberado para uso.')
         } elseif ($guard.erro -and $guard.erro.marcadores.certificado) {
             Write-Host '[WMS DEV] Nao foi possivel validar o certificado da conexao com o SQL Server.'
         } elseif ($guard.erro -and $guard.erro.marcadores.autenticacao) {

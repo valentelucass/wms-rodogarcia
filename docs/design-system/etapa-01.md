@@ -34,9 +34,15 @@ Inter é distribuída pelo [projeto oficial rsms/inter](https://github.com/rsms/
 
 ## Temas
 
-**Correção expressa FE02-DS01-A02:** Lucas esclareceu que o ícone de Sistema confunde e deve ser removido. Cada abertura ou recarga detecta automaticamente `prefers-color-scheme` e inicia com o tema do dispositivo, antes do CSS. Existe somente um botão circular de 44 px: lua ativa escuro; sol ativa claro. O botão tem nome acessível, foco e operação por teclado. A troca preserva o conteúdo e vale durante o uso da página; na próxima abertura, o tema volta a seguir o dispositivo.
+**Comportamento vigente FE02-DS01-A03, correção expressa de Lucas:** o tema do dispositivo é o ponto de partida somente quando não existe uma escolha válida salva. Ao usar o botão sol/lua, Light ou Dark é guardado em `localStorage["wms.theme"]` e passa a prevalecer sobre o sistema operacional na recarga e nos próximos acessos ao mesmo navegador/origem. A leitura acontece antes do CSS, preservando a aplicação inicial do tema.
 
-Mudanças do sistema acompanham a tela até o usuário alternar manualmente. A escolha manual não é salva nem sincronizada entre abas; valores antigos de `localStorage["wms.theme"]` são ignorados, sem limpar outros dados. O comportamento funciona mesmo com armazenamento indisponível. Superfícies, controles nativos e drawer recebem o mesmo tema. Movimento reduzido desativa transições.
+Alterações do sistema acompanham a página somente enquanto a preferência for automática. A escolha manual é compartilhada entre abas da mesma origem. Valores diferentes de `light`/`dark` são ignorados e outros dados são preservados. Se o navegador bloquear armazenamento, a tela continua funcionando e mantém a escolha durante aquela página. Permanece somente um botão circular sol/lua; o ícone de Sistema não retorna.
+
+**Conferência A03:** builds real/fictício, tipagem, lint focal e formatação aprovados; 15 casos de navegador fictício e 7 de login/API interceptada passaram. Light salvo com sistema Dark e Dark salvo com sistema Light, recarga, abas, preferência inválida, armazenamento indisponível e edição preservada conferidos. Provas `frontend/evidencias/design-system-a03-{preferencia,login}-browser-resultados.json`. Não houve conexão SQL ou autenticação real.
+
+**Histórico FE02-DS01-A02, substituído por A03 na persistência:** Lucas esclareceu que o ícone de Sistema confunde e deve ser removido. Cada abertura ou recarga detectava automaticamente `prefers-color-scheme` e iniciava com o tema do dispositivo, antes do CSS. Existe somente um botão circular de 44 px: lua ativa escuro; sol ativa claro. O botão tem nome acessível, foco e operação por teclado. Na versão A02, a troca preservava o conteúdo e valia durante o uso da página; na próxima abertura, o tema voltava a seguir o dispositivo.
+
+Na versão A02, mudanças do sistema acompanhavam a tela até o usuário alternar manualmente. A escolha manual não era salva nem sincronizada entre abas; valores antigos de `localStorage["wms.theme"]` eram ignorados, sem limpar outros dados. Superfícies, controles nativos e drawer recebem o mesmo tema. Movimento reduzido desativa transições.
 
 **Histórico FE02-DS01-A01:** substituiu o seletor textual pelos botões circulares sol/lua e monitor, ainda com preferência salva. O monitor e a persistência foram substituídos pelo comportamento automático de A02; o recolhimento da lateral permanece.
 

@@ -40,7 +40,8 @@ function Invoke-WmsDev02Guard {
     [CmdletBinding()]
     param()
     $ErrorActionPreference = 'Stop'
-    $connectTimeoutSeconds = 30
+    . (Join-Path $script:WmsDev02Root 'infra/dev/espera-conexao.ps1')
+    $connectTimeoutSeconds = (Get-WmsDevConnectionWaitPolicy).ConnectTimeoutSeconds
     $credential=$null; $connection=$null; $certificate=$null; $builder=$null; $openWatch=$null
     $phase='PREPARO_LOCAL'; $identityConfirmed=$false
     $checks=New-Object 'Collections.Generic.List[object]'

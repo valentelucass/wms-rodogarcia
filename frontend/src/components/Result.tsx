@@ -2,16 +2,21 @@ import { isLosslessNumber } from "lossless-json";
 import { isObject, records, listType, type Values } from "../contracts/runtime";
 import { label, display } from "../domain/labels";
 import { resultName } from "../domain/resultNames";
+import { Pagination } from "./layout/Pagination";
 export function Result({
     data,
     onSelect,
     depth = 0,
     type = "unknown",
+    onPage,
+    pending = false,
 }: {
     data: unknown;
     onSelect?: (v: Values, type: string) => void;
     depth?: number;
     type?: string;
+    onPage?: (page: number) => void;
+    pending?: boolean;
 }) {
     if (data === null || data === undefined)
         return <p>Não informado pelo servidor.</p>;
@@ -98,6 +103,27 @@ export function Result({
         );
     }
     if (isObject(data)) {
+        if (type.startsWith("PaginaResponse<") && Array.isArray(data.itens)) {
+            return (
+                <div className="paged-results" aria-busy={pending}>
+                    <Result
+                        data={data.itens}
+                        type={"List<" + type.slice(15, -1) + ">"}
+                        onSelect={onSelect}
+                        depth={depth + 1}
+                    />
+                    <Pagination
+                        page={Number(data.pagina)}
+                        pages={Number(data.totalPaginas)}
+                        total={String(data.totalItens)}
+                        count={data.itens.length}
+                        size={Number(data.tamanho)}
+                        disabled={pending}
+                        onPage={onPage}
+                    />
+                </div>
+            );
+        }
         const scalar = Object.entries(data).filter(
             ([, x]) => !Array.isArray(x) && !isObject(x),
         );

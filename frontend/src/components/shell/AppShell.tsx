@@ -9,6 +9,8 @@ import { Icon } from "../../design-system/Icon";
 import { ThemeSelector } from "../../design-system/ThemeSelector";
 import type { Navigate } from "../../hooks/useNavigation";
 import { Navigation, navigationItems } from "./Navigation";
+import { AppFooter, developer } from "./AppFooter";
+import { Brand } from "./Brand";
 
 const narrow = () =>
     window.matchMedia?.("(max-width: 1023px)").matches ?? false;
@@ -16,6 +18,14 @@ function subscribeWidth(notify: () => void) {
     const media = window.matchMedia?.("(max-width: 1023px)");
     media?.addEventListener("change", notify);
     return () => media?.removeEventListener("change", notify);
+}
+const sidebarPreferenceKey = "wms.sidebar.collapsed";
+function readSidebarPreference() {
+    try {
+        return localStorage.getItem(sidebarPreferenceKey) === "true";
+    } catch {
+        return false;
+    }
 }
 export function AppShell({
     page,
@@ -43,7 +53,7 @@ export function AppShell({
     onLogout?: () => void;
 }) {
     const mobile = useSyncExternalStore(subscribeWidth, narrow);
-    const [collapsed, setCollapsed] = useState(false);
+    const [collapsed, setCollapsed] = useState(readSidebarPreference);
     const [drawerOpen, setDrawerOpen] = useState(false);
     const drawer = useRef<HTMLDialogElement>(null);
     const previousContent = useRef(contentKey);
@@ -63,21 +73,10 @@ export function AppShell({
             : (navigationItems(exercise, administrator).find(
                   (item) => item.id === page,
               )?.title ?? "Início");
-    const brand = (
-        <div className="shell-brand">
-            <span className="brand-symbol">
-                <Icon name="estoque" />
-            </span>
-            <span className="brand-copy">
-                <strong>Rodogarcia</strong>
-                <span>WMS · Gestão de armazém</span>
-            </span>
-        </div>
-    );
     const sidebar = (
         <>
             <div className="sidebar-heading">
-                {brand}
+                <Brand />
                 {mobile && (
                     <button
                         type="button"
@@ -104,7 +103,18 @@ export function AppShell({
                     title={collapsed ? "Expandir menu" : "Minimizar menu"}
                     aria-controls="shell-navigation"
                     aria-expanded={!collapsed}
-                    onClick={() => setCollapsed((value) => !value)}
+                    onClick={() => {
+                        const value = !collapsed;
+                        setCollapsed(value);
+                        try {
+                            localStorage.setItem(
+                                sidebarPreferenceKey,
+                                String(value),
+                            );
+                        } catch {
+                            /* Preference remains usable for this visit. */
+                        }
+                    }}
                 >
                     <Icon name={collapsed ? "chevron-right" : "chevron-left"} />
                     <span className="sidebar-toggle-label">Minimizar menu</span>
@@ -171,7 +181,9 @@ export function AppShell({
                 </aside>
             )}
             <div className="shell-workspace">
-                <header className="topbar">
+                <header
+                    className={"topbar" + (!exercise ? " topbar--context" : "")}
+                >
                     <div className="topbar-location">
                         {mobile && (
                             <button
@@ -198,7 +210,18 @@ export function AppShell({
                             </span>
                         )}
                     </div>
+                    {!exercise && (
+                        <div className="topbar-context">{context}</div>
+                    )}
                     <div className="topbar-actions">
+                        <a
+                            className="icon-button topbar-support"
+                            href={developer.support}
+                            aria-label="Falar com o suporte"
+                            title="Falar com o suporte"
+                        >
+                            <Icon name="support" />
+                        </a>
                         <ThemeSelector />
                         {onLogout && (
                             <>
@@ -227,11 +250,12 @@ export function AppShell({
                         EXERCÍCIO FICTÍCIO · sem backend · sem SQL
                     </p>
                 )}
-                <div className="shell-context">{context}</div>
+                {exercise && <div className="shell-context">{context}</div>}
                 <main id="conteudo" tabIndex={-1} key={contentKey}>
                     {children}
                 </main>
                 {footer}
+                <AppFooter />
             </div>
         </div>
     );

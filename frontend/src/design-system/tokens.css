@@ -68,6 +68,13 @@
     --og-z-overlay: 30;
     /* Adaptação P: altura do topo compartilhado WMS. */
     --wms-topbar-height: 64px;
+    /* P: composição da entrada e largura de leitura do rodapé. */
+    --wms-auth-width: 1120px;
+    --wms-auth-title: 44px;
+    /* P: ação de seleção de contexto, distinta da marca azul. */
+    --wms-context-action: #0f766e;
+    --wms-context-action-hover: #115e59;
+    --wms-context-action-text: #ffffff;
 }
 
 :root,
@@ -97,6 +104,9 @@
 }
 
 [data-og-theme="dark"] {
+    --wms-context-action: #5eead4;
+    --wms-context-action-hover: #99f6e4;
+    --wms-context-action-text: #042f2e;
     color-scheme: dark;
     --og-background: #09090b;
     --og-surface: #09090b;

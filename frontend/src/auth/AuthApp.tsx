@@ -6,12 +6,15 @@ import { realTransport, type Receipt, type Request } from "../api/client";
 import { JourneyPage } from "../components/JourneyPage";
 import { Collector } from "../components/Collector";
 import { Operation } from "../components/Operation";
+import { PageHeader } from "../components/layout/PageHeader";
+import { HomeOverview } from "../components/layout/HomeOverview";
 import { journeys } from "../domain/journeys";
 import { absorb, emptyWorkflow, operationContext } from "../domain/workflow";
 import type { Values } from "../contracts/runtime";
 import { useNavigation } from "../hooks/useNavigation";
 import { AppShell } from "../components/shell/AppShell";
-import { ThemeSelector } from "../design-system/ThemeSelector";
+import { AuthLayout } from "./AuthLayout";
+import { Icon } from "../design-system/Icon";
 
 export function AuthApp() {
     const [auth] = useState(() => new AuthClient());
@@ -73,12 +76,20 @@ export function AuthApp() {
     }, []);
     if (loading)
         return (
-            <main className="auth-shell">
-                <div className="auth-theme">
-                    <ThemeSelector />
-                </div>
-                <p role="status">Verificando seu acesso…</p>
-            </main>
+            <AuthLayout>
+                <section
+                    className="auth-card auth-loading"
+                    aria-label="Verificação de acesso"
+                >
+                    <span className="auth-card-icon">
+                        <Icon name="acesso" />
+                    </span>
+                    <p role="status">Verificando seu acesso…</p>
+                    <p className="muted">
+                        Aguarde enquanto recuperamos sua sessão.
+                    </p>
+                </section>
+            </AuthLayout>
         );
     if (!user)
         return (
@@ -93,17 +104,14 @@ export function AuthApp() {
         );
     if (user.trocarSenha)
         return (
-            <main className="auth-shell">
-                <div className="auth-theme">
-                    <ThemeSelector />
-                </div>
+            <AuthLayout>
                 <PasswordPage
                     auth={auth}
                     required
                     onChanged={changed}
                     onCancel={() => void logout()}
                 />
-            </main>
+            </AuthLayout>
         );
     return (
         <Workspace
@@ -173,6 +181,7 @@ function Workspace({
             context={
                 <form
                     className="auth-context"
+                    aria-label="Contexto operacional"
                     onSubmit={(e) => {
                         e.preventDefault();
                         const data = new FormData(e.currentTarget);
@@ -207,15 +216,36 @@ function Workspace({
                     }}
                 >
                     <label>
-                        Cliente (ID)
-                        <input name="clienteId" inputMode="numeric" required />
+                        <span className="sr-only">Cliente (ID)</span>
+                        <input
+                            name="clienteId"
+                            aria-label="Cliente (ID)"
+                            inputMode="numeric"
+                            required
+                            placeholder="Cliente (ID)"
+                        />
                     </label>
                     <label>
-                        Armazém (ID)
-                        <input name="armazemId" inputMode="numeric" required />
+                        <span className="sr-only">Armazém (ID)</span>
+                        <input
+                            name="armazemId"
+                            aria-label="Armazém (ID)"
+                            inputMode="numeric"
+                            required
+                            placeholder="Armazém (ID)"
+                        />
                     </label>
-                    <button>Aplicar contexto</button>
-                    <span role="status">{contextMessage}</span>
+                    <button className="context-apply">Aplicar contexto</button>
+                    <span
+                        role="status"
+                        className={
+                            contextMessage === "Contexto selecionado."
+                                ? "sr-only"
+                                : "context-error"
+                        }
+                    >
+                        {contextMessage}
+                    </span>
                 </form>
             }
         >
@@ -270,23 +300,33 @@ function Workspace({
                 />
             ) : (
                 <>
-                    <h1>Bem-vindo, {user.nome}</h1>
-                    <p>
-                        Escolha um módulo para começar. Para operar o estoque,
-                        selecione o cliente e o armazém.
-                    </p>
-                    {user.administrador && (
-                        <button onClick={() => nav.navigate("usuarios")}>
-                            Administrar usuários
-                        </button>
-                    )}
-                    <Operation
-                        id="IndicadorEstoqueController.listar"
-                        transport={transport}
-                        context={context}
-                        perfil={user.perfil}
-                        onSelect={() => nav.navigate("estoque")}
+                    <PageHeader
+                        title={`Bem-vindo, ${user.nome}`}
+                        icon="inicio"
+                        description="Escolha um módulo para começar. Para operar o estoque, selecione o cliente e o armazém."
+                        actions={
+                            user.administrador && (
+                                <button
+                                    onClick={() => nav.navigate("usuarios")}
+                                >
+                                    Administrar usuários
+                                </button>
+                            )
+                        }
                     />
+                    <HomeOverview navigate={nav.navigate} />
+                    <section
+                        className="workspace-panel"
+                        aria-label="Indicadores do contexto"
+                    >
+                        <Operation
+                            id="IndicadorEstoqueController.listar"
+                            transport={transport}
+                            context={context}
+                            perfil={user.perfil}
+                            onSelect={() => nav.navigate("estoque")}
+                        />
+                    </section>
                 </>
             )}
         </AppShell>

@@ -10,6 +10,8 @@ Em 09/10/2026 UTC, a integração continua impedida por evidências atuais: as t
 
 ## Comando e contrato do launcher
 
+**FE02-DEV-CON02, 09/10/2026:** a abertura SQL aguarda até120s; o prazo total da guarda é240s, com indicação de andamento a cada10s. Os prazos ficam em `infra/dev/espera-conexao.ps1`, compartilhado pelo launcher e pela guarda. Continua uma única abertura, sem retry ou fallback, antes de qualquer processo de aplicação. A extensão do prazo não comprova disponibilidade do SQL nem altera configuração do servidor.
+
 O operador usa iniciar-dev.bat na raiz. Farol possui o BAT e infra/dev/iniciar-dev.ps1; Cedro possui o helper backend e Prumo a guarda. Lume possui esta configuração/frontend. O launcher precisa concluir seu preflight público de autenticação, uma guarda atual PASS e o backend próprio READY, antes de iniciar frontend. Um listener ou HTML200 não comprova integração autenticada.
 
 Em frontend/:

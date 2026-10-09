@@ -19,6 +19,7 @@ import {
     type Workflow,
 } from "../domain/workflow";
 import { Operation } from "./Operation";
+import { PageHeader } from "./layout/PageHeader";
 import { FormReferences, type ReferenceOption } from "./FormReferences";
 import { ReferenceLookup } from "./ReferenceLookup";
 import { ExpeditionStatus } from "../modules/saida/ExpeditionStatus";
@@ -96,175 +97,215 @@ export function JourneyPage({
     const references = journey.references;
     return (
         <>
-            <h1>{journey.title}</h1>
-            {["saida", "fiscal"].includes(journey.id) && (
-                <DispatchReservations
-                    workflow={workflow}
-                    onSelect={selectRecord}
-                    disabled={selectionLocked}
-                />
-            )}
-            {journey.id === "entrada" && (
-                <ReceivingSummary workflow={workflow} />
-            )}
-            {["relatorios", "precos"].includes(journey.id) &&
-                perfil === "GESTOR" && (
-                    <AuditSelection
-                        workflow={workflow}
-                        onSelect={selectRecord}
-                        disabled={selectionLocked}
-                    />
-                )}
-            {journey.id === "fechamento" && (
-                <AdjustmentOrigin
-                    workflow={workflow}
-                    onPin={selectRecord}
-                    disabled={selectionLocked}
-                />
-            )}
-            {journey.id === "fiscal" && (
-                <ExpeditionStatus workflow={workflow} />
-            )}
-            <section
-                className="selection"
-                aria-label="Referências confirmadas da jornada"
-            >
-                <h2>Referências da jornada no contexto atual</h2>
-                <ul>
-                    {references
-                        .filter(([, t]) => workflow.selected[t])
-                        .map(([name, t]) => {
-                            const v = workflow.selected[t];
-                            return (
-                                <li key={t}>
-                                    {name}:{" "}
-                                    {String(
-                                        v.id ??
-                                            v.chaveFato ??
-                                            "referência consultada",
-                                    )}{" "}
-                                    {v.referencia ? String(v.referencia) : ""}{" "}
-                                    {v.versao !== undefined
-                                        ? "· Revisão " + String(v.versao)
-                                        : ""}{" "}
-                                    {v.numero !== undefined
-                                        ? "· Versão " + String(v.numero)
-                                        : ""}{" "}
-                                    {v.situacao
-                                        ? "· " + String(v.situacao)
-                                        : ""}
-                                </li>
-                            );
-                        })}
-                </ul>
-                <p>
-                    Uma lista com vários registros exige seleção explícita. IDs
-                    de pedido, entrada, unidade, reserva e fechamento permanecem
-                    separados.
-                </p>
-            </section>
-            <ReferenceLookup
-                journey={journey}
-                context={derived}
-                transport={transport}
-                onRecord={selectRecord}
-                selectionLocked={selectionLocked}
-                onReceipt={onReceipt}
+            <PageHeader
+                title={journey.title}
+                icon={journey.id}
+                description="Selecione uma etapa, consulte os dados e confira a operação antes de confirmar."
             />
-            {selectionLocked && (
-                <p role="status">
-                    Aguarde a confirmação ou consulte o resultado incerto. As
-                    referências do comando enviado permanecem conservadas.
-                </p>
-            )}
-            <button
-                type="button"
-                disabled={selectionLocked}
-                onClick={() => setRefresh((x) => x + 1)}
-            >
-                Usar referências consultadas no formulário (descarta edição
-                atual)
-            </button>
-            <nav className="steps" aria-label={"Etapas de " + journey.title}>
-                {journey.steps.map((s, i) => (
-                    <button
-                        key={s.title}
-                        type="button"
-                        disabled={selectionLocked}
-                        aria-current={i === step ? "step" : undefined}
-                        onClick={() => {
-                            setStep(i);
-                            setAction(
-                                s.actions.find((id) =>
-                                    canPresent(perfil, endpoint(id).permission),
-                                ) ?? "",
-                            );
-                        }}
+            <div className="journey-workspace">
+                <aside className="workspace-panel journey-navigation">
+                    <h2>Etapas da jornada</h2>
+                    <nav
+                        className="steps"
+                        aria-label={"Etapas de " + journey.title}
                     >
-                        {s.title}
-                    </button>
-                ))}
-            </nav>
-            <section>
-                <h2>{current.title}</h2>
-                <p>{current.help}</p>
-                <div
-                    className="action-tabs"
-                    role="group"
-                    aria-label="Ações desta etapa"
-                >
-                    {actions.map((id) => (
-                        <button
-                            key={id}
-                            type="button"
-                            disabled={selectionLocked}
-                            aria-pressed={id === action}
-                            onClick={() => setAction(id)}
+                        {journey.steps.map((s, i) => (
+                            <button
+                                key={s.title}
+                                type="button"
+                                disabled={selectionLocked}
+                                aria-current={i === step ? "step" : undefined}
+                                onClick={() => {
+                                    setStep(i);
+                                    setAction(
+                                        s.actions.find((id) =>
+                                            canPresent(
+                                                perfil,
+                                                endpoint(id).permission,
+                                            ),
+                                        ) ?? "",
+                                    );
+                                }}
+                            >
+                                <span
+                                    className="step-number"
+                                    aria-hidden="true"
+                                >
+                                    {i + 1}
+                                </span>
+                                <span>{s.title}</span>
+                            </button>
+                        ))}
+                    </nav>
+                </aside>
+                <div className="journey-content">
+                    <ReferenceLookup
+                        journey={journey}
+                        context={derived}
+                        transport={transport}
+                        onRecord={selectRecord}
+                        selectionLocked={selectionLocked}
+                        onReceipt={onReceipt}
+                    />
+                    <div className="journey-context">
+                        {["saida", "fiscal"].includes(journey.id) && (
+                            <DispatchReservations
+                                workflow={workflow}
+                                onSelect={selectRecord}
+                                disabled={selectionLocked}
+                            />
+                        )}
+                        {journey.id === "entrada" && (
+                            <ReceivingSummary workflow={workflow} />
+                        )}
+                        {["relatorios", "precos"].includes(journey.id) &&
+                            perfil === "GESTOR" && (
+                                <AuditSelection
+                                    workflow={workflow}
+                                    onSelect={selectRecord}
+                                    disabled={selectionLocked}
+                                />
+                            )}
+                        {journey.id === "fechamento" && (
+                            <AdjustmentOrigin
+                                workflow={workflow}
+                                onPin={selectRecord}
+                                disabled={selectionLocked}
+                            />
+                        )}
+                        {journey.id === "fiscal" && (
+                            <ExpeditionStatus workflow={workflow} />
+                        )}
+                    </div>
+                    <section className="workspace-panel stage-panel">
+                        <div className="stage-heading">
+                            <h2>{current.title}</h2>
+                            <p>{current.help}</p>
+                        </div>
+                        <div
+                            className="action-tabs"
+                            role="group"
+                            aria-label="Ações desta etapa"
                         >
-                            {actionLabel(id)}
-                        </button>
-                    ))}
-                </div>
-                {action ? (
-                    <FormReferences.Provider
-                        value={{
-                            defaults: derived,
-                            options,
-                            records: Object.fromEntries(
-                                Object.keys(workflow.catalogs).map((type) => [
-                                    type,
-                                    referenceCatalog(workflow, type),
-                                ]),
-                            ),
-                        }}
+                            {actions.map((id) => (
+                                <button
+                                    key={id}
+                                    type="button"
+                                    disabled={selectionLocked}
+                                    aria-pressed={id === action}
+                                    onClick={() => setAction(id)}
+                                >
+                                    {actionLabel(id)}
+                                </button>
+                            ))}
+                        </div>
+                        {action ? (
+                            <FormReferences.Provider
+                                value={{
+                                    defaults: derived,
+                                    options,
+                                    records: Object.fromEntries(
+                                        Object.keys(workflow.catalogs).map(
+                                            (type) => [
+                                                type,
+                                                referenceCatalog(
+                                                    workflow,
+                                                    type,
+                                                ),
+                                            ],
+                                        ),
+                                    ),
+                                }}
+                            >
+                                <Operation
+                                    key={
+                                        action +
+                                        ":" +
+                                        refresh +
+                                        ":" +
+                                        workflow.selectionRevision
+                                    }
+                                    id={action}
+                                    transport={transport}
+                                    context={derived}
+                                    perfil={perfil}
+                                    onSelect={selectRecord}
+                                    onSelectionLockChange={setSelectionLocked}
+                                    onReceipt={onReceipt}
+                                    onContinue={
+                                        nextActions[action]
+                                            ? onNavigate
+                                            : undefined
+                                    }
+                                />
+                            </FormReferences.Provider>
+                        ) : (
+                            <p>
+                                Nenhuma ação desta etapa é apresentada ao perfil
+                                atual. Selecione outra etapa.
+                            </p>
+                        )}
+                    </section>
+                    <section
+                        className="selection"
+                        aria-label="Referências confirmadas da jornada"
                     >
-                        <Operation
-                            key={
-                                action +
-                                ":" +
-                                refresh +
-                                ":" +
-                                workflow.selectionRevision
-                            }
-                            id={action}
-                            transport={transport}
-                            context={derived}
-                            perfil={perfil}
-                            onSelect={selectRecord}
-                            onSelectionLockChange={setSelectionLocked}
-                            onReceipt={onReceipt}
-                            onContinue={
-                                nextActions[action] ? onNavigate : undefined
-                            }
-                        />
-                    </FormReferences.Provider>
-                ) : (
-                    <p>
-                        Nenhuma ação desta etapa é apresentada ao perfil atual.
-                        Selecione outra etapa.
-                    </p>
-                )}
-            </section>
+                        <h2>Referências da jornada no contexto atual</h2>
+                        <ul>
+                            {references
+                                .filter(([, t]) => workflow.selected[t])
+                                .map(([name, t]) => {
+                                    const v = workflow.selected[t];
+                                    return (
+                                        <li key={t}>
+                                            {name}:{" "}
+                                            {String(
+                                                v.id ??
+                                                    v.chaveFato ??
+                                                    "referência consultada",
+                                            )}{" "}
+                                            {v.referencia
+                                                ? String(v.referencia)
+                                                : ""}{" "}
+                                            {v.versao !== undefined
+                                                ? "· Revisão " +
+                                                  String(v.versao)
+                                                : ""}{" "}
+                                            {v.numero !== undefined
+                                                ? "· Versão " + String(v.numero)
+                                                : ""}{" "}
+                                            {v.situacao
+                                                ? "· " + String(v.situacao)
+                                                : ""}
+                                        </li>
+                                    );
+                                })}
+                        </ul>
+                        <p>
+                            Uma lista com vários registros exige seleção
+                            explícita. IDs de pedido, entrada, unidade, reserva
+                            e fechamento permanecem separados.
+                        </p>
+                        <div className="button-row">
+                            {selectionLocked && (
+                                <p role="status">
+                                    Aguarde a confirmação ou consulte o
+                                    resultado incerto. As referências do comando
+                                    enviado permanecem conservadas.
+                                </p>
+                            )}
+                            <button
+                                type="button"
+                                disabled={selectionLocked}
+                                onClick={() => setRefresh((x) => x + 1)}
+                            >
+                                Usar referências consultadas no formulário
+                                (descarta edição atual)
+                            </button>
+                        </div>
+                    </section>
+                </div>
+            </div>
         </>
     );
 }

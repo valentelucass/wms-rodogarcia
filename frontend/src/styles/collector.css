@@ -24,7 +24,23 @@
 .collector form {
     margin: var(--og-space-4) 0;
 }
+.collector-task form {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 160px;
+    align-items: end;
+    gap: var(--og-space-3);
+    margin-bottom: 0;
+}
+.collector-task form > button {
+    grid-column: 1 / -1;
+}
+.collector-destination > label {
+    margin-bottom: var(--og-space-3);
+}
 @media (max-width: 800px) {
+    .collector-task form {
+        grid-template-columns: 1fr;
+    }
     .collector button {
         width: 100%;
     }

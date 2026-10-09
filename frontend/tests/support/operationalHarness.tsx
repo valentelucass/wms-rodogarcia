@@ -94,7 +94,7 @@ export async function consult() {
     click("Consultar");
     await waitFor(() =>
         expect(
-            screen.queryByRole("button", { name: "Aguardando confirmação…" }),
+            screen.queryByRole("button", { name: "Consultando…" }),
         ).toBeNull(),
     );
     await screen.findByText(/Resposta FICTÍCIA de exercício recebida/);

@@ -19,65 +19,91 @@ export function OperationForm({
             }}
             noValidate
         >
-            <fieldset disabled={s.pending || s.uncertain || s.completed}>
-                <legend>Contexto e referências da operação</legend>
-                {s.e.params.length > 0 && (
-                    <Fields
-                        fields={s.e.params}
-                        values={s.params}
-                        onChange={s.setParams}
-                        perfil={perfil}
-                    />
-                )}
-                {s.e.query.length > 0 && (
-                    <Fields
-                        fields={s.e.query}
-                        values={s.query}
-                        onChange={s.setQuery}
-                        perfil={perfil}
-                        schema={s.e.id + ".query"}
-                    />
-                )}
-                {s.e.request && (
-                    <Fields
-                        fields={records[s.e.request].filter(
-                            (f) =>
-                                !collector ||
-                                !["medidas", "conjuntoId"].includes(f.name),
-                        )}
-                        values={s.body}
-                        onChange={s.updateBody}
-                        perfil={perfil}
-                        schema={s.e.request}
-                    />
-                )}
-                {collector && s.e.request && (
-                    <details>
-                        <summary>
-                            Medidas físicas e conjunto de duas posições
-                        </summary>
+            {(s.e.params.length > 0 ||
+                s.e.query.some(
+                    (f) => !["pagina", "tamanho"].includes(f.name),
+                ) ||
+                s.e.request ||
+                s.e.multipart) && (
+                <fieldset disabled={s.pending || s.uncertain || s.completed}>
+                    <legend>Contexto e referências da operação</legend>
+                    {s.e.params.length > 0 && (
                         <Fields
-                            fields={records[s.e.request].filter((f) =>
-                                ["medidas", "conjuntoId"].includes(f.name),
+                            fields={s.e.params}
+                            values={s.params}
+                            onChange={s.setParams}
+                            perfil={perfil}
+                        />
+                    )}
+                    {s.e.query.length > 0 && (
+                        <Fields
+                            fields={s.e.query.filter(
+                                (f) => !["pagina", "tamanho"].includes(f.name),
+                            )}
+                            values={s.query}
+                            onChange={s.setQuery}
+                            perfil={perfil}
+                            schema={s.e.id + ".query"}
+                        />
+                    )}
+                    {s.e.request && (
+                        <Fields
+                            fields={records[s.e.request].filter(
+                                (f) =>
+                                    !collector ||
+                                    !["medidas", "conjuntoId"].includes(f.name),
                             )}
                             values={s.body}
                             onChange={s.updateBody}
                             perfil={perfil}
                             schema={s.e.request}
                         />
-                    </details>
-                )}
-                {s.e.multipart && (
-                    <label>
-                        Planilha de endereços .xlsx *
-                        <input
-                            type="file"
-                            accept=".xlsx"
-                            onChange={(e) => s.setFile(e.target.files?.[0])}
-                        />
-                    </label>
-                )}
-            </fieldset>
+                    )}
+                    {collector && s.e.request && (
+                        <details>
+                            <summary>
+                                Medidas físicas e conjunto de duas posições
+                            </summary>
+                            <Fields
+                                fields={records[s.e.request].filter((f) =>
+                                    ["medidas", "conjuntoId"].includes(f.name),
+                                )}
+                                values={s.body}
+                                onChange={s.updateBody}
+                                perfil={perfil}
+                                schema={s.e.request}
+                            />
+                        </details>
+                    )}
+                    {s.e.multipart && (
+                        <label>
+                            Planilha de endereços .xlsx *
+                            <input
+                                type="file"
+                                accept=".xlsx"
+                                onChange={(e) => s.setFile(e.target.files?.[0])}
+                            />
+                        </label>
+                    )}
+                </fieldset>
+            )}
+            {s.e.query.some((f) => ["pagina", "tamanho"].includes(f.name)) && (
+                <fieldset
+                    className="pagination-fields"
+                    disabled={s.pending || s.uncertain || s.completed}
+                >
+                    <legend>Paginação da consulta</legend>
+                    <Fields
+                        fields={s.e.query.filter((f) =>
+                            ["pagina", "tamanho"].includes(f.name),
+                        )}
+                        values={s.query}
+                        onChange={s.setQuery}
+                        perfil={perfil}
+                        schema={s.e.id + ".query"}
+                    />
+                </fieldset>
+            )}
             <div className="actions">
                 <button
                     className="primary"
@@ -85,7 +111,9 @@ export function OperationForm({
                     disabled={s.pending || s.completed || s.uncertain}
                 >
                     {s.pending
-                        ? "Aguardando confirmação…"
+                        ? s.e.method === "GET"
+                            ? "Consultando…"
+                            : "Aguardando confirmação…"
                         : s.e.method === "GET"
                           ? "Consultar"
                           : "Conferir e confirmar"}
