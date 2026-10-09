@@ -160,3 +160,6 @@ secrets.json
 /frontend/evidencias/**/*-browser-*.png
 /frontend/evidencias/**/*.json
 /frontend/evidencias/**/*.png
+
+# Evidências locais em qualquer pasta do projeto.
+evidencias/

@@ -1,14 +1,106 @@
 # Estado e trilha de implementação do WMS Rodogarcia
 
-## Resultado atual D31-DEV02 — integração real impedida por TLS atual e autenticação ausente
+## AUD-LOGIN-CAD01 — auditoria atual de login e cadastros em execução
 
-FIM_INTEGRACAO_DEV_LUCAS e complemento iniciar-dev.bat: correção vigente da entrega frontend. A verificação segura ATUAL autorizada foi executada, sem concluir pelo histórico D29. UMA abertura WMSDEV configurada para WMS_DEV em 2026-10-09T00:51:02.8522544Z (PID32144; 454,7449ms) falhou TLS/certificado SQL/native -2146762480 antes SELECT. Alvo real/identidade/TLS/permissões/catálogo/histórico não confirmados; zero SELECT/API/backend. Sem segunda abertura/fallback. [Guarda atual](frontend/evidencias/frontend-prumo-dev02-guarda-lucas-20261008.json).
+Pedido expresso Lucas em 09/10/2026. BE04-AUD01 → FE03-AUD01: rastrear atributos por classe/contrato/campo/persistência e revisar segurança de login, sessão, autorização e cadastros efetivos. Fonte atual D32: login próprio e gestão de usuários existem; ativação/startup DEV04 registrados. A proposta histórica Keycloak/BFF não foi adotada. Provas anteriores são contexto, não novas verificações desta auditoria. [Escopo e posse](orchestracao/.runtime/login-cadastros-auditoria-escopo.json).
 
-**AUTH atual:** ausência confirmada das referências públicas WMS_OIDC_ISSUER/WMS_OIDC_JWK_SET_URI/WMS_OIDC_AUDIENCE e de fluxo aprovado provider/token/sessão. ResourceServer RS256/Bearer não cria login/emissor; o canal WMSDEV é exclusivamente SQL. Nenhum token/conta/provider de ensaio foi fabricado como substituto. O iniciar-dev.bat real foi executado: exit40 AUTH_CONFIGURATION_MISSING, antes da guarda/SQL e sem processos BE/FE novos. [Recibo launcher](orchestracao/.runtime/frontend-integracao-dev-runs/86711d638419468ab6834ff02a316f9a/launcher.json); [guia](docs/19-desenvolvimento-integrado-dev.md).
+Cedro backend/atributos; Lume frontend/forms/tipos/sessão; Prumo JPA/migrations em arquivo; Vigia segurança/revisão independente; Farol matriz/canônicos. Aplicação somente leitura, artefatos exclusivos por dono. Testes novos somente isolados proporcionais sem banco/provider. Sem SQL/guarda/JDBC/HTTPDEV/banco/DDL/grants/processos reais/segredos/auth nova/ETL/Hermes ou reabertura FINAL14. TLS aprovado e linhagem histórica preservados, sem nova sonda. Auditoria não aprova correções amplas ou operação real; achados e próximos passos no recibo final.
 
-Farol mantém launcher único/canônicos/recibo; Prumo, guarda atual; Cedro, configuração/startup/readiness backend; Lume, frontend real/default/proxy/sessão/cliente; Vigia, revisão independente. Preparação e focais locais pertinentes continuam em paralelo, sem conflito de donos; nenhuma API/BE/SQL adicional enquanto impedido. npm run dev será real sem fallback, fictício modo separado explícito; fonte e revisão final do incremento ainda em fechamento. Processos 5178/5188/5189 preservados, nenhuma URL integrada anunciada.
+### Estado anterior preservado — D32 e demais entregas
 
-Encaminhamento material: responsável SQL/TLS comprovar correção segura da rejeição de certificado, sem bypass/globaltrust ou mudanças de servidor/acessos pelo agente; responsável identidade configurar provedor WMS DEV e fluxo de autenticação aprovado. Recibo deste MESMO incremento em orchestracao/.runtime/frontend-integracao-dev-resultado.json/.md, sem callback Hermes. FINAL14 e base frontend local MARCO03/parecer16 preservados como históricos; D30 geral aberta, aceiteLocalIntegral=false, C06/C07/C10 requeridos impedidos históricos. Não executar PROD/sa/DDL/migrations/grants/alterar servidor/sharedruntime/kill ou restart existentes/publicação/commit/push/ETL/rotinas. Registro de atualização 2026-10-09T00:56:55.994632+00:00.
+## D32 — login e administração de usuários (09/10/2026)
+
+**D32-DEV07 — túnel variável e validação de senha conferidos localmente.** Configuração agora contém somente `modo: tunnel`, sem URL pública fixa. Origem HTTPS deve corresponder exatamente ao destino atual no proxy loopback; alias localhost, CSRF e cookies Secure preservados. Console orienta usar o link atual da porta no VS Code. Trinta e dois testes backend passaram, incluindo três hosts sem reinício, troca de senha/novo login, recusa de outra origem e CSRF; sete testes frontend, lint/tipagem/build e nove verificações PowerShell passaram. JAR `target-auth-d32-dynamic` registrado no launcher. Frontend explica e valida senha diferente da atual e comprimento12–128 antes do envio. Próximo passo: usuário reinicia o BAT uma vez para carregar esta versão; novas mudanças apenas na URL do túnel dispensam reinício. Causa do400 real ainda não confirmada: aguardando mensagem da tela, sem senha. [Resultado e limites](orchestracao/.runtime/login-d32/dev07-resultado.json). BE04-AUTH01 → FE03-AUTH01, mesmo escopo D32.
+
+**D32-DEV06 — acesso pelo Dev Tunnel validado localmente; reinício pelo usuário pendente.** Relato403 em `https://1z8126n0-25581.brs.devtunnels.ms`; diagnóstico sem senha na rota CSRF confirmou `ORIGEM_INVALIDA`, antes da autenticação. Configuração pública em `infra/dev/acesso-dev.json`, origem HTTPS exata, cookies Secure e alias de Origin localhost restrito ao proxy loopback/perfil DEV. Não amplia para outros túneis nem desliga CSRF. BE04-AUTH01 → FE03-AUTH01: 20 testes backend, incluindo HTTP interno de proxy/H2, passaram; login/renovação, cookies Secure, outra origem403 e CSRF inválido403 conferidos. Treze verificações de configuração e sintaxe PowerShell passaram. JAR `target-auth-d32-tunnel` preparado no recibo do launcher. Próximo passo: usuário encerra o console antigo, executa o BAT e entra pelo link do túnel; login real novo ainda não conferido. Os 11 usos obsoletos `asText()` nos dois testes relatados foram substituídos por `asString()`; compilação aprovada. [Resultado e limites](orchestracao/.runtime/login-d32/dev06-resultado.json). Auditoria paralela acima preservada.
+
+**D32-DEV05 — correção de senha e console validados localmente; reinício pelo usuário pendente.** O construtor legado do encoder Spring usava SHA1, enquanto `PrepararLogin.java` gera PBKDF2-SHA256. Algoritmo agora explícito, com regressão que executa o configurador real e fixture independente via JCA. Falha reproduzida antes da correção; 20 testes backend, incluindo navegador/H2, e build frontend aprovados depois. Hash/configuração protegida existentes preservados. Console com quatro etapas, horários/cores, painel de acesso e orientação de falha; favicon SVG respondeu200. Novo JAR `target-auth-d32-loginfix` registrado no launcher. Instância atual do usuário preservada. [Evidências e limites](orchestracao/.runtime/login-d32/dev05-resultado.json). Atualização graphify recusada pela guarda de redução; sem forçar.
+
+**D32-DEV04 — ativação concluída; `iniciar-dev.bat` validado em ambiente real.** V11 aplicada via Flyway somente WMS_DEV; 22 direitos mínimos adicionados ao WMSDEV (311 → 333), com V1–V10 e dados preservados. Guarda atual passou: TLS validado, identidade WMSDEV/WMS_DEV, 68 tabelas/716 colunas e histórico V11 íntegros. Backend real `sqlserver-dev`, migrations desligadas e frontend real subiram pelo BAT no [run ce0bf9dd](orchestracao/.runtime/frontend-integracao-dev-runs/ce0bf9dd46b3423ba148782a52cf212f/launcher.json). Chrome confirmou login desktop/360px, CSS sem violações CSP, API/status200, chave pública200 e acesso anônimo a clientes401. Corrigido CSS de login para folha externa no DEV. `npm run check`: 359 testes, tipagem, lint e build aprovados.
+
+Próximo passo vigente: o usuário encerra seu console atual com Ctrl+C, executa `iniciar-dev.bat` novamente, atualiza `http://127.0.0.1:25581` e entra com a conta principal e a senha já configurada. Não repetir o configurador. A senha real não foi usada nos testes do agente: primeiro login, troca de senha e operações autenticadas em SQL Server ficam para a validação pelo usuário. A ativação DEV04 permanece como prova histórica de banco/subida, não de login autenticado. [Ativação e limites](orchestracao/.runtime/login-d32/dev04-resultado.json).
+
+### Histórico da implementação D32 e impedimentos superados
+
+**BE04-AUTH01 / FE03-AUTH01 — implementação e validação local concluídas; ativação WMS_DEV pendente.** Pedido direto de Lucas neste chat: login próprio WMS, JWT, conta principal `desenvolvedor@rodogarcia.com.br` protegida contra exclusão, painel de usuários, administradores delegados, senhas temporárias e troca obrigatória no primeiro acesso e após redefinição. Dependências: BE04, FE03 e integração D31-DEV02. A autorização de implementação substitui a pendência de escolha AUTH; a proposta Keycloak/BFF anterior não foi adotada. Permissões operacionais por perfil/cliente/armazém continuam no backend. Senha inicial não integra fontes, documentação ou logs.
+
+Evidências: 18 testes backend direcionados e uma jornada automatizada de navegador com quatro verificações completas, HTTP/JPA/H2 efêmero; 359 testes frontend, tipagem, lint e build; 9 verificações de contratos/material fictício e 20 do helper. Capturas desktop/360px e teclado conferidos. A jornada visual detectou e validou a correção da chamada nativa `fetch`. [Resultado local](orchestracao/.runtime/login-d32/resultado.json), [guia e contratos](docs/43-login-e-administracao-de-usuarios.md). JAR próprio gerado; nenhuma conta real criada. Atualização graphify recusada pela proteção contra redução do grafo; mapa anterior preservado, sem `--force`.
+
+Próximo passo: obter liberação específica para nova verificação e aplicação da V11 e dos 22 direitos mínimos WMSDEV exclusivamente em WMS_DEV, seguida da jornada integrada pelo `iniciar-dev.bat`. Configuração inicial protegida concluída pelo usuário. Migration, contrato e launcher preparados; V1–V10 e oráculo D29 preservados. Testes locais não comprovam integração WMS_DEV; BE04-AUTH01/FE03-AUTH01 permanecem em validação de ambiente até essa evidência.
+
+**D32-DEV03, diagnóstico em 09/10/2026:** execução manual do usuário [8a778edc](orchestracao/.runtime/frontend-integracao-dev-runs/8a778edc4be045ffb83c4b3fbb24d98a/guarda.json) confirmou presença do material de login, mas a abertura SQL expirou em 5,26 segundos, código -2/258, fase prelogin/handshake; zero SELECT e BE/FE não iniciados. Inspeção do Windows constatou serviço MSSQLSERVER ligado e listener1433/PID21812; isso não comprova conexão SQL funcional nem a causa do timeout. Cliente ajustado de 5 para 30 segundos, mantendo conexão única, TLS validado e zero retries; launcher agora explica a classe do bloqueio. Sintaxe e 20 testes isolados do helper passaram. Nenhuma nova conexão foi executada pelo agente neste diagnóstico; nova verificação e ativação DEV aguardam liberação específica apresentada ao usuário.
+
+Organização D32 em 09/10/2026, a pedido de Lucas: configurador movido da raiz para `infra/auth/configurar-login-dev.bat`; chamada do PS1 e orientação do launcher ajustadas. Caminhos e sintaxe conferidos estaticamente, sem executar configuração de senha ou banco. O bloqueio relatado `AUTH_NATIVE_CONFIGURATION_REQUIRED` indica ausência da configuração protegida local; a ativação SQL continua pendente conforme o próximo passo acima.
+
+## Histórico anterior à autorização de login D32
+
+## Resultado atual D31-DEV02-TLS01 — SQL/TLS aprovado; AUTH pendente
+
+Handoff expresso de Lucas absorvido por Farol em 09/10/2026. Provas do apoio Codex: guarda WMS_DEV/WMSDEV aprovada em 2026-10-09T11:56:41.5843363Z, 26/26 critérios; SqlClient e JDBC PASS, TLS validado (`Encrypt=true/Mandatory`, `TrustServerCertificate=false`), zero alterações SQL. O helper atual corresponde ao SHA D2FF82F7241F448FA5FA836A732A1F9CB2ECE2137B6735DAFDBD1AD4F06B35A9. A baseline D29 de permissões/catálogo/histórico foi preservada. [Provas e proveniência](orchestracao/.runtime/frontend-integracao-dev-tls-handoff-20261009.md).
+
+SQL/TLS resolvido conforme estas provas datadas; pin/recibo antigos e recusas anteriores ficam históricos, sem inferir alteração servidor/sa. Regra permanente em [AGENTS.md](AGENTS.md): confiança corresponde ao processo atual; renovação segura autorizada, sem recaptura automática. Guarda normal futura exige atualidade e pertence à execução integrada após resolução AUTH, não ao recebimento deste handoff.
+
+AUTH continua decisão material D31-DEV02-AUTH-DECISAO01, Keycloak/BFF não aprovado. Backend/API não iniciados; URL integrada=null, roundtrip=false, entrega integrada aberta. Mapa anterior preservado, atualização estrutural pendente após rejeição; nenhum mapa/SQL/guarda/JDBC/build/teste/processo executado por Farol nesta absorção. FINAL14 local aprovada; D30 geral aberta, aceiteLocalIntegral=false; C06/C07/C10 requeridos impedidos históricos preservados. [Recibo vigente](orchestracao/.runtime/frontend-integracao-dev-resultado.json).
+
+## Histórico preservado — conteúdo anterior à absorção Farol TLS01
+
+## Apoio atual D31-DEV02-TLS01 — certificado renovado e guarda real aprovada
+
+Em 09/10/2026, por pedido direto do responsável para ajudar Hermes WMS, o Codex deste apoio renovou a confiança privada pelo helper existente do runtime. O recibo ainda era do PID65088; o SQL atual PID21812 apresenta outro certificado fallback. SqlClient e JDBC13.4/JDK21 passaram em leituras reais WMS_DEV/WMSDEV, com TLS validado. A guarda cliente foi corrigida para verificar recibo/PID/início/hashes/validade atuais antes da abertura e confirmar o processo depois, preservando a baseline D29 de direitos/catálogo/histórico. Guarda completa em 11:56:41UTC:26 critérios aprovados,64 tabelas/687 colunas,V1–V10 e permissões conferidos; uma abertura e12SELECTs de identidade/metadados, zero negócio/DML/DDL.
+
+TLS resolvido neste recorte; AUTH dos usuários da aplicação continua pendente, sem backend/API/URL integrada. Nenhum sa/PROD/grants/servidor/serviço/trust global/migrations alterado. [Relatório e limites](orchestracao/.runtime/tls-apoio-hermes-wms-20261009/LEIA-HERMES-WMS-CERTIFICADO-SQL.txt), [guarda atual](orchestracao/.runtime/tls-apoio-hermes-wms-20261009/certificado-sql-wms-guarda.json). Encaminhamento direto ao Hermes WMS/Farol indisponível neste chat externo; relatório e provas deixados no runtime WMS para a equipe. Não repetir rodadas encerradas nem considerar a integração concluída por este apoio.
+
+## Histórico preservado — estado anterior ao apoio TLS01
+
+## Resultado atual D31-DEV02 — nova guarda SQL bloqueada TLS; AUTH separada
+
+Após relato Lucas “sql server voltou”, Prumo verificou canal próprio independenteAUTH: iníciohelper2026-10-09T11:30:14.2409217Z,Open2026-10-09T11:30:16.2451044Z,fim2026-10-09T11:30:16.5307190Z,PID29060,UMAOpen258.9705ms/exit20 filho capturado. TLS0x800B0110/native-2146762480 faseABERTURA antesSELECT; queries0/handshakefalse, alvo/identidade/permissões/catálogo/histórico não confirmados. Relato não éPASS nem comprova estado sa/disponibilidade geralSQL. [Resultado](orchestracao/.runtime/frontend-integracao-dev-retomada-sql-20261009.md), [guarda](frontend/evidencias/frontend-prumo-dev02-guarda-retomada-20261009.json).
+
+Interrompido sem segundaOpen/BE/API/proxy/sa/PROD/bypass/TLSglobal/DDL/migrations/grants/servidor/restartkill/ETL/Hermes. Helper1376 antes/depois igual e credencialWMSDEV protegida em memória descartada; segredo não publicado. Vigia conferiu recibos em leitura sem novaSQL. Responsável TLS/SQL apresenta encaminhamento seguro para a recusa atual; causa/peer não comprovados, nenhum ajuste compartilhado ou nova sonda automática.
+
+AUTH continua decisão material D31-DEV02-AUTH-DECISAO01, independenteSQL; Keycloak/BFF NÃO aprovado nem criado. Nenhum backend/URL integrada sem autenticação real adequada. Mesma demandaDEV02, sem missão duplicada; auditoriaSA/FINAL14/MARCO03/históricos preservados. FINAL14 local aprovada; D30geralaberta, aceiteLocalIntegral=false,C06/C07/C10 requeridos impedidos históricos. RegistroUTC2026-10-09T11:38:25.736665Z.
+
+## Histórico preservado — estado anterior à nova verificação SQL
+
+## Resultado atual D31-DEV02 após AUD-SQL-SA01 — BAT real40; decisão AUTH e TLS pendentes
+
+BAT WMS real executado após auditoria em 2026-10-09T02:22:04.2682459Z: exit40 AUTH_CONFIGURATION_MISSING das três referências públicas; SQLGuard/BE/FE=false, URL=null, roundtrip=false, sem mock. Portas/proprietários observados iguais antes/depois; nenhuma nova Open ou alteração do SQL Server. [Run atual](orchestracao/.runtime/frontend-integracao-dev-runs/e169e141b28d4537b02a2a33cd9a8463/launcher.json), [consolidação](orchestracao/.runtime/frontend-integracao-dev-apos-auditoria-adenda.md).
+
+Referência EXATA dashboards-etl examinada por Lume:14 fontes técnicas/10WMS e24 hashes conferidos. Organização BE→readiness→FE é aproveitável; login próprio HMAC daquele projeto não corresponde a ResourceServerRS256/JWK WMS. Nenhum launcher alheio executado ou env/conexão/conta/credencial/segredo/controle copiado; não portar killporporta/limpalogs/Securefalse/CSRFdisable/replay401. Keycloak/BFF NÃO aprovado nem criado. Nenhuma fonte própria OIDC localizada nos canais examinados; ausência delimitada, não universal. Não há loaderfix demonstrado.
+
+Decisão material ÚNICA continua D31-DEV02-AUTH-DECISAO01: proposta Keycloak DEV exclusivoWMS+BFF, dono de identidade designado, API RS256 preservada. Pedido exige decisão antes provider/servidor novo ou mudança de autenticação. Sessão operacional FE/catálogos/adapter ainda necessários após contrato aprovado. TLS SQL é impedimento independente0x800B0110 antesSELECT na única Open; sem causa/peer comprovado e sem segunda sonda. Responsável TLS/SQL apresenta encaminhamento seguro; nenhuma mudança servidor/trust global autorizada. [Proposta](orchestracao/.runtime/frontend-integracao-dev-auth-proposta.md).
+
+AUD-SQL-SA01 encerrada em leitura: D26identidadeWMSDEV/direitos eD27V10 históricos comprovados; nenhuma mudança sa/senha/authmode demonstrada no recorte. SQLPID65088→21812/início07out20:57:17.273Z sem autor/causa. ERRORLOGnegado/18456state/reason desconhecidos; operador autorizado obter extrato e flags pela sessão Windows existente, semsenha/novaSQLagente/reparo. [Auditoria](orchestracao/.runtime/sql-auditoria-login-sa-resultado.md).
+
+Mesma DEV02 aberta, não novo macrobloco. Sem repetição FINAL14/suítes antigas, Keycloak/provider, SQL/sa/PROD/DDL/grants/restartkill/ETL/Hermes. Lume referência; Prumo OS/registro; Cedro execuções/AUTH; Vigia revisão; Farol BAT/canônicos/consolidação. FINAL14 local aprovada preservada; D30 geral aberta, aceiteLocalIntegral=false, C06/C07/C10 requeridos impedidos. Registro UTC 2026-10-09T02:26:22.791284Z.
+
+## Histórico preservado — auditoria SA e contexto DEV02 anteriores
+
+## Resultado atual AUD-SQL-SA01 — auditoria encerrada em leitura; causa sa não determinada
+
+Efeitos históricos WMS comprovados: D24 validação administrativa sa; D26 criação de login/usuário/direitos WMSDEV; D27 V10 WMS_DEV. Prumo por atribuição documental, operador Windows não individualizado. Nenhuma execução/efeito de mudança de sa/senha/authmode demonstrado no recorte; não é garantia universal. Processo SQL mudou: PID65088 baseline07out20:38:51Z → PID21812 criado07out20:57:17.273Z, sem autor/causa identificados. Registro gravado LoginMode2/ForceEncryption0/certificado vazio sem baseline comparável, não flags sa/peerTLS.
+
+18456 sa/state/reason atuais indisponíveis: Parameters/ERRORLOG negados e Windows sem evento utilizável; não significa ausência de falhas. Próximo passo do operador já autorizado: extrato nativo sanitizado e consulta única de flags pela sessão Windows existente, sem senha no chat/nova conexão do agente/reparo. ZERO SQL/Open/sa/DPAPI/BE/API/grants/servidor/restart/kill na auditoria. [Resultado](orchestracao/.runtime/sql-auditoria-login-sa-resultado.md), [fontes/hashes](orchestracao/.runtime/sql-auditoria-login-sa-resultado.json).
+
+Lucas determinou retomar a MESMA DEV02 após os achados, confrontando somente referência técnica dashboards-etl. Keycloak/BFF não aprovado; integração ainda exige BAT real, guardas WMS_DEV/WMSDEV/TLS e roundtrip. FINAL14 e demais históricos preservados. Fecho UTC 2026-10-09T02:20:38.625201Z.
+
+## Contexto anterior preservado — D31-DEV02 ainda pendente
+
+## Resultado atual D31-DEV02 — integração real pendente; decisão AUTH e impedimento TLS atuais
+
+**Run real de Lucas:** iniciar-dev.bat em 2026-10-09T01:14:35.6191414Z → exit40 AUTH_CONFIGURATION_MISSING das três referências OIDC. Guarda SQL não invocada; backend/frontend não iniciados; URL integrada e roundtrip inexistentes. [Recibo observado](orchestracao/.runtime/frontend-integracao-dev-runs/7483449c3bcf41608496bc8eb35e3982/launcher.json).
+
+**Origem AUTH investigada:** Prumo/Cedro verificaram presença apenas: 9/9 ausentes em Process/User/Machine, zero valores publicados. Fontes públicas WMS definem ResourceServer RS256/Bearer e placeholders; canais locais consultados são SQL. Nenhuma fonte OIDC própria previamente aprovada/configurada foi localizada nesses escopos/fontes; isso não prova ausência universal corporativa. Não há correção de carregamento demonstrada. O frontend real ainda precisa da sessão operacional, além das três referências.
+
+**Uma proposta, não aprovação:** Farol propõe Keycloak DEV exclusivo WMS, gerido por responsável de identidade designado, com sessão BFF same-origin no backend; tokens/secret fora do navegador, API RS256/Bearer stateless preservada. Provider/contas/BFF não criados. Lucas precisa decidir este arranjo antes de provisionar ou mudar autenticação, como exigiu no pedido. [Descoberta e proposta](orchestracao/.runtime/frontend-integracao-dev-auth-proposta.md), [fontes/hashes](orchestracao/.runtime/frontend-integracao-dev-auth-proposta.json). Não pedir três valores técnicos soltos nem usar identidades de outros projetos.
+
+**SQL/TLS independente:** única Open atual em 2026-10-09T00:51:02.8522544Z, PID32144, 454,7449ms, recusou TLS0x800B0110 antes SELECT. Alvo real/identidade/permissões/catálogo/histórico não confirmados; zero SELECT/API/backend. PEM/DER configurados no cliente não são peer atual nem comprovam causa. Sem segunda abertura/bypass/recaptura. Responsável TLS precisa apresentar correção segura; aprovar AUTH não resolve nem libera automaticamente SQL. [Guarda atual](frontend/evidencias/frontend-prumo-dev02-guarda-lucas-20261008.json).
+
+**Preparo local revisado, entrega integrada aberta:** launcher único REAL/default, frontend sem fallback, helper/readiness BE e guardas foram implementados e revisados. Vigia encerrou achados locais001–003; FE CORE01 tem188 fontes/63 focais, tipo/lint e dois builds locais; browser estático4, sem API. Cedro20 focais isolados; launcher AUTH4 green e cleanup10 green. Estas provas não comprovam autenticação ou WMS_DEV real. FINAL14 não foi repetida. Só arquivos/recibos próprios dos cinco WMS; sem agentes/conexões novos, Hermes ou ETL. Nenhuma alteração de fonte frontend após CORE01 por este registro.
+
+Farol: launcher/canônicos/recibo/mapa/nota; Cedro: backend/config/readiness/AUTH origem; Lume: frontend/sessão/cliente; Prumo: guarda/TLS/canais; Vigia: revisão independente. Processos históricos5178/5188/5189 preservados; não são URL integrada desta entrega. Após decisões e pré-requisitos seguros no escopo autorizado, será necessário executar BAT real e comprovar login/consulta browser→API→WMS_DEV/WMSDEV. Sem PROD/sa/DDL/migrations/grants/servidor/sharedruntime/killrestart existentes/publicação/commit/push/ETL/rotinas.
+
+Recibo vigente: [JSON](orchestracao/.runtime/frontend-integracao-dev-resultado.json), [MD](orchestracao/.runtime/frontend-integracao-dev-resultado.md). Leitura mínima: AGENTS → states → docs/09 → docs/19 → recibo → proposta AUTH/guarda e parecer conforme pertinência. FINAL14 local aprovada preservada; D30 geral aberta, aceiteLocalIntegral=false, C06/C07/C10 requeridos impedidos históricos. Base frontend MARCO03 local preservada; não equivale ao sistema inteiro ou integração real. Registro UTC 2026-10-09T01:30:19.545206+00:00.
 
 ## Histórico preservado — fecho local anterior e limite DEV01
 
@@ -632,6 +724,11 @@ As entregas desta trilha ficam em `backend` e, quando necessário, `database` e 
 
 ### BE04 Identidade, permissões e auditoria
 
+**Atual D32 / AUD-LOGIN-CAD01:** login e usuários próprios implementados; mecanismo nativo, contratos e ativação DEV04 descritos no [documento 43](docs/43-login-e-administracao-de-usuarios.md). Revalidação de segurança e atributos em auditoria BE04-AUD01/FE03-AUD01; primeiro login real/negócio autenticado não presumido.
+
+#### Histórico do item antes de D32 — preservado
+
+
 
 
 **Status:** Em validação externa; acesso técnico HTTP/SQL DEV e auditoria nos casos D26/D27 exercitados; provedor/identidades operacionais não homologados. **Dependências:** BE02, BE03.
@@ -1117,6 +1214,11 @@ As entregas desta trilha ficam em `frontend`. Telas de gestão e coletor usam Re
 **Evidência D31 atual FE02:** [cobertura/limites](frontend/docs/cobertura-e-limites.md), [provas](frontend/docs/provas-jornadas-marco02.md), [recibo](orchestracao/.runtime/frontend-resultado-lucas-20261008.json). Checkboxes assinalados correspondem ao recorte local frontend; API/SQL/equipamento/fiscal reais continuam separados.
 
 ### FE03 Acesso e navegação por perfil
+
+**Atual D32 / AUD-LOGIN-CAD01:** login e usuários próprios implementados; mecanismo nativo, contratos e ativação DEV04 descritos no [documento 43](docs/43-login-e-administracao-de-usuarios.md). Revalidação de segurança e atributos em auditoria BE04-AUD01/FE03-AUD01; primeiro login real/negócio autenticado não presumido.
+
+#### Histórico do item antes de D32 — preservado
+
 
 
 

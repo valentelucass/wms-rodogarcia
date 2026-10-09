@@ -1,4 +1,5 @@
 import { ExerciseApp } from "./ExerciseApp";
+import { AuthApp } from "./auth/AuthApp";
 import { IntegrationBlockedPage } from "./pages/IntegrationBlockedPage";
 
 export default function App() {
@@ -6,5 +7,7 @@ export default function App() {
     const exercise =
         selected === "ficticio" ||
         (!selected && import.meta.env.MODE === "ficticio");
-    return exercise ? <ExerciseApp /> : <IntegrationBlockedPage />;
+    if (selected && selected !== "real" && selected !== "ficticio")
+        return <IntegrationBlockedPage />;
+    return exercise ? <ExerciseApp /> : <AuthApp />;
 }

@@ -28,6 +28,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class CadastrosSegurancaConfig {
     @Bean
     @ConditionalOnMissingBean(JwtDecoder.class)
+    @ConditionalOnProperty(name = "wms.auth.enabled", havingValue = "false", matchIfMissing = true)
     JwtDecoder jwtDecoder(IdentidadeProperties properties) {
         NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSetUri(properties.jwkSetUri()).build();
         decoder.setJwtValidator(
@@ -43,6 +44,7 @@ public class CadastrosSegurancaConfig {
         JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
         converter.setJwtGrantedAuthoritiesConverter(
                 jwt -> {
+                    if (Boolean.TRUE.equals(jwt.getClaim("trocar_senha"))) return List.of();
                     String perfil = jwt.getClaimAsString("wms_perfil");
                     return JwtWmsValidator.PERFIS.contains(perfil)
                             ? List.of(new SimpleGrantedAuthority("ROLE_" + perfil))

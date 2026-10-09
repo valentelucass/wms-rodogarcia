@@ -10,21 +10,33 @@ vi.mock("../src/hooks/useExerciseSession", () => ({
 }));
 afterEach(() => vi.unstubAllEnvs());
 describe("DEV02 fronteira de sessao: nenhuma identidade ficticia em REAL", () => {
-    it.each([undefined, "real", "invalid"])(
-        "modo %s nao instancia sessao/exercicio nem envia rede",
-        (mode) => {
+    it.each([undefined, "real"])(
+        "modo %s solicita somente sessao real e nunca instancia exercicio",
+        async (mode) => {
             vi.stubEnv("VITE_DATA_MODE", mode);
             vi.stubEnv("MODE", "development");
-            const fetcher = vi.spyOn(globalThis, "fetch");
+            const fetcher = vi
+                .spyOn(globalThis, "fetch")
+                .mockImplementation(async (url) => {
+                    if (String(url).endsWith("/csrf"))
+                        return new Response(
+                            JSON.stringify({
+                                token: "csrf-ficticio",
+                                header: "X-XSRF-TOKEN",
+                            }),
+                            { status: 200 },
+                        );
+                    return new Response(
+                        JSON.stringify({ detail: "Entre no WMS." }),
+                        { status: 401 },
+                    );
+                });
             render(<App />);
             expect(
-                screen.getByRole("heading", {
-                    name: "Sessão real indisponível",
+                await screen.findByRole("heading", {
+                    name: "Entrar no WMS",
                 }),
             ).toBeInTheDocument();
-            expect(screen.getByRole("status")).toHaveTextContent(
-                "Nenhuma consulta ou comando operacional foi enviado",
-            );
             expect(
                 screen.queryByLabelText("Perfil de apresentação fictício"),
             ).not.toBeInTheDocument();
@@ -32,10 +44,24 @@ describe("DEV02 fronteira de sessao: nenhuma identidade ficticia em REAL", () =>
                 screen.queryByText("Início da operação"),
             ).not.toBeInTheDocument();
             expect(useExerciseSession).not.toHaveBeenCalled();
-            expect(fetcher).not.toHaveBeenCalled();
+            expect(
+                fetcher.mock.calls.every(([url]) =>
+                    String(url).startsWith("/api/auth/"),
+                ),
+            ).toBe(true);
             fetcher.mockRestore();
         },
     );
+    it("modo invalido continua recusado sem rede", () => {
+        vi.stubEnv("VITE_DATA_MODE", "invalid");
+        const fetcher = vi.spyOn(globalThis, "fetch");
+        render(<App />);
+        expect(
+            screen.getByRole("heading", { name: "Sessão real indisponível" }),
+        ).toBeInTheDocument();
+        expect(fetcher).not.toHaveBeenCalled();
+        fetcher.mockRestore();
+    });
     it("Bearer ausente recusa antes de fetch, sem token demo/cookie/fallback", async () => {
         const fetcher = vi.fn();
         await expect(

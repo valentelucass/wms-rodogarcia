@@ -1,5 +1,7 @@
 # Documentação do WMS Rodogarcia
 
+**D32 — login e administração de usuários:** [uso, segurança, contratos e ativação DEV](43-login-e-administracao-de-usuarios.md). Conta principal protegida, administradores delegados e senha temporária obrigatória; implantação SQL Server separada da validação local.
+
 Esta documentação reúne o contexto necessário para continuar o projeto sem depender do histórico da conversa. Foi iniciada em 03/10/2026, durante a fase de análise de negócio e arquitetura.
 
 ## Como interpretar os registros

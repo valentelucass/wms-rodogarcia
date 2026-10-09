@@ -40,6 +40,7 @@ function Invoke-WmsDev02Guard {
     [CmdletBinding()]
     param()
     $ErrorActionPreference = 'Stop'
+    $connectTimeoutSeconds = 30
     $credential=$null; $connection=$null; $certificate=$null; $builder=$null; $openWatch=$null
     $phase='PREPARO_LOCAL'; $identityConfirmed=$false
     $checks=New-Object 'Collections.Generic.List[object]'
@@ -50,7 +51,7 @@ function Invoke-WmsDev02Guard {
         aberturaTentativas=0;aberturaConcluida=$false;aberturaElapsedMs=$null
         identidadeConfirmada=$false;alvo=$null;tls=$null;direitos=$null;catalogo=$null;historico=$null
         queriesGuarda=0;queriesMetadados=0;queriesNegocio=0;erro=$null
-        politica=[ordered]@{alvo='tcp:127.0.0.1,1433';banco='WMS_DEV';login='WMSDEV';connectTimeout=5;commandTimeout=3;pooling=$false;connectRetryCount=0;fallback=$false}
+        politica=[ordered]@{alvo='tcp:127.0.0.1,1433';banco='WMS_DEV';login='WMSDEV';connectTimeout=$connectTimeoutSeconds;commandTimeout=3;pooling=$false;connectRetryCount=0;fallback=$false}
         limites=[ordered]@{API=0;DML=0;DDL=0;PROD=0;admin=0;grants=0;sharedRuntimeAlterado=$false;servidorAlterado=$false;recapturaCertificado=$false;segredoPublicado=$false}
         limpeza=[ordered]@{conexaoDescartada=$true;secureStringDescartada=$true;certificadoDescartado=$true}
     }
@@ -93,7 +94,12 @@ function Invoke-WmsDev02Guard {
         $baseline=Get-Content -LiteralPath $baselinePath -Encoding UTF8 -Raw|ConvertFrom-Json
         $report.oraculo=[ordered]@{arquivo='orchestracao/.runtime/d29-farol-retomada-preflight.json';sha256=(Get-FileHash -LiteralPath $baselinePath -Algorithm SHA256).Hash;observadoEm=$baseline.observadoEm;uso='comparacao de direitos/catalogo/historico apos SELECTs atuais'}
         $migrations=@(Get-WmsDev02Migrations)
-        Assert-Dev02 'inventario local V1-V10 sem arquivo ausente ou adicional' (Compare-Dev02Rows $migrations @($baseline.historico|Where-Object {$_.type -ceq 'SQL'}) @('version','script'))
+        # D32 estende o esperado em memoria. Baseline e fontes V1-V10 permanecem imutaveis.
+        if (@($migrations | Where-Object { $_.version -ceq '11' }).Count -eq 1) {
+            . (Join-Path $script:WmsDev02Root 'infra/auth/contrato-banco.ps1')
+            $baseline = Add-WmsAuthExpectedContract $baseline ($migrations | Where-Object { $_.version -ceq '11' })
+        }
+        Assert-Dev02 'inventario local completo conforme contrato versionado' (Compare-Dev02Rows $migrations @($baseline.historico|Where-Object {$_.type -ceq 'SQL'}) @('version','script'))
         $report.migrationsLocais=$migrations
         $metadata=Get-WmsDevCredentialMetadata
         Assert-Dev02 'canal exclusivo WMSDEV existente, ACL e caminho protegidos' ($metadata.existe -and $metadata.aclValida)
@@ -106,12 +112,18 @@ function Invoke-WmsDev02Guard {
         $tlsPath=Join-Path $tlsRoot 'tls.json'
         & $module {param($p) Assert-NoLink $p;Assert-PrivateAcl $p} $tlsPath
         $tls=Get-Content -LiteralPath $tlsPath -Encoding UTF8 -Raw|ConvertFrom-Json
+        # O fallback TLS muda quando o processo SQL reinicia. A baseline D29
+        # permanece imutavel para direitos/catalogo/historico, nao para rotacao TLS.
+        $tlsIdentityBefore=& $module {Get-LocalIdentity}
+        Assert-Dev02 'recibo TLS privado pertence ao processo SQL local atual verificado' ($tls.pid -eq $tlsIdentityBefore.pid -and $tls.started -ceq $tlsIdentityBefore.started)
         Assert-Dev02 'certificado publico existente no caminho protegido esperado' ($tls.id -cmatch '^[a-f0-9]{32}$' -and $tls.certificate -ceq (Join-Path $tlsRoot ('sql-public-'+$tls.id+'.pem')))
         & $module {param($p) Assert-NoLink $p;Assert-PrivateAcl $p} $tls.certificate
         $certHash=(Get-FileHash -LiteralPath $tls.certificate -Algorithm SHA256).Hash
-        Assert-Dev02 'certificado fixado corresponde ao recibo protegido e origem WMS validada' ($certHash -ceq $tls.fileSHA256 -and $certHash -ceq $baseline.tls.certificateSha256)
+        Assert-Dev02 'certificado fixado corresponde ao recibo protegido do processo atual' ($certHash -ceq $tls.fileSHA256)
         $certificate=New-Object Security.Cryptography.X509Certificates.X509Certificate2($tls.certificate)
-        Assert-Dev02 'certificado dentro da validade e thumbprint esperado' ([DateTime]::UtcNow -ge $certificate.NotBefore.ToUniversalTime() -and [DateTime]::UtcNow -lt $certificate.NotAfter.ToUniversalTime() -and $certificate.Thumbprint -ceq $baseline.tls.thumbprint)
+        $certHasher=[Security.Cryptography.SHA256]::Create()
+        try {$certDerHash=([BitConverter]::ToString($certHasher.ComputeHash($certificate.RawData))).Replace('-','').ToLowerInvariant()} finally {$certHasher.Dispose()}
+        Assert-Dev02 'certificado dentro da validade e DER corresponde ao recibo atual' ([DateTime]::UtcNow -ge $certificate.NotBefore.ToUniversalTime() -and [DateTime]::UtcNow -lt $certificate.NotAfter.ToUniversalTime() -and $certDerHash -ceq $tls.certificateSHA256)
         Assert-Dev02 'truststore existente sem regeneracao' ($tls.truststore -ceq ($tls.certificate -replace '\.pem$','.p12'))
         & $module {param($p) Assert-NoLink $p;Assert-PrivateAcl $p} $tls.truststore
         Assert-Dev02 'hash truststore publico protegido' ((Get-FileHash -LiteralPath $tls.truststore -Algorithm SHA256).Hash -ceq $tls.truststoreSHA256)
@@ -123,16 +135,20 @@ function Invoke-WmsDev02Guard {
         $builder.set_Encrypt([Microsoft.Data.SqlClient.SqlConnectionEncryptOption]::Mandatory)
         $builder.set_TrustServerCertificate($false);$builder.set_ServerCertificate($tls.certificate)
         $builder.set_ApplicationName('WMS-D31-DEV02-PRUMO-GUARDA')
-        $builder.set_Pooling($false);$builder.set_ConnectTimeout(5);$builder.set_ConnectRetryCount(0)
+        $builder.set_Pooling($false);$builder.set_ConnectTimeout($connectTimeoutSeconds);$builder.set_ConnectRetryCount(0)
         $builder.set_TransparentNetworkIPResolution($false);$builder.set_MultiSubnetFailover($false)
         Assert-Dev02 'sem senha/login em connectionstring; sem identidade Windows/fallback' ([string]::IsNullOrEmpty($builder.Password) -and [string]::IsNullOrEmpty($builder.UserID) -and -not $builder.IntegratedSecurity)
         $sqlCredential=New-Object Microsoft.Data.SqlClient.SqlCredential('WMSDEV',$credential.Password)
         $connection=New-Object Microsoft.Data.SqlClient.SqlConnection($builder.ConnectionString,$sqlCredential)
         $report.tls=[ordered]@{encrypt='Mandatory';trustServerCertificate=$false;certificateSha256=$certHash;thumbprint=$certificate.Thumbprint;notAfter=$certificate.NotAfter.ToUniversalTime().ToString('o');handshakeConcluido=$false;confirmacaoAtual=$false;truststoreSha256=$tls.truststoreSHA256}
+        $report.tls.proveniencia=[ordered]@{reciboPID=$tls.pid;reciboInicioUtc=$tls.started;reciboAtualizadoUtc=$tls.updatedAt;certificateDerSha256=$certDerHash;processoLocalVerificadoAntes=$true;processoLocalVerificadoDepois=$false;baselineHistoricaTLSUsadaComoPinAtual=$false}
         $report.cliente=[ordered]@{assembly=[Microsoft.Data.SqlClient.SqlConnection].Assembly.GetName().Version.ToString();sha256=(Get-FileHash -LiteralPath ([Microsoft.Data.SqlClient.SqlConnection].Assembly.Location) -Algorithm SHA256).Hash;moduloSha256=(Get-FileHash -LiteralPath $modulePath -Algorithm SHA256).Hash}
         $phase='ABERTURA';$report.aberturaTentativas=1;$report.aberturaInicioUtc=[DateTime]::UtcNow.ToString('o')
         $openWatch=[Diagnostics.Stopwatch]::StartNew();$connection.Open();$openWatch.Stop()
         $report.aberturaConcluida=$true;$report.aberturaElapsedMs=$openWatch.Elapsed.TotalMilliseconds;$report.tls.handshakeConcluido=$true
+        $tlsIdentityAfter=& $module {Get-LocalIdentity}
+        Assert-Dev02 'processo SQL local preservado durante abertura TLS antes de qualquer SELECT' ($tlsIdentityBefore.pid -eq $tlsIdentityAfter.pid -and $tlsIdentityBefore.started -ceq $tlsIdentityAfter.started)
+        $report.tls.proveniencia.processoLocalVerificadoDepois=$true
         $phase='IDENTIDADE'
         $identity=@(Select-Dev02 'DB_NAME_ORIGINAL_LOGIN_USER_NAME' "SELECT DB_NAME() banco,ORIGINAL_LOGIN() login,USER_NAME() usuario,CONVERT(nvarchar(128),SERVERPROPERTY('ServerName')) servidor,CONVERT(nvarchar(128),SERVERPROPERTY('ProductVersion')) versao,@@SPID sessao,(SELECT state_desc FROM sys.databases WHERE database_id=DB_ID()) estado" -Identity)
         $report.alvo=$identity[0]
@@ -159,10 +175,10 @@ function Invoke-WmsDev02Guard {
         $phase='CATALOGO_HISTORICO'
         $catalog=@(Select-Dev02 'catalogo_integridade' "SELECT (SELECT COUNT(*) FROM sys.tables WHERE schema_id=SCHEMA_ID(N'wms') AND name<>N'flyway_schema_history') tabelas,(SELECT COUNT(*) FROM sys.columns c JOIN sys.tables t ON t.object_id=c.object_id WHERE t.schema_id=SCHEMA_ID(N'wms') AND t.name<>N'flyway_schema_history') colunas,(SELECT COUNT(*) FROM sys.check_constraints WHERE schema_id=SCHEMA_ID(N'wms') AND (is_disabled=1 OR is_not_trusted=1)) checksInvalidos,(SELECT COUNT(*) FROM sys.foreign_keys WHERE schema_id=SCHEMA_ID(N'wms') AND (is_disabled=1 OR is_not_trusted=1)) fksInvalidas,(SELECT COUNT(*) FROM sys.indexes i JOIN sys.tables t ON t.object_id=i.object_id WHERE t.schema_id=SCHEMA_ID(N'wms') AND i.is_disabled=1) indicesDesabilitados")
         $report.catalogo=$catalog[0]
-        Assert-Dev02 'catalogo 64/687 e integridade conforme fonte' (Compare-Dev02Rows $catalog @($baseline.catalogo) @('tabelas','colunas','checksInvalidos','fksInvalidas','indicesDesabilitados'))
+        Assert-Dev02 'catalogo e integridade conforme contrato versionado' (Compare-Dev02Rows $catalog @($baseline.catalogo) @('tabelas','colunas','checksInvalidos','fksInvalidas','indicesDesabilitados'))
         $history=@(Select-Dev02 'historico_flyway' 'SELECT installed_rank,version,type,script,checksum,success FROM wms.flyway_schema_history ORDER BY installed_rank')
         $report.historico=$history
-        Assert-Dev02 'historico atual imutavel V1-V10 sem falhas/pendentes/divergencia' (Compare-Dev02Rows $history $baseline.historico @('installed_rank','version','type','script','checksum','success'))
+        Assert-Dev02 'historico atual preserva V1-V10 e extensoes versionadas sem divergencia' (Compare-Dev02Rows $history $baseline.historico @('installed_rank','version','type','script','checksum','success'))
         Assert-Dev02 'historico SQL atual corresponde a todas fontes locais' (Compare-Dev02Rows @($history|Where-Object {$_.type -ceq 'SQL'}) $migrations @('version','script','checksum'))
         $report.perfilProtegido=[ordered]@{host='127.0.0.1';port=1433;database='WMS_DEV';login='WMSDEV';certificate=$tls.certificate;truststore=$tls.truststore;certificateHost=$tls.certificateHost;encrypt=$true;trustServerCertificate=$false}
         $report.estado='GUARDA_ATUAL_APROVADA';$report.guardaRealAprovada=$true

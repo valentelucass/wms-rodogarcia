@@ -38,7 +38,12 @@ class D30JwtLimitesTest {
                         token, List.of(new SimpleGrantedAuthority("ROLE_SUPERVISOR"))));
         SecurityContextHolder.setContext(local);
         try {
-            var acesso = new AcessoService();
+            var acesso =
+                    new AcessoService(
+                            new org.springframework.beans.factory.support
+                                            .DefaultListableBeanFactory()
+                                    .getBeanProvider(
+                                            br.com.rodogarcia.wms.services.LoginService.class));
             assertThat(acesso.usuario()).hasSize(caracteres);
             assertThat(acesso.clientes()).hasSize(quantidade).contains(9223372036854775807L);
             assertThat(acesso.armazens()).hasSize(quantidade).contains(9223372036854775807L);

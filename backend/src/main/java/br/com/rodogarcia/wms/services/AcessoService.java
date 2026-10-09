@@ -2,6 +2,7 @@ package br.com.rodogarcia.wms.services;
 
 import br.com.rodogarcia.wms.config.JwtWmsValidator;
 import java.util.List;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -11,13 +12,24 @@ import org.springframework.stereotype.Service;
 @Service
 @ConditionalOnProperty(name = "wms.cadastros.enabled", havingValue = "true")
 public class AcessoService {
+    private final ObjectProvider<LoginService> login;
+
+    public AcessoService(ObjectProvider<LoginService> login) {
+        this.login = login;
+    }
+
     private Jwt identidade() {
         var auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null
                 || !auth.isAuthenticated()
                 || !(auth.getPrincipal() instanceof Jwt jwt)
+                || Boolean.TRUE.equals(jwt.getClaim("trocar_senha"))
                 || jwt.getClaimAsString("wms_perfil") == null
                 || !JwtWmsValidator.PERFIS.contains(jwt.getClaimAsString("wms_perfil"))) {
+            throw new AccessDeniedException("Acesso não autorizado.");
+        }
+        var autenticacaoLocal = login.getIfAvailable();
+        if (autenticacaoLocal != null && !autenticacaoLocal.jwtAtivo(jwt)) {
             throw new AccessDeniedException("Acesso não autorizado.");
         }
         return jwt;

@@ -138,7 +138,10 @@ public class PedidoSaidaXmlService {
                                 dados.motivo()));
         var resultado =
                 new PedidoSaidaDto.ConfirmacaoXml(
-                        dados.operacaoId(), NfeXmlService.hash(dados.xml()), documento, criado.pedido());
+                        dados.operacaoId(),
+                        NfeXmlService.hash(dados.xml()),
+                        documento,
+                        criado.pedido());
         operacoes.salvar(
                 dados.operacaoId(),
                 "CRIACAO",

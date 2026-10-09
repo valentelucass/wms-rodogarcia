@@ -1,5 +1,9 @@
 # Desenvolvimento frontend — D31-DEV02
 
+**Atualização D32-DEV04, 09/10/2026:** frontend e backend reais iniciados pelo BAT após V11/direitos WMS_DEV e guarda aprovados. Login desktop/mobile e API pública conferidos; acesso anônimo à rota protegida retorna401. CSS de autenticação servido por folha externa, sem violar CSP no DEV. Primeiro acesso com a senha real fica para o usuário. Rotas de autenticação em `/api/auth`, token em memória e renovação HttpOnly. Consulte o [guia vigente](../../docs/43-login-e-administracao-de-usuarios.md). Diagnósticos de AUTH/TLS abaixo são históricos.
+
+## Histórico e contrato D31 preservados
+
 O padrão npm run dev é REAL. npm run dev:ficticio é um exercício separado. Nenhuma falha de configuração, guarda, processo ou autenticação substitui o modo real por respostas fictícias.
 
 Em 09/10/2026 UTC, a integração continua impedida por evidências atuais: as três referências públicas WMS_OIDC_ISSUER/JWK_SET_URI/AUDIENCE estão ausentes e não há provider/fluxo de entrada real aprovado. A única abertura Prumo falhou no TLS, código -2146762480, antes de qualquer SELECT; alvo e identidade não foram confirmados. [Guarda atual](../evidencias/frontend-prumo-dev02-guarda-lucas-20261008.json). Nenhuma nova abertura, BE/API ou servidor com proxy ativo foi executado por Lume. O launcher Farol também recusou AUTH antes de SQL. Os impedimentos não são inferidos de D29.

@@ -1,10 +1,34 @@
 # D31-DEV02 — startup backend protegido para desenvolvimento integrado
 
+**Atualização D32-DEV04, 09/10/2026:** login próprio Spring Security ativado em WMS_DEV, com V11/direitos mínimos conferidos e guarda real aprovada. `iniciar-dev.bat` subiu backend `sqlserver-dev` e frontend reais; login público e proteção da API conferidos no navegador. Primeiro acesso autenticado com senha real fica para o usuário. Configuração nativa protegida é padrão; modo externo exige `WMS_AUTH_MODE=externo`. Consulte o [guia vigente de login](../../docs/43-login-e-administracao-de-usuarios.md). Diagnósticos e propostas abaixo são históricos anteriores à D32.
+
+## Histórico D31 preservado
+
 **Estado observado: integração real bloqueada.** A autorização atual permitiu a tentativa segura nova de Prumo. A única abertura, PID32144 em 09/10/2026 00:51Z, falhou em TLS antes de SELECT, código `-2146762480`, marcador de certificado. O [recibo original](../../frontend/evidencias/frontend-prumo-dev02-guarda-lucas-20261008.json) não confirma alvo/identidade/permissões. Não repetir a sonda, iniciar backend/API ou usar fallback. O impedimento é a tentativa atual, não a ausência de prova histórica.
 
 Separadamente, `WMS_OIDC_ISSUER`, `WMS_OIDC_JWK_SET_URI` e `WMS_OIDC_AUDIENCE` estavam ausentes no processo de Cedro; Farol confirmou a mesma ausência. A fonte própria DEV de provider/contas/fluxo aprovado de obtenção do token não foi encontrada nas fontes dirigidas. `CadastrosSegurancaConfig`, `IdentidadeProperties`, `JwtWmsValidator` e [documento14](../../docs/14-cadastros-acesso-e-persistencia.md) definem Resource Server RS256, Bearer e alcance WMS; não oferecem login/emissão/sessão local. Cookies não autenticam. A credencial SQL WMSDEV não autentica o navegador. Tokens/issuer de ensaio não substituem o provider DEV.
 
 O launcher único `iniciar-dev.bat`/`infra/dev/iniciar-dev.ps1` e o [guia raiz](../../docs/19-desenvolvimento-integrado-dev.md) pertencem a Farol. Ele verifica AUTH antes da guarda SQL. Lume mantém `npm run dev` real por padrão e `dev:ficticio` explícito, proxy `/api` sem rewrite e `changeOrigin=false`. Portas propostas: BE25580/FE25581, sempre conferidas livres; não reutilizar processos existentes.
+
+## DEV02 — origem AUTH e decisão material pendente
+
+A execução de Lucas, [run7483449c](../../orchestracao/.runtime/frontend-integracao-dev-runs/7483449c3bcf41608496bc8eb35e3982/launcher.json), terminou com `AUTH_CONFIGURATION_MISSING` antes da guarda SQL. A investigação dirigida adicional está em [frontend-dev02-auth-origem.json](../evidencias/frontend-dev02-auth-origem.json): as três referências `WMS_OIDC_*` estão ausentes em Process/User/Machine (nove presenças negativas); também ausentes os aliases públicos `WMS_IDENTITY_ISSUER`, `WMS_IDENTITY_JWKSETURI`, `WMS_IDENTITY_JWK_SET_URI` e `WMS_IDENTITY_AUDIENCE` nesses escopos. Foram examinados somente esses nomes públicos, sem publicar valores ou ler senha/token.
+
+As propriedades vigentes possuem apenas placeholders em `application-sqlserver-dev.properties:18–20`; base e complemento não fornecem issuer/JWKS/audience. `Require-PublicIdentity` no launcher lê Process, mas os outros escopos também não possuem a fonte: não há valor existente encontrado para corrigir carregamento. Os únicos diretórios do canal local WMS são `api-dev` e `database-runner`; a biblioteca WMSDEV oferece credencial SQL, não identidade OIDC. Documento14:68–81 e decisão D12 registram Resource Server e deixam provedor/contas/fluxo real pendentes. Isso comprova ausência de fonte definida nas configurações e registros examinados; não afirma inexistência de qualquer provedor externo na organização.
+
+**Proposta P-AUTH-DEV02, ainda não aprovada:** vincular o WMS DEV ao provedor OIDC institucional gerido e autorizado, com registros exclusivos da API WMS DEV e do cliente público de navegador. Farol consolida uma decisão material sobre esse provedor/fonte gestora; depois a equipe obtém os dados técnicos do administrador e dos metadados oficiais, sem pedir três valores técnicos a Lucas. Se não houver provedor institucional apto, provisionamento de um provedor próprio exige escopo específico separado; não foi iniciado aqui.
+
+| Parte | Contrato proposto compatível com a API existente |
+| --- | --- |
+| Referências públicas | Issuer HTTPS exato e JWKS obtidos dos metadados/documentação do provedor aprovado; audience da API no registro WMS DEV; cliente público e callbacks exatos registrados pelo administrador |
+| API MVC | Continuar Resource Server RS256/Bearer; validar assinatura/JWKS, issuer, audience, `sub`, `iat`/`exp` e claims WMS. Não usar ID token como access token, token de ensaio ou chave privada local |
+| Claims | Administrador mapeia `wms_perfil` para exatamente GESTOR/SUPERVISOR/OPERACAO; `wms_clientes`/`wms_armazens` como listas de IDs Long positivos em strings, até500, conforme atribuição real. Não dar Gestor/alcance universal como padrão |
+| Login/sessão | Cliente público Authorization Code + PKCE S256, `state`/`nonce` por transação; autenticação no provedor. Access token legítimo curto (máximo15min exigido pelo backend), somente memória; renovação/encerramento pelo fluxo aprovado do provedor, sem senha/segredo de cliente no FE ou armazenamento persistente. Refresh token, se adotado, exige rotação ou vínculo ao cliente |
+| Mesmo origin | API pelo proxy `/api` existente, sem wildcard/CORS novo no backend. Com CSP `self`, uma eventual troca OIDC por proxy DEV deve ter destino fixo nos endpoints oficiais aprovados e TLS verificado, nunca proxy aberto; desenho/implementação pertencem a Lume/Farol após decisão, não existe rota nova nesta entrega |
+| TLS | JVM verifica hostname/cadeia do issuer/JWKS. Se CA privada for necessária, confiança própria somente no processo/cliente HTTPS WMS, com certificado público conferido; não alterar trust global, desabilitar verificação, recapturar certificado ou reutilizar trust SQL como prova de HTTPS OIDC |
+| Carregamento | Fonte pública WMS autorizada fornece Identity ao launcher/helper e às variáveis efêmeras do filho. Nenhuma fonte foi criada com valores inventados; biblioteca/root loader não foram alterados nesta investigação |
+
+Fontes técnicas primárias: [Spring Security Resource Server JWT](https://docs.spring.io/spring-security/reference/servlet/oauth2/resource-server/jwt.html), [OIDC Discovery](https://openid.net/specs/openid-connect-discovery-1_0.html), [OAuth BCP/RFC9700](https://www.rfc-editor.org/rfc/rfc9700.html) e [JSSE/JDK21](https://docs.oracle.com/en/java/javase/21/security/java-secure-socket-extension-jsse-reference-guide.html). Esta proposta não cria endpoints/contas/provider/token nem altera Security. Resolver AUTH não comprova TLS SQL; STOP de Prumo continua independente, sem nova Open/BE/API.
 
 ## Contrato do auxiliar backend
 

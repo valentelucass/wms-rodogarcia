@@ -185,6 +185,24 @@ function Start-WmsFrontendDevBackend {
             WMS_OIDC_ISSUER = $Identity.issuer; WMS_OIDC_JWK_SET_URI = $Identity.jwkSetUri; WMS_OIDC_AUDIENCE = $Identity.audience
         }
         foreach ($entry in $variables.GetEnumerator()) { $info.EnvironmentVariables[$entry.Key] = [string]$entry.Value }
+        if ($Identity -is [Collections.IDictionary] -and $Identity.Contains('native') -and $Identity.native) {
+            if ($Identity.protectedMaterial -isnot [Security.SecureString]) { throw 'DEV02_AUTH_PROTECTED_MATERIAL_MISSING' }
+            $authPointer = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($Identity.protectedMaterial)
+            try {
+                $authMaterial = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($authPointer) | ConvertFrom-Json
+                if ($authMaterial.schema -ne 1 -or [string]::IsNullOrWhiteSpace($authMaterial.privateKey) -or $authMaterial.bootstrapHash -notmatch '^\{pbkdf2-600k\}[0-9a-f]{96}$') { throw 'DEV02_AUTH_PROTECTED_MATERIAL_INVALID' }
+                $info.EnvironmentVariables['WMS_AUTH_ENABLED']='true'
+                $info.EnvironmentVariables['WMS_AUTH_PRIVATE_KEY']=[string]$authMaterial.privateKey
+                $info.EnvironmentVariables['WMS_AUTH_BOOTSTRAP_HASH']=[string]$authMaterial.bootstrapHash
+                $info.EnvironmentVariables['WMS_AUTH_ORIGIN']=[string]$Identity.origin
+                $info.EnvironmentVariables['WMS_AUTH_SECURE_COOKIE']=([bool]$Identity.secureCookie).ToString().ToLowerInvariant()
+                $info.EnvironmentVariables['WMS_AUTH_PROXY_ORIGIN']=[string]$Identity.proxyOrigin
+            } finally {
+                $authMaterial=$null
+                [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($authPointer)
+                $Identity.protectedMaterial.Dispose()
+            }
+        }
         $pointer = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($credential.Password)
         try { $info.EnvironmentVariables['WMS_DB_PASSWORD'] = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($pointer) }
         finally { [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($pointer) }

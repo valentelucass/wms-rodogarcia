@@ -140,8 +140,7 @@ class D30AuditoriaSnapshotsTest {
         var resposta = AuditoriaResponse.de(e);
         assertThat(
                         mapper.readValue(
-                                resposta.dadosAntes(),
-                                new TypeReference<Map<String, Object>>() {}))
+                                resposta.dadosAntes(), new TypeReference<Map<String, Object>>() {}))
                 .containsExactlyInAnyOrderEntriesOf(
                         Map.of("endereco", "A", "posicao", 1, "versao", 0, "quantidade", 6));
         assertThat(
