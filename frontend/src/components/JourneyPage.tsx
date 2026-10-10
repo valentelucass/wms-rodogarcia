@@ -77,12 +77,47 @@ export function JourneyPage({
         }));
     const references = journey.references;
     if (journey.id === "entrada")
-        return <>
-            <PageHeader title="Entrada e conferência" icon="entrada" description="Encontre o pedido e acompanhe notas, itens, conferência e efetivação no mesmo contexto." />
-            <FormReferences.Provider value={{ defaults: derived, options, records: Object.fromEntries(Object.keys(workflow.catalogs).map((type) => [type, referenceCatalog(workflow, type)])) }}>
-                <RecordWorkspace key={String(context.clienteId) + ":" + String(context.armazemId) + ":" + perfil} journey={journey} step={0} transport={transport} context={context} perfil={perfil} workflow={workflow} onRecord={onRecord} onReceipt={onReceipt} startAction={startAction} onNavigate={onNavigate} />
-            </FormReferences.Provider>
-        </>;
+        return (
+            <>
+                <PageHeader
+                    title="Entrada e conferência"
+                    icon="entrada"
+                    description="Encontre o pedido e acompanhe notas, itens, conferência e efetivação no mesmo contexto."
+                />
+                <FormReferences.Provider
+                    value={{
+                        defaults: derived,
+                        options,
+                        records: Object.fromEntries(
+                            Object.keys(workflow.catalogs).map((type) => [
+                                type,
+                                referenceCatalog(workflow, type),
+                            ]),
+                        ),
+                    }}
+                >
+                    <RecordWorkspace
+                        key={
+                            String(context.clienteId) +
+                            ":" +
+                            String(context.armazemId) +
+                            ":" +
+                            perfil
+                        }
+                        journey={journey}
+                        step={0}
+                        transport={transport}
+                        context={context}
+                        perfil={perfil}
+                        workflow={workflow}
+                        onRecord={onRecord}
+                        onReceipt={onReceipt}
+                        startAction={startAction}
+                        onNavigate={onNavigate}
+                    />
+                </FormReferences.Provider>
+            </>
+        );
     return (
         <>
             <PageHeader

@@ -7,6 +7,8 @@ import {
 } from "../../domain/recordContext";
 import { resultName } from "../../domain/resultNames";
 import { recordActionLabel } from "../../domain/recordPages";
+import { StatusBadge } from "../../design-system/StatusBadge";
+import { Icon } from "../../design-system/Icon";
 
 const columns: Record<string, string[]> = {
     "ClienteDto.Resposta": ["nome", "codigo", "documentoFiscal", "situacao"],
@@ -185,6 +187,7 @@ export function RecordTable({
     onOpen,
     canEdit,
     canOperate,
+    title,
 }: {
     rows: Values[];
     type: string;
@@ -192,6 +195,7 @@ export function RecordTable({
     onOpen: (row: Values, action?: string) => void;
     canEdit?: (row: Values) => string | undefined;
     canOperate?: (row: Values) => string | undefined;
+    title?: string;
 }) {
     const view = (row: Values) => ({ ...row, ...recordRoot(row) });
     const keys =
@@ -212,7 +216,16 @@ export function RecordTable({
         <div className="table-scroll record-table">
             <table>
                 <caption>
-                    {resultName(type)} · {rows.length} registros nesta resposta
+                    <span className="record-table-heading">
+                        <span>
+                            {resultName(type) === "Registros"
+                                ? (title ?? resultName(type))
+                                : resultName(type)}
+                        </span>{" "}
+                        <span className="record-count">
+                            · {rows.length} registros nesta resposta
+                        </span>
+                    </span>
                 </caption>
                 <thead>
                     <tr>
@@ -224,6 +237,7 @@ export function RecordTable({
                                         sku: "SKU",
                                         condicao: "Condição",
                                         tipoLocalizacao: "Localização",
+                                        situacao: "Situação",
                                     } as Record<string, string>
                                 )[key] ?? label(key)}
                             </th>
@@ -240,7 +254,21 @@ export function RecordTable({
                         return (
                             <tr key={identity}>
                                 {keys.map((key, i) => (
-                                    <td key={key}>
+                                    <td
+                                        key={key}
+                                        className={
+                                            i === 0
+                                                ? "record-cell-identity"
+                                                : [
+                                                        "codigo",
+                                                        "documentoFiscal",
+                                                        "sku",
+                                                        "id",
+                                                    ].includes(key)
+                                                  ? "record-cell-code"
+                                                  : undefined
+                                        }
+                                    >
                                         {i === 0 ? (
                                             <button
                                                 className="record-link"
@@ -254,42 +282,51 @@ export function RecordTable({
                                         ) : ["situacao", "condicao"].includes(
                                               key,
                                           ) ? (
-                                            <span className="record-status">
-                                                {display(values[key])}
-                                            </span>
+                                            <StatusBadge value={values[key]} />
                                         ) : (
                                             display(values[key])
                                         )}
                                     </td>
                                 ))}
-                                <td>
+                                <td className="record-cell-actions">
                                     <div className="record-row-actions">
                                         <button
                                             type="button"
                                             disabled={pending}
                                             onClick={() => onOpen(row)}
                                         >
+                                            <Icon name="eye" />
                                             Ver detalhes
                                         </button>
                                         {edit && (
                                             <button
+                                                className="primary"
                                                 type="button"
                                                 disabled={pending}
                                                 onClick={() =>
                                                     onOpen(row, edit)
                                                 }
                                             >
+                                                <Icon name="edit" />
                                                 Editar
                                             </button>
                                         )}
                                         {!edit && operation && (
                                             <button
+                                                className={
+                                                    /\.(cancelar|estornar|encerrar|reverter|excluir)$/.test(
+                                                        operation,
+                                                    )
+                                                        ? "record-action-danger"
+                                                        : undefined
+                                                }
                                                 type="button"
                                                 disabled={pending}
                                                 onClick={() =>
                                                     onOpen(row, operation)
                                                 }
                                             >
+                                                <Icon name="arrow" />
                                                 {recordActionLabel(operation)}
                                             </button>
                                         )}

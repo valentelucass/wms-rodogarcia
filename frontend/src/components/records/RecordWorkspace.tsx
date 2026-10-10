@@ -22,14 +22,27 @@ import { RecordTable } from "./RecordTable";
 import { RecordDialog, type RecordOpening } from "./RecordDialog";
 import type { JourneyPage } from "../JourneyPage";
 import { ReceivingList } from "../../modules/recebimento/ReceivingList";
+import { Icon } from "../../design-system/Icon";
+import { statusLabel } from "../../design-system/StatusBadge";
 
 type Props = ComponentProps<typeof JourneyPage> & { step: number };
+const emptyReceivingRows: Values[] = [];
 export function RecordWorkspace(props: Props) {
-    const definition = props.journey.id === "entrada" ? {
-        ...recordPages.entrada[0],
-        title: "Pedidos de entrada",
-        actions: [...new Set(props.journey.steps.flatMap((step) => step.actions))],
-    } : recordPages[props.journey.id][props.step];
+    const definition =
+        props.journey.id === "entrada"
+            ? {
+                  ...recordPages.entrada[0],
+                  title: "Pedidos de entrada",
+                  actions: [
+                      ...new Set([
+                          ...props.journey.steps.flatMap(
+                              (step) => step.actions,
+                          ),
+                          "AuditoriaController.listar",
+                      ]),
+                  ],
+              }
+            : recordPages[props.journey.id][props.step];
     const [view, setView] = useState(() =>
         Math.max(
             0,
@@ -96,7 +109,17 @@ function PageRecords(props: Props & { definition: RecordPage }) {
     );
     const [opening, setOpening] = useState<RecordOpening | undefined>(() =>
         props.startAction && props.startAction !== definition.source
-            ? { action: props.startAction }
+            ? {
+                  action: props.startAction,
+                  ...(journey.id === "entrada" &&
+                  props.startAction !== "PedidoEntradaController.criar" &&
+                  workflow.selected["PedidoEntradaDto.Resumo"]
+                      ? {
+                            row: workflow.selected["PedidoEntradaDto.Resumo"],
+                            type: "PedidoEntradaDto.Resumo",
+                        }
+                      : {}),
+              }
             : undefined,
     );
     const [search, setSearch] = useState("");
@@ -183,7 +206,11 @@ function PageRecords(props: Props & { definition: RecordPage }) {
             <header className="record-page-header">
                 <div>
                     <h2>{definition.title ?? current.title}</h2>
-                    <p>{journey.id === "entrada" ? "Consulte o pedido para administrar suas notas, registrar chegadas e conferir a carga antes da efetivação." : current.help}</p>
+                    <p>
+                        {journey.id === "entrada"
+                            ? "Consulte o pedido para administrar suas notas, registrar chegadas e conferir a carga antes da efetivação."
+                            : current.help}
+                    </p>
                 </div>
                 <div className="record-header-actions">
                     {headers.map((id, i) => (
@@ -207,53 +234,48 @@ function PageRecords(props: Props & { definition: RecordPage }) {
                     {[...query.e.params, ...query.e.query].some(
                         (f) => !["pagina", "tamanho"].includes(f.name),
                     ) && (
-                        <details
+                        <form
                             className="record-filters"
-                            open={query.needsFilters || undefined}
+                            onSubmit={(event) => {
+                                event.preventDefault();
+                                query.search();
+                            }}
                         >
-                            <summary>Filtros e contexto da consulta</summary>
-                            <form
-                                onSubmit={(event) => {
-                                    event.preventDefault();
-                                    query.search();
-                                }}
-                            >
-                                <fieldset disabled={query.pending}>
-                                    <legend>Filtros disponíveis</legend>
-                                    <Fields
-                                        fields={[
-                                            ...query.e.params,
-                                            ...query.e.query,
-                                        ].filter(
-                                            (f) =>
-                                                !["pagina", "tamanho"].includes(
-                                                    f.name,
-                                                ),
-                                        )}
-                                        values={query.filters}
-                                        onChange={query.setFilters}
-                                        perfil={perfil}
-                                        schema={query.e.id + ".query"}
-                                    />
-                                </fieldset>
-                                <div className="actions">
-                                    <button
-                                        className="primary"
-                                        type="submit"
-                                        disabled={query.pending}
-                                    >
-                                        Aplicar filtros
-                                    </button>
-                                    <button
-                                        type="button"
-                                        disabled={query.pending}
-                                        onClick={query.reset}
-                                    >
-                                        Restaurar filtros
-                                    </button>
-                                </div>
-                            </form>
-                        </details>
+                            <fieldset disabled={query.pending}>
+                                <legend>Filtros da consulta</legend>
+                                <Fields
+                                    fields={[
+                                        ...query.e.params,
+                                        ...query.e.query,
+                                    ].filter(
+                                        (f) =>
+                                            !["pagina", "tamanho"].includes(
+                                                f.name,
+                                            ),
+                                    )}
+                                    values={query.filters}
+                                    onChange={query.setFilters}
+                                    perfil={perfil}
+                                    schema={query.e.id + ".query"}
+                                />
+                            </fieldset>
+                            <div className="actions">
+                                <button
+                                    className="primary"
+                                    type="submit"
+                                    disabled={query.pending}
+                                >
+                                    Aplicar filtros
+                                </button>
+                                <button
+                                    type="button"
+                                    disabled={query.pending}
+                                    onClick={query.reset}
+                                >
+                                    Restaurar filtros
+                                </button>
+                            </div>
+                        </form>
                     )}
                     {message && (
                         <div
@@ -271,49 +293,66 @@ function PageRecords(props: Props & { definition: RecordPage }) {
                             )}
                         </div>
                     )}
-                    {journey.id !== "entrada" && <div className="record-toolbar">
-                        <label>
-                            Buscar nos registros desta página
-                            <input
-                                type="search"
-                                value={search}
-                                onChange={(event) => {
-                                    setSearch(event.target.value);
-                                    setLocalPage(0);
-                                }}
-                            />
-                        </label>
-                        {situations.length > 0 && (
+                    {journey.id !== "entrada" && (
+                        <div className="record-toolbar">
                             <label>
-                                Situação nesta página
-                                <select
-                                    value={situation}
+                                Buscar nos registros desta página
+                                <input
+                                    type="search"
+                                    value={search}
                                     onChange={(event) => {
-                                        setSituation(event.target.value);
+                                        setSearch(event.target.value);
                                         setLocalPage(0);
                                     }}
-                                >
-                                    <option value="">Todas</option>
-                                    {[
-                                        ...new Set([
-                                            ...situations,
-                                            ...(situation ? [situation] : []),
-                                        ]),
-                                    ].map((state) => (
-                                        <option key={state}>{state}</option>
-                                    ))}
-                                </select>
+                                />
                             </label>
-                        )}
+                            {situations.length > 0 && (
+                                <label>
+                                    Situação nesta página
+                                    <select
+                                        value={situation}
+                                        onChange={(event) => {
+                                            setSituation(event.target.value);
+                                            setLocalPage(0);
+                                        }}
+                                    >
+                                        <option value="">Todas</option>
+                                        {[
+                                            ...new Set([
+                                                ...situations,
+                                                ...(situation
+                                                    ? [situation]
+                                                    : []),
+                                            ]),
+                                        ].map((state) => (
+                                            <option key={state} value={state}>
+                                                {statusLabel(state)}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </label>
+                            )}
+                            <button
+                                type="button"
+                                disabled={query.pending}
+                                onClick={query.refresh}
+                            >
+                                <Icon name="refresh" />
+                                Atualizar lista
+                            </button>
+                        </div>
+                    )}
+                    {journey.id === "entrada" && (
                         <button
+                            className="record-refresh"
                             type="button"
                             disabled={query.pending}
                             onClick={query.refresh}
                         >
+                            <Icon name="refresh" />
                             Atualizar lista
                         </button>
-                    </div>}
-                    {journey.id === "entrada" && <button type="button" disabled={query.pending} onClick={query.refresh}>Atualizar lista</button>}
+                    )}
                     {query.pending && (
                         <p role="status">
                             {data
@@ -335,61 +374,79 @@ function PageRecords(props: Props & { definition: RecordPage }) {
                             carregar esta visão.
                         </p>
                     )}
-                    {journey.id !== "entrada" && !query.pending && rows?.length === 0 && (
-                        <p className="empty">
-                            {search || situation || query.hasFilters
-                                ? "Nenhum resultado para os filtros consultados nesta visão."
-                                : "Ainda não há registros nesta visão para o contexto atual."}
-                        </p>
-                    )}
-                    {journey.id !== "entrada" && rows && rows.length > 0 && filtered?.length === 0 && (
-                        <p className="empty">
-                            Nenhum resultado para a busca ou situação nesta
-                            página. Limpe esses filtros ou consulte outra
-                            página.
-                        </p>
-                    )}
-                    {journey.id === "entrada" && rows && <ReceivingList rows={rows} transport={transport} perfil={perfil} pending={query.pending} actions={actions} onOpen={open} />}
-                    {journey.id !== "entrada" && filtered && filtered.length > 0 && (
-                        <>
-                            <p className="muted">
-                                {filtered.length} de {rows!.length} registros
-                                desta resposta correspondem aos filtros de
-                                apresentação.
+                    {journey.id !== "entrada" &&
+                        !query.pending &&
+                        rows?.length === 0 && (
+                            <p className="empty">
+                                {search || situation || query.hasFilters
+                                    ? "Nenhum resultado para os filtros consultados nesta visão."
+                                    : "Ainda não há registros nesta visão para o contexto atual."}
                             </p>
-                            <RecordTable
-                                rows={
-                                    paged
-                                        ? filtered
-                                        : filtered.slice(
-                                              localPage * 10,
-                                              (localPage + 1) * 10,
-                                          )
-                                }
-                                type={type}
-                                pending={query.pending}
-                                onOpen={open}
-                                canEdit={(row) =>
-                                    visibleRecordActions(
-                                        actions,
-                                        perfil,
-                                        recordRoot(row),
-                                    ).find((id) => id.endsWith(".alterar"))
-                                }
-                                canOperate={(row) =>
-                                    visibleRecordActions(
-                                        actions,
-                                        perfil,
-                                        recordRoot(row),
-                                    ).find(
-                                        (id) =>
-                                            endpoint(id).method !== "GET" &&
-                                            !id.endsWith(".alterar"),
-                                    )
-                                }
-                            />
-                        </>
+                        )}
+                    {journey.id !== "entrada" &&
+                        rows &&
+                        rows.length > 0 &&
+                        filtered?.length === 0 && (
+                            <p className="empty">
+                                Nenhum resultado para a busca ou situação nesta
+                                página. Limpe esses filtros ou consulte outra
+                                página.
+                            </p>
+                        )}
+                    {journey.id === "entrada" && (
+                        <ReceivingList
+                            rows={rows ?? emptyReceivingRows}
+                            loaded={rows !== undefined}
+                            transport={transport}
+                            perfil={perfil}
+                            pending={query.pending}
+                            actions={actions}
+                            onOpen={open}
+                        />
                     )}
+                    {journey.id !== "entrada" &&
+                        filtered &&
+                        filtered.length > 0 && (
+                            <>
+                                <p className="muted">
+                                    {filtered.length} de {rows!.length}{" "}
+                                    registros desta resposta correspondem aos
+                                    filtros de apresentação.
+                                </p>
+                                <RecordTable
+                                    rows={
+                                        paged
+                                            ? filtered
+                                            : filtered.slice(
+                                                  localPage * 10,
+                                                  (localPage + 1) * 10,
+                                              )
+                                    }
+                                    type={type}
+                                    title={definition.title ?? current.title}
+                                    pending={query.pending}
+                                    onOpen={open}
+                                    canEdit={(row) =>
+                                        visibleRecordActions(
+                                            actions,
+                                            perfil,
+                                            recordRoot(row),
+                                        ).find((id) => id.endsWith(".alterar"))
+                                    }
+                                    canOperate={(row) =>
+                                        visibleRecordActions(
+                                            actions,
+                                            perfil,
+                                            recordRoot(row),
+                                        ).find(
+                                            (id) =>
+                                                endpoint(id).method !== "GET" &&
+                                                !id.endsWith(".alterar"),
+                                        )
+                                    }
+                                />
+                            </>
+                        )}
                     {paged && (
                         <Pagination
                             page={Number(data.pagina)}

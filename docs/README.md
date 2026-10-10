@@ -1,5 +1,7 @@
 # Documentação do WMS Rodogarcia
 
+**FE05-PED01:** [Pedidos de entrada, notas, conferência e histórico no mesmo contexto](design-system/etapa-07.md).
+
 **FE02-REG01:** [listas, detalhes e ações por registro nas 12 áreas](design-system/etapa-06.md), [inventário e mapeamento das 50 páginas](design-system/inventario-paginas.md).
 
 **Design system:** [fonte visual](design-system/design.md), [fundação, temas e navegação](design-system/etapa-01.md), [login, topo e rodapé](design-system/etapa-02.md), [organização das páginas internas](design-system/etapa-03.md) e [gráficos do Início (DASH01)](design-system/etapa-04.md) e [seleção por nome e visão geral atual (DASH02)](design-system/etapa-05.md).

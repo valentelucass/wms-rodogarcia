@@ -1,14 +1,49 @@
 # Estado e trilha de implementação do WMS Rodogarcia
 
+## FE02-REG01-A03 — filtros visíveis sem sanfona, 09/10/2026
+
+**Concluído localmente, pedido expresso de Lucas:** removida a sanfona isolada de Filtros e contexto da consulta nas páginas que compartilham `RecordWorkspace`. Formulário sempre visível com um único título e sem borda interna; aplicação/restauração, espera, permissões e responsividade preservadas. Dependências FE02-REG01 e FE02-REG01-A02; consultas e vínculos BE04–BE14 → FE03–FE13 mantidos.
+
+- [x] Remover abertura/fechamento e títulos/bordas duplicados dos filtros compartilhados.
+- [x] Conferir consultas, restauração, teclado, espera, temas e tamanhos de tela.
+
+**Conferência:** tipagem/build real próprio, lint/formatação, [74 testes existentes](frontend/evidencias/record-filters-a03-regression.json) e [seis casos Chrome](frontend/evidencias/record-filters-a03-browser.json) aprovados; filtros com dois/sete campos em 1440/768/360px, ambos os temas, sem vazamento horizontal, aplicação por teclado, campos bloqueados durante espera e valores mantidos após resposta/restaurados ao estado inicial. Capturas inspecionadas. Assets do frontend DEV existente; APIs interceptadas com dados fictícios, sem backend/SQL ou reinício. [Definição](docs/design-system/etapa-06.md#filtros-visíveis-sem-sanfona--fe02-reg01-a03), [recibo](orchestracao/.runtime/record-filters-a03/resultado.json). **Próximo:** recarregar a página para carregar a fonte atual; integração real mantém sua etapa própria.
+
+## FE02-REG01-A02 — alinhamento compartilhado das barras de filtros, 09/10/2026
+
+**Concluído localmente, pedido expresso de Lucas:** aplicar o alinhamento a todas as barras semelhantes à imagem de Atualizar lista. Dependências FE02-REG01-A01 e FE02-DASH02-A01. Regra comum em `forms.css` para filtros de registros (incluindo recebimento) e mapa; margem já corrigida nos estilos locais agora centralizada. Contratos e vínculos backend/frontend mantidos.
+
+- [x] Unificar o alinhamento das barras de filtros, preservando a quebra responsiva.
+- [x] Conferir os arquivos servidos pelo frontend DEV, temas, teclado e tamanhos de tela.
+
+**Conferência:** formatação, tipagem/build real próprio e [seis casos Chrome](frontend/evidencias/record-refresh-a02-browser.json) aprovados em 1590/768/360px, claro/escuro, nas barras de Clientes, Armazéns e Estoque; alinhamento medido, Enter preserva a busca, toque e página sem vazamento horizontal, capturas inspecionadas. Assets do frontend DEV existente em 127.0.0.1:25581; todas as APIs interceptadas com dados fictícios. [Definição](docs/design-system/etapa-06.md#alinhamento-compartilhado-dos-filtros--fe02-reg01-a02), [recibo](orchestracao/.runtime/record-refresh-a02/resultado.json). **Próximo:** recarregar a página para carregar a fonte atual. Sem backend/SQL ou reinício; processo DEV existente preservado.
+
+## FE02-DASH02-A01 — alinhamento da busca do mapa, 09/10/2026
+
+**Concluído localmente, pedido expresso de Lucas:** removida a margem inferior de 8px dos rótulos dos filtros do mapa, alinhando Buscar com Buscar endereço e Mostrar posições. Dependência FE02-DASH02; BE14-DASH02 → FE02-DASH02 mantém contratos e regras.
+
+- [x] Corrigir o alinhamento apenas nos filtros do mapa e conferir ambos os temas em desktop/tablet/mobile.
+
+**Conferência:** formatação, tipagem/build real próprio e seis casos Chrome com HTTP interceptado em 1440/768/360px aprovados; alinhamento medido, Enter/Limpar e quebra de linha no mobile preservados, capturas inspecionadas. [Definição](docs/design-system/etapa-05.md#alinhamento-da-busca--fe02-dash02-a01), [recibo](orchestracao/.runtime/map-search-a01/resultado.json). **Próximo:** carregar o CSS atual na página. Sem backend/banco ou reinício de processos existentes; preview próprio encerrado.
+
+## FE02-REG01-A01 — tabelas, badges e ações, 09/10/2026
+
+**Concluído localmente, pedido expresso de Lucas:** tabelas com filtros proporcionais, cabeçalhos e ações organizados; badges com rótulos legíveis e cores semânticas, botões azuis com ícones. Dependências FE02-REG01, FE02-DS01–DS03 e FE05-PED01; contratos BE05 → FE04 e demais leitores preservados.
+
+- [x] Ajustar composição compartilhada, situações e ações nos temas claro/escuro.
+- [x] Conferir tipagem, comportamento existente, teclado, contraste e desktop/mobile.
+
+**Conferência:** tipagem/lint/formatação/builds próprios, 43 testes focais, sete casos Chrome de apresentação e duas jornadas existentes de Clientes aprovados; cinco tons e botões com contraste mínimo 4,5:1, desktop/mobile, teclado e permissões. Capturas inspecionadas. [Definição e limites](docs/design-system/etapa-06.md#tabelas-badges-e-ações--fe02-reg01-a01), [recibo](orchestracao/.runtime/record-colors-a01/resultado.json). **Próximo:** carregar a fonte atual na página; integração real conserva sua etapa própria. Sem backend, SQL, alteração operacional, publicação ou reinício de processos existentes; HTTP interceptado e dados fictícios nos previews próprios encerrados.
+
 ## FE05-PED01 — entrada centrada no pedido, 09/10/2026
 
-**Em andamento, pedido expresso de Lucas:** unificar as quatro etapas globais de Entrada e conferência em Pedidos de entrada, com criação no cabeçalho e notas/itens, conferência, divergências, histórico e efetivação no pedido persistente. Dependências FE02-REG01, FE02-DS01–DS03, BE06 → FE05. Preservar comandos, revisões, origens, permissões e efeitos backend; sem nova situação manual, migration ou fusão de entidades.
+**Concluído no recorte local, pedido expresso de Lucas:** as quatro etapas globais de Entrada e conferência foram reunidas em Pedidos de entrada, com criação no cabeçalho e notas/itens, conferência, divergências, histórico e efetivação no pedido persistente. Dependências FE02-REG01, FE02-DS01–DS03, BE06 → FE05. Comandos, revisões, origens, permissões e efeitos backend preservados; sem nova situação manual, migration ou fusão de entidades.
 
-- [ ] Mapear todos os comandos e estados atuais e definir seu destino no pedido.
-- [ ] Implementar lista, criação, detalhe e operações com atualização após confirmação.
-- [ ] Conferir fronteiras, temas, teclado, mobile e documentar evidências e limites.
+- [x] Mapear todos os comandos e estados atuais e definir seu destino no pedido.
+- [x] Implementar lista, criação, detalhe e operações com atualização após confirmação.
+- [x] Conferir fronteiras, temas, teclado, mobile e documentar evidências e limites.
 
-**Próximo:** concluir implementação e validação local com transporte fictício/HTTP interceptado. Filtros remotos seguem os contratos atuais; buscas complementares identificam seu alcance na página. Integração SQL Server e fonte em execução são verificações separadas, pelo fluxo autorizado e guarda vigente. Alterações preexistentes preservadas.
+**Conferência:** tipagem, lint, formatação e builds real/fictício próprios aprovados; 478 testes na regressão completa, 15 focais e seis casos Chrome com HTTP interceptado, ambos os temas, desktop/mobile, notas múltiplas, criação seguida de nota/XML, identidade/revisão/UUID, histórico, conflito, filtros preservados após erro, teclado e paginação. Capturas inspecionadas. [Definição e limites](docs/design-system/etapa-07.md), [recibo](orchestracao/.runtime/receiving-ped01/resultado.json). Graphify recusou substituir 15.220 nós por 13.119, sem `--force`; mapa preservado. **Próximo:** conferir fonte em execução e integração WMS_DEV/desempenho pelo fluxo autorizado e guarda vigente. Filtros complementares usam a página atual; dados gerais não têm endpoint de edição. Sem backend, SQL, migration, reinício de processo existente ou publicação nesta entrega; alterações preexistentes preservadas.
 
 ## FE02-REG01 — listas, detalhes e ações por registro, 09/10/2026
 
@@ -1501,7 +1536,9 @@ As entregas desta trilha ficam em `frontend`. Telas de gestão e coletor usam Re
 
 
 
-**Backend disponível após D15:** rotas, DTOs, permissões, estados e regras de repetição no [documento 18](docs/18-recebimento-e-conferencia.md). FE05 permanece planejada, sem aplicação/tela ou teste de integração frontend.
+**Histórico D15:** rotas, DTOs, permissões, estados e regras de repetição no [documento 18](docs/18-recebimento-e-conferencia.md). Naquele momento, FE05 estava planejada, sem aplicação/tela ou teste de integração frontend.
+
+**Atualização FE05-PED01:** a implementação local FE05 foi entregue em D31 e reorganizada em FE05-PED01, com [Pedidos de entrada e seções do pedido](docs/design-system/etapa-07.md). Validação real de ambiente permanece separada.
 
 
 

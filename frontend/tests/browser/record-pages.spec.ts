@@ -228,7 +228,9 @@ for (const [width, height, theme] of [
                 location.hash = id;
             }, journey.id);
             await expect(page.locator(".record-workspace")).toBeVisible();
-            for (let i = 0; i < journey.steps.length; i++) {
+            const views =
+                journey.id === "entrada" ? [0] : journey.steps.map((_, i) => i);
+            for (const i of views) {
                 if (i)
                     await page
                         .getByRole("navigation", {
@@ -355,7 +357,7 @@ for (const [width, height, theme] of [
             dialog.getByRole("button", { name: "Voltar à lista" }),
         ).toBeEnabled();
         await dialog.getByRole("button", { name: "Voltar à lista" }).click();
-        await expect(row).toContainText("ATIVO");
+        await expect(row.locator(".record-status")).toHaveText("Ativo");
         await page.getByLabel("Buscar nos registros desta página").fill("Alfa");
         await page.getByRole("button", { name: "Novo cliente" }).click();
         await dialog.getByLabel("Código *", { exact: true }).fill("CLI-C");

@@ -314,7 +314,12 @@ export function visibleRecordActions(
         const allowed: Record<string, string[]> = {
             "UnidadeLogisticaController.unitizar": ["EFETIVADO"],
             "PedidoEntradaController.nota": ["RASCUNHO"],
-            "PedidoEntradaController.xml": ["RASCUNHO", "EM_CONFERENCIA", "QUARENTENA", "EFETIVADO"],
+            "PedidoEntradaController.xml": [
+                "RASCUNHO",
+                "EM_CONFERENCIA",
+                "QUARENTENA",
+                "EFETIVADO",
+            ],
             "PedidoEntradaController.iniciar": ["RASCUNHO"],
             "PedidoEntradaController.chegada": ["EM_CONFERENCIA", "QUARENTENA"],
             "PedidoEntradaController.efetivar": [

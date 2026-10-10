@@ -47,6 +47,7 @@ export function OperationForm({
                             onChange={s.setQuery}
                             perfil={perfil}
                             schema={s.e.id + ".query"}
+                            lockedFields={fixedFields}
                         />
                     )}
                     {s.e.request && (

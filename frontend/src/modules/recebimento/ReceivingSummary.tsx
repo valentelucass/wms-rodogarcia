@@ -1,7 +1,15 @@
-import { isObject } from "../../contracts/runtime";
+import { isObject, type Values } from "../../contracts/runtime";
 import type { Workflow } from "../../domain/workflow";
 import { display } from "../../domain/labels";
-export function ReceivingSummary({ workflow }: { workflow: Workflow }) {
+export function ReceivingSummary({
+    workflow,
+    onSelectItem,
+    disabled = false,
+}: {
+    workflow: Workflow;
+    onSelectItem?: (note: Values, item: Values) => void;
+    disabled?: boolean;
+}) {
     const detail = workflow.selected["PedidoEntradaDto.Detalhe"],
         current = workflow.selected["PedidoEntradaDto.Resumo"];
     if (!detail || !isObject(detail.pedido) || detail.pedido.id !== current?.id)
@@ -38,6 +46,7 @@ export function ReceivingSummary({ workflow }: { workflow: Workflow }) {
                             <th scope="col">Bom físico</th>
                             <th scope="col">Avariado físico</th>
                             <th scope="col">Diferença recebida</th>
+                            {onSelectItem && <th scope="col">Ação</th>}
                         </tr>
                     </thead>
                     <tbody>
@@ -53,7 +62,8 @@ export function ReceivingSummary({ workflow }: { workflow: Workflow }) {
                                         }
                                     >
                                         <th scope="row">
-                                            Nota {String(note.id)} · item{" "}
+                                            Nota {String(note.serie)}/
+                                            {String(note.numero)} · item{" "}
                                             {String(item.id)} ·{" "}
                                             {String(item.sku)} ·{" "}
                                             {note.xmlVinculado
@@ -66,6 +76,21 @@ export function ReceivingSummary({ workflow }: { workflow: Workflow }) {
                                             {display(item.recebidaAvariada)}
                                         </td>
                                         <td>{display(item.diferenca)}</td>
+                                        {onSelectItem && (
+                                            <td>
+                                                <button
+                                                    type="button"
+                                                    disabled={disabled}
+                                                    onClick={() =>
+                                                        onSelectItem(note, item)
+                                                    }
+                                                >
+                                                    Selecionar item{" "}
+                                                    {String(item.id)} da nota{" "}
+                                                    {String(note.numero)}
+                                                </button>
+                                            </td>
+                                        )}
                                     </tr>
                                 )),
                         )}

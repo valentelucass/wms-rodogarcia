@@ -129,7 +129,9 @@ export async function click(name: string) {
     fireEvent.click(button);
     await waitFor(() =>
         expect(
-            screen.queryByText(/Carregando os dados atuais do registro/),
+            screen.queryByText(
+                /Carregando os dados atuais do registro|Atualizando notas, itens e conferência/,
+            ),
         ).toBeNull(),
     );
 }
@@ -137,7 +139,9 @@ export const activeRecord = activeQueries;
 async function loadedRecord() {
     await waitFor(() =>
         expect(
-            screen.queryByText(/Carregando os dados atuais do registro/),
+            screen.queryByText(
+                /Carregando os dados atuais do registro|Atualizando notas, itens e conferência/,
+            ),
         ).toBeNull(),
     );
     const failure = activeQueries().queryByRole("alert");
@@ -172,12 +176,18 @@ export async function confirm() {
         ).toBeNull(),
     );
     await activeQueries().findByText(/Resposta FICTÍCIA de exercício recebida/);
+    await loadedRecord();
 }
 export async function consult() {
     const button = activeQueries().queryByRole("button", { name: "Consultar" });
     if (!button) {
         const apply = document.querySelector(".record-filters button.primary");
-        if (apply && document.querySelector(".record-filters[open]"))
+        if (
+            apply &&
+            screen.queryByText(
+                "Informe as referências obrigatórias nos filtros para carregar esta visão.",
+            )
+        )
             fireEvent.click(apply);
         await waitFor(() =>
             expect(

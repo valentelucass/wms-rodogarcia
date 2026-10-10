@@ -24,13 +24,13 @@ it("FE05 condição95boa5avaria efetivada permanece triagem/quarentena sem dispo
     );
     fill("Referência *", "FICT-AVARIA-95-5");
     await confirm();
-    await click("2. Notas e itens");
+    await click("Notas e itens");
     await click("Importar XML existente");
     fill("XML existente da NF-e *", "<nfe>ficticia100</nfe>");
     await confirm();
     await click("Conferir itens importados (sem confirmar chegada)");
     await consult();
-    await click("3. Conferência e chegadas");
+    await click("Conferência");
     await click("Iniciar conferência");
     fill("Motivo / justificativa *", "Conferência de condição fictícia");
     await confirm();
@@ -53,7 +53,7 @@ it("FE05 condição95boa5avaria efetivada permanece triagem/quarentena sem dispo
             name: "Conferência física e notas do pedido",
         }),
     ).toHaveTextContent("95.0000005.0000000.000000");
-    await click("4. Divergência e efetivação");
+    await click("Conferência");
     await click("Efetivar carga integral");
     fill(
         "Motivo / justificativa *",
@@ -86,7 +86,7 @@ it("FE05 Operação consulta conferência mas não efetiva carga", async () => {
     );
     fill("Identificador *", "101");
     await consult();
-    await click("4. Divergência e efetivação");
+    await click("Conferência");
     expect(
         screen.queryByRole("button", {
             name: "Efetivar carga integral",

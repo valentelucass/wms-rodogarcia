@@ -56,6 +56,10 @@ label,
 .field > label {
     margin-bottom: 0;
 }
+.record-toolbar label,
+.map-tools label {
+    margin-bottom: 0;
+}
 .list-item {
     padding: var(--og-space-2);
     border-left: 3px solid var(--og-link);

@@ -240,6 +240,8 @@ Regras e permissões: `backend/src/main/java/br/com/rodogarcia/wms/services/Ence
 
 Ligação: `BE06` → `FE05`. Páginas: 4.
 
+**Atualização FE05-PED01:** os quatro IDs abaixo permanecem como inventário de capacidades e contratos, reunidos na única visão **Pedidos de entrada**. Não são mais quatro etapas globais da interface. Seus destinos são seções do pedido; a consulta existente de auditoria foi acrescentada ao Histórico para Gestor. [Mapeamento atual, estados e validação](etapa-07.md).
+
 ### entrada-1 — 1. Pedido de entrada
 
 Visão principal: `PedidoEntradaController.listar`. Detalhe: `PedidoEntradaController.consultar`.

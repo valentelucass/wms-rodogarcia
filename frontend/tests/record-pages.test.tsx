@@ -478,7 +478,7 @@ describe("REG01 expansão das páginas reais", () => {
                 />,
             );
             for (let i = 0; i < journey.steps.length; i++) {
-                if (i > 0)
+                if (i > 0 && journey.id !== "entrada")
                     click(
                         new RegExp(
                             journey.steps[i].title.replace(
@@ -488,9 +488,13 @@ describe("REG01 expansão das páginas reais", () => {
                         ),
                     );
                 await waitFor(() =>
-                    expect(requests.at(-1)?.endpoint.id).toBe(
-                        recordPages[journey.id][i].source,
-                    ),
+                    expect(
+                        requests.some(
+                            (request) =>
+                                request.endpoint.id ===
+                                recordPages[journey.id][i].source,
+                        ),
+                    ).toBe(true),
                 );
                 expect(requests.at(-1)?.endpoint.method).toBe("GET");
                 expect(

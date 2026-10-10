@@ -1,5 +1,25 @@
 # Decisões e pendências do WMS Rodogarcia
 
+## FE02-REG01-A03 — filtros diretos na página, 09/10/2026
+
+Lucas rejeitou a sanfona isolada de Filtros e contexto da consulta e o efeito de cartão dentro de cartão. Autoriza o formulário sempre visível nas páginas que compartilham essa estrutura, com um único título e sem borda interna, preservando as consultas e ações existentes. [Composição e conferência](design-system/etapa-06.md#filtros-visíveis-sem-sanfona--fe02-reg01-a03). Sem mudança de negócio ou contrato.
+
+## FE02-REG01-A02 — alinhamento em todas as barras semelhantes, 09/10/2026
+
+Lucas pediu alinhar Atualizar lista e esclareceu “todas que forem assim”. Autoriza unificar o alinhamento visual dos filtros de registros e mapa, preservando a quebra responsiva e os comportamentos existentes. [Regra compartilhada e conferência](design-system/etapa-06.md#alinhamento-compartilhado-dos-filtros--fe02-reg01-a02). Sem mudança de negócio, contrato ou autorização de operação PROD.
+
+## FE02-DASH02-A01 — alinhamento da busca do mapa, 09/10/2026
+
+Lucas pediu alinhar o botão Buscar na imagem do Mapa do armazém. Autoriza a correção visual da margem dos rótulos dos filtros, preservando busca, filtros e comportamento operacional. [Ajuste e conferência](design-system/etapa-05.md#alinhamento-da-busca--fe02-dash02-a01).
+
+## FE02-REG01-A01 — cores e organização dos registros, 09/10/2026
+
+Lucas pediu expressamente melhorar a organização da tabela mostrada em Clientes, dar cores aos badges de situação e aos botões. Autoriza o ajuste visual compartilhado, com cores semânticas, rótulos legíveis, ícones e hierarquia das ações nos dois temas. [Composição, conferência e limites](design-system/etapa-06.md#tabelas-badges-e-ações--fe02-reg01-a01). Valores de contrato/filtros, permissões e regras operacionais preservados; cores não comprovam disponibilidade nem confirmação de movimentação. Não há mudança de backend, schema ou autorização de operação PROD.
+
+## FE05-PED01 — entrada centrada no pedido, 09/10/2026
+
+Lucas pediu expressamente unificar as quatro etapas globais de Entrada e conferência em Pedidos de entrada, com criação no cabeçalho, notas/itens, conferência, divergências, histórico e efetivação no pedido selecionado. Essa orientação complementa FE02-REG01 e autoriza a refatoração frontend, preservando comandos, origens, revisões, permissões e efeitos de estoque. [Mapeamento, interpretação dos rótulos e validação](design-system/etapa-07.md). Conferido permanece distinto de Efetivado; não há alteração manual de situação. Filtros adicionais usam somente a página recebida conforme os contratos atuais, com alcance indicado. Dados gerais não possuem endpoint de edição; administração usa as operações existentes. A auditoria do pedido reutiliza a API disponível para Gestor. Não há nova regra de negócio, schema ou autorização de operação PROD.
+
 ## FE02-REG01 — listas e ações no registro, 09/10/2026
 
 Lucas pediu expressamente refatorar as 12 áreas: abrir lista/fila/overview ao entrar, criar no cabeçalho, acessar detalhe/edição/ações pelo registro persistente e preservar etapas reais. Modal é o padrão de edição, adaptado ao mobile; operações extensas mantêm seções e comandos próprios. A apresentação segue o design system existente. Esta orientação autoriza a implementação frontend e substitui as abas artificiais dentro da página, sem mudar as regras backend. [Padrão e limites](design-system/etapa-06.md), [inventário](design-system/inventario-paginas.md). Cidade e vínculos de armazém do cliente dependem de campos/relação efetivamente expostos; o exemplo visual não autoriza inventá-los ou modificar o schema.

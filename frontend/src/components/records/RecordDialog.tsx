@@ -29,6 +29,11 @@ import { DispatchReservations } from "../../modules/saida/DispatchReservations";
 import { AdjustmentOrigin } from "../../modules/financeiro/AdjustmentOrigin";
 import { AuditSelection } from "../../modules/relatorios/AuditSelection";
 import { useRecordQuery } from "../../hooks/useRecordQuery";
+import { ReceivingDetail } from "../../modules/recebimento/ReceivingDetail";
+import {
+    receivingSection,
+    type ReceivingSection,
+} from "../../modules/recebimento/orderPresentation";
 
 export interface RecordOpening {
     row?: Values;
@@ -121,6 +126,13 @@ export function RecordDialog({
         onReceipt,
         onRecord,
     });
+    const target = useRef(opening);
+    const [detailRevision, setDetailRevision] = useState(0);
+    const [refreshing, setRefreshing] = useState(false);
+    const [refreshError, setRefreshError] = useState("");
+    const [section, setSection] = useState<ReceivingSection>(
+        receivingSection(opening.action ?? ""),
+    );
     const workingWorkflow = useRef(
         opening.row
             ? absorb(workflow, opening.type ?? "unknown", opening.row, true)
@@ -131,6 +143,7 @@ export function RecordDialog({
     const [recordType, setRecordType] = useState(opening.type ?? "unknown");
     const [action, setAction] = useState(opening.action ?? "");
     const [completedAction, setCompletedAction] = useState("");
+    const [actionRevision, setActionRevision] = useState(0);
     const [loading, setLoading] = useState(Boolean(opening.row && page.detail));
     const [error, setError] = useState("");
     const [reload, setReload] = useState(0);
@@ -172,14 +185,17 @@ export function RecordDialog({
         };
     }, [canClose]);
     useEffect(() => {
-        const { opening, detail, transport, perfil, onReceipt, onRecord } =
+        const { detail, transport, perfil, onReceipt, onRecord } =
             snapshot.current;
+        const opening = target.current;
         if (!opening.row || !detail) return;
         const abort = new AbortController();
         let active = true;
         async function read() {
-            setLoading(true);
+            if (detailRevision) setRefreshing(true);
+            else setLoading(true);
             setError("");
+            setRefreshError("");
             try {
                 const e = endpoint(detail!);
                 const values = rowContext(
@@ -226,13 +242,16 @@ export function RecordDialog({
                 onRecord(receipt.data, e.response);
             } catch (err) {
                 if (active)
-                    setError(
+                    (detailRevision ? setRefreshError : setError)(
                         err instanceof Error
                             ? err.message
                             : "Não foi possível carregar o registro.",
                     );
             } finally {
-                if (active) setLoading(false);
+                if (active) {
+                    setLoading(false);
+                    setRefreshing(false);
+                }
             }
         }
         void read();
@@ -240,11 +259,14 @@ export function RecordDialog({
             active = false;
             abort.abort();
         };
-    }, [reload]);
+    }, [reload, detailRevision]);
     const chooseAction = (id: string) => {
         if (!canClose()) return;
         edit.current = { dirty: false, locked: false };
         setAction(id);
+        if (journey.id === "entrada") setActionRevision((value) => value + 1);
+        if (journey.id === "entrada" && !id.endsWith(".consultar"))
+            setSection(receivingSection(id));
         setCompletedAction("");
     };
     const derived = record
@@ -261,6 +283,14 @@ export function RecordDialog({
               snapshot.current.context,
               workingWorkflow.current,
           );
+    if (
+        journey.id === "entrada" &&
+        record &&
+        action === "AuditoriaController.listar"
+    ) {
+        derived.tipo = "PEDIDO_ENTRADA";
+        derived.registroId = recordIdentity(record);
+    }
     const available = actions.filter(
         (id) =>
             visibleRecordActions(
@@ -279,10 +309,24 @@ export function RecordDialog({
         id: string,
         request: Pick<Request, "endpoint" | "params" | "query">,
     ) => {
+        if (
+            journey.id === "entrada" &&
+            id === "PedidoEntradaController.consultar" &&
+            isObject(r.data)
+        ) {
+            if (recordIdentity(r.data) !== String(request.params.id))
+                throw new Error(
+                    "O detalhe recebido não corresponde ao pedido consultado.",
+                );
+            setRecord(r.data);
+            setRecordType(type);
+        }
         onReceipt(r, type, id, request);
         if (r.replay) {
             edit.current.dirty = false;
             setCompletedAction(id);
+            if (journey.id === "entrada" && target.current.row)
+                setDetailRevision((value) => value + 1);
             return;
         }
         workingWorkflow.current = absorb(
@@ -315,6 +359,27 @@ export function RecordDialog({
             ) {
                 setRecord(candidate);
                 setRecordType(candidate !== r.data ? canonicalType : type);
+            }
+            if (
+                journey.id === "entrada" &&
+                isObject(r.data) &&
+                id.startsWith("PedidoEntradaController.")
+            ) {
+                const root = recordRoot(r.data);
+                if (
+                    root.id !== undefined &&
+                    (!record || recordIdentity(root) === recordIdentity(record))
+                ) {
+                    target.current = {
+                        row: root,
+                        type: "PedidoEntradaDto.Resumo",
+                    };
+                    if (!record) {
+                        setRecord(root);
+                        setRecordType("PedidoEntradaDto.Resumo");
+                    }
+                    setDetailRevision((value) => value + 1);
+                }
             }
         }
         selectionChanged((v) => v + 1);
@@ -396,7 +461,7 @@ export function RecordDialog({
                     : recordActionLabel(action)
             }
             wide
-            icon="cadastros"
+            icon={journey.id === "entrada" ? "entrada" : "cadastros"}
             locked={locked}
             onClose={() => {
                 if (canClose()) onClose();
@@ -416,8 +481,34 @@ export function RecordDialog({
                 </div>
             ) : (
                 <>
+                    {refreshing && (
+                        <p role="status">
+                            Atualizando notas, itens e conferência deste pedido…
+                        </p>
+                    )}
+                    {refreshError && (
+                        <div role="alert">
+                            <p>{refreshError}</p>
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    setDetailRevision((value) => value + 1)
+                                }
+                            >
+                                Consultar pedido atualizado novamente
+                            </button>
+                        </div>
+                    )}
                     {action && (
-                        <details className="record-related-references">
+                        <details
+                            className="record-related-references"
+                            open={
+                                journey.id === "entrada" &&
+                                action === "PedidoEntradaController.nota"
+                                    ? true
+                                    : undefined
+                            }
+                        >
                             <summary>
                                 Referências relacionadas à operação
                             </summary>
@@ -454,7 +545,23 @@ export function RecordDialog({
                                 )}
                         </details>
                     )}
-                    {record && (
+                    {record && journey.id === "entrada" && (
+                        <ReceivingDetail
+                            record={record}
+                            section={section}
+                            onSection={(next) => {
+                                if (canClose()) {
+                                    setSection(next);
+                                    setAction("");
+                                    edit.current.dirty = false;
+                                }
+                            }}
+                            onSelect={selectRecord}
+                            locked={locked || refreshing}
+                            workflow={workingWorkflow.current}
+                        />
+                    )}
+                    {record && journey.id !== "entrada" && (
                         <section
                             className="record-detail"
                             aria-label="Dados do registro"
@@ -501,16 +608,27 @@ export function RecordDialog({
                             role="group"
                             aria-label="Operações deste registro"
                         >
-                            {available.map((id) => (
-                                <button
-                                    key={id}
-                                    type="button"
-                                    disabled={locked}
-                                    onClick={() => chooseAction(id)}
-                                >
-                                    {recordActionLabel(id)}
-                                </button>
-                            ))}
+                            {available
+                                .filter(
+                                    (id) =>
+                                        journey.id !== "entrada" ||
+                                        receivingSection(id) === section,
+                                )
+                                .map((id) => (
+                                    <button
+                                        key={id}
+                                        type="button"
+                                        disabled={
+                                            locked ||
+                                            (journey.id === "entrada" &&
+                                                (refreshing ||
+                                                    Boolean(refreshError)))
+                                        }
+                                        onClick={() => chooseAction(id)}
+                                    >
+                                        {recordActionLabel(id)}
+                                    </button>
+                                ))}
                         </div>
                     )}
                     {action &&
@@ -519,14 +637,17 @@ export function RecordDialog({
                             completedAction === action ||
                             endpoint(action).method === "GET") && (
                             <Operation
-                                key={action + ":" + reload}
+                                key={
+                                    action + ":" + reload + ":" + actionRevision
+                                }
                                 id={action}
                                 transport={transport}
                                 context={derived}
                                 perfil={perfil}
                                 inDialog
                                 fixedFields={
-                                    opening.row
+                                    opening.row ||
+                                    (journey.id === "entrada" && record)
                                         ? [
                                               "id",
                                               "clienteId",
@@ -536,6 +657,9 @@ export function RecordDialog({
                                               "codigo",
                                               "versao",
                                               "versaoDestino",
+                                              ...(journey.id === "entrada"
+                                                  ? ["tipo", "registroId"]
+                                                  : []),
                                           ].filter(
                                               (key) =>
                                                   derived[key] !== undefined &&
@@ -548,7 +672,14 @@ export function RecordDialog({
                                 onReplayReceipt={commandReceipt}
                                 onSelect={selectRecord}
                                 onContinue={(next) => {
-                                    if (canClose()) onNavigate(next);
+                                    if (canClose()) {
+                                        if (
+                                            journey.id === "entrada" &&
+                                            next.page === "entrada"
+                                        )
+                                            chooseAction(next.action);
+                                        else onNavigate(next);
+                                    }
                                 }}
                             />
                         )}

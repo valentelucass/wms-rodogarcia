@@ -42,8 +42,12 @@ it("FE05 XML sem chegada partes 50+48 divergência100/98 e efetivação supervis
     );
     fill("Referência *", "FICT-100-DIVERGENCIA");
     await confirm();
-    expect(screen.getByText(/Pedido de entrada: 101/)).toBeInTheDocument();
-    await click("2. Notas e itens");
+    expect(
+        await screen.findByRole("region", {
+            name: "Pedido de entrada selecionado",
+        }),
+    ).toHaveTextContent("Pedido 101");
+    await click("Notas e itens");
     await click("Importar XML existente");
     selected("Identificador *", "101");
     fill("XML existente da NF-e *", "<nfe>nota ficticia prevista100</nfe>");
@@ -55,7 +59,7 @@ it("FE05 XML sem chegada partes 50+48 divergência100/98 e efetivação supervis
         screen.getAllByRole("cell", { name: "100.000000" })[0],
     ).toBeInTheDocument();
     expect(screen.queryByText("98.000000", { exact: true })).toBeNull();
-    await click("3. Conferência e chegadas");
+    await click("Conferência");
     await click("Iniciar conferência");
     fill(
         "Motivo / justificativa *",
@@ -64,7 +68,7 @@ it("FE05 XML sem chegada partes 50+48 divergência100/98 e efetivação supervis
     await confirm();
     await click("Registrar chegada dos itens consultados");
     await arrival("50.000000");
-    await click("3. Conferência e chegadas");
+    await click("Conferência");
     await click("Registrar chegada física");
     selected("Revisão atual *", "3");
     await arrival("48.000000");
@@ -74,7 +78,7 @@ it("FE05 XML sem chegada partes 50+48 divergência100/98 e efetivação supervis
     expect(
         screen.getAllByRole("cell", { name: "2.000000" })[0],
     ).toBeInTheDocument();
-    await click("4. Divergência e efetivação");
+    await click("Conferência");
     await click("Efetivar carga integral");
     selected("Revisão atual *", "4");
     fill("Aceitar Divergencias *", "true");
@@ -126,19 +130,19 @@ it("FE06 múltiplas unidades seleção explícita reimpressão divisão e reagru
     );
     fill("Referência *", "FICT-1000-UNIDADES");
     await confirm();
-    await click("2. Notas e itens");
+    await click("Notas e itens");
     await click("Importar XML existente");
     fill("XML existente da NF-e *", "<nfe>prevista1000 ficticia</nfe>");
     await confirm();
     await click("Conferir itens importados (sem confirmar chegada)");
     await consult();
-    await click("3. Conferência e chegadas");
+    await click("Conferência");
     await click("Iniciar conferência");
     fill("Motivo / justificativa *", "Conferência física fictícia1000");
     await confirm();
     await click("Registrar chegada dos itens consultados");
     await arrival("1000.000000");
-    await click("4. Divergência e efetivação");
+    await click("Conferência");
     await click("Efetivar carga integral");
     fill("Motivo / justificativa *", "Efetivação física fictícia1000");
     await confirm();
