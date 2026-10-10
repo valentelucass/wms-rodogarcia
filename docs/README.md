@@ -2,6 +2,8 @@
 
 **QUAL-CONF01 — rodada atual de qualidade e confiabilidade:** [andamento e critérios](../STATES.md#qual-conf01--qualidade-e-confiabilidade-10102026), [escopo autorizado](06-decisoes-e-pendencias.md#qual-conf01--qualidade-e-confiabilidade-10102026) e [continuidade](09-continuidade.md#qual-conf01--rodada-atual-10102026). Evidências novas e saídas isoladas em `orchestracao/.runtime/qual-conf01/`; baseline, correções e limites reais registrados separadamente.
 
+**QUAL-CONF01-PERF01 — complemento material em andamento:** [Início, dashboard/visão/contexto e segurança](../STATES.md#qual-conf01-perf01--início-desempenho-e-segurança), [autorização/limites](06-decisoes-e-pendencias.md#qual-conf01-perf01--inicio-desempenho-e-seguranca). Bloco anterior é baseline local parcial; novas provas em `orchestracao/.runtime/qual-conf01/perf01/`, com custos locais separados das medidas do portal.
+
 **FE05-PED01:** [Pedidos de entrada, notas, conferência e histórico no mesmo contexto](design-system/etapa-07.md).
 
 **FE02-REG01:** [listas, detalhes e ações por registro nas 12 áreas](design-system/etapa-06.md), [inventário e mapeamento das 50 páginas](design-system/inventario-paginas.md).

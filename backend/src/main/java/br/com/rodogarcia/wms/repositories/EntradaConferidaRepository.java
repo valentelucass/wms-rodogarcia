@@ -14,6 +14,11 @@ public interface EntradaConferidaRepository extends JpaRepository<EntradaConferi
             "select e from EntradaConferida e where e.itemChegada.chegada.pedido.cliente.id=:clienteId and e.itemChegada.chegada.pedido.armazem.id=:armazemId order by e.id")
     java.util.List<EntradaConferida> historicoCobranca(Long clienteId, Long armazemId);
 
+    @Query(
+            "select e from EntradaConferida e join fetch e.itemChegada i join fetch i.itemNota n join fetch i.chegada ch join fetch ch.pedido p where e.unitizadaEm is null and p.cliente.id in :clientes and p.armazem.id in :armazens and n.produto.cliente.id=p.cliente.id order by e.id")
+    java.util.List<EntradaConferida> pendentesParaIndicador(
+            java.util.List<Long> clientes, java.util.List<Long> armazens);
+
     @EntityGraph(
             attributePaths = {
                 "itemChegada",

@@ -31,7 +31,7 @@ public class VisaoOperacaoRepository {
     }
 
     private static final String MAPA =
-            " from Endereco e left join OcupacaoEndereco o on o.endereco.id=e.id left join fetch e.armazem a left join o.unidade u";
+            " from Endereco e left join OcupacaoEndereco o on o.endereco.id=e.id left join fetch e.armazem a left join o.unidade u left join fetch u.pedido";
     private static final String BASE =
             " from Endereco e left join OcupacaoEndereco o on o.endereco.id=e.id where e.armazem.id in :armazens";
     private static final String CAPACIDADE =
@@ -137,6 +137,14 @@ public class VisaoOperacaoRepository {
                         .setParameter("id", unidadeId)
                         .getSingleResult()
                 > 0;
+    }
+
+    public List<Long> reservadas(List<Long> unidades) {
+        return em.createQuery(
+                        "select distinct r.unidade.id from ReservaSaida r where r.unidade.id in :ids and r.situacao=br.com.rodogarcia.wms.models.SituacaoReservaSaida.ATIVA",
+                        Long.class)
+                .setParameter("ids", unidades)
+                .getResultList();
     }
 
     public long entradas(List<Long> clientes, List<Long> armazens) {

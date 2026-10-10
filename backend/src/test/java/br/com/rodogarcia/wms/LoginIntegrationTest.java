@@ -4,8 +4,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import br.com.rodogarcia.wms.dto.AcessoDtos;
+import br.com.rodogarcia.wms.models.Armazem;
+import br.com.rodogarcia.wms.models.Cliente;
+import br.com.rodogarcia.wms.models.Produto;
+import br.com.rodogarcia.wms.models.TipoQuantidade;
 import br.com.rodogarcia.wms.services.AcessoService;
 import br.com.rodogarcia.wms.services.LoginService;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.net.HttpCookie;
@@ -13,17 +19,23 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.security.KeyPairGenerator;
 import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HexFormat;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
+import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -41,6 +53,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -65,7 +79,104 @@ class LoginIntegrationTest {
     @Autowired LoginService service;
     @Autowired JwtDecoder decoder;
     @Autowired AcessoService acesso;
+    @Autowired EntityManager em;
+    @Autowired EntityManagerFactory emf;
+    @Autowired PlatformTransactionManager transactions;
     private Navegador principal;
+
+    @Test
+    void perf01ContaStatementsHttpComSessaoRealH2SemReduzirRevalidacao() throws Exception {
+        var tx = new TransactionTemplate(transactions);
+        var now = Instant.now();
+        var ids =
+                tx.execute(
+                        status -> {
+                            var c = new Cliente("PERFAUTH", "Fictício", "11111111111111", now);
+                            var a =
+                                    new Armazem(
+                                            "PERFAUTH",
+                                            "Fictício",
+                                            "22222222222222",
+                                            "Fictícia",
+                                            "SP",
+                                            now);
+                            em.persist(c);
+                            em.persist(a);
+                            return List.of(c.getId(), a.getId());
+                        });
+        var stats = emf.unwrap(SessionFactory.class).getStatistics();
+        boolean previous = stats.isStatisticsEnabled();
+        stats.setStatisticsEnabled(true);
+        var measurements = new ArrayList<Map<String, Object>>();
+        try {
+            int prepared = 0;
+            for (int products : List.of(1, 12, 101)) {
+                final int from = prepared;
+                tx.executeWithoutResult(
+                        status -> {
+                            var c = em.getReference(Cliente.class, ids.getFirst());
+                            for (int i = from; i < products; i++)
+                                em.persist(
+                                        new Produto(
+                                                c,
+                                                "AUTH" + i,
+                                                "Fictício",
+                                                "UN",
+                                                TipoQuantidade.CONTAGEM,
+                                                0,
+                                                false,
+                                                false,
+                                                null,
+                                                now));
+                        });
+                prepared = products;
+                stats.clear();
+                long start = System.nanoTime();
+                var response =
+                        principal.req(
+                                "GET",
+                                "/api/v1/visao-operacao?clienteId="
+                                        + ids.getFirst()
+                                        + "&armazemId="
+                                        + ids.getLast()
+                                        + "&fuso=UTC&tamanho=1",
+                                null);
+                long elapsed = System.nanoTime() - start;
+                assertThat(response.statusCode()).isEqualTo(200);
+                assertThat(principal.json.path("valorArmazenado").decimalValue())
+                        .isEqualByComparingTo("0");
+                assertThat(principal.json.path("valorCompleto").asBoolean()).isTrue();
+                assertThat(principal.json.path("unidadesArmazenadas").asLong()).isZero();
+                var m = new LinkedHashMap<String, Object>();
+                m.put("catalogProducts", products);
+                m.put("statements", stats.getPrepareStatementCount());
+                m.put("entitiesLoaded", stats.getEntityLoadCount());
+                m.put("elapsedNanosDiagnosticOnly", elapsed);
+                m.put("queryExecutions", stats.getQueryExecutionCount());
+                measurements.add(m);
+            }
+            assertThat(service.jwtAtivo(decoder.decode(principal.token))).isTrue();
+            Files.writeString(
+                    Path.of(System.getProperty("wms.test.evidencias.dir"), "perf01-auth-http.json"),
+                    mapper.writeValueAsString(
+                            Map.of(
+                                    "context",
+                                    "H2 wms-login-d32",
+                                    "authEnabled",
+                                    true,
+                                    "clienteId",
+                                    ids.getFirst(),
+                                    "armazemId",
+                                    ids.getLast(),
+                                    "measurements",
+                                    measurements,
+                                    "beforeComparisonAvailable",
+                                    false)),
+                    StandardOpenOption.CREATE_NEW);
+        } finally {
+            stats.setStatisticsEnabled(previous);
+        }
+    }
 
     @DynamicPropertySource
     static void chaves(DynamicPropertyRegistry r) throws Exception {
@@ -544,6 +655,9 @@ class LoginIntegrationTest {
         }
         assertThat(n.req("GET", "/api/auth/eu", null).statusCode()).isEqualTo(401);
         assertThat(n.req("GET", "/api/v1/clientes", null).statusCode()).isEqualTo(401);
+        assertThat(n.req("GET", "/api/v1/visao-operacao?fuso=UTC", null).statusCode())
+                .isEqualTo(401);
+        assertThat(n.req("GET", "/api/v1/dashboard?fuso=UTC", null).statusCode()).isEqualTo(401);
         assertThat(jwt.getExpiresAt()).isAfter(Instant.now());
         n.token = null;
         assertThat(n.req("POST", "/api/auth/renovar", null).statusCode()).isEqualTo(401);

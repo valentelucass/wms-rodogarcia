@@ -10,6 +10,26 @@ Posses exclusivas: Cedro backend/regras/transações/segurança/testes; Lume fro
 
 **Conferência expressa durante a rodada:** preservar os testes históricos não substitui provar os comportamentos vigentes do runner D22 atual. Exercitar em cópias isoladas, com stubs/dados fictícios e sem alterar executores/migrations/históricos: retomada/reexecução/corrida Create→Check, falha PROD preservando DEV, gates PreValidate/Migrate/PostValidate/Info/catálogo e sanitização de checksum/transporte. Caso não executável exige barreira concreta; não declarar validação integral. Intermitência em File.Replace permanece pendência material até causa/teste determinístico ou justificativa explícita; uma rodada verde não apaga o vermelho.
 
+### QUAL-CONF01-PERF01 — Inicio desempenho e seguranca
+
+Lucas ampliou expressamente QUAL-CONF01 para medir e corrigir a demora do Início e os riscos de segurança, com dependência dashboard/visão/contexto: BE14-DASH01/BE14-DASH02 → FE02-DASH01/FE02-DASH02 e FE02-CTX01. O bloco anterior permanece baseline local parcial datada; não encerrar a rodada sem tratar o complemento. Lume pode fazer navegação/Atualizar normal de leitura pertinente na sessão/origem legítima existente, após confronto atual de runtime/alvo/TLS/permissões/catálogo/histórico e ausência de edição/operação pendente. Capturar apenas status, tempos, tamanhos, contagens e sequência sanitizados; nunca tokens/cookies/Authorization/senhas/payload sensível. Sem bypass CSP, nova conexão inferida ou benchmark contra o real.
+
+Cedro deve medir cardinalidade/statements/consultas com massa H2 isolada e oráculo independente, separando banco/API/rede/CPU/render e preservando contrato, BigDecimal, origem, avaria, null e alcance. Revalidação de sessão/permissão permanece obrigatória; repetição de método não demonstra repetição SQL. Corrigir a menor origem factual, sem DDL/índices/migrations/cache global/mascarar espera/reduzir segurança. Pacote preparado não comprova runtime atualizado; se depender de reinício/perfil/índice, devolver o passo seguro documentado antes de atuar. Antes/depois devem identificar fonte/ambiente e deltas paralelos, com regressão pertinente da fonte final e revisão Vigia. Ausência de instrumento real exige medida não obtida e próximo instrumento/responsável explícitos.
+
+P01 recebeu diagnóstico mínimo somente em arquivos fictícios isolados: helper real e .NET direto, metadados/ACL/estado/HResult sanitizados quando disponíveis, sem retries ou intervenção no canal real. Não reprodução não é correção. Se persistir aberto, QUAL-CONF01 fecha apenas parcialmente, com próximo caso exato e responsável. [Andamento](../STATES.md#qual-conf01-perf01--início-desempenho-e-segurança); [provas do complemento](../orchestracao/.runtime/qual-conf01/perf01/).
+
+## FE02-REG01-A08 — ações e altura das tabelas, 10/10/2026
+
+Lucas apontou tabelas fiscais/de encerramento com rótulos partidos e linhas muito altas, pedindo corrigir os equivalentes. O ramo de operação contextual em `RecordTable` passa a usar botão compacto como detalhes/edição, com nome completo no hover e para leitores de tela. Ações ficam lado a lado, preservando destino, permissão e confirmação. [Definição e evidências](design-system/etapa-06.md#operações-compactas-nas-tabelas--fe02-reg01-a08). Sem mudança em regras ou backend.
+
+## FE02-REG01-A07 — botões junto aos campos de filtro, 10/10/2026
+
+Lucas pediu Aplicar/Restaurar alinhados às caixas de seleção e a mesma organização nas páginas/etapas equivalentes. Alterado o componente compartilhado: comandos ao lado dos campos quando cabem, com quebra conjunta conforme a largura disponível. [Definição e validação](design-system/etapa-06.md#comandos-ao-lado-dos-filtros--fe02-reg01-a07). Sem alteração de consulta, restauração, contratos ou regras backend.
+
+## FE02-DASH02-A08 — encaixe e informações do mapa, 10/10/2026
+
+Lucas pediu ruas lado a lado com dimensões próprias, divisões visíveis, popup por célula e melhor aproveitamento das lacunas em torno de ruas maiores. Implementado encaixe denso adaptável, contornos entre armazéns/ruas e prévia por mouse/teclado com os dados já autorizados da consulta. Detalhes completos permanecem no clique. [Definição e evidências](design-system/etapa-05.md#encaixe-das-ruas-divisões-e-prévia--fe02-dash02-a08). Sem alteração de regras/backend ou autorização adicional de ambiente.
+
 ## FE02-DS01-A04 — setas e blur no menu lateral, 10/10/2026
 
 Lucas pediu usar setas e blur quando o menu lateral não couber em monitor pequeno. Autoriza ocultar a barra de rolagem e introduzir controles de anterior/próximo com desfoque nas bordas, mantendo destinos, roda/toque e teclado. [Definição](design-system/etapa-01.md#setas-e-desfoque-na-lateral--fe02-ds01-a04).

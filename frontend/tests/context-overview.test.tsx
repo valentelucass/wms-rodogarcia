@@ -16,6 +16,41 @@ import { act } from "@testing-library/react";
 import type { Transport, Receipt, Request } from "../src/api/client";
 import { overviewExample } from "../src/api/mock/overview";
 
+it("prévia do endereço abre por foco, fecha com Escape e preserva o clique de detalhes", () => {
+    const position = {
+        ...overviewPositions[0],
+        codigo: "ENDERECO-COM-CODIGO-COMPLETO",
+        bloqueada: true,
+        reservada: true,
+        capacidadePesoKg: null,
+    };
+    const onSelect = vi.fn();
+    const { unmount } = render(
+        <AddressMap positions={[position]} onSelect={onSelect} />,
+    );
+    const cell = screen.getByRole("button", {
+        name: /ENDERECO-COM-CODIGO-COMPLETO/,
+    });
+    fireEvent.focus(cell);
+    const preview = screen.getByRole("tooltip");
+    expect(preview).toHaveTextContent(position.codigo);
+    expect(preview).toHaveTextContent(position.armazem);
+    expect(preview).toHaveTextContent("Bloqueada");
+    expect(preview).toHaveTextContent("Reservada");
+    expect(preview).toHaveTextContent("Não configurada");
+    expect(cell).toHaveAttribute("aria-describedby", preview.id);
+    expect(onSelect).not.toHaveBeenCalled();
+    fireEvent.keyDown(window, { key: "Escape" });
+    expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
+    fireEvent.focus(cell);
+    fireEvent.click(cell);
+    expect(onSelect).toHaveBeenCalledExactlyOnceWith(position);
+    expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
+    fireEvent.focus(cell);
+    unmount();
+    expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
+});
+
 it("moeda mantém centavos, arredonda sem float e distingue ausência de zero", () => {
     expect(overviewMoney("12500.005")).toBe("R$ 12.500,01");
     expect(overviewMoney("9007199254740993.99")).toBe(

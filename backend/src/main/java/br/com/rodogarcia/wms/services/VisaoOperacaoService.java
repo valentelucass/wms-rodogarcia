@@ -19,6 +19,7 @@ import java.time.Instant;
 import java.time.YearMonth;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Set;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -115,20 +116,8 @@ public class VisaoOperacaoService {
         BigDecimal valor = financeiro ? BigDecimal.ZERO : null;
         boolean completo = financeiro;
         if (financeiro && !vazio) {
-            // A mesma valoração do indicador de estoque: origem, avaria e saldo sem unitização.
-            for (Long cliente : cs)
-                for (Long armazem : as) {
-                    for (int inicio = 0; ; inicio++) {
-                        var lote =
-                                indicadores.listar(
-                                        cliente, armazem, true, zona.getId(), inicio, 100);
-                        for (var produto : lote.itens()) {
-                            if (produto.valorExato() == null) completo = false;
-                            else valor = valor.add(produto.valorExato());
-                        }
-                        if (inicio + 1 >= lote.totalPaginas()) break;
-                    }
-                }
+            valor = indicadores.valorArmazenado(cs, as, agora, zona);
+            completo = valor != null;
         }
         if (!completo) valor = null;
         BigDecimal faturamento = financeiro ? BigDecimal.ZERO : null;
@@ -148,19 +137,38 @@ public class VisaoOperacaoService {
                 faturamento = null;
         }
         long total = as.isEmpty() ? 0 : repository.totalMapa(as, codigo, estado);
-        var mapa =
+        var celulas =
                 as.isEmpty()
-                        ? List.<VisaoOperacaoDto.Posicao>of()
-                        : repository
-                                .mapa(
-                                        as,
-                                        codigo,
-                                        estado,
-                                        Math.toIntExact(page.getOffset()),
-                                        tamanho)
-                                .stream()
-                                .map(c -> posicao(c, cs))
-                                .toList();
+                        ? List.<VisaoOperacaoRepository.Celula>of()
+                        : repository.mapa(
+                                as, codigo, estado, Math.toIntExact(page.getOffset()), tamanho);
+        var permitidos = Set.copyOf(cs);
+        var idsVisiveis =
+                celulas.stream()
+                        .map(VisaoOperacaoRepository.Celula::unidade)
+                        .filter(
+                                u ->
+                                        u != null
+                                                && permitidos.contains(
+                                                        u.getPedido().getCliente().getId()))
+                        .map(UnidadeLogistica::getId)
+                        .distinct()
+                        .toList();
+        var reservadas =
+                idsVisiveis.isEmpty()
+                        ? Set.<Long>of()
+                        : Set.copyOf(repository.reservadas(idsVisiveis));
+        var mapa =
+                celulas.stream()
+                        .map(
+                                c ->
+                                        posicao(
+                                                c,
+                                                permitidos,
+                                                c.unidade() != null
+                                                        && reservadas.contains(
+                                                                c.unidade().getId())))
+                        .toList();
         return new VisaoOperacaoDto.Resumo(
                 clienteId,
                 armazemId,
@@ -190,7 +198,7 @@ public class VisaoOperacaoService {
     }
 
     private VisaoOperacaoDto.Posicao posicao(
-            VisaoOperacaoRepository.Celula c, List<Long> permitidos) {
+            VisaoOperacaoRepository.Celula c, Set<Long> permitidos, boolean reservada) {
         var e = c.endereco();
         var u = c.unidade();
         boolean visivel = u != null && permitidos.contains(u.getPedido().getCliente().getId());
@@ -224,7 +232,7 @@ public class VisaoOperacaoService {
                 disponivel,
                 ocupada,
                 visivel && u.isBloqueada(),
-                visivel && repository.reservada(u.getId()),
+                visivel && reservada,
                 e.getTipo() == TipoEndereco.QUARENTENA,
                 e.getCapacidadePesoKg());
     }
@@ -234,12 +242,13 @@ public class VisaoOperacaoService {
         var c = repository.detalhe(id);
         if (c == null) throw RegraNegocioException.naoEncontrado();
         acesso.armazem(c.endereco().getArmazem().getId());
-        var permitidos = clientes(null);
+        var permitidos = Set.copyOf(clientes(null));
         var u = c.unidade();
         boolean visivel = u != null && permitidos.contains(u.getPedido().getCliente().getId());
+        boolean reservada = visivel && repository.reservada(u.getId());
         return new VisaoOperacaoDto.Detalhe(
-                posicao(c, permitidos),
-                visivel ? List.of(unidade(u)) : List.of(),
+                posicao(c, permitidos, reservada),
+                visivel ? List.of(unidade(u, reservada)) : List.of(),
                 visivel ? 1 : 0,
                 u != null && !visivel,
                 c.endereco().getAlturaMetros(),
@@ -249,7 +258,7 @@ public class VisaoOperacaoService {
                 c.endereco().getTipoUnidadePermitido());
     }
 
-    private VisaoOperacaoDto.Unidade unidade(UnidadeLogistica u) {
+    private VisaoOperacaoDto.Unidade unidade(UnidadeLogistica u, boolean reservada) {
         return new VisaoOperacaoDto.Unidade(
                 u.getId(),
                 u.getPedido().getCliente().getId(),
@@ -261,7 +270,7 @@ public class VisaoOperacaoService {
                 u.getProduto().getUnidadeMedida(),
                 u.getPedido().getId(),
                 u.isBloqueada(),
-                repository.reservada(u.getId()),
+                reservada,
                 u.getTipoLocalizacao() == TipoEndereco.QUARENTENA,
                 repository.ultimaMovimentacao(u.getId()));
     }

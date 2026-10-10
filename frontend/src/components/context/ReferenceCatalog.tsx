@@ -54,6 +54,7 @@ export function ReferenceCatalogProvider({
         ) {
             const options: ReferenceOption[] = [];
             for (let pagina = 0; ; pagina++) {
+                controller.signal.throwIfAborted();
                 const result = await call(
                     transport,
                     kind,
@@ -62,6 +63,7 @@ export function ReferenceCatalogProvider({
                     { pagina, tamanho: 100 },
                     controller.signal,
                 );
+                controller.signal.throwIfAborted();
                 if (
                     !result.itens ||
                     result.itens.some(
@@ -103,7 +105,8 @@ export function ReferenceCatalogProvider({
                     });
             })
             .catch(() => {
-                if (active && !controller.signal.aborted)
+                if (active && !controller.signal.aborted) {
+                    controller.abort();
                     setState({
                         transport,
                         revision,
@@ -112,6 +115,7 @@ export function ReferenceCatalogProvider({
                         armazens: [],
                         error: "Não foi possível carregar clientes e armazéns. Atualize as opções.",
                     });
+                }
             });
         return () => {
             active = false;

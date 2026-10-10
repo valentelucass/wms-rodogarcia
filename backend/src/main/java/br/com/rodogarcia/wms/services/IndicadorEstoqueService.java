@@ -236,15 +236,7 @@ public class IndicadorEstoqueService {
                 if (!i.getProduto().getId().equals(p.getId()) || e.getUnitizadaEm() != null)
                     continue;
                 BigDecimal q = e.getQuantidadeTriagem().add(e.getQuantidadeQuarentena());
-                BigDecimal v =
-                        i.getValorMercadoria() == null
-                                ? null
-                                : i.getValorMercadoria()
-                                        .multiply(e.getQuantidadeTriagem())
-                                        .divide(
-                                                i.getQuantidadePrevista(),
-                                                12,
-                                                RoundingMode.HALF_UP);
+                BigDecimal v = valorTriagem(e);
                 if (v == null) {
                     completo = false;
                     pendencias.add("VALOR_ORIGEM_DESCONHECIDO:" + e.getId());
@@ -303,6 +295,41 @@ public class IndicadorEstoqueService {
                 origem.values().stream().map(AcumuladorOrigem::dto).toList(),
                 List.copyOf(pendencias),
                 avisosUnidade);
+    }
+
+    /**
+     * Mesmo valor do indicador por produto, sem calcular saldo/avisos/estágios descartados pelo
+     * painel.
+     */
+    @Transactional(readOnly = true, isolation = Isolation.SERIALIZABLE)
+    public BigDecimal valorArmazenado(
+            List<Long> clientes, List<Long> armazens, Instant instante, ZoneId zona) {
+        acesso.exigirSupervisor();
+        clientes.forEach(acesso::cliente);
+        armazens.forEach(acesso::armazem);
+        if (clientes.isEmpty() || armazens.isEmpty()) return BigDecimal.ZERO;
+        BigDecimal total = BigDecimal.ZERO;
+        boolean completo = true;
+        for (var u : unidades.ativasParaIndicador(clientes, armazens)) {
+            var valor = calculos.indicadorUnidade(u, instante, zona).unidade().valorEstoque();
+            if (valor == null) completo = false;
+            else total = total.add(valor);
+        }
+        for (var e : entradas.pendentesParaIndicador(clientes, armazens)) {
+            var valor = valorTriagem(e);
+            if (valor == null) completo = false;
+            else total = total.add(valor);
+        }
+        return completo ? total : null;
+    }
+
+    private BigDecimal valorTriagem(br.com.rodogarcia.wms.models.EntradaConferida e) {
+        var item = e.getItemChegada().getItemNota();
+        return item.getValorMercadoria() == null
+                ? null
+                : item.getValorMercadoria()
+                        .multiply(e.getQuantidadeTriagem())
+                        .divide(item.getQuantidadePrevista(), 12, RoundingMode.HALF_UP);
     }
 
     private static final class AcumuladorOrigem {

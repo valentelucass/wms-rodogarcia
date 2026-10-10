@@ -175,7 +175,6 @@ function Workspace({
         if (!canLeavePage()) return;
         setContext(v);
         setWorkflow(emptyWorkflow());
-        setRevision((n) => n + 1);
         setContextRevision((n) => n + 1);
     };
     const journey = journeys.find((j) => j.id === page);

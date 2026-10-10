@@ -1,4 +1,11 @@
-import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import {
+    useEffect,
+    useId,
+    useRef,
+    useState,
+    type CSSProperties,
+    type ReactNode,
+} from "react";
 import { ApiError, call, type Transport } from "../../api/client";
 import type { Values } from "../../contracts/runtime";
 import type {
@@ -13,6 +20,8 @@ import { Pagination } from "../layout/Pagination";
 import { Icon } from "../../design-system/Icon";
 import { formatQuantity } from "./OperationDashboard";
 import { expandedDecimal } from "../../contracts/codec";
+import { MapStreetLayout } from "./MapStreetLayout";
+import { MapPosition } from "./MapPosition";
 
 export const positionState = (p: VisaoOperacaoDto_Posicao) =>
     p.ocupada
@@ -450,7 +459,7 @@ export function AddressMap({
                         <Icon name="armazens" />
                         {group.name}
                     </h3>
-                    <div className="map-streets">
+                    <MapStreetLayout>
                         {[...group.streets].map(([street, levels]) => (
                             <MapStreet
                                 key={street}
@@ -460,7 +469,7 @@ export function AddressMap({
                                 disabled={disabled}
                             />
                         ))}
-                    </div>
+                    </MapStreetLayout>
                 </section>
             ))}
         </div>
@@ -526,7 +535,11 @@ function MapStreet({
     const visible = columns.slice(offset, offset + count);
     const paged = count < columns.length;
     return (
-        <section className="map-street" aria-label={`Rua ${street}`}>
+        <section
+            className="map-street"
+            aria-label={`Rua ${street}`}
+            style={{ "--map-column-count": columns.length } as CSSProperties}
+        >
             <div className="map-street-heading">
                 <h4>Rua {street}</h4>
                 {paged && (
@@ -602,9 +615,9 @@ function MapStreet({
                                                             p.posicao,
                                                         );
                                                     return (
-                                                        <button
-                                                            type="button"
+                                                        <MapPosition
                                                             key={p.id}
+                                                            position={p}
                                                             hidden={column < 0}
                                                             style={{
                                                                 gridRow: 1,
@@ -615,31 +628,11 @@ function MapStreet({
                                                                         : undefined,
                                                             }}
                                                             disabled={disabled}
-                                                            className={`map-position map-state--${p.ocupada ? "occupied" : p.disponivel ? "free" : "other"}`}
-                                                            onClick={() =>
-                                                                onSelect(p)
-                                                            }
-                                                            title={`${p.codigo} · ${positionState(p)}${p.bloqueada ? " · Bloqueado" : ""}${p.reservada ? " · Reservado" : ""}`}
-                                                            aria-label={`${p.codigo} · ${positionState(p)}${p.bloqueada ? " · Bloqueado" : ""}${p.reservada ? " · Reservado" : ""}`}
-                                                        >
-                                                            <strong>
-                                                                {p.codigo}
-                                                            </strong>
-                                                            {(p.bloqueada ||
-                                                                p.reservada) && (
-                                                                <span
-                                                                    className="map-position-flags"
-                                                                    aria-hidden="true"
-                                                                >
-                                                                    {p.bloqueada && (
-                                                                        <Icon name="senha" />
-                                                                    )}
-                                                                    {p.reservada && (
-                                                                        <Icon name="bookmark" />
-                                                                    )}
-                                                                </span>
+                                                            state={positionState(
+                                                                p,
                                                             )}
-                                                        </button>
+                                                            onSelect={onSelect}
+                                                        />
                                                     );
                                                 })}
                                         </div>

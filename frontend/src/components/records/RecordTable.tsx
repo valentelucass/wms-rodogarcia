@@ -331,20 +331,24 @@ export function RecordTable({
                                         {!edit && operation && (
                                             <button
                                                 className={
-                                                    /\.(cancelar|estornar|encerrar|reverter|excluir)$/.test(
+                                                    "record-action-icon" +
+                                                    (/\.(cancelar|estornar|encerrar|reverter|excluir)$/.test(
                                                         operation,
                                                     )
-                                                        ? "record-action-danger"
-                                                        : undefined
+                                                        ? " record-action-danger"
+                                                        : "")
                                                 }
                                                 type="button"
+                                                title={recordActionLabel(
+                                                    operation,
+                                                )}
                                                 disabled={pending}
                                                 onClick={() =>
                                                     onOpen(row, operation)
                                                 }
                                             >
                                                 <Icon name="arrow" />
-                                                <span className="record-action-label">
+                                                <span className="sr-only">
                                                     {recordActionLabel(
                                                         operation,
                                                     )}

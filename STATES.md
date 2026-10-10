@@ -8,12 +8,61 @@
 - [x] Executar primeira baseline antes de ampliar documentos: frontend 493/493 em 47 arquivos, tipagem/lint/build real aprovados; scripts DEV 9/9 e 7/7; checks independentes de contratos/configuração aprovados.
 - [x] Preservar baseline Maven com JDK 21: 836 casos, três falhas e oito erros; ambiente, seleção indevida e helpers de evidência/oráculo diagnosticados. Focal corrigido: 220 casos, zero falhas/erros. JDK 21 existente somente no processo, sem desativar Enforcer.
 - [x] Concluir recorte frontend: 500/500 em 48 arquivos, seis casos browser integralmente interceptados, tipagem/lint/build final aprovados e parecer independente favorável.
-- [ ] Concluir inventário compacto por área/risco, reproduções, correções mínimas, regressão da fonte final e revisão independente.
+- [x] Consolidar o primeiro bloco local datado: inventário, 855 casos backend padrão + LoginBrowser H2 separado, build, oito casos D22 atuais e revisão independente por recorte. P01 permanece material.
+- [ ] Concluir complemento material QUAL-CONF01-PERF01, regressão da fonte alterada e revisão independente.
 - [ ] Fechar relatório com contagens calculadas, versões e áreas executadas ou impedimentos concretos.
 
 **Versão servida — encaminhamento confirmado:** inspeção de leitura identificou BE PID 50200/JAR `2b94a77f`, fonte correspondente e 549/549 classes iguais à compilação; FE PID 73436, Vite da raiz em modo real. Assets novos correspondem à fonte; o DOM aberto conservava a composição anterior. A única recarga autorizada, após conferir ausência de edição/operação pendente, trouxe o cabeçalho atual e quatro atalhos de 44 px. Sessão continuou acessível. Causa profunda da retenção não comprovada; sem reinício. [Provas](orchestracao/.runtime/qual-conf01/lume/resultado.json).
 
-**Achado corrigido QUAL-CONF01-A01:** 401 atrasado com Bearer anterior encerrava sessão renovada. Correção mínima em `frontend/src/api/client.ts`, dois vermelhos preservados, regressão/build verde e reprodução/revisão independente. Pareamento JPA–DDL local: 3.695 verificações, zero falhas, sem SQL. Fonte backend estabilizada após corrigir apenas o preparo de SKU de uma fixture; regressão padrão em execução. A revisão infra permanece aberta para famílias vigentes do runner D22 atual; `File.Replace` intermitente é pendência material com causa não demonstrada, mesmo após verdes. Provas locais/H2/browser interceptado não comprovam SQL Server. Não houve nova guarda/conexão SQL direta ou teste real de negócio pela equipe; a recarga pode provocar leituras/renovações normais da aplicação. **Próximo:** regressão padrão/build, LoginBrowser H2 separado, provas D22 atuais, revisão geral e relatório calculado, sem confirmação por bloco.
+**Bloco local anterior, parcial e datado:** QUAL-CONF01-A01 corrigiu 401 atrasado que encerrava sessão renovada, com vermelho/verde, build e revisão independente. Backend: verify padrão com 856 selecionados/855 aprovados/zero falhas ou erros/um condicionado; LoginBrowser H2 separado 1/1. Frontend: 500/500 e browser interceptado 6/6. JPA–DDL: 3.695/0, sem SQL. Oito casos locais do runner D22 atual cobriram famílias vigentes; não comprovam Flyway/locks/transporte real. `File.Replace` (P01) continua material: diagnóstico mínimo fictício do helper e .NET não reproduziu, sem correção. Próxima ocorrência: Prumo/Farol, revisão Vigia, uma execução focal com cadeia/HResult e metadados no ponto Replace, sem probe anterior/retries. [Relatório parcial](orchestracao/.runtime/qual-conf01/resultado.md).
+
+### QUAL-CONF01-PERF01 — Início, desempenho e segurança
+
+**Em andamento, ampliação expressa de Lucas na mesma rodada.** Dependências: BE14-DASH01/BE14-DASH02 → FE02-DASH01/FE02-DASH02 e FE02-CTX01. [Autorização e limites](docs/06-decisoes-e-pendencias.md#qual-conf01-perf01--inicio-desempenho-e-seguranca); novas provas em `orchestracao/.runtime/qual-conf01/perf01/`.
+
+- [x] Confrontar metadados atuais com o runtime existente: PIDs/inícios/JAR/config/TLS/ACL compatíveis com a guarda de lançamento WMS_DEV/WMSDEV, sem nova conexão SQL. Permissões/catálogo/histórico/handshake continuam provas datadas de 17:15 UTC.
+- [x] Medir uma atualização normal na mesma sessão/origem: 10.541,001 ms até observar `aria-busy=false`, incluindo UI/IPC; não mede TTFB/API/SQL/CPU. Network/DevTools indisponíveis, ResourceTiming recusado por CSP e inventário CUA vazio; sem bypass.
+- [x] Reproduzir localmente trabalho excessivo: financeiro H2 24/112/827 statements para 1/12/101 produtos; mapa 14/21/53 para páginas 1/8/40 com a mesma massa. Resultados funcionais preservados antes das assertions estruturais. Frontend: quatro falhas em seis casos demonstraram catálogos repetidos e paginação após erro/cancelamento.
+- [ ] Corrigir a origem mínima, preservar alcance/sessão/CSRF/BigDecimal/null, demonstrar antes/depois local e regressão/build final.
+- [ ] Confrontar fonte/pacote/runtime, incluindo delta paralelo A08, e registrar revisão Vigia e medidas reais ainda indisponíveis com instrumento/responsável.
+
+**Próximo:** Cedro otimiza consultas e Lume evita requisições desnecessárias; Vigia revisa contadores/oráculos/segurança. Não atribuir a demora do portal ao H2 nem chamar pacote preparado de runtime promovido. Sem SQL direto/DDL/índices/cache global/reinício/processo real novo. A preservação é conferida por conteúdo/hashes; a mudança externa de HEAD e de paths sujos não prova autoria ou remoção. P01 segue parcial em paralelo, sem bloquear este complemento.
+
+## FE02-REG01-A08 — ações compactas nas tabelas, 10/10/2026
+
+**Concluído e conferido localmente, pedido expresso de Lucas:** corrigir rótulos quebrados e linhas excessivamente altas nas tabelas fiscais, de encerramento e equivalentes. Dependência FE02-REG01-A04 e contratos de ações existentes. [Definição](docs/design-system/etapa-06.md#operações-compactas-nas-tabelas--fe02-reg01-a08).
+
+- [x] Rastrear o componente: operações contextuais ainda exibiam rótulos extensos na coluna estreita reservada a ícones.
+- [x] Uniformizar ações contextuais com detalhes/edição, mantendo nome completo acessível e comando original.
+- [x] Conferir alinhamento/altura, teclado, destinos, estados e telas menores.
+
+**Evidência:** tipagem, lint focal, formatação/build real, 25 testes e dois casos Chrome aprovados. Cinco visões × quatro larguras × dois temas, com botões compactos/alinhados, títulos/nomes acessíveis, toque, abertura dos formulários e retorno do foco. Capturas inspecionadas. [Recibo](orchestracao/.runtime/table-actions/resultado.json). API interceptada, sem backend/SQL/reinício/publicação; graphify recusou extração menor, sem forçar.
+
+**Próximo:** conferir a apresentação na versão atualizada do frontend.
+
+## FE02-REG01-A07 — comandos alinhados aos filtros, 10/10/2026
+
+**Concluído e conferido localmente, pedido expresso de Lucas:** colocar Aplicar/Restaurar ao lado dos campos quando houver espaço, em todas as páginas e etapas com o padrão compartilhado. Dependência FE02-REG01 e consultas existentes BE05–BE14. [Definição](docs/design-system/etapa-06.md#comandos-ao-lado-dos-filtros--fe02-reg01-a07).
+
+- [x] Rastrear o padrão e integrar os comandos à mesma faixa dos campos.
+- [x] Conferir páginas de cadastro, serviços/cálculo, avaria e entrada, teclado, consulta/restauração e telas menores.
+
+**Evidência:** tipagem, lint focal, formatação/build real, 36 testes existentes e dois casos Chrome aprovados. Seis páginas × três larguras (1500/1024/390) × dois temas: alinhamento, quebra, toque, teclado, aplicação/restauração e ausência de transbordamento conferidos; capturas inspecionadas. Rastreamento de 49 definições em 12 módulos inclui os mapeamentos históricos de Entrada, hoje reunidos numa tela. [Recibo](orchestracao/.runtime/filter-inline/resultado.json). API interceptada, sem backend/SQL/reinício/publicação. Graphify recusou extração menor, sem forçar substituição.
+
+**Próximo:** conferir a apresentação na versão atualizada do frontend.
+
+## FE02-DASH02-A08 — ruas com larguras adaptáveis, 10/10/2026
+
+**Concluído e conferido localmente, pedidos expressos de Lucas:** ruas dimensionadas pelas posições, encaixe nos espaços livres, divisões visíveis e popup de informações. Dependência BE14-DASH02 → FE02-DASH02-A06/A07; apresentação com os contratos existentes. [Definição](docs/design-system/etapa-05.md#encaixe-das-ruas-divisões-e-prévia--fe02-dash02-a08).
+
+- [x] Substituir ruas de largura total por blocos de largura própria, limitados ao espaço disponível.
+- [x] Encaixar ruas menores nas lacunas disponíveis, com contornos de armazém/rua e título separado das posições.
+- [x] Mostrar prévia por mouse/foco, com código completo, localização, estado, capacidade e avisos disponíveis; clique preserva detalhes.
+- [x] Conferir tamanhos variados, redimensionamento, níveis/lacunas, setas, teclado, filtros e temas.
+
+**Evidência:** tipagem, lint focal, formatação/build real, nove testes e dois casos Chrome aprovados. Dezesseis passagens em sete larguras de 320–1920 px, claro/escuro; preenchimento da lacuna do exemplo, ausência de sobreposição/transbordamento, todas as colunas, filtro, detalhe/foco e popup nas bordas conferidos. Capturas inspecionadas. [Recibo](orchestracao/.runtime/map-wrap/resultado.json). API interceptada, sem backend/SQL/reinício/publicação; validação separada de QUAL-CONF01.
+
+**Próximo:** conferir a apresentação na versão atualizada do frontend. Manutenção do índice graphify registrada separadamente no recibo, sem substituição forçada.
 
 ## FE02-DS01-A04 — setas e desfoque na navegação lateral, 10/10/2026
 

@@ -11,8 +11,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import br.com.rodogarcia.wms.dto.IndicadorEstoqueDto;
-import br.com.rodogarcia.wms.dto.PaginaResponse;
 import br.com.rodogarcia.wms.models.Armazem;
 import br.com.rodogarcia.wms.models.Cliente;
 import br.com.rodogarcia.wms.models.Endereco;
@@ -50,10 +48,7 @@ class VisaoOperacaoServiceTest {
         when(repo.unidades(List.of(1L), List.of(2L))).thenReturn(1L);
         when(repo.mapa(anyList(), anyString(), anyString(), anyInt(), anyInt()))
                 .thenReturn(List.of());
-        var result = mock(IndicadorEstoqueDto.Resultado.class);
-        when(result.valorExato()).thenReturn(null);
-        when(valores.listar(1L, 2L, true, "America/Sao_Paulo", 0, 100))
-                .thenReturn(new PaginaResponse<>(List.of(result), 0, 100, 1, 1));
+        when(valores.valorArmazenado(anyList(), anyList(), any(), any())).thenReturn(null);
         var service =
                 new VisaoOperacaoService(
                         repo,
@@ -67,7 +62,8 @@ class VisaoOperacaoServiceTest {
         assertThat(d.unidadesArmazenadas()).isEqualTo(1);
         assertThat(d.valorArmazenado()).isNull();
         assertThat(d.valorCompleto()).isFalse();
-        when(result.valorExato()).thenReturn(new BigDecimal("12500.25"));
+        when(valores.valorArmazenado(anyList(), anyList(), any(), any()))
+                .thenReturn(new BigDecimal("12500.25"));
         when(repo.faturamento(anyList(), anyList(), any(), any()))
                 .thenReturn(new BigDecimal("2345.00"));
         d = service.consultar(1L, 2L, "America/Sao_Paulo", "", "TODAS", 0, 100);

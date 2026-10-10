@@ -266,34 +266,34 @@ function PageRecords(props: Props & { definition: RecordPage }) {
                                     perfil={perfil}
                                     schema={query.e.id + ".query"}
                                 />
-                            </fieldset>
-                            <div className="actions record-filter-actions">
-                                <button
-                                    className="primary"
-                                    type="submit"
-                                    disabled={query.pending}
-                                >
-                                    Aplicar filtros
-                                </button>
-                                <button
-                                    type="button"
-                                    disabled={query.pending}
-                                    onClick={query.reset}
-                                >
-                                    Restaurar filtros
-                                </button>
-                                {journey.id === "entrada" && (
+                                <div className="actions record-filter-actions">
                                     <button
-                                        className="record-refresh"
+                                        className="primary"
+                                        type="submit"
+                                        disabled={query.pending}
+                                    >
+                                        Aplicar filtros
+                                    </button>
+                                    <button
                                         type="button"
                                         disabled={query.pending}
-                                        onClick={query.refresh}
+                                        onClick={query.reset}
                                     >
-                                        <Icon name="refresh" />
-                                        Atualizar lista
+                                        Restaurar filtros
                                     </button>
-                                )}
-                            </div>
+                                    {journey.id === "entrada" && (
+                                        <button
+                                            className="record-refresh"
+                                            type="button"
+                                            disabled={query.pending}
+                                            onClick={query.refresh}
+                                        >
+                                            <Icon name="refresh" />
+                                            Atualizar lista
+                                        </button>
+                                    )}
+                                </div>
+                            </fieldset>
                         </form>
                     )}
                     {message && (
