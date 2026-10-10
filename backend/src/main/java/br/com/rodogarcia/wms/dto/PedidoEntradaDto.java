@@ -59,8 +59,13 @@ public final class PedidoEntradaDto {
             Instant criadoEm,
             Instant alteradoEm,
             Instant efetivadoEm,
-            String motivoConclusao) {
+            String motivoConclusao,
+            String origemCriacao) {
         public static Resumo de(PedidoEntrada p) {
+            return de(p, "MANUAL");
+        }
+
+        public static Resumo de(PedidoEntrada p, String origem) {
             return new Resumo(
                     p.getId(),
                     p.getVersao(),
@@ -71,7 +76,8 @@ public final class PedidoEntradaDto {
                     p.getCriadoEm(),
                     p.getAlteradoEm(),
                     p.getEfetivadoEm(),
-                    p.getMotivoConclusao());
+                    p.getMotivoConclusao(),
+                    origem);
         }
     }
 

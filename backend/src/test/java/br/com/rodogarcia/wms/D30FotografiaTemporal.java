@@ -62,7 +62,17 @@ final class D30FotografiaTemporal {
                                     var rs =
                                             statement.executeQuery(
                                                     "select table_name from information_schema.tables where table_schema='WMS' and table_type='BASE TABLE' order by table_name")) {
-                                while (rs.next()) tabelas.add(rs.getString(1));
+                                while (rs.next()) {
+                                    String tabela = rs.getString(1);
+                                    // Baseline operacional D30 (64 tabelas). Login D32 possui seus
+                                    // próprios testes; suas chaves hash/UUID não são IDs numéricos.
+                                    if (!List.of(
+                                                    "USUARIO_ACESSO",
+                                                    "SESSAO_ACESSO",
+                                                    "RENOVACAO_ACESSO",
+                                                    "EVENTO_ACESSO")
+                                            .contains(tabela)) tabelas.add(tabela);
+                                }
                             }
                             var result = new LinkedHashMap<String, List<Linha>>();
                             for (String tabela : tabelas) {

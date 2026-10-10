@@ -62,6 +62,14 @@ BAT, backend e frontend reais foram conferidos no [run ce0bf9dd](../orchestracao
 
 O procedimento acima foi inicialmente apenas preparado e testado com H2. A autorização D32-DEV04 liberou a ativação DEV registrada nesta seção; nenhum PROD ou serviço SQL Server foi alterado. Inicializações normais mantêm migrations desligadas e não repetem concessão de direitos.
 
+## Acesso à visão geral e pacote DEV — BE02-DEV-ARTEF01
+
+Em 09/10/2026, Lucas relatou “Seu acesso não permite consultar este contexto” usando a conta principal. O JAR indicado pelo recibo do DEV em execução não incluía a API da visão geral nem a liberação da rota. A fonte atual já permite ao Gestor consultar todos os clientes/armazéns; não é necessário mudar a conta, a senha ou seus vínculos.
+
+`iniciar-dev.bat` agora compara o pacote preparado com o hash das fontes principais e do `pom.xml`, confere o hash do JAR e a presença das APIs antes da guarda SQL. Pacote antigo/alterado é recusado. A preparação local é feita por `powershell -NoProfile -File infra\dev\preparar-backend-dev.ps1`: build com JDK 21 e testes de login/visão geral/arquitetura em H2 isolado, sem SQL Server, migrations ou segredo de autenticação no build. Os recibos anteriores são preservados em `orchestracao/.runtime/backend-dev-builds/`.
+
+Preparar um pacote não troca o processo já aberto. Depois da preparação aprovada, fechar o console DEV e executar `iniciar-dev.bat` carrega a nova versão e repete as guardas normais. Recarregar apenas o navegador não troca o backend. A conferência local inclui login legítimo da conta principal com contextos geral, por armazém e por cliente/armazém; os testes existentes preservam as recusas por perfil/alcance e a proteção da conta principal. Integração SQL Server e versão efetivamente reiniciada continuam evidências separadas.
+
 ## Contratos HTTP
 
 | Rota | Efeito |

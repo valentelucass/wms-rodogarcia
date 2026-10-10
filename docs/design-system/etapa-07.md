@@ -1,6 +1,14 @@
 # Entrada e conferência no pedido — FE05-PED01
 
-Pedido expresso de Lucas em 09/10/2026, complementar à [refatoração por registro](etapa-06.md). Entrada e conferência abre **Pedidos de entrada**, consulta o cliente/armazém aplicados no topo e apresenta **Novo pedido de entrada** no cabeçalho. As quatro etapas globais foram substituídas por seções internas do pedido: Dados gerais, Notas e itens, Conferência e Histórico. A composição usa os componentes, tokens e temas de [design.md](design.md) e [etapa-03.md](etapa-03.md).
+Pedido expresso de Lucas em 09/10/2026, complementar à [refatoração por registro](etapa-06.md). Entrada e conferência abre **Pedidos de entrada**, consulta o cliente/armazém aplicados no topo e apresenta **Novo pedido** no cabeçalho, com escolhas manual/XML no incremento de 10/10. As quatro etapas globais foram substituídas por seções internas do pedido: Dados gerais, Notas e itens, Conferência e Histórico. A composição usa os componentes, tokens e temas de [design.md](design.md) e [etapa-03.md](etapa-03.md).
+
+## Criação por XML — FE05-XML01, 10/10/2026
+
+**Novo pedido** abre uma escolha curta: **Criar manualmente** continua o formulário existente; **Importar XML da NF-e** abre o mesmo diálogo ampliado com arquivo, prévia documental e escolhas de cliente proprietário/armazém/produtos. Campos originais e associações no WMS têm rótulos distintos. Não agrupar linhas da nota. Alterar associações exige atualizar a prévia; confirmação fica desabilitada enquanto houver pendências, carregamento ou resultado desconhecido. Avisos, erros e pendências usam status/alerta legíveis e permanecem no diálogo, sem criar acordeão ou cartão isolado para a escolha.
+
+Quantidades e valores conservam representação decimal sem passar por `Number`; volumes de transporte têm seção própria. A composição usa duas colunas no desktop, uma no mobile e rolagem interna nas tabelas, com os mesmos tokens claro/escuro. Diálogo nativo conserva teclado, foco e bloqueio durante confirmação. O registro confirmado fica acessível fora dos filtros correntes. Lista e dados gerais exibem a origem da criação; nota com XML permite consultar/baixar o documento original dentro do detalhe.
+
+Regras, APIs e limites no [contrato do incremento](../45-pedido-entrada-manual-xml.md). Este incremento acrescenta APIs de prévia/confirmar/recuperar/documento, conservando o fluxo anterior de conferência física e a possibilidade de anexar XML depois da criação manual.
 
 ## Fontes e alcance
 

@@ -14,6 +14,8 @@ import org.springframework.data.repository.query.Param;
 public interface ClienteRepository extends JpaRepository<Cliente, Long> {
     Page<Cliente> findByIdIn(Collection<Long> ids, Pageable pageable);
 
+    java.util.List<Cliente> findByDocumentoFiscal(String documentoFiscal);
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select c from Cliente c where c.id = :id")
     Optional<Cliente> buscarParaAtualizar(@Param("id") Long id);

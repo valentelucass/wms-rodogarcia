@@ -1,5 +1,21 @@
 # Decisões e pendências do WMS Rodogarcia
 
+## POP-DEV01-SQL01 — canal SQL direto autorizado, 10/10/2026
+
+Lucas pediu popular o banco DEV e esclareceu expressamente que a população deve ser por SQL, sem entrar no site. Autoriza inserir a massa fictícia diretamente em WMS_DEV pela identidade própria WMSDEV, substituindo somente a exigência anterior de escrita HTTP para este recorte. Permanecem as guardas atuais de alvo/identidade/TLS/permissões/histórico, integridade transacional e preservação de dados, contas, migrations e processos. Não autoriza PROD, DDL, grants, exclusão ou emissão fiscal/financeira externa. Prefixo `LUCASDEV20261010`; valores comerciais da massa são apenas demonstração fictícia. [Andamento](../STATES.md#pop-dev01-sql01--população-direta-de-wms_dev-10102026).
+
+## D33 — propriedade da mercadoria na entrada, 10/10/2026
+
+**Resposta expressa do gestor encaminhada por Lucas:** no exemplo TIGRE → DALGA, os produtos pertencem à TIGRE e a DALGA apenas guarda. O gestor afirmou que essa regra se aplica a todos os pedidos. Na entrada, o cliente proprietário é associado ao emitente da nota; destinatário/armazém não adquire a propriedade pelo recebimento. A confirmação encerra a dúvida anterior e autoriza seguir a implementação solicitada BE06-XML01 → FE05-XML01. Importação documental, chegada, conferência e efetivação continuam comandos distintos.
+
+## BE02-DEV-ARTEF01 → FE02-DASH02-A02 — recusa da visão geral, 09/10/2026
+
+Lucas relatou 403 na visão geral usando a conta principal e perguntou sobre reinício. Diagnóstico concreto: o JAR indicado pelo launcher DEV não contém a API/rota da tela, embora a fonte já permita ao Gestor todos os contextos. Corrigida a seleção por novos recibos de build atual e guarda de correspondência fonte/JAR/APIs antes de abrir SQL; não ampliar privilégios da conta para resolver ausência de código. [Procedimento](43-login-e-administracao-de-usuarios.md#acesso-à-visão-geral-e-pacote-dev--be02-dev-artef01), [resultado local](../orchestracao/.runtime/acesso-visao-a01/resultado.json). Pacote preparado com testes H2; próximo reinício manual carrega a nova versão. Preparação não comprova integração real nem autoriza operação PROD; processos existentes preservados nesta entrega.
+
+## POP-DEV01 — autorização de massa real DEV, 09/10/2026
+
+Pedido expresso de Lucas: popular completamente as áreas suportadas do modo DEV real com cenários fictícios coerentes para teste, mantendo situações editáveis. Alvo exclusivo WMS_DEV, aplicação WMSDEV restrita/TLS e guarda atual antes de operação. Escritas somente por HTTP/API normal, prefixo próprio e prevenção de duplicação; verificar depois por leituras exatas API/frontend. Fiscal/financeiro simbólicos, sem emissão/cobrança externa. Preservar dados/históricos/migrations/principal/senhas/sessões/processos; sem SQLfixture/reset/DELETE/DDL/grants/PROD/saAPI/servidor/runtime/killrestart/ETL/rotinas. Acesso autenticado apenas por mecanismo protegido legítimo existente, sem segredo de conversa. Farol registra alcance e eventuais limites atuais; não declarar população por simulação. [Escopo](../orchestracao/.runtime/populacao-dev/inicio.json).
+
 ## FE02-REG01-A03 — filtros diretos na página, 09/10/2026
 
 Lucas rejeitou a sanfona isolada de Filtros e contexto da consulta e o efeito de cartão dentro de cartão. Autoriza o formulário sempre visível nas páginas que compartilham essa estrutura, com um único título e sem borda interna, preservando as consultas e ações existentes. [Composição e conferência](design-system/etapa-06.md#filtros-visíveis-sem-sanfona--fe02-reg01-a03). Sem mudança de negócio ou contrato.

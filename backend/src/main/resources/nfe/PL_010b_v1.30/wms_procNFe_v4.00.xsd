@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:nfe="http://www.portalfiscal.inf.br/nfe" targetNamespace="http://www.portalfiscal.inf.br/nfe" elementFormDefault="qualified">
+  <xs:include schemaLocation="nfe_v4.00.xsd"/>
+  <xs:element name="nfeProc">
+    <xs:complexType>
+      <xs:sequence><xs:element ref="nfe:NFe"/><xs:element name="protNFe" type="nfe:TProtNFe"/></xs:sequence>
+      <xs:attribute name="versao" type="nfe:TVerNFe" use="required"/>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

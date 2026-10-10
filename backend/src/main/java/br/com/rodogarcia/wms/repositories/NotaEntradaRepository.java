@@ -12,5 +12,7 @@ public interface NotaEntradaRepository extends JpaRepository<NotaEntrada, Long> 
 
     boolean existsByChaveAcesso(String chave);
 
+    Optional<NotaEntrada> findByChaveAcesso(String chave);
+
     long countByPedidoId(Long pedidoId);
 }

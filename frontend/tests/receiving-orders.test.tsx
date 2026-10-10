@@ -257,7 +257,7 @@ describe("FE05-PED01 pedido de entrada", () => {
             pagina: "0",
         });
         expect(
-            screen.getByRole("button", { name: "Novo pedido de entrada" }),
+            screen.getByRole("button", { name: "Novo pedido" }),
         ).toBeInTheDocument();
         fireEvent.change(screen.getByLabelText("Conferência nesta página"), {
             target: { value: "Divergente" },
@@ -331,7 +331,8 @@ describe("FE05-PED01 pedido de entrada", () => {
         });
         render(<Harness transport={t} />);
         await screen.findByText(/Ainda não há pedidos/);
-        click("Novo pedido de entrada");
+        click("Novo pedido");
+        click("Criar manualmente");
         const dialog = within(await screen.findByRole("dialog"));
         fireEvent.change(dialog.getByLabelText("Referência *"), {
             target: { value: "PED-NOVO" },

@@ -310,6 +310,58 @@ class LoginIntegrationTest {
                 .isEqualTo(409);
     }
 
+    @Test
+    void principalConsultaVisaoGeralSemVinculosExplicitosDeClienteOuArmazem() throws Exception {
+        // Mesmo login próprio utilizado pelo frontend, exclusivamente na fixture H2.
+        var navegador = principal;
+        assertThat(navegador.req("GET", "/api/auth/eu", null).statusCode()).isEqualTo(200);
+        assertThat(navegador.json.path("perfil").asString()).isEqualTo("GESTOR");
+        String codigo = "VISAO-" + UUID.randomUUID().toString().substring(0, 8);
+        assertThat(
+                        navegador
+                                .req(
+                                        "POST",
+                                        "/api/v1/clientes",
+                                        Map.of(
+                                                "codigo",
+                                                codigo,
+                                                "nome",
+                                                "Cliente da visão fictícia",
+                                                "documentoFiscal",
+                                                codigo))
+                                .statusCode())
+                .isEqualTo(201);
+        long clienteId = navegador.json.path("id").asLong();
+        assertThat(
+                        navegador
+                                .req(
+                                        "POST",
+                                        "/api/v1/armazens",
+                                        Map.of(
+                                                "codigo",
+                                                codigo,
+                                                "nome",
+                                                "Armazém da visão fictícia",
+                                                "documentoFiscal",
+                                                codigo,
+                                                "cidade",
+                                                "Campinas",
+                                                "uf",
+                                                "SP"))
+                                .statusCode())
+                .isEqualTo(201);
+        long armazemId = navegador.json.path("id").asLong();
+        String consulta = "/api/v1/visao-operacao?fuso=America/Sao_Paulo";
+        for (String contexto :
+                List.of(
+                        "",
+                        "&armazemId=" + armazemId,
+                        "&clienteId=" + clienteId + "&armazemId=" + armazemId)) {
+            assertThat(navegador.req("GET", consulta + contexto, null).statusCode()).isEqualTo(200);
+            assertThat(navegador.json.path("financeiroPermitido").asBoolean()).isTrue();
+        }
+    }
+
     private JsonNode criar(String email, boolean admin) throws Exception {
         assertThat(principal.req("POST", "/api/auth/usuarios", cadastro(email, admin)).statusCode())
                 .isEqualTo(201);

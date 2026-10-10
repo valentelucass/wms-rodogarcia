@@ -58,7 +58,7 @@ public class NotaEntradaService {
         PedidoEntradaService.versao(p, dados.versao());
         PedidoEntradaService.exigirSituacao(p, SituacaoPedidoEntrada.RASCUNHO);
         pedidos.validarVinculos(p);
-        var antes = PedidoEntradaDto.Resumo.de(p);
+        var antes = pedidos.resumo(p);
         var nota = criarNota(p, dados);
         return pedidos.registrar(
                 p,
@@ -83,7 +83,7 @@ public class NotaEntradaService {
             throw RegraNegocioException.conflito(
                     "NOTA_JA_VINCULADA", "Nota já vinculada a um pedido.");
         if (existente.isPresent() && hash.equals(existente.get().getXmlHash()))
-            return PedidoEntradaDto.Resumo.de(p);
+            return pedidos.resumo(p);
         PedidoEntradaService.versao(p, dados.versao());
         PedidoEntradaService.exigirSituacao(
                 p,
@@ -126,7 +126,7 @@ public class NotaEntradaService {
                 throw CadastroSupport.invalido(
                         "Unidade comercial do XML difere da unidade do produto. Conversão automática não disponível.");
         }
-        var antes = PedidoEntradaDto.Resumo.de(p);
+        var antes = pedidos.resumo(p);
         NotaEntrada nota;
         List<PedidoEntradaDto.ItemNota> valoresAntes = List.of();
         if (existente.isPresent()) {
@@ -182,6 +182,31 @@ public class NotaEntradaService {
                         valoresAntes,
                         "itensXml",
                         itensXml));
+    }
+
+    /** Criação mapeada pelo serviço XML, na mesma transação do pedido e do recibo. */
+    @Transactional(propagation = org.springframework.transaction.annotation.Propagation.MANDATORY)
+    public void adicionarXmlAssociado(Long id, PedidoEntradaDto.NotaManual dados, String original) {
+        var p = pedidos.bloquear(id);
+        PedidoEntradaService.versao(p, dados.versao());
+        PedidoEntradaService.exigirSituacao(p, SituacaoPedidoEntrada.RASCUNHO);
+        pedidos.validarVinculos(p);
+        var antes = pedidos.resumo(p);
+        var nota = criarNota(p, dados);
+        nota.vincularXml(dados.chaveAcesso(), NfeXmlService.hash(original), original);
+        notas.flush();
+        pedidos.registrar(
+                p,
+                antes,
+                "XML_VINCULADO",
+                "Nota importada na criação do pedido",
+                Map.of(
+                        "notaId",
+                        nota.getId(),
+                        "xmlHash",
+                        nota.getXmlHash(),
+                        "associacoes",
+                        dados.itens()));
     }
 
     private NotaEntrada criarNota(PedidoEntrada p, PedidoEntradaDto.NotaManual dados) {

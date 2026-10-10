@@ -1506,6 +1506,112 @@ export interface NfeEntradaDto_Item {
   quantidade: string | null;
   valorMercadoria: string | null;
 }
+export interface NfeImportacaoDto_Associacao {
+  numeroItem: number;
+  produtoId: string;
+}
+export interface NfeImportacaoDto_Ler {
+  xml: string;
+  clienteId: string | null;
+  armazemId: string | null;
+  associacoes: Array<NfeImportacaoDto_Associacao>;
+}
+export interface NfeImportacaoDto_Confirmar {
+  operacaoId: string;
+  clienteId: string;
+  armazemId: string;
+  referencia: string;
+  xml: string;
+  revisaoPrevia: string;
+  associacoes: Array<NfeImportacaoDto_Associacao>;
+}
+export interface NfeImportacaoDto_Participante {
+  documento: string | null;
+  nome: string | null;
+}
+export interface NfeImportacaoDto_Item {
+  numeroItem: number;
+  codigo: string | null;
+  descricao: string | null;
+  gtin: string | null;
+  ncm: string | null;
+  cfop: string | null;
+  unidadeComercial: string | null;
+  quantidadeComercial: string | null;
+  valorUnitario: string | null;
+  valorProduto: string | null;
+  unidadeTributavel: string | null;
+  quantidadeTributavel: string | null;
+  gtinTributavel: string | null;
+  informacoesAdicionais: string | null;
+}
+export interface NfeImportacaoDto_Volume {
+  quantidade: string | null;
+  especie: string | null;
+  pesoLiquido: string | null;
+  pesoBruto: string | null;
+}
+export interface NfeImportacaoDto_Protocolo {
+  chave: string | null;
+  ambiente: string | null;
+  numero: string | null;
+  recebidoEm: string | null;
+  codigoSituacao: string | null;
+  motivo: string | null;
+}
+export interface NfeImportacaoDto_Documento {
+  versao: string | null;
+  modelo: string | null;
+  chaveAcesso: string | null;
+  serie: number;
+  numero: string;
+  emitidaEm: string | null;
+  tipoOperacao: string | null;
+  ambiente: string | null;
+  naturezaOperacao: string | null;
+  emitente: NfeImportacaoDto_Participante | null;
+  destinatario: NfeImportacaoDto_Participante | null;
+  valorTotal: string | null;
+  itens: Array<NfeImportacaoDto_Item> | null;
+  volumes: Array<NfeImportacaoDto_Volume> | null;
+  protocolo: NfeImportacaoDto_Protocolo | null;
+  informacoesComplementares: string | null;
+  informacoesFisco: string | null;
+}
+export interface NfeImportacaoDto_ItemAssociado {
+  numeroItem: number;
+  produtoId: string | null;
+  produtoVersao: string | null;
+  sku: string | null;
+  descricao: string | null;
+  unidadeEstoque: string | null;
+  quantidadeEstoque: string | null;
+  fatorConversao: string | null;
+  pendencia: string | null;
+}
+export interface NfeImportacaoDto_Previa {
+  documento: NfeImportacaoDto_Documento | null;
+  xmlHash: string | null;
+  revisaoPrevia: string | null;
+  clienteId: string | null;
+  armazemId: string | null;
+  itens: Array<NfeImportacaoDto_ItemAssociado> | null;
+  pendencias: Array<string> | null;
+  avisos: Array<string> | null;
+  pedidoExistenteId: string | null;
+  podeConfirmar: boolean;
+}
+export interface NfeImportacaoDto_Confirmacao {
+  tipoRecurso: string | null;
+  operacaoId: string | null;
+  xmlHash: string | null;
+  pedido: PedidoEntradaDto_Resumo | null;
+}
+export interface NfeImportacaoDto_DocumentoSalvo {
+  documento: NfeImportacaoDto_Documento | null;
+  xmlOriginal: string | null;
+  xmlHash: string | null;
+}
 export interface PaginaResponse<T> {
   itens: Array<T> | null;
   pagina: number;
@@ -1552,6 +1658,7 @@ export interface PedidoEntradaDto_Resumo {
   alteradoEm: string | null;
   efetivadoEm: string | null;
   motivoConclusao: string | null;
+  origemCriacao: string | null;
 }
 export interface PedidoEntradaDto_ItemConferencia {
   id: string | null;
@@ -2078,6 +2185,10 @@ export interface ApiContracts {
   "PedidoEntradaController.cancelar": { request: RevisaoCadastroRequest; response: PedidoEntradaDto_Resumo };
   "PedidoEntradaController.chegadas": { request: undefined; response: PaginaResponse<RecebimentoDto_Chegada> };
   "PedidoEntradaController.entradas": { request: undefined; response: PaginaResponse<RecebimentoDto_Entrada> };
+  "PedidoEntradaXmlController.previa": { request: NfeImportacaoDto_Ler; response: NfeImportacaoDto_Previa };
+  "PedidoEntradaXmlController.confirmar": { request: NfeImportacaoDto_Confirmar; response: NfeImportacaoDto_Confirmacao };
+  "PedidoEntradaXmlController.resultado": { request: undefined; response: NfeImportacaoDto_Confirmacao };
+  "PedidoEntradaXmlController.documento": { request: undefined; response: NfeImportacaoDto_DocumentoSalvo };
   "PedidoSaidaController.criar": { request: PedidoSaidaDto_Criar; response: PedidoSaidaDto_Confirmacao };
   "PedidoSaidaController.importarXml": { request: PedidoSaidaDto_ImportarXml; response: PedidoSaidaDto_ConfirmacaoXml };
   "PedidoSaidaController.listar": { request: undefined; response: PaginaResponse<PedidoSaidaDto_Detalhe> };

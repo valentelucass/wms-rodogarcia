@@ -79,7 +79,7 @@ public class RecebimentoService {
             if (!hash.equals(anterior.get().getConteudoHash()))
                 throw RegraNegocioException.conflito(
                         "OPERACAO_REUTILIZADA", "Identificador já utilizado com outros dados.");
-            return PedidoEntradaDto.Resumo.de(p);
+            return pedidos.resumo(p);
         }
         PedidoEntradaService.versao(p, dados.versao());
         PedidoEntradaService.exigirSituacao(
@@ -94,7 +94,7 @@ public class RecebimentoService {
         var porId = new HashMap<Long, ItemNotaEntrada>();
         previstos.buscarDoPedido(id).forEach(i -> porId.put(i.getId(), i));
         var combinacoes = new HashSet<List<Object>>();
-        var antes = PedidoEntradaDto.Resumo.de(p);
+        var antes = pedidos.resumo(p);
         var chegada =
                 chegadas.saveAndFlush(
                         new ChegadaRecebimento(
@@ -171,7 +171,7 @@ public class RecebimentoService {
                         .orElseThrow(RegraNegocioException::naoEncontrado);
         if (chegada.isEstornada())
             throw RegraNegocioException.conflito("CHEGADA_ESTORNADA", "Chegada já estornada.");
-        var antes = PedidoEntradaDto.Resumo.de(p);
+        var antes = pedidos.resumo(p);
         chegada.estornar(agora(), acesso.usuario(), CadastroSupport.motivo(dados.motivo()));
         p.atualizar(SituacaoPedidoEntrada.QUARENTENA, agora());
         chegadas.flush();
@@ -245,7 +245,7 @@ public class RecebimentoService {
                         n -> {
                             if (n.primeiraChegada() != null) fifo.put(n.id(), n.primeiraChegada());
                         });
-        var antes = PedidoEntradaDto.Resumo.de(p);
+        var antes = pedidos.resumo(p);
         Instant agora = agora();
         for (var recebido : recebidos)
             entradas.save(

@@ -145,7 +145,7 @@ describe("Fronteira contratual exata", () => {
             }),
         ).toThrow("UUID");
     });
-    it("161 rotas nas jornadas; login e dashboard têm apresentação nativa", () => {
+    it("161 rotas nas jornadas; login, dashboard e importação XML têm apresentação nativa", () => {
         const used = new Set(
             journeys.flatMap((j) => j.steps.flatMap((s) => s.actions)),
         );
@@ -167,6 +167,15 @@ describe("Fronteira contratual exata", () => {
             "VisaoOperacaoController.consultar",
             "VisaoOperacaoController.detalhe",
         ];
+        const nativeXml = ["previa", "confirmar", "resultado", "documento"].map(
+            (handler) => `PedidoEntradaXmlController.${handler}`,
+        );
+        expect(
+            endpoints
+                .filter((e) => e.id.startsWith("PedidoEntradaXmlController."))
+                .map((e) => e.id)
+                .sort(),
+        ).toEqual(nativeXml.toSorted());
         expect(
             endpoints.find((e) => e.id === nativeDashboard[0]),
         ).toMatchObject({
@@ -184,7 +193,8 @@ describe("Fronteira contratual exata", () => {
             endpoints.filter(
                 (e) =>
                     !nativeAuth.includes(e.id) &&
-                    !nativeDashboard.includes(e.id),
+                    !nativeDashboard.includes(e.id) &&
+                    !nativeXml.includes(e.id),
             ),
         ).toHaveLength(161);
         expect(
@@ -192,6 +202,7 @@ describe("Fronteira contratual exata", () => {
                 (e) =>
                     !nativeAuth.includes(e.id) &&
                     !nativeDashboard.includes(e.id) &&
+                    !nativeXml.includes(e.id) &&
                     e.id !== "StatusController.consultar" &&
                     e.id !== "EstoqueController.posicionar" &&
                     !used.has(e.id),

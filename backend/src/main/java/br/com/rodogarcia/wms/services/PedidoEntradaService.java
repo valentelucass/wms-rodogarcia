@@ -46,6 +46,7 @@ public class PedidoEntradaService {
     private final AcessoService acesso;
     private final AuditoriaService auditoria;
     private final Clock clock;
+    private final OrigemEntradaService origens;
 
     public PedidoEntradaService(
             PedidoEntradaRepository pedidos,
@@ -58,7 +59,8 @@ public class PedidoEntradaService {
             ProdutoRepository produtos,
             AcessoService acesso,
             AuditoriaService auditoria,
-            Clock clock) {
+            Clock clock,
+            OrigemEntradaService origens) {
         this.pedidos = pedidos;
         this.notas = notas;
         this.itens = itens;
@@ -70,6 +72,7 @@ public class PedidoEntradaService {
         this.acesso = acesso;
         this.auditoria = auditoria;
         this.clock = clock;
+        this.origens = origens;
     }
 
     @Transactional
@@ -91,7 +94,7 @@ public class PedidoEntradaService {
                                 armazem,
                                 CadastroSupport.codigo(dados.referencia()),
                                 agora()));
-        var resposta = PedidoEntradaDto.Resumo.de(p);
+        var resposta = resumo(p);
         auditoria.registrar(
                 "PEDIDO_ENTRADA", p.getId(), "CRIACAO", "Pedido de entrada criado", null, resposta);
         return resposta;
@@ -104,10 +107,13 @@ public class PedidoEntradaService {
             int tamanho) {
         acesso.cliente(clienteId);
         acesso.armazem(armazemId);
-        return PaginaResponse.de(
+        var paginaPedidos =
                 pedidos.findByClienteIdAndArmazemId(
-                        clienteId, armazemId, CadastroSupport.pagina(pagina, tamanho)),
-                PedidoEntradaDto.Resumo::de);
+                        clienteId, armazemId, CadastroSupport.pagina(pagina, tamanho));
+        var origem = origens.consultar(paginaPedidos.getContent());
+        return PaginaResponse.de(
+                paginaPedidos,
+                p -> PedidoEntradaDto.Resumo.de(p, origem.getOrDefault(p.getId(), "MANUAL")));
     }
 
     public PedidoEntradaDto.Detalhe consultar(@NotNull @Positive Long id) {
@@ -171,7 +177,7 @@ public class PedidoEntradaService {
         validarVinculos(p);
         if (notas.countByPedidoId(id) == 0)
             throw CadastroSupport.invalido("Inclua ao menos uma nota antes de conferir.");
-        var antes = PedidoEntradaDto.Resumo.de(p);
+        var antes = resumo(p);
         p.atualizar(SituacaoPedidoEntrada.EM_CONFERENCIA, agora());
         return registrar(p, antes, "CONFERENCIA_INICIADA", dados.motivo(), Map.of());
     }
@@ -187,7 +193,7 @@ public class PedidoEntradaService {
             throw RegraNegocioException.conflito(
                     "CHEGADA_EXISTENTE",
                     "Pedido com histórico físico exige tratamento operacional; não pode ser cancelado por esta ação.");
-        var antes = PedidoEntradaDto.Resumo.de(p);
+        var antes = resumo(p);
         p.atualizar(SituacaoPedidoEntrada.CANCELADO, agora());
         return registrar(p, antes, "PEDIDO_CANCELADO", dados.motivo(), Map.of());
     }
@@ -201,7 +207,7 @@ public class PedidoEntradaService {
             Object evento) {
         p.atualizar(p.getSituacao(), agora());
         pedidos.flush();
-        var depois = PedidoEntradaDto.Resumo.de(p);
+        var depois = resumo(p);
         auditoria.registrar(
                 "PEDIDO_ENTRADA",
                 p.getId(),
@@ -285,7 +291,12 @@ public class PedidoEntradaService {
                                 i ->
                                         i.diferenca().signum() != 0
                                                 || i.recebidaAvariada().signum() > 0);
-        return new PedidoEntradaDto.Detalhe(PedidoEntradaDto.Resumo.de(p), divergente, notasDto);
+        return new PedidoEntradaDto.Detalhe(resumo(p), divergente, notasDto);
+    }
+
+    public PedidoEntradaDto.Resumo resumo(PedidoEntrada p) {
+        return PedidoEntradaDto.Resumo.de(
+                p, origens.consultar(List.of(p)).getOrDefault(p.getId(), "MANUAL"));
     }
 
     private Instant agora() {

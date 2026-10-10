@@ -263,6 +263,7 @@ export function ReceivingList({
                                     "Pedido",
                                     "Cliente",
                                     "Armazém",
+                                    "Origem",
                                     "Notas",
                                     "Primeira chegada física",
                                     "Efetivação",
@@ -315,6 +316,11 @@ export function ReceivingList({
                                         </td>
                                         <td>
                                             {name("armazens", root.armazemId)}
+                                        </td>
+                                        <td>
+                                            {root.origemCriacao === "XML"
+                                                ? "XML"
+                                                : "Manual"}
                                         </td>
                                         <td>
                                             {detail

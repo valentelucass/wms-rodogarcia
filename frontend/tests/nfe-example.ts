@@ -1,0 +1,82 @@
+import type { NfeImportacaoDto_Previa } from "../src/contracts/types";
+
+// Resposta documental fictícia para conferir a interface; validação fiscal pertence ao backend.
+export const nfePreview: NfeImportacaoDto_Previa = {
+    documento: {
+        versao: "4.00",
+        modelo: "55",
+        chaveAcesso: "41260933064262000250550010002937291595471168",
+        serie: 1,
+        numero: "293729",
+        emitidaEm: "2026-09-01T10:40:20-03:00",
+        tipoOperacao: "1",
+        ambiente: "1",
+        naturezaOperacao: "Remessa p/ depósito fechado ou arm.geral",
+        emitente: {
+            documento: "33064262000250",
+            nome: "TIGRE FERRAMENTAS PARA CONSTRUCAO C",
+        },
+        destinatario: {
+            documento: "04547874000203",
+            nome: "DALGA LOGISTICA E TRANSPORTES LTDA",
+        },
+        valorTotal: "22665.60",
+        itens: [
+            {
+                numeroItem: 1,
+                codigo: "69230424",
+                descricao: "BANDEJA PRETA 230MM 77726511",
+                gtin: "SEM GTIN",
+                ncm: "39269090",
+                cfop: "5905",
+                unidadeComercial: "PEC",
+                quantidadeComercial: "32000.0000",
+                valorUnitario: "0.7083000000",
+                valorProduto: "22665.60",
+                unidadeTributavel: "PEC",
+                quantidadeTributavel: "32000.0000",
+                gtinTributavel: "SEM GTIN",
+                informacoesAdicionais: "Item de teste",
+            },
+        ],
+        volumes: [
+            {
+                quantidade: "24",
+                especie: "Volumes",
+                pesoLiquido: "100.000",
+                pesoBruto: "101.000",
+            },
+        ],
+        protocolo: {
+            chave: "41260933064262000250550010002937291595471168",
+            ambiente: "1",
+            numero: "141260000000001",
+            recebidoEm: "2026-09-01T10:40:25-03:00",
+            codigoSituacao: "100",
+            motivo: "Autorizado o uso da NF-e",
+        },
+        informacoesComplementares: "Reconstrução fictícia",
+        informacoesFisco: null,
+    },
+    xmlHash: "a".repeat(64),
+    revisaoPrevia: "b".repeat(64),
+    clienteId: "1",
+    armazemId: "1",
+    itens: [
+        {
+            numeroItem: 1,
+            produtoId: "1",
+            produtoVersao: "0",
+            sku: "69230424",
+            descricao: "Bandeja",
+            unidadeEstoque: "PEC",
+            quantidadeEstoque: "32000.0000",
+            fatorConversao: "1",
+            pendencia: null,
+        },
+    ],
+    pendencias: [],
+    avisos: ["O emitente é o proprietário; o armazém apenas guarda."],
+    pedidoExistenteId: null,
+    podeConfirmar: true,
+};

@@ -9,4 +9,7 @@ public interface OperacaoAdministrativaRepository
 
     java.util.Optional<OperacaoAdministrativa> findFirstByTipoAndRecursoIdOrderByIdAsc(
             String tipo, Long recursoId);
+
+    java.util.List<OperacaoAdministrativa> findByTipoAndRecursoIdIn(
+            String tipo, java.util.Collection<Long> recursoIds);
 }

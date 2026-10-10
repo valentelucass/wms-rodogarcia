@@ -1,5 +1,63 @@
 # Estado e trilha de implementação do WMS Rodogarcia
 
+## POP-DEV01-SQL01 — população direta de WMS_DEV, 10/10/2026
+
+**Concluído e conferido no banco real, orientação expressa de Lucas:** popular por SQL, sem entrar no site. Esta orientação substitui o canal HTTP e a dependência de sessão do POP-DEV01 para este recorte. Dependências BE03/BE05–BE14 → FE04–FE13 e SQL-TLS-ATUAL. Somente WMS_DEV/WMSDEV, dados fictícios identificados por `LUCASDEV20261010`; dados e históricos existentes, usuários, senhas, processos e migrations preservados.
+
+- [x] Guarda atual de alvo real, identidade, TLS, permissões, catálogo e histórico aprovada; inventário de contagens e prefixo sem registros anteriores conferido.
+- [x] Inserção transacional de cadastros, entradas, estoque, reservas, saídas, configurações fictícias, contagens e cargas pendentes; origem, quantidades, ocupação e propriedade validadas antes do commit.
+- [x] Releitura SQL após commit e recibo com IDs e contagens observados.
+
+**Conferência:** guarda atual com 26 critérios aprovada em 10/10/2026 14:46Z, inventário anterior e prefixo ausente; commit realizado e releitura fora da transação. 579 linhas inseridas em 33 tabelas: 3 clientes, 2 armazéns, 12 produtos/embalagens, 40 endereços/ocupações, 18 entradas (12 efetivadas, 3 rascunhos, 3 em conferência com divergência), 15 notas manuais fictícias, 24 unidades/12.000 produtos, 9 saídas (6 rascunhos, 3 reservadas), 3 reservas, 4 serviços, 2 tabelas/8 preços fictícios, 6 contratos/vínculos/fatos de serviço, 3 contagens reconciliadas e 3 cargas pendentes. 216 registros de auditoria identificam `DEV-SEED-SQL`. Zero inconsistências de composição, origem/condição, ocupação, reserva, propriedade ou datas; deltas de todas as tabelas iguais ao lote, sem alteração de contagens de autenticação ou Flyway. [Recibo e IDs](orchestracao/.runtime/populacao-dev/sql-20261010-1a12647782b/popular-resultado.json).
+
+**Próximo:** Lucas pode recarregar o WMS e selecionar `DEV fictício - Armazém 1` ou `2` para testar. Sem reinício necessário para estes dados. A população SQL não comprova jornadas HTTP/frontend nem homologação fiscal. Sem DDL/grants/DELETE/PROD ou emissão externa. O plano HTTP anterior permanece histórico; esta demanda SQL está entregue. Conferência documental sem erros de diff; Graphify AST recusou reduzir 15.220 → 13.280 nós, mapa preservado sem force.
+
+## BE06-XML01 → FE05-XML01 — novo pedido manual ou XML, 10/10/2026
+
+**Concluído e conferido localmente, pedido expresso de Lucas:** cadastro manual preservado e importação com prévia, associações, confirmação atômica, origem, documento original e prevenção de repetição no mesmo acompanhamento de entrada. Dependências BE06/FE05-PED01/FE02-REG01/D32. Gestor confirmou que os produtos pertencem ao emitente em todos os pedidos; DALGA apenas armazena. [Regra D33](docs/06-decisoes-e-pendencias.md#d33--propriedade-da-mercadoria-na-entrada-10102026), [contrato e limites](docs/45-pedido-entrada-manual-xml.md).
+
+- [x] Leitura segura com esquemas controlados, prévia sem escrita e associação validada pelo backend.
+- [x] Confirmação íntegra, duplicidade, revisão da prévia, histórico e origem persistente.
+- [x] Ação Novo pedido com manual/XML, dados originais, pendências e mesma conferência física.
+- [x] Conferências locais backend/frontend/navegador e limites documentados.
+
+**Conferência:** `verify` isolado com 80 testes de login/visão/arquitetura/recebimento/XML, incluindo HTTP/H2, concorrência, repetição, revisão, rollback e alcance; 488 testes frontend em 46 arquivos; seis casos Chrome anteriores e quatro novos de XML em 1440/360px claro/escuro, teclado, filtros e documento original. Tipagem, lint, build, seis guardas de artefato e inspeção visual aprovados. Ajuste final do arquivo selecionado também revalidado em seis testes de componente e quatro Chrome. [Recibo local](orchestracao/.runtime/entrada-xml/resultado.json). Pacote DEV atual preparado e recibos concordantes, com classes/XSD conferidos. Origem persistida no recibo de criação existente, sem nova migration. Graphify recusou redução 15.220 → 13.280 nós; mapa preservado sem force.
+
+**Próximo:** carregar o pacote preparado pelo `iniciar-dev.bat` após encerrar o console DEV do operador; conferir integração real com as guardas existentes e um XML original. Original do exemplo não localizado; testes usam reconstrução fictícia identificada. Nesta entrega não houve SQL Server, migration aplicada, reinício de processos existentes ou operação PROD; validação local não declara homologação fiscal ou integração SQL.
+
+### BE06-XML01-A01 — avisos de método obsoleto, 10/10/2026
+
+**Concluído localmente:** as duas leituras de `tipoRecurso` em `OrigemEntradaService` e `PedidoEntradaXmlService` passaram de `asText()` para `asString()`. A biblioteca instalada delega o método antigo ao novo; comportamento preservado. Dependência BE06-XML01 → FE05-XML01. Compilação/formatação e 80 testes existentes de login, visão geral, arquitetura e recebimento/XML aprovados em H2 isolado. Pacote DEV preparado e recibos concordantes, sem reiniciar processos ou acessar SQL Server. [Evidência](orchestracao/.runtime/entrada-xml/asstring-resultado.json). Graphify AST recusou redução do mapa, preservado sem force. Próximo: carregar o pacote preparado no próximo reinício normal do operador.
+
+## BE02-DEV-ARTEF01 → FE02-DASH02-A02 — pacote DEV e acesso à visão geral, 09/10/2026
+
+**Concluído no recorte local, pedido expresso de Lucas:** a conta principal recebia 403 na visão geral porque o pacote selecionado pelo launcher não contém `VisaoOperacaoController`, `VisaoOperacaoService` nem a regra da rota. Conferência estática do JAR real e hash do recibo da execução `8fa3c9e6722b4170898dc66aabfa044f`; a fonte atual já oferece a API ao Gestor. Dependências BE02/D32/BE14-DASH02 → FE02-DASH02, sem ampliar permissões. Pacote atual preparado e recibos native/externo atualizados; fontes, hash do JAR e APIs conferidos antes da guarda SQL no launcher.
+
+- [x] Identificar pacote efetivamente iniciado e confrontar as classes/rota com a fonte.
+- [x] Gerar pacote atual, testar login principal/escopos em H2 e impedir pacote obsoleto antes da guarda SQL.
+- [x] Atualizar recibos do launcher, registrar evidências e separar preparação de versão em execução.
+
+**Conferência:** `verify` com 19 testes de login/visão geral/arquitetura em H2 isolado, seis casos estruturais de artefato, nove de acesso DEV, sete de prazo/progresso e sintaxe do launcher aprovados; recibos concordantes. [Regra e preparação](docs/43-login-e-administracao-de-usuarios.md#acesso-à-visão-geral-e-pacote-dev--be02-dev-artef01), [evidência](orchestracao/.runtime/acesso-visao-a01/resultado.json). Graphify recusou redução do mapa, sem force. Sem SQL Server, migration, mudança de conta/permissão ou reinício pelo agente.
+
+**Próximo:** executar `iniciar-dev.bat` para carregar o pacote preparado e conferir a visão geral real. A01 abaixo liberou as portas após a tentativa de reinício. A resposta sobre propriedade foi recebida em D33; o incremento manual/XML está registrado em BE06-XML01 / FE05-XML01 acima.
+
+### BE02-DEV-ARTEF01-A01 — porta ocupada no reinício, 09/10/2026
+
+**Resolvido no recorte solicitado:** a tentativa `38f4368c40634dcc922e54aba2494e4e` parou antes do SQL com `PORT_OCCUPIED_25580`. PID 69000 confirmado como Java do WMS_DEV/WMSDEV, perfil sqlserver-dev, JAR/hash e início compatíveis com o recibo `b78ab2180bdd4b81aead61b196da2fbf`; processo pai já ausente. Encerrado somente esse backend órfão para viabilizar o reinício solicitado. Portas 25580/25581 comprovadamente livres; nenhum SQL ou novo backend iniciado. [Evidência](orchestracao/.runtime/acesso-visao-a01/porta-liberada.json). **Próximo:** nova execução manual do `iniciar-dev.bat`, com suas guardas normais; ativação e leitura autenticada da visão geral continuam separadas da preparação local.
+
+## POP-DEV01 — massa real para teste de Lucas, 09/10/2026
+
+**Atualização 10/10:** o novo pedido expresso de SQL direto foi executado e conferido no incremento POP-DEV01-SQL01 acima. A dependência de sessão e o plano HTTP descritos abaixo conservam somente o histórico da tentativa anterior.
+
+**Em execução por autorização expressa:** popular exclusivamente WMS_DEV pela API normal com dados fictícios rastreáveis, prefixo `LUCASDEV20261009`. BE05–BE14 → FE04–FE13, dependências BE02/FE02/D32-DEV04/SQL-TLS-ATUAL e contratos atuais das áreas. Reaproveitar ferramentas e aplicação existente após guarda atual; preservar dados/históricos/migrations, conta principal/senhas/sessões, frente visual e processos.
+
+- [x] Guarda atual única WMS_DEV/WMSDEV aprovada em 09/10 local (10/10 01:04Z): TLS validado, 26 critérios, permissões/catálogo/histórico V11; [prova](orchestracao/.runtime/populacao-dev/prumo/guarda-atual.json).
+- [ ] Sessão própria legítima protegida e vínculo backend/configuração DEV efetivos, sem senha de chat ou JWT fabricado.
+- [ ] Massa via HTTP nas áreas suportadas, com cenários abertos/editáveis; preconsulta para evitar duplicação e leitura posterior exata de IDs/quantidades.
+- [ ] Leituras reais por API/frontend, matriz área/cenário/prova/limite, revisão proporcional e guia curto.
+
+**Donos:** Prumo guarda; Cedro único escritor HTTP da massa; Lume cobertura/leituras frontend; Vigia revisão independente; Farol registros centrais. Evidências somente `orchestracao/.runtime/populacao-dev/`. Sem SQL de fixtures/reset/DELETE/DDL/migrations/grants/PROD/saAPI, emissão/cobrança externa, servidor/runtime compartilhado, kill/restart existentes, ETL/publicação/rotina. Falha de transporte interrompe sem repetição cega ou mock. **Impedimento atual de acesso:** portal `WMS - POP-DEV01` criado e conectado a Lume/Cedro, origem HTTPS fornecida por Lucas; após Continuar no túnel, documento vazio e sessão WMS não confirmada. Lucas recarrega e entra interativamente nesse próprio portal, sem senha ao agente. Nenhum dado novo populado/ID inventado ou leitura posterior de negócio; matriz planejada 12 áreas/47 páginas, contagens de banco não observadas. [Recibo parcial](orchestracao/.runtime/populacao-dev-resultado.json). **Próximo:** sessão legítima/perfil/alcance, então lotes HTTP e leitura posterior; nenhuma nova guarda automática. [Escopo](orchestracao/.runtime/populacao-dev/inicio.json).
+
 ## FE02-REG01-A03 — filtros visíveis sem sanfona, 09/10/2026
 
 **Concluído localmente, pedido expresso de Lucas:** removida a sanfona isolada de Filtros e contexto da consulta nas páginas que compartilham `RecordWorkspace`. Formulário sempre visível com um único título e sem borda interna; aplicação/restauração, espera, permissões e responsividade preservadas. Dependências FE02-REG01 e FE02-REG01-A02; consultas e vínculos BE04–BE14 → FE03–FE13 mantidos.

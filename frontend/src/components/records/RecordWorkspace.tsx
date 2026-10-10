@@ -21,6 +21,7 @@ import { OperationResults } from "../operation/OperationResults";
 import { RecordTable } from "./RecordTable";
 import { RecordDialog, type RecordOpening } from "./RecordDialog";
 import type { JourneyPage } from "../JourneyPage";
+import { ReceivingCreateDialog } from "../../modules/recebimento/ReceivingCreateDialog";
 import { ReceivingList } from "../../modules/recebimento/ReceivingList";
 import { Icon } from "../../design-system/Icon";
 import { statusLabel } from "../../design-system/StatusBadge";
@@ -122,6 +123,7 @@ function PageRecords(props: Props & { definition: RecordPage }) {
               }
             : undefined,
     );
+    const [creatingEntry, setCreatingEntry] = useState(false);
     const [search, setSearch] = useState("");
     const [situation, setSituation] = useState("");
     const [localPage, setLocalPage] = useState(0);
@@ -218,9 +220,15 @@ function PageRecords(props: Props & { definition: RecordPage }) {
                             className={i === 0 ? "primary" : ""}
                             key={id}
                             type="button"
-                            onClick={() => setOpening({ action: id })}
+                            onClick={() => {
+                                if (id === "PedidoEntradaController.criar")
+                                    setCreatingEntry(true);
+                                else setOpening({ action: id });
+                            }}
                         >
-                            {recordActionLabel(id)}
+                            {id === "PedidoEntradaController.criar"
+                                ? "Novo pedido"
+                                : recordActionLabel(id)}
                         </button>
                     ))}
                 </div>
@@ -510,6 +518,48 @@ function PageRecords(props: Props & { definition: RecordPage }) {
                         </>
                     )}
                 </>
+            )}
+            {creatingEntry && (
+                <ReceivingCreateDialog
+                    transport={transport}
+                    onClose={() => setCreatingEntry(false)}
+                    onManual={() => {
+                        setCreatingEntry(false);
+                        setOpening({ action: "PedidoEntradaController.criar" });
+                    }}
+                    onExisting={(id) => {
+                        setCreatingEntry(false);
+                        setOpening({
+                            row: { id },
+                            type: "PedidoEntradaDto.Resumo",
+                        });
+                    }}
+                    onConfirmed={(receipt, request, data) => {
+                        onReceipt(
+                            receipt,
+                            "NfeImportacaoDto.Confirmacao",
+                            request.endpoint.id,
+                            request,
+                        );
+                        if (data.pedido) {
+                            onRecord(
+                                { ...data.pedido },
+                                "PedidoEntradaDto.Resumo",
+                            );
+                            setConfirmed({
+                                row: { ...data.pedido },
+                                type: "PedidoEntradaDto.Resumo",
+                            });
+                        }
+                        setMessage(
+                            receipt.ficticio
+                                ? "Pedido confirmado no exercício fictício. Consulte o registro confirmado, inclusive fora dos filtros."
+                                : "Pedido confirmado pelo servidor. Consulte o registro confirmado, inclusive fora dos filtros.",
+                        );
+                        query.refresh();
+                        setCreatingEntry(false);
+                    }}
+                />
             )}
             {opening && (
                 <RecordDialog

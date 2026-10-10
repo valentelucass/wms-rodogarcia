@@ -10,6 +10,8 @@
 
 **PROD-LAUNCH01:** [launcher Windows, portas e publicação futura](44-launcher-producao-e-publicacao-futura.md). Build isolado e testes locais separados da subida operacional WMS_PROD; Cloudflare/DNS não configurados.
 
+**BE06-XML01 / FE05-XML01:** [novo pedido manual ou por XML](45-pedido-entrada-manual-xml.md), com prévia sem escrita, associação por proprietário, confirmação íntegra e origem/documento original. D33 confirma que o emitente continua proprietário em todas as entradas.
+
 
 Esta documentação reúne o contexto necessário para continuar o projeto sem depender do histórico da conversa. Foi iniciada em 03/10/2026, durante a fase de análise de negócio e arquitetura.
 

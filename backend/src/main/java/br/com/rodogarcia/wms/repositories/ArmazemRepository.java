@@ -14,6 +14,8 @@ import org.springframework.data.repository.query.Param;
 public interface ArmazemRepository extends JpaRepository<Armazem, Long> {
     Page<Armazem> findByIdIn(Collection<Long> ids, Pageable pageable);
 
+    java.util.List<Armazem> findByDocumentoFiscal(String documentoFiscal);
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select c from Armazem c where c.id = :id")
     Optional<Armazem> buscarParaAtualizar(@Param("id") Long id);

@@ -126,6 +126,12 @@ export class FictitiousTransport implements Transport {
                 r.endpoint.method !== "GET",
             );
         const body = isObject(r.body) ? r.body : {};
+        if (r.endpoint.id.startsWith("PedidoEntradaXmlController."))
+            throw new ApiError(
+                "A importação de XML exige o backend integrado. O modo fictício não valida documentos fiscais; use a criação manual neste exercício.",
+                400,
+                "XML_EXIGE_BACKEND",
+            );
         const key =
             typeof body.operacaoId === "string" ? body.operacaoId : undefined;
         if (key && this.cache.has(key)) {

@@ -1,3 +1,5 @@
+import { SavedNfeDocument } from "./NfeDocument";
+import type { Transport } from "../../api/client";
 import { isObject, type Values } from "../../contracts/runtime";
 import { StatusBadge } from "../../design-system/StatusBadge";
 import { recordRoot } from "../../domain/recordContext";
@@ -22,7 +24,9 @@ export function ReceivingDetail({
     onSelect,
     locked,
     workflow,
+    transport,
 }: {
+    transport: Transport;
     record: Values;
     section: ReceivingSection;
     onSection: (section: ReceivingSection) => void;
@@ -76,6 +80,8 @@ export function ReceivingDetail({
                                     (item) =>
                                         item.id === String(root.armazemId),
                                 )?.nome ?? `ID ${String(root.armazemId)}`,
+                            "Origem da criação":
+                                root.origemCriacao === "XML" ? "XML" : "Manual",
                             "Criado em": receivingDate(root.criadoEm),
                             "Primeira chegada física": receivingDate(
                                 firstArrival(record),
@@ -135,6 +141,14 @@ export function ReceivingDetail({
                                     · Primeira chegada{" "}
                                     {receivingDate(note.primeiraChegada)}
                                 </p>
+                                {Boolean(note.xmlVinculado) && (
+                                    <SavedNfeDocument
+                                        transport={transport}
+                                        pedidoId={String(root.id)}
+                                        notaId={String(note.id)}
+                                        disabled={locked}
+                                    />
+                                )}
                                 <div className="table-scroll">
                                     <table>
                                         <caption>

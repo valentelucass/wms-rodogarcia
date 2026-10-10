@@ -547,6 +547,7 @@ export function RecordDialog({
                     )}
                     {record && journey.id === "entrada" && (
                         <ReceivingDetail
+                            transport={transport}
                             record={record}
                             section={section}
                             onSection={(next) => {

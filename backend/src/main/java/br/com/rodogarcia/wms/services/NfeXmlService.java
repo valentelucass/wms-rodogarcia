@@ -33,6 +33,49 @@ public class NfeXmlService {
     public NfeEntradaDto ler(@NotBlank @Size(max = 1000000) String xml) {
         if (xml.getBytes(StandardCharsets.UTF_8).length > 1000000) throw invalido();
         try {
+            Element root = raiz(xml);
+            Element nfe = nome(root, "nfeProc") ? unico(root, "NFe") : root;
+            if (!nome(nfe, "NFe")) throw invalido();
+            Element info = unico(nfe, "infNFe");
+            if (!"4.00".equals(info.getAttribute("versao"))) throw invalido();
+            String id = info.getAttribute("Id");
+            if (!id.matches("NFe[0-9]{44}")) throw invalido();
+            Element ide = unico(info, "ide");
+            if (!"55".equals(texto(ide, "mod"))) throw invalido();
+            var emissor = unico(info, "emit");
+            boolean cnpj = filhos(emissor, "CNPJ").size() == 1;
+            if (filhos(emissor, "CNPJ").size() + filhos(emissor, "CPF").size() != 1)
+                throw invalido();
+            String emitente =
+                    texto(emissor, cnpj ? "CNPJ" : "CPF").toUpperCase(java.util.Locale.ROOT);
+            if (!emitente.matches(cnpj ? "[A-Z0-9]{14}" : "[0-9]{11}")) throw invalido();
+            int serie = Integer.parseInt(texto(ide, "serie"));
+            long numero = Long.parseLong(texto(ide, "nNF"));
+            var emissao = OffsetDateTime.parse(texto(ide, "dhEmi")).toLocalDate();
+            var itens = new ArrayList<NfeEntradaDto.Item>();
+            for (Element det : filhos(info, "det")) {
+                var produto = unico(det, "prod");
+                itens.add(
+                        new NfeEntradaDto.Item(
+                                Integer.parseInt(det.getAttribute("nItem")),
+                                CadastroSupport.codigo(texto(produto, "cProd")),
+                                CadastroSupport.codigo(texto(produto, "uCom")),
+                                new BigDecimal(texto(produto, "qCom")),
+                                new BigDecimal(texto(produto, "vProd"))));
+            }
+            if (itens.isEmpty() || itens.size() > 200) throw invalido();
+            return new NfeEntradaDto(
+                    emitente, serie, numero, emissao, id.substring(3), List.copyOf(itens));
+        } catch (RegraNegocioException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw invalido();
+        }
+    }
+
+    Element raiz(String xml) {
+        if (xml == null || xml.getBytes(StandardCharsets.UTF_8).length > 1000000) throw invalido();
+        try {
             var factory = DocumentBuilderFactory.newDefaultInstance();
             factory.setNamespaceAware(true);
             factory.setXIncludeAware(false);
@@ -62,36 +105,16 @@ public class NfeXmlService {
                         }
                     });
             Element root =
-                    builder.parse(new InputSource(new StringReader(xml))).getDocumentElement();
+                    builder.parse(
+                                    new InputSource(
+                                            new StringReader(
+                                                    xml.startsWith("\uFEFF")
+                                                            ? xml.substring(1)
+                                                            : xml)))
+                            .getDocumentElement();
             if (root.getElementsByTagNameNS("http://www.w3.org/2001/XInclude", "*").getLength()
                     != 0) throw invalido();
-            Element nfe = nome(root, "nfeProc") ? unico(root, "NFe") : root;
-            if (!nome(nfe, "NFe")) throw invalido();
-            Element info = unico(nfe, "infNFe");
-            if (!"4.00".equals(info.getAttribute("versao"))) throw invalido();
-            String id = info.getAttribute("Id");
-            if (!id.matches("NFe[0-9]{44}")) throw invalido();
-            Element ide = unico(info, "ide");
-            if (!"55".equals(texto(ide, "mod"))) throw invalido();
-            String emitente = texto(unico(info, "emit"), "CNPJ").toUpperCase(java.util.Locale.ROOT);
-            if (!emitente.matches("[A-Z0-9]{14}")) throw invalido();
-            int serie = Integer.parseInt(texto(ide, "serie"));
-            long numero = Long.parseLong(texto(ide, "nNF"));
-            var emissao = OffsetDateTime.parse(texto(ide, "dhEmi")).toLocalDate();
-            var itens = new ArrayList<NfeEntradaDto.Item>();
-            for (Element det : filhos(info, "det")) {
-                var produto = unico(det, "prod");
-                itens.add(
-                        new NfeEntradaDto.Item(
-                                Integer.parseInt(det.getAttribute("nItem")),
-                                CadastroSupport.codigo(texto(produto, "cProd")),
-                                CadastroSupport.codigo(texto(produto, "uCom")),
-                                new BigDecimal(texto(produto, "qCom")),
-                                new BigDecimal(texto(produto, "vProd"))));
-            }
-            if (itens.isEmpty() || itens.size() > 200) throw invalido();
-            return new NfeEntradaDto(
-                    emitente, serie, numero, emissao, id.substring(3), List.copyOf(itens));
+            return root;
         } catch (RegraNegocioException ex) {
             throw ex;
         } catch (Exception ex) {

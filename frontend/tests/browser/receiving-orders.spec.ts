@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { nfePreview } from "../nfe-example";
 import { readFileSync } from "node:fs";
 import { LosslessNumber, stringify } from "lossless-json";
 import type { Endpoint, Values } from "../../src/contracts/runtime";
@@ -6,7 +7,34 @@ import type { Endpoint, Values } from "../../src/contracts/runtime";
 const prepared = JSON.parse(
     readFileSync("evidencias/record-pages-browser-fixtures.json", "utf8"),
 ) as { endpoints: Endpoint[]; fixtures: Record<string, string> };
+prepared.endpoints = JSON.parse(
+    readFileSync("src/contracts/endpoints.json", "utf8"),
+) as Endpoint[];
 const source = (id: string) => JSON.parse(prepared.fixtures[id]) as Values;
+const schema = JSON.parse(
+    readFileSync("src/contracts/schemas.json", "utf8"),
+) as {
+    records: Record<string, { name: string; type: string }[]>;
+};
+// Serialização dos dados fictícios pelo tipo declarado, sem confundir versão/protocolo
+// documentais (String) com versões e números Long de registros operacionais.
+function contractWire(type: string, data: unknown): unknown {
+    if (data == null) return data;
+    if (type.startsWith("List<"))
+        return (data as unknown[]).map((v) =>
+            contractWire(type.slice(5, -1), v),
+        );
+    if (schema.records[type])
+        return Object.fromEntries(
+            schema.records[type].map((f) => [
+                f.name,
+                contractWire(f.type, (data as Values)[f.name]),
+            ]),
+        );
+    return ["Long", "long", "Integer", "int", "BigDecimal"].includes(type)
+        ? new LosslessNumber(String(data))
+        : data;
+}
 function wire(value: unknown, key = ""): unknown {
     if (Array.isArray(value)) return value.map((item) => wire(item));
     if (value && typeof value === "object")
@@ -17,7 +45,7 @@ function wire(value: unknown, key = ""): unknown {
             ]),
         );
     return typeof value === "string" &&
-        /^(id|versao|serie|numero|numeroItem|pagina|tamanho|totalItens|totalPaginas|prevista|recebidaBoa|recebidaAvariada|diferenca)$|Id$/.test(
+        /^(id|versao|serie|numero|numeroItem|pagina|tamanho|totalItens|totalPaginas|prevista|recebidaBoa|recebidaAvariada|diferenca|produtoVersao|quantidadeComercial|quantidadeTributavel|valorUnitario|valorProduto|valorTotal|quantidade|pesoLiquido|pesoBruto|quantidadeEstoque|fatorConversao)$|Id$/.test(
             key,
         ) &&
         /^\d+(\.\d+)?$/.test(value)
@@ -41,6 +69,7 @@ async function api(page: Page, perfil = "SUPERVISOR") {
         situacao: situation,
         efetivadoEm: null,
         motivoConclusao: null,
+        origemCriacao: "MANUAL",
     });
     const makeNote = (id: string, item: string): Values => {
         const example = (template.notas as Values[])[0];
@@ -172,6 +201,50 @@ async function api(page: Page, perfil = "SUPERVISOR") {
             record[0].nome = contract.id.startsWith("Cliente")
                 ? "Cliente de ensaio PED01"
                 : "Armazém de ensaio PED01";
+        } else if (contract.id === "ProdutoController.listar") {
+            data = source(contract.id);
+            const p = ((data as Values).itens as Values[])[0];
+            p.id = "1";
+            p.sku = "69230424";
+            p.descricao = "Bandeja";
+            p.unidadeMedida = "PEC";
+        } else if (contract.id === "PedidoEntradaXmlController.previa") {
+            data = nfePreview;
+        } else if (contract.id === "PedidoEntradaXmlController.documento") {
+            data = {
+                documento: nfePreview.documento,
+                xmlOriginal: readFileSync(
+                    "../backend/src/test/resources/nfe/exemplo-reconstruido.xml",
+                    "utf8",
+                ),
+                xmlHash: nfePreview.xmlHash,
+            };
+        } else if (contract.id === "PedidoEntradaXmlController.confirmar") {
+            const created = {
+                ...makeOrder("104", "RASCUNHO", String(body!.referencia)),
+                versao: "1",
+                origemCriacao: "XML",
+            };
+            const nota = makeNote("305", "405");
+            nota.xmlVinculado = true;
+            nota.primeiraChegada = null;
+            const item = (nota.itens as Values[])[0];
+            item.prevista = "32000";
+            item.recebidaBoa = "0";
+            item.recebidaAvariada = "0";
+            item.diferenca = -32000;
+            orders.push(created);
+            details["104"] = {
+                pedido: created,
+                divergente: true,
+                notas: [nota],
+            };
+            data = {
+                tipoRecurso: "PEDIDO_ENTRADA_XML",
+                operacaoId: body!.operacaoId,
+                xmlHash: nfePreview.xmlHash,
+                pedido: created,
+            };
         } else if (contract.id === "PedidoEntradaController.listar") {
             if (failure)
                 return route.fulfill({
@@ -231,7 +304,9 @@ async function api(page: Page, perfil = "SUPERVISOR") {
         } else data = source(contract.id);
         return route.fulfill({
             contentType: "application/json",
-            body: stringify(wire(data))!,
+            body: contract.id.startsWith("PedidoEntradaXmlController.")
+                ? stringify(contractWire(contract.response, data))!
+                : stringify(wire(data))!,
         });
     });
     return {
@@ -373,7 +448,12 @@ test("PED01 criação continua com XML no pedido novo e atualiza a fila sem exig
 }) => {
     const mock = await api(page);
     await open(page, "light");
-    await page.getByRole("button", { name: "Novo pedido de entrada" }).click();
+    await page
+        .getByRole("button", { name: "Novo pedido", exact: true })
+        .click();
+    await page
+        .getByRole("button", { name: "Criar manualmente", exact: true })
+        .click();
     const dialog = page.getByRole("dialog");
     await dialog
         .getByLabel("Referência *", { exact: true })
@@ -473,3 +553,94 @@ test("PED01 erros, ausência, permissões e paginação conservam contexto e fil
     expect(mock.unknown).toEqual([]);
     expect(mock.errors).toEqual([]);
 });
+
+for (const [width, theme] of [
+    [1440, "light"],
+    [1440, "dark"],
+    [360, "light"],
+    [360, "dark"],
+] as const) {
+    test(`XML01 prévia e confirmação em ${width}px ${theme}`, async ({
+        page,
+    }, info) => {
+        const mock = await api(page);
+        await open(page, theme, width);
+        await page
+            .getByLabel("Pedido ou nota nesta página")
+            .fill("fora-do-filtro");
+        await page
+            .getByRole("button", { name: "Novo pedido", exact: true })
+            .click();
+        await page
+            .getByRole("button", { name: "Importar XML da NF-e", exact: true })
+            .click();
+        const dialog = page.getByRole("dialog");
+        await dialog
+            .getByLabel("Arquivo XML da NF-e")
+            .setInputFiles(
+                "../backend/src/test/resources/nfe/exemplo-reconstruido.xml",
+            );
+        await dialog
+            .getByRole("button", { name: "Ler XML", exact: true })
+            .click();
+        await expect(
+            dialog.getByText("TIGRE FERRAMENTAS PARA CONSTRUCAO C"),
+        ).toBeVisible();
+        await expect(dialog.getByText("04547874000203")).toBeVisible();
+        await expect(dialog.getByText(/0.7083000000/)).toBeVisible();
+        expect(
+            mock.calls.some(
+                (c) => c.id === "PedidoEntradaXmlController.confirmar",
+            ),
+        ).toBe(false);
+        await expect(
+            dialog.getByRole("button", { name: "Confirmar pedido de entrada" }),
+        ).toBeEnabled();
+        await page.screenshot({
+            path: info.outputPath("xml-previa.png"),
+            fullPage: true,
+        });
+        expect(
+            await page.evaluate(
+                () => document.documentElement.scrollWidth <= window.innerWidth,
+            ),
+        ).toBe(true);
+        await dialog
+            .getByRole("button", { name: "Confirmar pedido de entrada" })
+            .focus();
+        await page.keyboard.press("Enter");
+        await expect(
+            page.getByRole("button", { name: "Ver registro confirmado" }),
+        ).toBeVisible();
+        await expect(
+            page.getByLabel("Pedido ou nota nesta página"),
+        ).toHaveValue("fora-do-filtro");
+        await page
+            .getByRole("button", { name: "Ver registro confirmado" })
+            .click();
+        await ready(page);
+        await dialog
+            .getByRole("button", { name: "Notas e itens", exact: true })
+            .click();
+        await dialog
+            .getByRole("button", {
+                name: "Ver documento original",
+                exact: true,
+            })
+            .click();
+        await expect(
+            dialog.getByText("DALGA LOGISTICA E TRANSPORTES LTDA"),
+        ).toBeVisible();
+        await page.screenshot({
+            path: info.outputPath("xml-salvo.png"),
+            fullPage: true,
+        });
+        expect(
+            mock.calls.filter(
+                (c) => c.id === "PedidoEntradaXmlController.confirmar",
+            ),
+        ).toHaveLength(1);
+        expect(mock.unknown).toEqual([]);
+        expect(mock.errors).toEqual([]);
+    });
+}

@@ -3780,6 +3780,87 @@
     ]
   },
   {
+    "id": "PedidoEntradaXmlController.previa",
+    "method": "POST",
+    "path": "/api/v1/pedidos-entrada/xml/previa",
+    "request": "NfeImportacaoDto.Ler",
+    "response": "NfeImportacaoDto.Previa",
+    "query": [],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/PedidoEntradaXmlController.java",
+    "handler": "previa",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/PedidoEntradaXmlService.java#previa"
+    ]
+  },
+  {
+    "id": "PedidoEntradaXmlController.confirmar",
+    "method": "POST",
+    "path": "/api/v1/pedidos-entrada/xml/confirmacao",
+    "request": "NfeImportacaoDto.Confirmar",
+    "response": "NfeImportacaoDto.Confirmacao",
+    "query": [],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/PedidoEntradaXmlController.java",
+    "handler": "confirmar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/PedidoEntradaXmlService.java#confirmar"
+    ]
+  },
+  {
+    "id": "PedidoEntradaXmlController.resultado",
+    "method": "GET",
+    "path": "/api/v1/pedidos-entrada/xml/operacoes/{operacaoId}",
+    "request": null,
+    "response": "NfeImportacaoDto.Confirmacao",
+    "query": [],
+    "params": [
+      {
+        "name": "operacaoId",
+        "type": "UUID",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/PedidoEntradaXmlController.java",
+    "handler": "resultado",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/PedidoEntradaXmlService.java#resultado"
+    ]
+  },
+  {
+    "id": "PedidoEntradaXmlController.documento",
+    "method": "GET",
+    "path": "/api/v1/pedidos-entrada/{pedidoId}/notas/{notaId}/documento",
+    "request": null,
+    "response": "NfeImportacaoDto.DocumentoSalvo",
+    "query": [],
+    "params": [
+      {
+        "name": "pedidoId",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "notaId",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/PedidoEntradaXmlController.java",
+    "handler": "documento",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/PedidoEntradaXmlService.java#documento"
+    ]
+  },
+  {
     "id": "PedidoSaidaController.criar",
     "method": "POST",
     "path": "/api/v1/pedidos-saida",

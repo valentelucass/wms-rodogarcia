@@ -9,6 +9,7 @@ $ErrorActionPreference = 'Stop'
 $repository = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 . (Join-Path $PSScriptRoot 'console-dev.ps1')
 . (Join-Path $PSScriptRoot 'espera-conexao.ps1')
+. (Join-Path $PSScriptRoot 'artefato-backend.ps1')
 $connectionWaitPolicy = Get-WmsDevConnectionWaitPolicy
 $runsRoot = Join-Path $repository 'orchestracao/.runtime/frontend-integracao-dev-runs'
 $runId = [guid]::NewGuid().ToString('N')
@@ -110,6 +111,14 @@ try {
     foreach ($required in @($guardHelper,$backendHelper,$artifactReceiptPath)) {
         if (-not (Test-Path -LiteralPath $required -PathType Leaf)) { Fail-Startup 30 'PREPARATION_ARTIFACT_MISSING' }
     }
+    try {
+        $artifact = Assert-WmsDevApplicationArtifact $repository $artifactReceiptPath
+    } catch {
+        Write-Host '[WMS DEV] O pacote do backend nao corresponde ao codigo atual.'
+        Write-Host '[WMS DEV] Prepare o pacote local: powershell -NoProfile -File infra\dev\preparar-backend-dev.ps1'
+        Fail-Startup 30 'DEV02_ARTIFACT_NOT_CURRENT'
+    }
+    $receipt['artifactSourceHash'] = $artifact.sourceHash
     $nodeCommand = Get-Command node.exe -ErrorAction Stop
     $javaCommand = Get-Command java.exe -ErrorAction SilentlyContinue
     $frontendRoot = Join-Path $repository 'frontend'
@@ -168,7 +177,6 @@ try {
 
     # O helper backend valida o esquema e a procedencia da guarda antes de DPAPI/Java.
     . $backendHelper
-    $artifact = Get-Content -LiteralPath $artifactReceiptPath -Raw -Encoding UTF8 | ConvertFrom-Json
     $javaPath = $artifact.java.path
     if ([string]::IsNullOrWhiteSpace($javaPath) -and $javaCommand) { $javaPath=$javaCommand.Source }
     $backend = Start-WmsFrontendDevBackend -Port $BackendPort -RunDirectory $runDirectory -GuardReceipt $guardReceiptPath -GuardSha256 $guardReceiptHash -GuardProcessId $guardProcess.Id -GuardHelperSha256 $guardHash -JarPath $artifact.jar.path -JarSha256 $artifact.jar.sha256 -JavaPath $javaPath -Identity $identity

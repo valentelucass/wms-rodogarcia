@@ -8365,6 +8365,582 @@
         "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeEntradaDto.java"
       }
     ],
+    "NfeImportacaoDto.Associacao": [
+      {
+        "name": "numeroItem",
+        "type": "Integer",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java",
+        "Min": "1",
+        "Max": "990"
+      },
+      {
+        "name": "produtoId",
+        "type": "Long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java",
+        "positive": true
+      }
+    ],
+    "NfeImportacaoDto.Ler": [
+      {
+        "name": "xml",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java",
+        "notBlank": true,
+        "Size": "max = 1000000"
+      },
+      {
+        "name": "clienteId",
+        "type": "Long",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java",
+        "positive": true
+      },
+      {
+        "name": "armazemId",
+        "type": "Long",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java",
+        "positive": true
+      },
+      {
+        "name": "associacoes",
+        "type": "List<NfeImportacaoDto.Associacao>",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java",
+        "Size": "max = 200",
+        "element": {
+          "name": "element",
+          "type": "NfeImportacaoDto.Associacao",
+          "required": true,
+          "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+        }
+      }
+    ],
+    "NfeImportacaoDto.Confirmar": [
+      {
+        "name": "operacaoId",
+        "type": "UUID",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "clienteId",
+        "type": "Long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java",
+        "positive": true
+      },
+      {
+        "name": "armazemId",
+        "type": "Long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java",
+        "positive": true
+      },
+      {
+        "name": "referencia",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java",
+        "notBlank": true,
+        "Size": "max = 40",
+        "Pattern": "regexp = \"[A-Za-z0-9][A-Za-z0-9._/-]*\""
+      },
+      {
+        "name": "xml",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java",
+        "notBlank": true,
+        "Size": "max = 1000000"
+      },
+      {
+        "name": "revisaoPrevia",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java",
+        "notBlank": true,
+        "Pattern": "regexp = \"[a-f0-9]{64}\""
+      },
+      {
+        "name": "associacoes",
+        "type": "List<NfeImportacaoDto.Associacao>",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java",
+        "Size": "max = 200",
+        "element": {
+          "name": "element",
+          "type": "NfeImportacaoDto.Associacao",
+          "required": true,
+          "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+        }
+      }
+    ],
+    "NfeImportacaoDto.Participante": [
+      {
+        "name": "documento",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "nome",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      }
+    ],
+    "NfeImportacaoDto.Item": [
+      {
+        "name": "numeroItem",
+        "type": "int",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "codigo",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "descricao",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "gtin",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "ncm",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "cfop",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "unidadeComercial",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "quantidadeComercial",
+        "type": "BigDecimal",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "valorUnitario",
+        "type": "BigDecimal",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "valorProduto",
+        "type": "BigDecimal",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "unidadeTributavel",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "quantidadeTributavel",
+        "type": "BigDecimal",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "gtinTributavel",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "informacoesAdicionais",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      }
+    ],
+    "NfeImportacaoDto.Volume": [
+      {
+        "name": "quantidade",
+        "type": "BigDecimal",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "especie",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "pesoLiquido",
+        "type": "BigDecimal",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "pesoBruto",
+        "type": "BigDecimal",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      }
+    ],
+    "NfeImportacaoDto.Protocolo": [
+      {
+        "name": "chave",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "ambiente",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "numero",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "recebidoEm",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "codigoSituacao",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "motivo",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      }
+    ],
+    "NfeImportacaoDto.Documento": [
+      {
+        "name": "versao",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "modelo",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "chaveAcesso",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "serie",
+        "type": "int",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "numero",
+        "type": "long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "emitidaEm",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "tipoOperacao",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "ambiente",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "naturezaOperacao",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "emitente",
+        "type": "NfeImportacaoDto.Participante",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "destinatario",
+        "type": "NfeImportacaoDto.Participante",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "valorTotal",
+        "type": "BigDecimal",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "itens",
+        "type": "List<NfeImportacaoDto.Item>",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java",
+        "element": {
+          "name": "element",
+          "type": "NfeImportacaoDto.Item",
+          "required": false,
+          "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+        }
+      },
+      {
+        "name": "volumes",
+        "type": "List<NfeImportacaoDto.Volume>",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java",
+        "element": {
+          "name": "element",
+          "type": "NfeImportacaoDto.Volume",
+          "required": false,
+          "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+        }
+      },
+      {
+        "name": "protocolo",
+        "type": "NfeImportacaoDto.Protocolo",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "informacoesComplementares",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "informacoesFisco",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      }
+    ],
+    "NfeImportacaoDto.ItemAssociado": [
+      {
+        "name": "numeroItem",
+        "type": "int",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "produtoId",
+        "type": "Long",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "produtoVersao",
+        "type": "Long",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "sku",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "descricao",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "unidadeEstoque",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "quantidadeEstoque",
+        "type": "BigDecimal",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "fatorConversao",
+        "type": "BigDecimal",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "pendencia",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      }
+    ],
+    "NfeImportacaoDto.Previa": [
+      {
+        "name": "documento",
+        "type": "NfeImportacaoDto.Documento",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "xmlHash",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "revisaoPrevia",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "clienteId",
+        "type": "Long",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "armazemId",
+        "type": "Long",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "itens",
+        "type": "List<NfeImportacaoDto.ItemAssociado>",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java",
+        "element": {
+          "name": "element",
+          "type": "NfeImportacaoDto.ItemAssociado",
+          "required": false,
+          "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+        }
+      },
+      {
+        "name": "pendencias",
+        "type": "List<String>",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java",
+        "element": {
+          "name": "element",
+          "type": "String",
+          "required": false,
+          "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+        }
+      },
+      {
+        "name": "avisos",
+        "type": "List<String>",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java",
+        "element": {
+          "name": "element",
+          "type": "String",
+          "required": false,
+          "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+        }
+      },
+      {
+        "name": "pedidoExistenteId",
+        "type": "Long",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "podeConfirmar",
+        "type": "boolean",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      }
+    ],
+    "NfeImportacaoDto.Confirmacao": [
+      {
+        "name": "tipoRecurso",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "operacaoId",
+        "type": "UUID",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "xmlHash",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "pedido",
+        "type": "PedidoEntradaDto.Resumo",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      }
+    ],
+    "NfeImportacaoDto.DocumentoSalvo": [
+      {
+        "name": "documento",
+        "type": "NfeImportacaoDto.Documento",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "xmlOriginal",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "xmlHash",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      }
+    ],
     "PaginaResponse": [
       {
         "name": "itens",
@@ -8609,6 +9185,12 @@
       },
       {
         "name": "motivoConclusao",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/PedidoEntradaDto.java"
+      },
+      {
+        "name": "origemCriacao",
         "type": "String",
         "required": false,
         "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/PedidoEntradaDto.java"
