@@ -455,7 +455,13 @@ public class CalculoCobrancaService {
             Long movimentoId, String operacaoId, Instant marcadaEm, AvariaEstoque cobertura) {}
 
     private List<AvariaLegada> avariasLegadas(UnidadeLogistica u, List<AvariaEstoque> as) {
-        var historico = movimentos.findByUnidadeIdOrderByInstanteAscIdAsc(u.getId());
+        return avariasLegadas(u, as, movimentos.findByUnidadeIdOrderByInstanteAscIdAsc(u.getId()));
+    }
+
+    private List<AvariaLegada> avariasLegadas(
+            UnidadeLogistica u,
+            List<AvariaEstoque> as,
+            List<br.com.rodogarcia.wms.models.MovimentoEstoque> historico) {
         var legadas = new ArrayList<AvariaLegada>();
         for (int n = 0; n < historico.size(); n++) {
             var m = historico.get(n);
@@ -715,13 +721,30 @@ public class CalculoCobrancaService {
             LocalDate dia,
             List<CalculoCobrancaDto.Pendencia> p,
             boolean fisico) {
+        return contribuicao(h, instante, dia, p, fisico, null);
+    }
+
+    private CalculoCobrancaDto.Contribuicao contribuicao(
+            Historico h,
+            Instant instante,
+            LocalDate dia,
+            List<CalculoCobrancaDto.Pendencia> p,
+            boolean fisico,
+            DadosIndicador dados) {
         var u = h.unidade();
         LinhaTemporalEstoqueService.Base base;
         try {
             base =
-                    fisico
-                            ? temporal.fisicoNoInstante(u, instante)
-                            : temporal.noInstante(u, instante);
+                    dados != null
+                            ? temporal.fisicoNoInstante(
+                                    u,
+                                    instante,
+                                    h.fatos(),
+                                    dados.transformacoes()
+                                            .getOrDefault(u.getPedido().getId(), List.of()))
+                            : fisico
+                                    ? temporal.fisicoNoInstante(u, instante)
+                                    : temporal.noInstante(u, instante);
         } catch (RegraNegocioException e) {
             pendente(p, "HISTORICO_QUANTIDADE_INSUFICIENTE", dia, u.getId(), null, e.getMessage());
             return new CalculoCobrancaDto.Contribuicao(
@@ -769,10 +792,17 @@ public class CalculoCobrancaService {
                         || f.getOcorridaEm().isAfter(instante)) continue;
                 if (f.getQuantidadeAntes().compareTo(f.getQuantidadeDepois()) == 0) continue;
                 var marco =
-                        marcos.findByAvariaIdOrderByIdAsc(a.getId()).stream()
-                                .filter(m -> m.getFatoPermanencia().getId().equals(f.getId()))
-                                .findFirst()
-                                .orElse(null);
+                        (dados == null
+                                        ? marcos.findByAvariaIdOrderByIdAsc(a.getId())
+                                        : dados.marcos().getOrDefault(a.getId(), List.of()))
+                                .stream()
+                                        .filter(
+                                                m ->
+                                                        m.getFatoPermanencia()
+                                                                .getId()
+                                                                .equals(f.getId()))
+                                        .findFirst()
+                                        .orElse(null);
                 if (marco == null) {
                     ambiguo = true;
                     pendente(
@@ -842,8 +872,19 @@ public class CalculoCobrancaService {
         // A contribuição e sua explicação usam a mesma origem no mesmo instante/transação.
         var quantidadesOrigem =
                 new LinkedHashMap<br.com.rodogarcia.wms.models.ConteudoUnidade, BigDecimal>();
-        for (var c : conteudos.buscarOrigens(u.getId()))
-            quantidadesOrigem.put(c, quantidadeOrigemNoInstante(u, c, instante));
+        for (var c :
+                dados == null
+                        ? conteudos.buscarOrigens(u.getId())
+                        : dados.origens().getOrDefault(u.getId(), List.of()))
+            quantidadesOrigem.put(
+                    c,
+                    dados == null
+                            ? quantidadeOrigemNoInstante(u, c, instante)
+                            : quantidadeOrigemNoInstante(
+                                    c,
+                                    instante,
+                                    dados.revisoes().getOrDefault(u.getId(), List.of()),
+                                    dados.baixas().getOrDefault(u.getId(), List.of())));
         BigDecimal valor =
                 ambiguo
                         ? null
@@ -969,16 +1010,27 @@ public class CalculoCobrancaService {
 
     private BigDecimal quantidadeOrigemNoInstante(
             UnidadeLogistica u, br.com.rodogarcia.wms.models.ConteudoUnidade c, Instant instante) {
-        BigDecimal q = c.getQuantidade();
-        for (var r :
+        return quantidadeOrigemNoInstante(
+                c,
+                instante,
                 contagens.findByContagemUnidadeIdAndSituacao(
-                        u.getId(), br.com.rodogarcia.wms.models.SituacaoRevisaoContagem.APLICADA)) {
+                        u.getId(), br.com.rodogarcia.wms.models.SituacaoRevisaoContagem.APLICADA),
+                baixas.buscarDaUnidade(u.getId()));
+    }
+
+    private BigDecimal quantidadeOrigemNoInstante(
+            br.com.rodogarcia.wms.models.ConteudoUnidade c,
+            Instant instante,
+            List<br.com.rodogarcia.wms.models.RevisaoContagem> revisoes,
+            List<br.com.rodogarcia.wms.models.BaixaSaida> retiradas) {
+        BigDecimal q = c.getQuantidade();
+        for (var r : revisoes) {
             if (r.getAplicadaEm() == null || !r.getAplicadaEm().isAfter(instante)) continue;
             for (var delta : mapper.readTree(r.getEfeitoJson()).get("origens"))
                 if (delta.get("entradaId").longValue() == c.getEntrada().getId())
                     q = q.add(new BigDecimal(delta.get("quantidade").asString()));
         }
-        for (var b : baixas.buscarDaUnidade(u.getId()))
+        for (var b : retiradas)
             if (b.getEntradaOrigem().getId().equals(c.getEntrada().getId())
                     && b.getRetirada().getRetiradaEm().isAfter(instante))
                 q = q.add(b.getQuantidade());
@@ -991,21 +1043,99 @@ public class CalculoCobrancaService {
 
     @Transactional(readOnly = true)
     public ValorIndicador indicadorUnidade(UnidadeLogistica u, Instant instante, ZoneId zona) {
-        acesso.exigirSupervisor();
-        acesso.cliente(u.getPedido().getCliente().getId());
-        acesso.armazem(u.getPedido().getArmazem().getId());
-        var as = avarias.findByUnidadeIdOrderById(u.getId());
-        var h =
-                new Historico(
-                        u,
-                        fatos.findByUnidadeIdOrderByOcorridaEmAscIdAsc(u.getId()),
-                        as,
-                        avariasLegadas(u, as),
-                        null);
-        var p = new ArrayList<CalculoCobrancaDto.Pendencia>();
-        var contribuicao = contribuicao(h, instante, instante.atZone(zona).toLocalDate(), p, true);
-        return new ValorIndicador(contribuicao, List.copyOf(p));
+        return indicadoresUnidades(List.of(u), instante, zona).getFirst();
     }
+
+    /**
+     * Históricos completos por IDs já autorizados; cada lote limita binds, sem cache compartilhado.
+     */
+    @Transactional(readOnly = true)
+    public List<ValorIndicador> indicadoresUnidades(
+            List<UnidadeLogistica> selecionadas, Instant instante, ZoneId zona) {
+        // Preservar todas as revalidações por unidade, antes da primeira leitura dos históricos.
+        for (var u : selecionadas) {
+            acesso.exigirSupervisor();
+            acesso.cliente(u.getPedido().getCliente().getId());
+            acesso.armazem(u.getPedido().getArmazem().getId());
+        }
+        var resultado = new ArrayList<ValorIndicador>();
+        var unicas = new LinkedHashMap<Long, UnidadeLogistica>();
+        selecionadas.forEach(u -> unicas.putIfAbsent(u.getId(), u));
+        var lista = List.copyOf(unicas.values());
+        var valores = new HashMap<Long, ValorIndicador>();
+        for (int inicio = 0; inicio < lista.size(); inicio += 500) {
+            var lote = lista.subList(inicio, Math.min(inicio + 500, lista.size()));
+            var ids = lote.stream().map(UnidadeLogistica::getId).toList();
+            var fs =
+                    fatos.buscarParaIndicador(ids).stream()
+                            .collect(
+                                    java.util.stream.Collectors.groupingBy(
+                                            f -> f.getUnidade().getId()));
+            var av =
+                    avarias.buscarParaIndicador(ids).stream()
+                            .collect(
+                                    java.util.stream.Collectors.groupingBy(
+                                            a -> a.getUnidade().getId()));
+            var ms = new HashMap<Long, List<br.com.rodogarcia.wms.models.MovimentoEstoque>>();
+            for (var m : movimentos.buscarParaIndicador(ids))
+                ms.computeIfAbsent(m.getUnidadeId(), k -> new ArrayList<>()).add(m.getMovimento());
+            var os =
+                    conteudos.buscarParaIndicador(ids).stream()
+                            .collect(
+                                    java.util.stream.Collectors.groupingBy(
+                                            c -> c.getUnidade().getId()));
+            var rs =
+                    contagens.buscarParaIndicador(ids).stream()
+                            .collect(
+                                    java.util.stream.Collectors.groupingBy(
+                                            c -> c.getContagem().getUnidade().getId()));
+            var bs =
+                    baixas.buscarParaIndicador(ids).stream()
+                            .collect(
+                                    java.util.stream.Collectors.groupingBy(
+                                            b -> b.getReserva().getUnidade().getId()));
+            var mar =
+                    marcos.buscarParaIndicador(ids).stream()
+                            .collect(
+                                    java.util.stream.Collectors.groupingBy(
+                                            m -> m.getAvaria().getId()));
+            var ts =
+                    temporal.transformacoesParaIndicador(
+                            lote.stream().map(u -> u.getPedido().getId()).distinct().toList());
+            var dados = new DadosIndicador(os, rs, bs, mar, ts);
+            for (var u : lote) {
+                var as = av.getOrDefault(u.getId(), List.of());
+                var h =
+                        new Historico(
+                                u,
+                                fs.getOrDefault(u.getId(), List.of()),
+                                as,
+                                avariasLegadas(u, as, ms.getOrDefault(u.getId(), List.of())),
+                                null);
+                var p = new ArrayList<CalculoCobrancaDto.Pendencia>();
+                valores.put(
+                        u.getId(),
+                        new ValorIndicador(
+                                contribuicao(
+                                        h,
+                                        instante,
+                                        instante.atZone(zona).toLocalDate(),
+                                        p,
+                                        true,
+                                        dados),
+                                List.copyOf(p)));
+            }
+        }
+        selecionadas.forEach(u -> resultado.add(valores.get(u.getId())));
+        return List.copyOf(resultado);
+    }
+
+    private record DadosIndicador(
+            Map<Long, List<br.com.rodogarcia.wms.models.ConteudoUnidade>> origens,
+            Map<Long, List<br.com.rodogarcia.wms.models.RevisaoContagem>> revisoes,
+            Map<Long, List<br.com.rodogarcia.wms.models.BaixaSaida>> baixas,
+            Map<Long, List<br.com.rodogarcia.wms.models.MarcoFinanceiroAvaria>> marcos,
+            Map<Long, List<br.com.rodogarcia.wms.models.OperacaoUnidade>> transformacoes) {}
 
     private ValorDoDia valorFisicoDoDia(
             Long cliente,

@@ -54,14 +54,56 @@ public class LinhaTemporalEstoqueService {
     }
 
     private Base reconstruir(UnidadeLogistica u, Instant instante, boolean aceitarZero) {
+        return reconstruir(
+                u,
+                instante,
+                aceitarZero,
+                fatos.findByUnidadeIdOrderByOcorridaEmAscIdAsc(u.getId()),
+                transformacoes.findByPedidoIdAndTipoInOrderByRegistradaEmAscIdAsc(
+                        u.getPedido().getId(),
+                        List.of("UNIDADE_DIVIDIDA", "UNIDADES_REAGRUPADAS")));
+    }
+
+    @Transactional(
+            propagation = Propagation.MANDATORY,
+            readOnly = true,
+            noRollbackFor = RegraNegocioException.class)
+    public Base fisicoNoInstante(
+            UnidadeLogistica u,
+            Instant instante,
+            List<br.com.rodogarcia.wms.models.FatoPermanencia> fatosCarregados,
+            List<br.com.rodogarcia.wms.models.OperacaoUnidade> transformacoesCarregadas) {
+        return reconstruir(u, instante, true, fatosCarregados, transformacoesCarregadas);
+    }
+
+    @Transactional(propagation = Propagation.MANDATORY, readOnly = true)
+    public java.util.Map<Long, List<br.com.rodogarcia.wms.models.OperacaoUnidade>>
+            transformacoesParaIndicador(List<Long> pedidos) {
+        if (pedidos.isEmpty()) return java.util.Map.of();
+        var resultado =
+                new java.util.LinkedHashMap<
+                        Long, List<br.com.rodogarcia.wms.models.OperacaoUnidade>>();
+        for (var t : transformacoes.buscarParaIndicador(pedidos))
+            resultado
+                    .computeIfAbsent(t.getPedidoId(), k -> new java.util.ArrayList<>())
+                    .add(t.getOperacao());
+        return resultado;
+    }
+
+    private Base reconstruir(
+            UnidadeLogistica u,
+            Instant instante,
+            boolean aceitarZero,
+            List<br.com.rodogarcia.wms.models.FatoPermanencia> fatosCarregados,
+            List<br.com.rodogarcia.wms.models.OperacaoUnidade> transformacoesCarregadas) {
         if (instante.isBefore(u.getCriadaEm())) throw pendente();
-        var transformacao = ultimaTransformacao(u);
+        var transformacao = ultimaTransformacao(u, transformacoesCarregadas);
         // O resultado BE07 comprova o conteúdo após a confirmação, sem datar o estado anterior.
         // Não projetar essa quantidade para antes da última transformação da identidade.
         if (transformacao != null && instante.isBefore(transformacao.registradaEm()))
             throw pendente();
         var mudancas =
-                fatos.findByUnidadeIdOrderByOcorridaEmAscIdAsc(u.getId()).stream()
+                fatosCarregados.stream()
                         .filter(f -> List.of("RETIRADA", "AJUSTE_ESTOQUE").contains(f.getTipo()))
                         .toList();
         if (transformacao != null
@@ -106,12 +148,10 @@ public class LinhaTemporalEstoqueService {
         return new Base(noInstante, noInstante.signum() == 0 ? BigDecimal.ZERO : equivalencia);
     }
 
-    private Transformacao ultimaTransformacao(UnidadeLogistica u) {
+    private Transformacao ultimaTransformacao(
+            UnidadeLogistica u, List<br.com.rodogarcia.wms.models.OperacaoUnidade> operacoes) {
         Transformacao ultima = null;
-        for (var operacao :
-                transformacoes.findByPedidoIdAndTipoInOrderByRegistradaEmAscIdAsc(
-                        u.getPedido().getId(),
-                        List.of("UNIDADE_DIVIDIDA", "UNIDADES_REAGRUPADAS"))) {
+        for (var operacao : operacoes) {
             UnidadeLogisticaDto.Resultado resultado;
             try {
                 resultado =

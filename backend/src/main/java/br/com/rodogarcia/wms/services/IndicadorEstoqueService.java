@@ -310,8 +310,10 @@ public class IndicadorEstoqueService {
         if (clientes.isEmpty() || armazens.isEmpty()) return BigDecimal.ZERO;
         BigDecimal total = BigDecimal.ZERO;
         boolean completo = true;
-        for (var u : unidades.ativasParaIndicador(clientes, armazens)) {
-            var valor = calculos.indicadorUnidade(u, instante, zona).unidade().valorEstoque();
+        for (var resultado :
+                calculos.indicadoresUnidades(
+                        unidades.ativasParaIndicador(clientes, armazens), instante, zona)) {
+            var valor = resultado.unidade().valorEstoque();
             if (valor == null) completo = false;
             else total = total.add(valor);
         }

@@ -6,6 +6,10 @@
 
 **QUAL-CONF01-PERF01 — complemento material em andamento:** [Início, dashboard/visão/contexto e segurança](../STATES.md#qual-conf01-perf01--início-desempenho-e-segurança), [autorização/limites](06-decisoes-e-pendencias.md#qual-conf01-perf01--inicio-desempenho-e-seguranca). Bloco anterior é baseline local parcial; novas provas em `orchestracao/.runtime/qual-conf01/perf01/`, com custos locais separados das medidas do portal.
 
+**QUAL-CONF01-PERF01-CARGA01 — implementação em execução:** [otimização ponta a ponta de carregamento](../STATES.md#qual-conf01-perf01-carga01--implementação-do-carregamento-10102026), [autorização e limites](06-decisoes-e-pendencias.md#qual-conf01-perf01-carga01--implementação-do-carregamento-10102026); lote/SQL adequado e carregamento progressivo com ganho demonstrado, preservando INIT01 e Information.
+
+**QUAL-CONF01-PERF01-INIT01 — verificação local datada:** [carregamento das telas sem visitar Início](../STATES.md#qual-conf01-perf01-init01--independência-de-início-10102026), com rotas/catálogos/contexto/auth.fresh e ordem HTTP isolada; sem preparador adicional ou reinício.
+
 **FE05-PED01:** [Pedidos de entrada, notas, conferência e histórico no mesmo contexto](design-system/etapa-07.md).
 
 **FE02-REG01:** [listas, detalhes e ações por registro nas 12 áreas](design-system/etapa-06.md), [inventário e mapeamento das 50 páginas](design-system/inventario-paginas.md).

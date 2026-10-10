@@ -16,9 +16,13 @@
 .collector-task-picker,
 .collector-reading {
     min-width: 0;
-    padding: var(--og-space-6);
+    padding: var(--og-space-5);
 }
 .collector-task-picker {
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr);
+    align-content: start;
+    gap: var(--og-space-3);
     background: var(--og-surface-raised);
     border-right: 1px solid var(--og-border);
 }
@@ -26,19 +30,37 @@
     margin: 0 0 var(--og-space-4);
     font-size: var(--og-type-section);
 }
+.collector-task-picker > h2 {
+    align-self: center;
+    margin: 0;
+}
+.collector-task-picker > label,
+.collector-task-picker > p {
+    grid-column: 1 / -1;
+    margin: 0;
+}
+.collector-reading {
+    container-type: inline-size;
+}
+.collector-reading > h2 {
+    display: flex;
+    align-items: center;
+    min-height: 40px;
+    margin-bottom: 0;
+}
 .collector-task-icon {
     display: grid;
     place-items: center;
     width: 40px;
     height: 40px;
-    margin-bottom: var(--og-space-4);
+    margin-bottom: 0;
     border: 1px solid var(--og-border);
     border-radius: var(--og-radius-control);
     background: var(--og-surface);
     color: var(--og-link);
 }
 .collector-task-picker p {
-    margin: var(--og-space-3) 0 0;
+    margin: 0;
     color: var(--og-text-muted);
     font-size: var(--og-type-caption);
 }
@@ -73,14 +95,33 @@
 }
 .collector-task form {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 136px;
+    grid-template-columns: minmax(0, 1fr) 164px max-content;
     align-items: end;
     gap: var(--og-space-3);
+    margin: var(--og-space-3) 0 0;
+}
+.collector-task form > label {
+    min-width: 0;
     margin-bottom: 0;
 }
 .collector-task form > button {
-    grid-column: 1 / -1;
     justify-self: end;
+}
+@container (max-width: 700px) {
+    .collector-task form {
+        grid-template-columns: minmax(0, 1fr) 164px;
+    }
+    .collector-task form > button {
+        grid-column: 1 / -1;
+    }
+}
+@container (max-width: 420px) {
+    .collector-task form {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .collector-task form > button {
+        width: 100%;
+    }
 }
 .collector-destination > label {
     margin-bottom: var(--og-space-3);
@@ -90,6 +131,7 @@
         grid-template-columns: 1fr;
     }
     .collector-task-picker {
+        grid-template-columns: minmax(0, 1fr);
         border-right: 0;
         border-bottom: 1px solid var(--og-border);
     }
@@ -100,9 +142,6 @@
     .collector-task-picker,
     .collector-reading {
         padding: var(--og-space-4);
-    }
-    .collector-task form {
-        grid-template-columns: 1fr;
     }
     .collector button {
         width: 100%;

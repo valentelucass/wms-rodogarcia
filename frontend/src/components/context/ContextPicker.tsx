@@ -16,6 +16,12 @@ export function ContextPicker({
     const [message, setMessage] = useState("");
     const scope = `${context.clienteId ?? ""}/${context.armazemId ?? ""}`;
     const [selectedScope, setSelectedScope] = useState(scope);
+    const loading =
+        !catalog ||
+        (!client && !warehouse
+            ? catalog.loading
+            : (!!client && catalog.pending.clientes) ||
+              (!!warehouse && catalog.pending.armazens));
     if (selectedScope !== scope) {
         setSelectedScope(scope);
         setClient(String(context.clienteId ?? ""));
@@ -27,7 +33,7 @@ export function ContextPicker({
             aria-label="Contexto operacional"
             onSubmit={(event) => {
                 event.preventDefault();
-                if (!catalog || catalog.loading || catalog.error) {
+                if (!catalog || loading || catalog.error) {
                     setMessage(
                         "Carregue as opções antes de aplicar o contexto.",
                     );
@@ -75,7 +81,7 @@ export function ContextPicker({
             />
             <button
                 className="context-apply"
-                disabled={catalog?.loading || !!catalog?.error}
+                disabled={loading || !!catalog?.error}
             >
                 Aplicar contexto
             </button>

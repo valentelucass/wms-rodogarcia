@@ -1,0 +1,123 @@
+.information-popup {
+    position: fixed;
+    visibility: hidden;
+    z-index: 120;
+    top: 0;
+    left: 0;
+    width: 320px;
+    max-width: calc(100vw - 16px);
+    max-height: calc(100dvh - 16px);
+    overflow: auto;
+    overscroll-behavior: contain;
+    padding: 14px 16px;
+    border: 1px solid var(--og-border-strong);
+    border-radius: 10px;
+    background: var(--og-surface);
+    color: var(--og-text);
+    box-shadow: 0 8px 28px #0003;
+    font-size: 12px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+    animation: information-appear 140ms ease-out;
+}
+.information-popup-title {
+    display: block;
+    font-size: 13px;
+    line-height: 1.4;
+}
+.information-popup p {
+    margin: 8px 0 0;
+}
+.information-popup dl {
+    display: grid;
+    gap: 8px;
+    margin: 12px 0 0;
+    padding-top: 10px;
+    border-top: 1px solid var(--og-border);
+}
+.information-popup dl > div {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+    gap: 10px;
+}
+.information-popup dt,
+.information-popup small {
+    color: var(--og-text-muted);
+    font-size: 11px;
+}
+.information-popup dd {
+    margin: 0;
+}
+.information-popup small {
+    display: block;
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px solid var(--og-border);
+}
+.information-hint {
+    display: inline-grid;
+    place-items: center;
+    flex: 0 0 auto;
+    width: 24px;
+    min-height: 24px;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    border-radius: 50%;
+    color: var(--og-link);
+    background: transparent;
+    font-size: 12px;
+    font-weight: 700;
+    vertical-align: middle;
+}
+.information-hint > span {
+    display: grid;
+    place-items: center;
+    width: 18px;
+    height: 18px;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+    background: var(--og-selection);
+    line-height: 1;
+}
+.information-hint:hover:not(:disabled) {
+    background: transparent;
+    color: var(--og-text);
+}
+.overview-map-heading {
+    justify-content: flex-start;
+    gap: 4px;
+}
+.information-heading {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: var(--og-space-1);
+}
+.dashboard-chart .information-heading h3 {
+    margin: 0;
+}
+.overview-metric:focus-visible,
+.dashboard-metric:focus-visible {
+    outline: 2px solid var(--og-focus-ring);
+    outline-offset: 2px;
+}
+@keyframes information-appear {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+@media (pointer: coarse) {
+    .information-hint {
+        width: 44px;
+        min-height: 44px;
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .information-popup {
+        animation: none;
+    }
+}

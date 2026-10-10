@@ -1,5 +1,9 @@
 # Decisões e pendências do WMS Rodogarcia
 
+## FE02-INFO01 — catálogo único de ajuda, 10/10/2026
+
+**Pedido expresso de Lucas:** popups em indicadores/cartões com explicações centralizadas em um único `.ts`, revisado quando a função correspondente mudar. Catálogo em `frontend/src/content/information.ts`, manutenção registrada em AGENTS.md. O complemento de Lucas pede o “i” menor, mais visível e melhor posicionado; definição e consumidores em [etapa 05](design-system/etapa-05.md#popups-informativos--fe02-info01). Explicações usam dados já autorizados, sem novas consultas ou cálculos de negócio por hover.
+
 ## BE02-DEV-REINICIO01 — reinício exclusivo do DEV, 10/10/2026
 
 **Decisão expressa de Lucas:** cada execução de `iniciar-dev.bat` deve substituir a instância DEV deste WMS, preservando outros projetos, portas e produção. Implementado para 25580/25581 com prova de origem por recibo do próprio projeto, PID/início, executável/comando completo e perfil DEV. Um processo também escutando outra porta não é encerrado. Identidade incerta interrompe a subida; não se usa encerramento indiscriminado por porta ou nome de executável.
@@ -33,6 +37,24 @@ P01 recebeu diagnóstico mínimo somente em arquivos fictícios isolados: helper
 Serviços continuam garantindo permissões, alcance e coordenação das regras/transações; predicados SQL podem executar processamento das regras aprovadas. Preservar precisão BigDecimal, null/indisponível, origem, avaria e histórico. Não generalizar a conversão de tudo, criar triggers/procedures ou reescrever a arquitetura sem necessidade. A autorização cobre engenharia, código e testes de deslocamento adequado no escopo atual; não libera DDL, índices, migrations, grants, servidor, PROD, sa na API, reset/dados reais ou reinício de processos existentes. Se schema/procedure/índice for indispensável, apresentar proposta concreta com evidência e limite antes de aplicação real.
 
 **Impacto em PERF01:** Cedro e Vigia reavaliam o custo residual de valoração por unidade/históricos já medido. Consulta em lote/SQL equivalente, com ganho demonstrado e oráculo independente, permite correção mínima na mesma rodada. Sem ganho adicional demonstrado, declarar o residual e a prova necessária, sem alterar por inferência nem bloquear o preparo oficial por otimização especulativa. Fonte otimizada, pacote pronto e runtime antigo permanecem estados distintos. [Trilha e evidências](../STATES.md#qual-conf01-perf01--início-desempenho-e-segurança).
+
+### QUAL-CONF01-PERF01-CARGA01 — implementação do carregamento, 10/10/2026
+
+**Nova autorização expressa de Lucas: implementar a otimização forte do carregamento ponta a ponta**, dentro de QUAL-CONF01/PERF01; não apenas estudar ou repetir a reavaliação DEC01. Preservar correções INIT01, visual/labels/Information e todo trabalho paralelo. Baseline focal por endpoint, consultas, cardinalidade, payload e custo frontend; separar banco, API, rede/transferência e render quando mensuráveis, sem atribuir ao SQL Server os números H2.
+
+Cedro deve reduzir o residual demonstrado de valoração por unidades/históricos, usando consultas em lote/projeções/SQL adequado sob alcance autorizado e limites por lote. Se a fórmula exigir coordenação Java, reduzir fetching em conjunto e entregar ganho concreto, preservando BigDecimal, null/incompleto, origem, avaria, história, transações e oráculos temporais independentes na mesma massa 1/8/40 e uma massa maior controlada. Lume deve corrigir waterfall/fetch repetido demonstrados na primeira carga/contexto/listas/mapa/gráficos, paralelizar blocos independentes quando apropriado e apresentar resultados progressivos. Dedupe, se necessário e comprovado, fica limitado à sessão/alcance com invalidação após escrita; sem cache global, TTL inventado, dados antigos, fallback mock REAL ou espera mascarada.
+
+Exigir reprodução e menor correção, antes/depois calculado, tempos locais representativos repetidos, sucesso/vazio/erro/troca de contexto e alcance/escrita/invalidação/navegação rápida/concorrência INIT01 preservados, regressão pertinente, build datado e Vigia. Não perseguir indefinidamente deltas fora do recorte. Fonte, artefato e runtime são resultados distintos. Runtime de referência atual: prova Prumo 20:46, BE 61588/JAR a8 `2C1A…`, FE 59336, SQL 48480; 43BD e PIDs antigos são históricos.
+
+Posse exclusiva: Cedro BE; Lume FE funcional de carregamento; Prumo metadados/proposta; Vigia revisão; Farol canônicos/consolidação. Provas em `orchestracao/.runtime/qual-conf01/perf01/carga01/`. Sem POP, escrita de negócio real, SQL direto/DDL/índices/migrations/grants/sa na API/PROD/alteração de servidor, preparador adicional, restart/kill/processo real novo, aba/portal/login/credenciais, instalações ou ETL. Schema/índice indispensável exige proposta concreta antes de aplicação real. Leituras normais apenas na mesma sessão/superfície legítima utilizável e escopo atestado; Network indisponível permanece limite, sem bypass ou sondas repetidas. [Estado e dependências](../STATES.md#qual-conf01-perf01-carga01--implementação-do-carregamento-10102026).
+
+### QUAL-CONF01-PERF01-INIT01 — independência de Início, 10/10/2026
+
+**Nova verificação expressa de Lucas dentro da mesma rodada:** investigar o relato de que as outras telas só carregam depois de abrir Início. Dependências: autenticação/identidade e FE02-CTX01 → workspace, catálogos e telas operacionais; dashboard/visão não deve ser confundido com o contexto cliente/armazém obrigatório. Inspeção do provider externo sozinha não demonstra independência.
+
+Lume deve executar testes locais/interceptados de entrada operacional sem visitar Início, rota direta/hash/reload conforme capacidade e contrato vigentes, navegação rápida, dashboard pendente/500/sucesso, catálogos pendentes/erro/refresh, auth.fresh concorrente, cancelamentos e memoização. Não inventar suporte de rota nem liberar fallback mock no modo REAL. Cedro deve exercitar endpoints de identidade/catálogo/operacional autenticados antes de qualquer dashboard, com negativos de sessão/alcance preservados. Se houver defeito: causa reproduzida, menor patch, verde/regressão/build pertinentes e revisão Vigia, preservando visual/regras/contratos e alterações paralelas.
+
+Provas em `orchestracao/.runtime/qual-conf01/perf01/inicio-independencia/`, posses exclusivas Lume/Cedro/Vigia e canônicos Farol. Não iniciar preparador adicional, restart/kill, SQL direto, PROD/POP, login/portal ou processo real novo. Preservar o preparo já em curso. Fonte/pacote/runtime distintos; fechar a verificação por execuções ou limite concreto, não apenas encaminhamento. [Andamento](../STATES.md#qual-conf01-perf01-init01--independência-de-início-10102026).
 
 ## FE02-REG01-A08 — ações e altura das tabelas, 10/10/2026
 

@@ -1,5 +1,42 @@
 # Estado e trilha de implementação do WMS Rodogarcia
 
+## FE02-HOME01 — ícone da marca como acesso ao Início, 10/10/2026
+
+**Concluído e conferido localmente, pedido expresso de Lucas.** Dependência FE02/AppShell. Ícone azul do WMS aciona a navegação existente para Início, preservando a guarda de saída, foco e comportamento do menu. Na tela de login, a marca permanece sem ação.
+
+- [x] Tornar o ícone um botão com nome acessível e ação compartilhada com o menu.
+- [x] Conferir clique/Enter, menu expandido/recolhido e celular, claro/escuro: dois cenários Chrome aprovados, incluindo fechamento do menu móvel após navegar. Tipagem, lint, formatação, build e dois testes existentes de workspace passaram.
+
+**Evidências:** [recibo](orchestracao/.runtime/brand-home/resultado.json), [Chrome](frontend/evidencias/brand-home-browser.json). Preview isolado com HTTP interceptado; sem backend/SQL real ou reinício de processos existentes. Graphify executado, recusando substituir o grafo por extração menor, sem `--force`. Próximo: carregar a fonte atual na sessão do operador.
+
+## FE03-AUTH01-TEST01 — contas de teste DEV, 10/10/2026
+
+**Pendente de sessão administrativa acessível, pedido expresso de Lucas.** Dependências D32/FE03-AUTH01 e ambiente WMS_DEV confirmado antes da escrita. Preparados os perfis Gestor, Supervisor e Operação, sem administração de usuários; Supervisor/Operação propostos para o cliente fictício 64 e armazém 31 do recibo de população, ainda a revalidar. Gestor tem alcance operacional geral pela regra existente.
+
+- [x] Conferir contrato de criação e preparar [nomes, e-mails e vínculos](orchestracao/.runtime/usuarios-teste-dev/plano.json), sem senha.
+- [ ] Criar pelo cadastro autenticado, conferir listagem e troca obrigatória da senha temporária.
+
+**Impedimento concreto:** inventário de navegador desta sessão sem abas/navegadores conectados; nenhuma sessão administrativa utilizável. Nenhuma conta criada, senha gerada, escrita SQL ou mudança da conta principal. Próximo: disponibilizar a aba DEV autenticada, revalidar ambiente/catálogo/duplicidade e concluir pelo fluxo normal. Portas DEV observadas ativas não comprovam autorização de sessão nem nova guarda SQL.
+
+## FE07-ALINHA01 — alinhamento da identificação no Coletor, 10/10/2026
+
+**Concluído e conferido localmente, pedido expresso de Lucas.** Dependência FE02-DS03-A02/FE07. Etiqueta, página e consulta alinhadas na mesma faixa quando houver largura, cabeçalho da operação compacto e quebra pela largura disponível. Sem alteração dos comandos/contratos BE08.
+
+- [x] Ajustar composição e margens locais, mantendo controles de 52 px e ordem de leitura.
+- [x] Conferir seis larguras (320–1920 px), dois temas, controles de 52 px, envio por Enter e sete testes existentes do Coletor. Tipagem, formatação/build e dois cenários Chrome aprovados; capturas desktop/mobile inspecionadas.
+
+**Evidências e limites:** [definição](docs/design-system/etapa-03.md#alinhamento-do-coletor--fe07-alinha01-10102026), [recibo](orchestracao/.runtime/collector-align/resultado.json), [Chrome](frontend/evidencias/collector-align-browser.json). HTTP interceptado; não comprova equipamento/backend real. Graphify executado, recusando reduzir o grafo existente, sem forçar. Próximo: carregar o CSS atualizado na sessão do operador; nenhum serviço existente reiniciado.
+
+## FE02-INFO01 — popups informativos e catálogo único, 10/10/2026
+
+**Concluído e conferido localmente, pedido expresso de Lucas:** explicações por mouse/foco nos KPIs, cartões e mapa, com textos centralizados em `frontend/src/content/information.ts`. Dependências FE02-DASH02/A08–A13, BE14-DASH01/02 e contratos já existentes. Sem nova consulta ou regra de negócio no navegador. Complemento: “i” visual de 18 px, mais contrastante e junto ao título, com área de toque de 44 px.
+
+- [x] Rastrear indicadores/cartões/atalhos/gráficos e criar catálogo único de textos e dados apresentados nos popups.
+- [x] Compartilhar atraso de abertura, posicionamento, exclusividade, fechamento e acessibilidade com as posições do mapa.
+- [x] Conferir conteúdo, teclado/mouse/toque, tamanhos de tela, temas e regressão dos consumidores: tipagem, lint focal, formatação/build, 24 testes em três arquivos e três cenários Chrome aprovados. Quatro larguras de 320 a 1500 px nos dois temas, toque, limite da janela, atalhos, detalhes e ausência de novas consultas por hover.
+
+**Evidências:** [definição e manutenção](docs/design-system/etapa-05.md#popups-informativos--fe02-info01), [recibo](orchestracao/.runtime/information-popups/resultado.json), [Chrome](frontend/evidencias/information-browser.json). Capturas inspecionadas; regra de revisão do catálogo registrada em AGENTS.md. Graphify executado e recusou substituir 15.220 nós por extração menor; sem `--force`. Preview isolado/HTTP interceptado não comprova backend/SQL real; nenhum serviço DEV/PROD reiniciado. Próximo: conferir a fonte atual na sessão do operador.
+
 ## QUAL-CONF01 — qualidade e confiabilidade, 10/10/2026
 
 **Em andamento, nova demanda expressa de Lucas após reset.** Rodada sobre a fonte suja atual, com histórico preservado e sem retomar POP. Dependências: contratos e entregas existentes BE01–BE16 → FE01–FE13, incluindo D32/D33 e incrementos atuais. [Escopo e limites](docs/06-decisoes-e-pendencias.md#qual-conf01--qualidade-e-confiabilidade-10102026); evidências novas em `orchestracao/.runtime/qual-conf01/`.
@@ -25,13 +62,39 @@
 - [x] Reproduzir localmente trabalho excessivo: financeiro H2 24/112/827 statements para 1/12/101 produtos; mapa 14/21/53 para páginas 1/8/40 com a mesma massa. Resultados funcionais preservados antes das assertions estruturais. Frontend: quatro falhas em seis casos demonstraram catálogos repetidos e paginação após erro/cancelamento.
 - [x] Corrigir frontend: quatro vermelhos passaram sem mudar assertions; regressão 507/507 em 49 arquivos, focal pós-delta de tabelas 57/57 em seis, browser interceptado 3/3, tipagem/lint/build verdes. Snapshot 19:25:45–19:27:55 UTC, 270 arquivos estáveis incluindo A08/tabelas; pacote preparado, sem promoção.
 - [x] Corrigir a origem mínima, preservar alcance/sessão/CSRF/BigDecimal/null, demonstrar antes/depois local e regressão/build final: 865 casos padrão e um LoginBrowser H2 separado atual, sem falhas/erros; cinco contextos H2 reais.
-- [x] Confrontar fonte/pacote/runtime, incluindo deltas paralelos A08/tabelas, e revisar com Vigia: fonte backend 388 arquivos/113F…, JAR novo 2C1A…, runtime ainda 43BD…; frontend 270 arquivos e pacote b086…. Medidas reais indisponíveis têm instrumento/responsável definidos.
-- [ ] Preparar pacote utilizável pelo fluxo local documentado após verify/revisão, conferir dois recibos WMS e backups/JAR/fonte, preservando site/processos/SQL existentes.
-- [ ] Reavaliar o custo residual de valoração por unidade/históricos conforme a decisão expressa [QUAL-CONF01-PERF01-DEC01](docs/06-decisoes-e-pendencias.md#qual-conf01-perf01-dec01--processamento-adequado-no-banco-10102026), com ganho/equivalência demonstrados ou residual e próxima prova declarados; sem bloquear preparo por especulação.
+- [x] Confrontar fonte/pacote/runtime, incluindo deltas paralelos A08/tabelas: fonte backend 388 arquivos/113F…, JAR 2C1A… e frontend 270/b086… na prova datada. Confronto posterior de 20:46:58 vincula BE 61588/JAR a8 2C1A e FE 59336 ao recibo 78f; 43BD/50200/73436 são históricos. Vigia 12/12 no vínculo do recibo, sem roundtrip/SQL/performance real.
+- [x] Preparar pacote utilizável pelo fluxo local documentado após verify/revisão: execução própria `e64eafb…` terminou com exit 0; dois recibos/JAR/fonte/backups conferidos. Vigia 36 confrontos sem divergência na cadeia 43BD → a8/2C1A → e64/2C1A. Os 103 testes do preparo são subconjunto da regressão, sem somar; nenhum site/SQL reiniciado.
+- [x] Reavaliar o custo residual conforme [QUAL-CONF01-PERF01-DEC01](docs/06-decisoes-e-pendencias.md#qual-conf01-perf01-dec01--processamento-adequado-no-banco-10102026): oportunidades SQL/lote e próximo focal temporal documentados; ganho/equivalência adicional ainda não demonstrados. Vigia 16 confrontos sem divergência após corrigir apenas a aritmética do recibo, vermelho preservado.
 
 **Resultado local atual:** mapa 14/21/53 → 13/13/13 statements; financeiro vazio 24/112/827 → 16/16/16; com 1/8/40 unidades, valoração 28/105/457 → 25/81/337 e leituras de origem 2/16/80 → 1/8/40. Valores literais 55,5525/null e 2,50/20/100 preservados. Ainda há consultas por unidade/histórico; [reavaliação DEC01](orchestracao/.runtime/qual-conf01/perf01/cedro/dec01-reassessment.json) explicita oportunidades SQL/lote e equivalência temporal adicional não demonstrada. Não atribuir a demora do portal ao H2 nem chamar pacote preparado de runtime promovido.
 
-**Próximo:** concluir o preparo oficial único em execução por Cedro após [revisão favorável do isolamento](orchestracao/.runtime/qual-conf01/perf01/vigia/parecer-preparo-harness.md), confrontar os dois recibos/backup/JAR e consolidar parecer parcial. [Limite instrumental exato](orchestracao/.runtime/qual-conf01/perf01/limite-instrumental-farol.json): CLI/skill atuais não expõem Network/DevTools; operador/Farol e responsável Maestri precisam disponibilizar opção documentada da mesma superfície antes de outra medida. Sem bypass/nova aba/conexão. Somente após pacote/recibos prontos, carregar o backend novo requer operador encerrar seu console DEV com Ctrl+C e executar `iniciar-dev.bat`, conforme [procedimento existente](docs/19-desenvolvimento-integrado-dev.md); equipe não executa esse passo. Sem SQL direto/DDL/índices/cache global/reinício/processo real novo. Preservação por conteúdo/hashes; mudança externa de HEAD/paths não demonstra autoria ou remoção. P01 segue material, sem correção.
+**Preparo conciliado por arquivos:** o run `a8c58…`, também registrado na entrega paralela BE02-DEV-ARTEF01-A02 abaixo, produziu nove XML/103 aprovados e JAR `2C1A…`; autoria por PID e exit desse processo não comprovados. O wrapper já iniciado de Cedro terminou naturalmente, executando o run `e64eafb…` de 20:33:45 a 20:37:20 UTC, exit 0. Dois recibos ativos apontam ao JAR novo e os backups integrais preservam a cadeia 43BD → a8/2C1A → e64/2C1A; revisão Vigia 36/36. Não somar os 103 de cada preparo, subconjuntos dos 865 padrão, nem alegar execução global única. Pré-inventário 19:55–20:33 atravessou a troca às 19:57: não atômico. Leitor amplo terminou naturalmente às 21:08:15, exit1, preservando o vermelho de backup e64/a8 versus hash antigo do pré-inventário; 129.109 outros arquivos conferidos sem delta de hash naquele intervalo. Não é corrupção nem snapshot atômico; sourceassert foi datado antes de CARGA01. [Vermelho temporal](orchestracao/.runtime/qual-conf01/perf01/cedro/preparation-confront-temporal-red.json), [linhagem](orchestracao/.runtime/qual-conf01/perf01/cedro/preparation-lineage-proof.json), [revisão](orchestracao/.runtime/qual-conf01/perf01/vigia/preparation-lineage-current-review.json).
+
+**Runtime atual comprovado por metadados às 20:46:58 UTC:** BE 61588 iniciado 20:04:16/JAR a8 `2C1A…`, FE 59336 iniciado 20:04:54, SQL 48480 preservado. Recibo 78f vincula processos/config/perfil/fonte ae6; bytes do JAR iguais ao pacote e64, caminhos distintos. A diferença de 100 ns no início FE entre CIM/recibo está explícita, mesmo microssegundo; não alegar igualdade exata. B097/43BD/50200/73436 são históricos, sem autoria ou reinício inferidos. [Conciliação](orchestracao/.runtime/qual-conf01/perf01/prumo/confronto-final-e64-conciliado.json), [revisão do vínculo](orchestracao/.runtime/qual-conf01/perf01/vigia/runtime-bound-receipt-review.json). Não comprova roundtrip/SQL/benefício real.
+
+**Próximo:** implementar CARGA01 e aguardar o confronto amplo de preservação já em leitura natural, sem preparador adicional. INIT01 está favorável no corte datado abaixo. [Limite instrumental exato](orchestracao/.runtime/qual-conf01/perf01/limite-instrumental-farol.json): operador/Farol e responsável Maestri precisam disponibilizar Network documentado na mesma superfície antes de outra medida; sem bypass/nova aba/conexão. Não orientar reinício por premissa de JAR 43BD atual. O [procedimento DEV vigente](docs/19-desenvolvimento-integrado-dev.md#reinicio-dev-exclusivo) permanece disponível ao operador, sem execução pela equipe QUAL; não exige Ctrl+C prévio. P01 segue material, sem correção; preservação por conteúdo/hashes e sem autoria inferida de mudanças externas.
+
+### QUAL-CONF01-PERF01-CARGA01 — implementação do carregamento, 10/10/2026
+
+**Em implementação, nova autorização expressa de Lucas dentro da mesma rodada.** Dependências: PERF01/DEC01, correções INIT01 e BE14-DASH01/02 → FE02-DASH01/02/CTX01. [Escopo vigente](docs/06-decisoes-e-pendencias.md#qual-conf01-perf01-carga01--implementação-do-carregamento-10102026); saídas exclusivas `orchestracao/.runtime/qual-conf01/perf01/carga01/`.
+
+- [ ] Executar baseline focal do caminho crítico na fonte vigente, separando custo SQL/H2, HTTP, transferência e render quando mensuráveis.
+- [ ] Reduzir de fato o residual de valoração por unidade/histórico com lote/projeção/SQL adequado e consultas limitadas por lote, mantendo oráculos temporais independentes, alcance, BigDecimal/null e transações.
+- [ ] Corrigir waterfall/repetição frontend demonstrados, permitindo resultados independentes progressivos sem dados antigos, cache global ou perda das guardas INIT01; preservar visual/Information paralelo.
+- [ ] Conferir sucesso/vazio/erro/contexto/alcance/escrita/invalidação/navegação e concorrência, antes/depois na mesma massa, regressão/build separados e revisão Vigia.
+- [ ] Consolidar ganho calculado, fonte/pacote/runtime e limites; nenhum preparador adicional ou reinício neste incremento.
+
+**Posses e próximo:** Cedro backend/lote/oráculos, Lume carregamento frontend, Prumo metadados e propostas em leitura, Vigia revisão, Farol canônicos. Primeiro resultado deve ser execução/ganho ou gate concreto, sem substituir implementação por estudo DEC01. Runtime comprovado às 20:46:58 UTC: BE 61588/JAR a8 `2C1A…`, FE 59336 e SQL 48480; bytes iguais ao pacote e64 em outro caminho, sem prova de benefício real, nova guarda SQL ou autoria de reinício. P01 e barreira Network continuam limites próprios.
+
+### QUAL-CONF01-PERF01-INIT01 — independência de Início, 10/10/2026
+
+**Favorável localmente, recorte datado; não encerra a rodada ampliada CARGA01.** Dependências: identidade/autenticação e FE02-CTX01 → workspace/catálogos/telas operacionais; dashboard/visão separado da escolha obrigatória de cliente/armazém. [Escopo vigente](docs/06-decisoes-e-pendencias.md#qual-conf01-perf01-init01--independência-de-início-10102026); saídas exclusivas `orchestracao/.runtime/qual-conf01/perf01/inicio-independencia/`.
+
+- [x] Exercitar entrada/rota/reload operacional sem visitar Início e navegação rápida com dashboard pendente/500/sucesso versus catálogo/contexto/auth.fresh.
+- [x] Exercitar HTTP H2 autenticado de identidade/catálogo/operacional antes de dashboard, mantendo negativos de sessão/alcance: cinco casos aprovados, zero dashboard/visão; Vigia 21 confrontos sem divergência. Operação vazia e endpoints listados delimitam a prova.
+- [x] Demonstrar independência nas rotas/endpoints exercitados e corrigir três mecanismos fresh/stale com regressão/build e revisão Vigia; fonte/pacote/runtime explícitos, sem homologação real presumida.
+
+**Resultado executado:** rotas testadas carregam sem visitar Início; contexto obrigatório continua requisito distinto. Três mecanismos corrigidos: fresh descartava User; comando antigo prosseguia e perdia rascunho/guarda após mudar acesso; segunda consulta antiga concorrente passava comparando com usuário já trocado. Captura do acesso antes de await e revalidação depois recusam ambas antes do envio, sem replay; guarda recusada preserva rascunho, aceite explícito limpa contexto/workflow. 401/403/503 sem operação/fallback REAL. Backend cinco casos HTTP H2/zero dashboard-visão, operação vazia/endpoints listados; Vigia 21/21. Frontend integral 514/514 em 50 arquivos datada 20:41; último corte 20:49:17, 277 arquivos/157 app, agregado 08cca44a; build REAL sete arquivos/fbe9fc91, 71/71 pertinentes em oito arquivos e 12/12 browser, tipagem/lint/build verdes. Vigia 32/32 do corte e 13/13 do recibo. Deltas Information posteriores ficam fora do pacote, preservados sem perseguição/autoria inferida. [Recibo](orchestracao/.runtime/qual-conf01/perf01/inicio-independencia/lume/recibo.md), [parecer](orchestracao/.runtime/qual-conf01/perf01/inicio-independencia/vigia/parecer-frontend-delivery.md). Não prova causa do relato Início nem autorização indevida backend. Graphify INIT recusou 13.421 < 15.220, raw preservado sem force; não bloqueou QA.
 
 ## BE02-DEV-ARTEF01-A02 — atualização do pacote local, 10/10/2026
 
@@ -78,6 +141,48 @@
 **Evidência:** tipagem, lint focal, formatação/build real, 36 testes existentes e dois casos Chrome aprovados. Seis páginas × três larguras (1500/1024/390) × dois temas: alinhamento, quebra, toque, teclado, aplicação/restauração e ausência de transbordamento conferidos; capturas inspecionadas. Rastreamento de 49 definições em 12 módulos inclui os mapeamentos históricos de Entrada, hoje reunidos numa tela. [Recibo](orchestracao/.runtime/filter-inline/resultado.json). API interceptada, sem backend/SQL/reinício/publicação. Graphify recusou extração menor, sem forçar substituição.
 
 **Próximo:** conferir a apresentação na versão atualizada do frontend.
+
+## FE02-DASH02-A09 — códigos legíveis nas células, 10/10/2026
+
+### FE02-DASH02-A11 — largura distribuída conforme conteúdo, 10/10/2026
+
+**Concluído e conferido localmente, pedidos expressos de Lucas e correção de limite:** aproveitar sobra lateral para reduzir reticências e completar faixas quando útil, ampliando cartões/células. Após apontar barras excessivas em ruas com uma/duas posições, Lucas delimitou a expansão: células com teto conforme conteúdo (192–240 px), sem esticar ruas pequenas pela tela inteira. Priorizar textos cortados antes da sobra restante; manter espaços quando o teto for atingido. Dependências A08/A09/A10 e contrato BE14-DASH02 vigente.
+
+- [x] Medir conteúdo e distribuir espaço livre sem perder encaixe, alinhamento ou navegação. Faixas compartilhadas com cartões de alturas diferentes preservam lacunas já ocupadas.
+- [x] Validar exemplos de três/cinco ruas, ruas com uma/duas posições, telas estreitas, temas, retorno ao desktop e alteração de filtros.
+
+### FE02-DASH02-A12 — hierarquia de superfícies no mapa, 10/10/2026
+
+**Concluído e conferido localmente, pedido expresso de Lucas:** remover alternância de fundos de armazéns e cartões pretos inconsistentes. Armazéns usam uma base neutra uniforme, ruas recebem contraste suave e cabeçalhos/contornos separam níveis. Posições preservam cores semânticas; indisponíveis ganham contorno e texto legíveis. Dependência A08/A11, sem mudança operacional.
+
+- [x] Conferir hierarquia consistente, contraste e responsividade nos temas claro e escuro; capturas inspecionadas.
+
+### FE02-DASH02-A13 — destaque de interação nas posições, 10/10/2026
+
+**Concluído e conferido localmente, pedido expresso de Lucas:** hover/foco com mudança de tom perceptível e contorno discreto, mantendo verde/vermelho/neutro, sem deslocar células. Transição curta respeita movimento reduzido; hover limitado a dispositivos com suporte.
+
+- [x] Conferir livre/ocupada/indisponível, saída do mouse, foco por teclado, dimensões e movimento reduzido nos dois temas.
+
+**Provas conjuntas A11–A13:** tipagem integral, lint focal, formatação, build real isolado, nove testes de contexto/mapa e dois casos Chrome com API interceptada. Seis larguras de 320 a 1920 px, dois temas e retorno ao desktop; navegação das 39 posições da rua de prova, filtros, popup/detalhes, limites de tamanho e estados de interação. [Recibo](orchestracao/.runtime/map-adaptive/resultado.json). Sem backend/SQL real, reinício ou publicação. Próximo: conferir a fonte atual no frontend em uso; testes isolados não comprovam integração real.
+
+### Entrega A09 preservada
+
+**Concluído e conferido localmente, pedido expresso de Lucas:** ampliar o espaço lateral das posições para reduzir reticências recorrentes. Dependência BE14-DASH02 → FE02-DASH02-A08, sem mudança de contrato ou consulta.
+
+- [x] Ampliar células de 64 para 144 px, com preenchimento lateral de 8 px; preservar encaixe das ruas, prévia e navegação por colunas.
+- [x] Conferir códigos, temas, telas pequenas e ausência de transbordamento em 12 combinações: 320/390/768/1024/1500/1920 px, claro/escuro. Códigos de 15 caracteres da massa ficaram completos. Evidência conjunta A09/A10 abaixo.
+
+## FE02-DASH02-A10 — indicação de colunas vizinhas, 10/10/2026
+
+**Concluído e conferido localmente, complemento expresso de Lucas:** mostrar parte da próxima posição com desfoque/degradê para indicar continuidade. Dependência FE02-DASH02-A08/A09 e contrato BE14-DASH02 existente.
+
+- [x] Mostrar recorte da coluna real seguinte e da anterior, por nível, somente quando houver uma posição naquele lado; preservar lacunas.
+- [x] Reservar espaço adaptável para a prévia, manter células completas e setas, sem criar controles adicionais ou consultas.
+- [x] Conferir limites, navegação completa das 39 posições da rua de prova, prévia, detalhes/teclado e ambos os temas em telas pequenas/grandes. Capturas inspecionadas; altura da prévia acompanha toque de 44 px.
+
+**Evidência A09/A10:** nove testes de contexto/mapa, dois casos Chrome com API interceptada e 12 combinações de tela/tema; build real isolado, lint focal, formatação e tipagem de `src`/`dev` aprovados. Tipagem integral encontrou erros `exact` em `tests/qual-conf01-init01.test.tsx`, arquivo de trabalho paralelo preservado; não atribuídos a este recorte. [Recibo](orchestracao/.runtime/map-width/resultado.json). Nenhum backend/SQL/reinício real ou publicação. Graphify executado, recusou redução de 15.220 para 13.401 nós, sem forçar substituição.
+
+**Próximo:** conferir a apresentação no frontend com a fonte atualizada; correção dos testes paralelos pertence à respectiva entrega QUAL-CONF01-INIT01.
 
 ## FE02-DASH02-A08 — ruas com larguras adaptáveis, 10/10/2026
 

@@ -20,4 +20,8 @@ public interface RevisaoContagemRepository extends JpaRepository<RevisaoContagem
             Long contagemId,
             br.com.rodogarcia.wms.models.SituacaoRevisaoContagem situacao,
             Pageable pagina);
+
+    @org.springframework.data.jpa.repository.Query(
+            "select r from RevisaoContagem r join fetch r.contagem c where c.unidade.id in :ids and r.situacao=br.com.rodogarcia.wms.models.SituacaoRevisaoContagem.APLICADA")
+    java.util.List<RevisaoContagem> buscarParaIndicador(java.util.List<Long> ids);
 }

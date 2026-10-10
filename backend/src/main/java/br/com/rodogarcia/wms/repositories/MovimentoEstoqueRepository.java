@@ -13,4 +13,14 @@ public interface MovimentoEstoqueRepository extends JpaRepository<MovimentoEstoq
     Page<MovimentoEstoque> findByUnidadeId(Long unidadeId, Pageable pageable);
 
     List<MovimentoEstoque> findByUnidadeIdOrderByInstanteAscIdAsc(Long unidadeId);
+
+    interface MovimentoIndicador {
+        Long getUnidadeId();
+
+        MovimentoEstoque getMovimento();
+    }
+
+    @org.springframework.data.jpa.repository.Query(
+            "select m.unidade.id as unidadeId,m as movimento from MovimentoEstoque m where m.unidade.id in :ids order by m.unidade.id,m.instante,m.id")
+    List<MovimentoIndicador> buscarParaIndicador(List<Long> ids);
 }

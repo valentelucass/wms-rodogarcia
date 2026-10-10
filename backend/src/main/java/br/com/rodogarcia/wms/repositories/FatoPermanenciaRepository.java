@@ -11,4 +11,8 @@ public interface FatoPermanenciaRepository extends JpaRepository<FatoPermanencia
     @Query(
             "select f from FatoPermanencia f where f.unidade.reservaSaida.id=:pedidoId or exists (select r.id from ReservaSaida r where r.item.pedido.id=:pedidoId and r.unidade.id=f.unidade.id) order by f.ocorridaEm,f.id")
     List<FatoPermanencia> buscarDoPedido(Long pedidoId);
+
+    @Query(
+            "select f from FatoPermanencia f where f.unidade.id in :ids order by f.unidade.id,f.ocorridaEm,f.id")
+    List<FatoPermanencia> buscarParaIndicador(List<Long> ids);
 }

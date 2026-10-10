@@ -17,6 +17,7 @@ interface Catalog {
     clientes: ReferenceOption[];
     armazens: ReferenceOption[];
     loading: boolean;
+    pending: Record<"clientes" | "armazens", boolean>;
     error: string;
     refresh: () => void;
 }
@@ -41,19 +42,30 @@ export function ReferenceCatalogProvider({
         clientes: ReferenceOption[];
         armazens: ReferenceOption[];
         error: string;
-    }>({ revision: -1, clientes: [], armazens: [], error: "" });
-    const loading =
+        ready: Record<"clientes" | "armazens", boolean>;
+    }>({
+        revision: -1,
+        clientes: [],
+        armazens: [],
+        error: "",
+        ready: { clientes: false, armazens: false },
+    });
+    const stale =
         state.transport !== transport ||
         state.revision !== revision ||
         state.version !== version;
+    const pending = {
+        clientes: stale || !state.ready.clientes,
+        armazens: stale || !state.ready.armazens,
+    };
+    const loading = pending.clientes || pending.armazens;
     useEffect(() => {
         const controller = new AbortController();
         let active = true;
         async function load(
             kind: "ClienteController.listar" | "ArmazemController.listar",
         ) {
-            const options: ReferenceOption[] = [];
-            for (let pagina = 0; ; pagina++) {
+            async function read(pagina: number) {
                 controller.signal.throwIfAborted();
                 const result = await call(
                     transport,
@@ -71,13 +83,52 @@ export function ReferenceCatalogProvider({
                     )
                 )
                     throw new Error("Cadastro incompleto.");
-                options.push(...(result.itens as ReferenceOption[]));
-                if (pagina + 1 >= result.totalPaginas) break;
-                if (result.itens.length === 0)
+                if (
+                    !Number.isSafeInteger(result.totalPaginas) ||
+                    result.totalPaginas < 0
+                )
+                    throw new Error("Paginação de catálogo inválida.");
+                if (
+                    result.itens.length === 0 &&
+                    pagina + 1 < result.totalPaginas
+                )
                     throw new Error(
                         "Catálogo mudou durante a consulta. Atualize as opções.",
                     );
+                return result;
             }
+            const first = await read(0);
+            const pages: ReferenceOption[][] = [
+                first.itens as ReferenceOption[],
+            ];
+            let next = 1;
+            async function worker() {
+                while (next < first.totalPaginas) {
+                    const pagina = next++;
+                    const result = await read(pagina);
+                    if (
+                        result.totalPaginas !== first.totalPaginas ||
+                        result.totalItens !== first.totalItens
+                    )
+                        throw new Error(
+                            "Catálogo mudou durante a consulta. Atualize as opções.",
+                        );
+                    pages[pagina] = result.itens as ReferenceOption[];
+                }
+            }
+            // Páginas são independentes após conhecer o total; limite por catálogo.
+            await Promise.all(
+                Array.from(
+                    {
+                        length: Math.min(
+                            3,
+                            Math.max(0, first.totalPaginas - 1),
+                        ),
+                    },
+                    worker,
+                ),
+            );
+            const options = pages.flat();
             return [
                 ...new Map(
                     options.map((option) => [option.id, option]),
@@ -89,34 +140,64 @@ export function ReferenceCatalogProvider({
                     }) || a.codigo.localeCompare(b.codigo),
             );
         }
-        void Promise.all([
-            load("ClienteController.listar"),
-            load("ArmazemController.listar"),
-        ])
-            .then(([clientes, armazens]) => {
-                if (active)
-                    setState({
-                        transport,
-                        revision,
-                        version,
-                        clientes,
-                        armazens,
-                        error: "",
-                    });
-            })
-            .catch(() => {
-                if (active && !controller.signal.aborted) {
-                    controller.abort();
-                    setState({
-                        transport,
-                        revision,
-                        version,
-                        clientes: [],
-                        armazens: [],
-                        error: "Não foi possível carregar clientes e armazéns. Atualize as opções.",
-                    });
-                }
+        const publish = (
+            kind: "clientes" | "armazens",
+            options: ReferenceOption[],
+        ) => {
+            if (!active || controller.signal.aborted) return;
+            setState((old) => {
+                const current =
+                    old.transport === transport &&
+                    old.revision === revision &&
+                    old.version === version;
+                return {
+                    transport,
+                    revision,
+                    version,
+                    clientes:
+                        kind === "clientes"
+                            ? options
+                            : current
+                              ? old.clientes
+                              : [],
+                    armazens:
+                        kind === "armazens"
+                            ? options
+                            : current
+                              ? old.armazens
+                              : [],
+                    ready: {
+                        clientes:
+                            kind === "clientes" ||
+                            (current && old.ready.clientes),
+                        armazens:
+                            kind === "armazens" ||
+                            (current && old.ready.armazens),
+                    },
+                    error: "",
+                };
             });
+        };
+        const fail = () => {
+            if (active && !controller.signal.aborted) {
+                controller.abort();
+                setState({
+                    transport,
+                    revision,
+                    version,
+                    clientes: [],
+                    armazens: [],
+                    ready: { clientes: true, armazens: true },
+                    error: "Não foi possível carregar clientes e armazéns. Atualize as opções.",
+                });
+            }
+        };
+        void load("ClienteController.listar")
+            .then((options) => publish("clientes", options))
+            .catch(fail);
+        void load("ArmazemController.listar")
+            .then((options) => publish("armazens", options))
+            .catch(fail);
         return () => {
             active = false;
             controller.abort();
@@ -125,9 +206,10 @@ export function ReferenceCatalogProvider({
     return (
         <ReferenceCatalog.Provider
             value={{
-                clientes: loading ? [] : state.clientes,
-                armazens: loading ? [] : state.armazens,
+                clientes: stale ? [] : state.clientes,
+                armazens: stale ? [] : state.armazens,
                 loading,
+                pending,
                 error: loading ? "" : state.error,
                 refresh: () => setRevision((v) => v + 1),
             }}

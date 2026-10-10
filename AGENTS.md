@@ -97,6 +97,7 @@ Versões, ferramentas, bibliotecas, pacote Java e autenticação serão escolhid
 - Documentação: conferir conteúdo, referências, IDs, dependências, acentuação e coerência entre arquivos. Não executar banco ou suítes de aplicação para uma alteração somente documental.
 - Implementação futura: testar o comportamento alterado e seus riscos reais. Priorizar reserva simultânea, repetição, reversão, bloqueios, permissões e exemplos financeiros; não criar testes que apenas repitam a implementação.
 - Frontend: verificar tipagem, integração, estados de carregamento/erro, teclado, tamanhos de tela e leitura no coletor conforme a mudança. Interface simulada não comprova integração com o backend.
+- Popups informativos: centralizar explicações em `frontend/src/content/information.ts`. Ao alterar um indicador, cartão ou fluxo com ajuda, revisar a entrada correspondente nesse catálogo e seu consumidor; valores continuam vindo da consulta autorizada, sem regras de negócio duplicadas no texto.
 - SQL Server e equipamentos: registrar separadamente a validação no ambiente real. Uma simulação ou teste em outro banco não comprova dialeto, concorrência ou impressão no armazém.
 - Registrar o que foi executado e o que não foi possível verificar. Build, teste, homologação e versão em execução são resultados distintos.
 

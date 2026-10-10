@@ -32,6 +32,10 @@ Minha senha abre por estado local, sem navegar ou desmontar a página corrente. 
 
 **Compatibilidade com a frente concorrente DASH01:** após sua inclusão no build, a rodada atual teve 13 aprovações e três recusas no inventário de requisições do teste de usuários, pela nova consulta `/api/v1/dashboard`. A prova de usuários passou a interceptar essa consulta de leitura com falha fictícia 503 e foi reexecutada: três aprovações. São 16 casos únicos aprovados por composição, sem tratar a rodada de 13/16 como integralmente verde. [Rodada atual](../../frontend/evidencias/account-a06-entrega-browser-resultados.json), [três reexecuções](../../frontend/evidencias/account-a06-users-final-browser-resultados.json). A resposta fictícia do dashboard não comprova seus gráficos ou integração.
 
+## Ícone da marca leva ao Início — FE02-HOME01
+
+Pedido de Lucas em 10/10/2026. O ícone azul do WMS no topo do menu é um botão com nome acessível “Ir para a página inicial”, foco e indicação de hover. Clique, Enter e Espaço acionam o mesmo `navigate("inicio")` do menu, preservando a guarda de saída e a navegação interna. Disponível no menu expandido, recolhido e no painel móvel; a marca na tela de login permanece estática. [Conferência local](../../orchestracao/.runtime/brand-home/resultado.json).
+
 ## Composição do Coletor — FE02-DS03-A02
 
 Lucas pediu integrar o Coletor à linguagem visual das páginas internas. Durante a conferência, rejeitou a centralização do painel: a composição atual alinha com o título e ocupa a largura útil da página. No desktop, um painel divide a escolha da operação e a identificação da unidade. Superfície de apoio, ícone, títulos, bordas, espaçamento e cores usam os tokens existentes. O botão de consulta tem largura natural à direita; em telas até 800 px, tarefa e leitura ficam empilhadas e o botão ocupa a largura disponível, mantendo controles de pelo menos 52 px.
@@ -41,6 +45,10 @@ Identidade consultada, destino e comando usam o mesmo eixo e painéis. A tarefa 
 **Conferência local:** tipagem, lint focal, formatação e builds real/fictício aprovados; seis testes existentes de Coletor/workspace e sete casos Chrome no exercício fictício. Conferidos alinhamento e largura, quatro tarefas, edição preservada ao alternar tema, ausência de rolagem horizontal em 320/390/1024/1440/1920 px e leitura/destino/confirmação em 390/1440 px. Capturas desktop claro e mobile escuro inspecionadas. [Prova do navegador](../../frontend/evidencias/collector-a02-resultados.json). O preview próprio da porta 5210 encerrou com os testes; processos existentes preservados. Equipamento e integração real permanecem fora desta prova visual. O refinamento da textura das jornadas (A01) foi interrompido por Lucas e não recebeu aceite visual.
 
 **Mapa:** a atualização AST após o ajuste do Coletor recusou reduzir 15.220 → 12.661 nós e conservou 804 avisos de esquema preexistentes. Mapa preservado, sem forçar; manutenção continua pendente. [Log](../../orchestracao/.runtime/collector-a02-graphify.txt), [recibo local com hashes](../../orchestracao/.runtime/collector-a02-resultado.json).
+
+### Alinhamento do Coletor — FE07-ALINHA01, 10/10/2026
+
+Refinamento solicitado por Lucas sobre a composição A02: ícone e título da operação lado a lado, preenchimento de 20 px e títulos dos dois blocos alinhados. Etiqueta, página das posições e botão compartilham a faixa no desktop, com margem inferior dos rótulos zerada e página com 164 px para evitar quebra desnecessária do rótulo. A quebra usa a largura interna do painel: até 700 px, o botão passa à linha seguinte; até 420 px, os campos empilham. Controles preservam 52 px, ordem de teclado e envio por Enter. Sem mudança de leitura, consulta, confirmação ou contratos. [Evidência e limites](../../orchestracao/.runtime/collector-align/resultado.json).
 
 ## Referências da jornada — FE02-DS03-A04
 

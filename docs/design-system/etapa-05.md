@@ -2,6 +2,18 @@
 
 Pedido expresso de Lucas em 09/10/2026: implementar os seletores de cliente e armazém e ajustar o Início conforme o texto anexado. A composição inicial desta entrega substituiu o Início de DASH01. Em 10/10, Lucas pediu reincluir os gráficos e exibi-los também com Todos; a composição vigente está no [incremento A03](#gráficos-no-início-e-opção-todos--be14-dash01-a01--fe02-dash02-a03). As regras de estoque e cobrança continuam nos serviços existentes.
 
+## Popups informativos — FE02-INFO01
+
+Pedido expresso de Lucas em 10/10/2026: apresentar explicações ao passar o mouse sobre indicadores/cartões e centralizar seu conteúdo. O catálogo único é [information.ts](../../frontend/src/content/information.ts); reúne títulos, explicações, rótulos e composição da prévia de posição. Valores/situações vêm dos dados já apresentados, inclusive informação ausente e acesso restrito. Ao mudar a função de um consumidor, revisar sua entrada no catálogo, conforme AGENTS.md. O texto não recalcula estoque, disponibilidade ou cobrança.
+
+O componente compartilhado [InformationPopup.tsx](../../frontend/src/components/information/InformationPopup.tsx) atende os dez indicadores do Início, quatro indicadores da visão operacional quando exibidos, quatro atalhos, ajuda dos três gráficos, orientação do mapa e prévia das posições. Os atalhos mantêm seus destinos; clique/Enter na posição continuam abrindo detalhes. Informações essenciais permanecem visíveis fora do popup.
+
+A abertura por mouse espera 260 ms; sair permite 180 ms para alcançar o popup. Foco de teclado abre imediatamente, Escape fecha sem deslocar foco e somente uma ajuda fica aberta. Clique externo, deslocamento do elemento por rolagem, redimensionamento, ocultação e desmontagem encerram a prévia. Rolagem dentro dela é permitida; eventos atrasados da rolagem automática anterior à abertura não a cancelam. Em toque, indicadores abrem ao tocar e gráficos/mapa têm botão de informação; atalhos e posições continuam com sua ação direta.
+
+Popup com título, descrição e dados alinhados, largura de até 320 px, margem mínima de 8 px da janela, inversão para cima quando necessário, limite de altura e rolagem interna. Entrada suave de 140 ms, desativada com movimento reduzido. Superfícies e contraste acompanham o tema. Após ajuste solicitado por Lucas, o “i” visual mede 18 px, tem contorno/cor de destaque e fica junto ao título; área de interação de 24 px no desktop e 44 px em toque.
+
+Evidências e limites da conferência: [recibo FE02-INFO01](../../orchestracao/.runtime/information-popups/resultado.json). Preview isolado com respostas HTTP fictícias interceptadas; não comprova execução em backend/SQL Server real.
+
 ## Seleção de contexto
 
 Cliente e Armazém usam seleção pesquisável por nome ou código, no topo e nos campos correspondentes dos formulários operacionais. O catálogo vem dos endpoints existentes de cadastros, percorre todas as páginas e respeita o alcance retornado pelo backend. Os cadastros são feitos em Cadastros; não se cria registro ao digitar um nome. O ID permanece no contrato e no banco, sem exigir memorização pelo operador. Registros inativos são identificados para consultas históricas; a validação de cada operação permanece no backend.
@@ -102,6 +114,26 @@ Pedido expresso de Lucas em 10/10/2026. Bloqueada usa cadeado SVG e Reservada us
 Tipagem, lint focal, formatação/build real, oito testes de contexto/mapa e um caso Chrome aprovados, com 12 combinações de seis larguras (320/390/768/1024/1500/1920) e dois temas. Capturas da legenda e das posições inspecionadas; alinhamento, dimensões, ausência de transbordamento, filtros, detalhes e teclado conferidos com API interceptada. [Recibo](../../orchestracao/.runtime/map-icons/resultado.json). Graphify recusou a atualização por extração menor; sem substituição forçada.
 
 ## Encaixe das ruas, divisões e prévia — FE02-DASH02-A08
+
+### Complementos A09/A10 — largura e continuidade, 10/10/2026
+
+Pedidos expressos de Lucas: células passam de 64 para 144 px, com 8 px de preenchimento lateral para tornar códigos comuns legíveis. Códigos excepcionalmente longos conservam reticências e a prévia com o conteúdo completo. O dimensionamento das ruas e a quantidade de colunas visíveis usam a largura nova.
+
+Quando a rua tem colunas fora da janela, cada nível mostra um recorte da posição vizinha à direita e, após avançar, à esquerda, com desfoque leve e degradê. O recorte usa código e cor do dado já consultado; não inventa posições em lacunas nem aparece além do início/fim. Seu espaço diminui em telas estreitas para priorizar uma célula completa. É decorativo, sem foco/clique ou leitura duplicada; setas, contador e detalhes continuam como controles. Não há requisição adicional.
+
+Validação local conjunta: nove testes de contexto/mapa, dois casos Chrome/HTTP interceptado, seis larguras de 320 a 1920 px nos dois temas; códigos de prova completos, recorte/desfoque, navegação até a última coluna, ausência de sobreposição/transbordamento, popup/detalhes e teclado. Build, lint focal, formatação e tipagem da aplicação aprovados. A tipagem integral esbarrou em opções `exact` inválidas no teste paralelo `qual-conf01-init01.test.tsx`, preservado. [Recibo e limites](../../orchestracao/.runtime/map-width/resultado.json).
+
+### Complementos A11–A13 — expansão limitada e hierarquia, 10/10/2026
+
+Os pedidos seguintes refinam A09/A10: medir os códigos na fonte efetivamente usada, priorizar células cortadas na distribuição de sobra e permitir que cartões/células preencham a faixa. **Correção expressa após o exemplo de barras muito largas:** a expansão tem limite útil. A largura-base continua 144 px; o teto por rua é o maior código mais 32 px de respiro, limitado ao intervalo 192–240 px. Ruas com uma/duas posições permanecem compactas; espaço livre não é eliminado à custa de células gigantes. Reticências continuam possíveis quando não há espaço ou o código excede o teto; a prévia conserva o conteúdo completo.
+
+A distribuição mantém o encaixe denso e a ordem de teclado. O espaço é compartilhado por coluna entre ruas da mesma faixa; faixas que cruzam cartões de alturas diferentes não expandem sobre lacunas já ocupadas. Ruas paginadas usam a sobra interna sem reduzir arbitrariamente o número de colunas completas, preservando recortes e setas. Mudanças de fonte, dados e tamanho recalculam as medidas.
+
+A hierarquia de superfícies é uniforme: armazéns usam uma base neutra suave; ruas têm destaque discreto em relação a essa base; títulos e contornos separam os níveis. Remove-se a alternância de armazéns preto/cinza de A08. Livre/ocupada conservam verde/vermelho; indisponíveis têm texto e contorno legíveis. Hover e foco de teclado misturam 22% da cor de texto ao fundo sem perder a família de cor, com contorno e transição de 140 ms. Movimento reduzido desativa a transição; dispositivos sem hover não recebem efeito persistente de mouse.
+
+Tipagem integral, lint focal, formatação, build, nove testes de contexto/mapa e dois casos Chrome com respostas interceptadas aprovados. Conferidos os exemplos com três/cinco ruas e uma/duas posições, seis larguras de 320 a 1920 px nos dois temas, retorno ao desktop, filtros, todas as colunas, limites, popup/teclado e hover nos três estados. Capturas inspecionadas. [Recibo](../../orchestracao/.runtime/map-adaptive/resultado.json); sem SQL/backend/reinício real ou publicação.
+
+### Registro original A08
 
 Pedidos expressos de Lucas em 10/10/2026: ocupar a largura lateral com ruas de tamanhos próprios, distinguir os grupos, mostrar informações ao passar o mouse e preencher as lacunas deixadas por ruas grandes. Dependência BE14-DASH02 → FE02-DASH02-A06/A07.
 

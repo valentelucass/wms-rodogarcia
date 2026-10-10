@@ -50,7 +50,8 @@ export function ReferenceSelect({
             normalize(search),
         ),
     );
-    const blocked = disabled || !!catalog?.loading;
+    const loading = !!catalog?.pending[kind];
+    const blocked = disabled || loading;
     const selectedTitle = selected
         ? selected.nome
         : all && !value
@@ -98,7 +99,7 @@ export function ReferenceSelect({
                     aria-required={required}
                     autoComplete="off"
                     disabled={blocked}
-                    placeholder={catalog?.loading ? "Carregando…" : title}
+                    placeholder={loading ? "Carregando…" : title}
                     value={open ? search : selectedTitle}
                     onClick={() => {
                         setOpen(true);

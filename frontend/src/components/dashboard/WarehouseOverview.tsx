@@ -18,6 +18,14 @@ import { ReferenceSelect } from "../context/ReferenceSelect";
 import { Dialog } from "../layout/Dialog";
 import { Pagination } from "../layout/Pagination";
 import { Icon } from "../../design-system/Icon";
+import {
+    metricInformation,
+    type InformationKey,
+} from "../../content/information";
+import {
+    InformationCard,
+    InformationHint,
+} from "../information/InformationPopup";
 import { formatQuantity } from "./OperationDashboard";
 import { expandedDecimal } from "../../contracts/codec";
 import { MapStreetLayout } from "./MapStreetLayout";
@@ -139,32 +147,37 @@ function Overview({
     const client = catalog?.clientes.find(
         (p) => p.id === String(context.clienteId),
     )?.nome;
-    const measures: [string, string, string, string][] = [
+    const measures: [InformationKey, string, string, string, string][] = [
         [
+            "occupancy",
             "Ocupação",
             data?.ocupacao == null ? "—" : `${quantity(data.ocupacao)}%`,
             `Sobre ${quantity(data?.capacidade)} posições de armazenagem ativas`,
             "estoque",
         ],
         [
+            "occupied",
             "Posições ocupadas",
             quantity(data?.posicoesOcupadas),
             "Posições físicas de armazenagem",
             "armazens",
         ],
         [
+            "free",
             "Posições livres",
             quantity(data?.posicoesLivres),
             "Armazenagem ativa e desocupada",
             "cadastros",
         ],
         [
+            "stored",
             "Unidades armazenadas",
             quantity(data?.unidadesArmazenadas),
             "Unidades logísticas ativas",
             "unidades",
         ],
         [
+            "storedValue",
             "Valor armazenado",
             money(data?.valorArmazenado),
             data && !data.financeiroPermitido
@@ -175,30 +188,35 @@ function Overview({
             "servicos",
         ],
         [
+            "quarantine",
             "Em quarentena",
             quantity(data?.emQuarentena),
             "Unidades na área de quarentena",
             "contingencia",
         ],
         [
+            "reservations",
             "Reservas ativas",
             quantity(data?.reservasAtivas),
             "Reservas ainda não encerradas",
             "saida",
         ],
         [
+            "inbound",
             "Entradas abertas",
             quantity(data?.entradasAbertas),
             "Pedidos ainda não efetivados",
             "entrada",
         ],
         [
+            "outbound",
             "Saídas abertas",
             quantity(data?.saidasAbertas),
             "Pedidos aguardando conclusão",
             "saida",
         ],
         [
+            "billing",
             "Faturamento do mês",
             money(data?.faturamentoMes),
             data && !data.financeiroPermitido
@@ -254,8 +272,9 @@ function Overview({
                 </p>
             )}
             <div className="overview-metrics">
-                {measures.map(([label, value, note, icon], i) => (
-                    <article
+                {measures.map(([topic, label, value, note, icon], i) => (
+                    <InformationCard
+                        content={metricInformation(topic, value, note)}
                         key={label}
                         className={`overview-metric overview-metric--${i}`}
                     >
@@ -265,7 +284,7 @@ function Overview({
                         </div>
                         <strong>{value}</strong>
                         <small>{note}</small>
-                    </article>
+                    </InformationCard>
                 ))}
             </div>
             {children}
@@ -275,6 +294,7 @@ function Overview({
             >
                 <header className="overview-map-heading">
                     <h2 id="warehouse-map-title">Mapa do armazém</h2>
+                    <InformationHint topic="warehouseMap" />
                 </header>
                 <div className="map-controls">
                     <ReferenceSelect
@@ -508,7 +528,7 @@ function MapStreet({
                 getComputedStyle(el.querySelector(".map-slots")!).columnGap,
             );
             const columnWidth = parseFloat(
-                style.getPropertyValue("--map-slot-width"),
+                style.getPropertyValue("--map-base-slot-width"),
             );
             const available =
                 el.clientWidth -
@@ -516,18 +536,55 @@ function MapStreet({
                 parseFloat(getComputedStyle(level).columnGap) -
                 parseFloat(viewportStyle.paddingLeft) -
                 parseFloat(viewportStyle.paddingRight);
-            setCapacity(
+            const fullColumns = Math.max(
+                1,
+                Math.floor((available + gap) / (columnWidth + gap)),
+            );
+            // Keep one full position readable, even on the smallest screens.
+            const peekWidth =
+                columns.length > fullColumns
+                    ? Math.min(
+                          28,
+                          Math.max(0, (available - columnWidth - 2 * gap) / 2),
+                      )
+                    : 0;
+            el.style.setProperty("--map-peek-width", `${peekWidth}px`);
+            const reserved = peekWidth > 0 ? 2 * (peekWidth + gap) : 0;
+            const fittedCount = Math.min(
+                columns.length,
                 Math.max(
                     1,
-                    Math.floor((available + gap) / (columnWidth + gap)),
+                    Math.floor(
+                        (available - reserved + gap) / (columnWidth + gap),
+                    ),
                 ),
             );
+            const fittedWidth = Math.max(
+                columnWidth,
+                Math.min(
+                    parseFloat(
+                        style.getPropertyValue("--map-max-slot-width"),
+                    ) || 240,
+                    (available - reserved - (fittedCount - 1) * gap) /
+                        fittedCount,
+                ),
+            );
+            el.style.setProperty("--map-slot-width", `${fittedWidth}px`);
+            setCapacity(fittedCount);
         };
         update();
         if (typeof ResizeObserver === "undefined") return;
         const observer = new ResizeObserver(update);
         observer.observe(el);
-        return () => observer.disconnect();
+        const sizing = new MutationObserver(update);
+        sizing.observe(el.closest(".map-street")!, {
+            attributes: true,
+            attributeFilter: ["style"],
+        });
+        return () => {
+            observer.disconnect();
+            sizing.disconnect();
+        };
     }, [columns.length]);
     const count = Math.min(capacity || columns.length, columns.length);
     const maxStart = Math.max(0, columns.length - count);
@@ -594,6 +651,16 @@ function MapStreet({
                                             </span>
                                             {level}
                                         </span>
+                                        {paged && (
+                                            <MapPositionPeek
+                                                side="previous"
+                                                position={slots.find(
+                                                    (p) =>
+                                                        p.posicao ===
+                                                        columns[offset - 1],
+                                                )}
+                                            />
+                                        )}
                                         <div
                                             className="map-slots"
                                             style={{
@@ -636,6 +703,16 @@ function MapStreet({
                                                     );
                                                 })}
                                         </div>
+                                        {paged && (
+                                            <MapPositionPeek
+                                                side="next"
+                                                position={slots.find(
+                                                    (p) =>
+                                                        p.posicao ===
+                                                        columns[offset + count],
+                                                )}
+                                            />
+                                        )}
                                     </div>
                                 ))}
                         </div>
@@ -643,6 +720,25 @@ function MapStreet({
                 </div>
             </div>
         </section>
+    );
+}
+function MapPositionPeek({
+    position,
+    side,
+}: {
+    position?: VisaoOperacaoDto_Posicao;
+    side: "previous" | "next";
+}) {
+    return (
+        <span className="map-position-peek" data-side={side} aria-hidden="true">
+            {position && (
+                <span
+                    className={`map-peek-cell map-state--${position.ocupada ? "occupied" : position.disponivel ? "free" : "other"}`}
+                >
+                    <strong>{position.codigo}</strong>
+                </span>
+            )}
+        </span>
     );
 }
 function PositionDetail({
@@ -726,6 +822,7 @@ function PositionDetail({
                                     : `${quantity(p.capacidadePesoKg)} kg`,
                             ],
                             [
+                                "occupancy",
                                 "Ocupação",
                                 p.ocupada
                                     ? "Posição ocupada"

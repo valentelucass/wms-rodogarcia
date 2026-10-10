@@ -16,4 +16,7 @@ public interface AvariaEstoqueRepository extends JpaRepository<AvariaEstoque, Lo
     @Query(
             "select a.unidade.pedido.cliente.id as clienteId,a.unidade.pedido.armazem.id as armazemId from AvariaEstoque a where a.id=:id")
     java.util.Optional<EscopoCobranca> buscarEscopo(Long id);
+
+    @Query("select a from AvariaEstoque a where a.unidade.id in :ids order by a.unidade.id,a.id")
+    List<AvariaEstoque> buscarParaIndicador(List<Long> ids);
 }

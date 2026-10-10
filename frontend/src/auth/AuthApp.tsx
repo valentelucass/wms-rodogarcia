@@ -1,9 +1,21 @@
 import { canLeavePage } from "../domain/pageLeave";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+    type MutableRefObject,
+} from "react";
 import { AuthClient, AuthError, type User } from "./client";
 import { LoginPage, PasswordPage } from "./LoginPage";
 import { UsersPage } from "./UsersPage";
-import { realTransport, type Receipt, type Request } from "../api/client";
+import {
+    ApiError,
+    realTransport,
+    type Receipt,
+    type Request,
+} from "../api/client";
 import { JourneyPage } from "../components/JourneyPage";
 import { Collector } from "../components/Collector";
 import { PageHeader } from "../components/layout/PageHeader";
@@ -22,6 +34,7 @@ import { Icon } from "../design-system/Icon";
 
 export function AuthApp() {
     const [auth] = useState(() => new AuthClient());
+    const accessUpdate = useRef<((user: User) => void) | null>(null);
     const [user, setUser] = useState<User | null>(null),
         [loading, setLoading] = useState(true);
     const [message, setMessage] = useState("");
@@ -54,7 +67,10 @@ export function AuthApp() {
                 void auth
                     .refresh()
                     .then((u) => {
-                        if (active) setUser(u);
+                        if (active) {
+                            if (accessUpdate.current) accessUpdate.current(u);
+                            else setUser(u);
+                        }
                     })
                     .catch(() => {});
         }, 240000);
@@ -122,20 +138,46 @@ export function AuthApp() {
             key={user.id}
             auth={auth}
             user={user}
+            onRefresh={setUser}
+            accessUpdate={accessUpdate}
             onLogout={logout}
             onChanged={changed}
         />
     );
 }
 
+const accessKey = (user: User) =>
+    JSON.stringify([
+        user.id,
+        user.perfil,
+        user.administrador,
+        user.principal,
+        user.ativo,
+        user.trocarSenha,
+        user.clientes,
+        user.armazens,
+    ]);
+const changedAccess = () =>
+    new ApiError(
+        "Seu acesso mudou. O comando não foi enviado. Confira e aplique o acesso atualizado antes de continuar.",
+        403,
+        "ACESSO_ATUALIZADO",
+        "",
+        false,
+    );
+
 function Workspace({
     auth,
     user,
+    onRefresh,
+    accessUpdate,
     onLogout,
     onChanged,
 }: {
     auth: AuthClient;
     user: User;
+    onRefresh: (user: User) => void;
+    accessUpdate: MutableRefObject<((user: User) => void) | null>;
     onLogout: () => void;
     onChanged: () => void;
 }) {
@@ -146,6 +188,46 @@ function Workspace({
         [workflow, setWorkflow] = useState(emptyWorkflow);
     const [revision, setRevision] = useState(0);
     const [contextRevision, setContextRevision] = useState(0);
+    const currentUser = useRef(user),
+        pendingUser = useRef<User | null>(null);
+    const [pendingAccess, setPendingAccess] = useState<User | null>(null);
+    const applyAccess = useCallback(
+        (next: User) => {
+            currentUser.current = next;
+            pendingUser.current = null;
+            setPendingAccess(null);
+            setContext({});
+            setWorkflow(emptyWorkflow());
+            setContextRevision((n) => n + 1);
+            onRefresh(next);
+        },
+        [onRefresh],
+    );
+    const receiveAccess = useCallback(
+        (next: User) => {
+            if (pendingUser.current) {
+                pendingUser.current = next;
+                setPendingAccess(next);
+                return true;
+            }
+            if (accessKey(next) === accessKey(currentUser.current)) {
+                currentUser.current = next;
+                onRefresh(next);
+                return false;
+            }
+            pendingUser.current = next;
+            setPendingAccess(next);
+            if (canLeavePage()) applyAccess(next);
+            return true;
+        },
+        [onRefresh, applyAccess],
+    );
+    useEffect(() => {
+        accessUpdate.current = receiveAccess;
+        return () => {
+            accessUpdate.current = null;
+        };
+    }, [accessUpdate, receiveAccess]);
     const transport = useMemo(() => {
         const real = realTransport({
             baseUrl: window.location.origin,
@@ -155,11 +237,21 @@ function Workspace({
         });
         return {
             async send(request: Request) {
-                await auth.fresh();
+                if (pendingUser.current) throw changedAccess();
+                request.signal.throwIfAborted();
+                const preparedAccess = accessKey(currentUser.current);
+                const refreshed = await auth.fresh();
+                const latest = refreshed ?? auth.user();
+                if (latest && accessKey(latest) !== preparedAccess) {
+                    receiveAccess(latest);
+                    throw changedAccess();
+                }
+                if (latest && receiveAccess(latest)) throw changedAccess();
+                request.signal.throwIfAborted();
                 return real.send(request);
             },
         };
-    }, [auth, onLogout]);
+    }, [auth, onLogout, receiveAccess]);
     const onRecord = (v: Values, type: string) =>
         setWorkflow((old) => absorb(old, type, v, true));
     const onReceipt = (
@@ -178,21 +270,22 @@ function Workspace({
         setContextRevision((n) => n + 1);
     };
     const journey = journeys.find((j) => j.id === page);
-    const accessScope = `${revision}/${user.perfil}/${user.clientes.join(",")}/${user.armazens.join(",")}`;
+    const accessUser = pendingAccess ?? user;
+    const accessScope = `${pendingAccess ? "paused" : "active"}/${revision}/${accessUser.perfil}/${accessUser.clientes.join(",")}/${accessUser.armazens.join(",")}`;
     return (
         <ReferenceCatalogProvider transport={transport} version={accessScope}>
             <AppShell
                 page={page}
                 navigate={nav.navigate}
                 contentKey={`${contextRevision}-${nav.revision}`}
-                administrator={user.administrador}
+                administrator={accessUser.administrador}
                 userName={user.nome}
                 userRole={
                     {
                         GESTOR: "Gestor",
                         SUPERVISOR: "Supervisor",
                         OPERACAO: "Operação",
-                    }[user.perfil]
+                    }[accessUser.perfil]
                 }
                 onLogout={onLogout}
                 onPassword={() => setPasswordOpen(true)}
@@ -200,7 +293,26 @@ function Workspace({
                     <ContextPicker context={context} onApply={applyContext} />
                 }
             >
-                {page === "usuarios" && user.administrador ? (
+                {pendingAccess && (
+                    <div role="alert" className="feedback">
+                        <p>
+                            Seu acesso mudou. Operações do contexto anterior
+                            estão bloqueadas; a edição permanece até você
+                            confirmar a saída.
+                        </p>
+                        <button
+                            onClick={() => {
+                                if (pendingUser.current && canLeavePage())
+                                    applyAccess(pendingUser.current);
+                            }}
+                        >
+                            Aplicar acesso atualizado
+                        </button>
+                    </div>
+                )}
+                {page === "usuarios" &&
+                accessUser.administrador &&
+                !pendingAccess ? (
                     <UsersPage auth={auth} current={user} />
                 ) : journey ? (
                     <JourneyPage

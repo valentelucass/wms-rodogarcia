@@ -14,6 +14,7 @@ export type { User, UsersPage } from "./contracts";
 /** Access somente em memória; refresh em cookie HttpOnly. Sem replay de escrita. */
 export class AuthClient {
     private access: string | null = null;
+    private currentUser: User | null = null;
     private expires = 0;
     private generation = 0;
     private lifetime = new AbortController();
@@ -27,11 +28,13 @@ export class AuthClient {
         this.onExpired = callback;
     }
     token = () => this.access;
+    user = () => this.currentUser;
     clear() {
         this.lifetime.abort();
         this.lifetime = new AbortController();
         this.generation++;
         this.access = null;
+        this.currentUser = null;
         this.expires = 0;
         this.refreshing = null;
     }
@@ -69,6 +72,7 @@ export class AuthClient {
                 "AUTH_CONTEXT_ENDED",
             );
         this.access = result.accessToken;
+        this.currentUser = result.usuario;
         this.expires = Date.now() + 300000;
         return result.usuario;
     }
@@ -130,7 +134,7 @@ export class AuthClient {
     }
     async fresh() {
         if (this.access && Date.now() >= this.expires - 30000)
-            await this.refresh();
+            return this.refresh();
     }
     private async authenticatedScope(signal?: AbortSignal) {
         const scope = this.scope(false);

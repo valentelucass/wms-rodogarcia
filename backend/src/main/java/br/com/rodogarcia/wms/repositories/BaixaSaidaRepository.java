@@ -41,4 +41,8 @@ public interface BaixaSaidaRepository extends JpaRepository<BaixaSaida, Long> {
     @org.springframework.data.jpa.repository.Query(
             "select b from BaixaSaida b where b.reserva.unidade.id=:unidadeId order by b.id")
     java.util.List<BaixaSaida> buscarDaUnidade(Long unidadeId);
+
+    @Query(
+            "select b from BaixaSaida b join fetch b.reserva r join fetch b.retirada where r.unidade.id in :ids order by r.unidade.id,b.id")
+    List<BaixaSaida> buscarParaIndicador(List<Long> ids);
 }

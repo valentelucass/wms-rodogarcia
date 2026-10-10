@@ -78,7 +78,7 @@ export function AppShell({
     const sidebar = (
         <>
             <div className="sidebar-heading">
-                <Brand />
+                <Brand onHome={() => navigate("inicio")} />
                 {mobile && (
                     <button
                         type="button"

@@ -4,6 +4,11 @@ import type { DashboardDto_Resumo } from "../../contracts/types";
 import type { Perfil, Values } from "../../contracts/runtime";
 import type { Navigate } from "../../hooks/useNavigation";
 import { Icon } from "../../design-system/Icon";
+import { metricInformation } from "../../content/information";
+import {
+    InformationCard,
+    InformationHint,
+} from "../information/InformationPopup";
 import { Pagination } from "../layout/Pagination";
 import { useReferenceCatalog } from "../context/ReferenceCatalog";
 
@@ -248,52 +253,73 @@ export function OperationDashboard({
                         )}
                         {showMetrics && (
                             <div className="dashboard-metrics">
-                                {[
+                                {(
                                     [
-                                        "estoque",
-                                        "Posições ocupadas",
-                                        formatQuantity(data.posicoesCliente),
-                                        "Ocupação física no contexto",
-                                    ],
-                                    [
-                                        "unidades",
-                                        "Unidades disponíveis",
-                                        formatQuantity(
-                                            data.unidadesDisponiveis,
-                                        ),
-                                        "Pallets e bobinas elegíveis à saída",
-                                    ],
-                                    [
-                                        "saida",
-                                        "Pedidos de saída abertos",
-                                        formatQuantity(data.pedidosAbertos),
-                                        "Da elaboração até a retirada",
-                                    ],
-                                    [
-                                        "contingencia",
-                                        "Avisos de validade",
-                                        data.unidadesComAviso === null
-                                            ? "—"
-                                            : formatQuantity(
-                                                  data.unidadesComAviso,
-                                              ),
-                                        data.antecedenciaValidade === null
-                                            ? "Antecedência ainda não configurada"
-                                            : `Vencidas ou a vencer em até ${data.antecedenciaValidade} dias`,
-                                    ],
-                                ].map(([icon, label, value, description]) => (
-                                    <article
-                                        className="dashboard-metric"
-                                        key={label}
-                                    >
-                                        <span className="dashboard-metric-icon">
-                                            <Icon name={icon} />
-                                        </span>
-                                        <span>{label}</span>
-                                        <strong>{value}</strong>
-                                        <small>{description}</small>
-                                    </article>
-                                ))}
+                                        [
+                                            "estoque",
+                                            "Posições ocupadas",
+                                            formatQuantity(
+                                                data.posicoesCliente,
+                                            ),
+                                            "Ocupação física no contexto",
+                                            "occupied",
+                                        ],
+                                        [
+                                            "unidades",
+                                            "Unidades disponíveis",
+                                            formatQuantity(
+                                                data.unidadesDisponiveis,
+                                            ),
+                                            "Pallets e bobinas elegíveis à saída",
+                                            "availableUnits",
+                                        ],
+                                        [
+                                            "saida",
+                                            "Pedidos de saída abertos",
+                                            formatQuantity(data.pedidosAbertos),
+                                            "Da elaboração até a retirada",
+                                            "outbound",
+                                        ],
+                                        [
+                                            "contingencia",
+                                            "Avisos de validade",
+                                            data.unidadesComAviso === null
+                                                ? "—"
+                                                : formatQuantity(
+                                                      data.unidadesComAviso,
+                                                  ),
+                                            data.antecedenciaValidade === null
+                                                ? "Antecedência ainda não configurada"
+                                                : `Vencidas ou a vencer em até ${data.antecedenciaValidade} dias`,
+                                            "expiry",
+                                        ],
+                                    ] as const
+                                ).map(
+                                    ([
+                                        icon,
+                                        label,
+                                        value,
+                                        description,
+                                        topic,
+                                    ]) => (
+                                        <InformationCard
+                                            content={metricInformation(
+                                                topic,
+                                                value,
+                                                description,
+                                            )}
+                                            className="dashboard-metric"
+                                            key={label}
+                                        >
+                                            <span className="dashboard-metric-icon">
+                                                <Icon name={icon} />
+                                            </span>
+                                            <span>{label}</span>
+                                            <strong>{value}</strong>
+                                            <small>{description}</small>
+                                        </InformationCard>
+                                    ),
+                                )}
                             </div>
                         )}
                         <div className="dashboard-charts">
@@ -306,9 +332,12 @@ export function OperationDashboard({
                                         <Icon name="estoque" />
                                     </span>
                                     <div>
-                                        <h3 id="dashboard-occupation-title">
-                                            Ocupação física
-                                        </h3>
+                                        <div className="information-heading">
+                                            <h3 id="dashboard-occupation-title">
+                                                Ocupação física
+                                            </h3>
+                                            <InformationHint topic="physicalChart" />
+                                        </div>
                                         <p>
                                             Posições ocupadas no contexto, por
                                             área.
@@ -377,9 +406,12 @@ export function OperationDashboard({
                                         <Icon name="saida" />
                                     </span>
                                     <div>
-                                        <h3 id="dashboard-queue-title">
-                                            Fila de saída
-                                        </h3>
+                                        <div className="information-heading">
+                                            <h3 id="dashboard-queue-title">
+                                                Fila de saída
+                                            </h3>
+                                            <InformationHint topic="queueChart" />
+                                        </div>
                                         <p>
                                             Pedidos que ainda aguardam
                                             conclusão.
@@ -440,13 +472,16 @@ export function OperationDashboard({
                                         <Icon name="unidades" />
                                     </span>
                                     <div>
-                                        <h3
-                                            id="dashboard-products-title"
-                                            ref={productsHeading}
-                                            tabIndex={-1}
-                                        >
-                                            Disponibilidade por produto
-                                        </h3>
+                                        <div className="information-heading">
+                                            <h3
+                                                id="dashboard-products-title"
+                                                ref={productsHeading}
+                                                tabIndex={-1}
+                                            >
+                                                Disponibilidade por produto
+                                            </h3>
+                                            <InformationHint topic="productChart" />
+                                        </div>
                                         <p>
                                             Composição do saldo físico de cada
                                             SKU, na sua unidade de medida.

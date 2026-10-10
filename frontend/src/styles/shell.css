@@ -80,6 +80,14 @@
     display: grid;
     gap: var(--og-space-1);
 }
+.brand-home {
+    min-height: 36px;
+    padding: 0;
+    border: 0;
+}
+.brand-home:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--og-brand) 85%, var(--og-text));
+}
 .brand-copy strong {
     font-size: var(--og-type-section);
     font-weight: var(--og-font-semibold);
