@@ -16,13 +16,18 @@ if ([IO.Path]::GetFileName($javaPath) -ine 'java.exe' -or
 $run = Join-Path $repository ('orchestracao/.runtime/backend-dev-builds/' + [guid]::NewGuid().ToString('N'))
 $null = New-Item -ItemType Directory -Path $run
 $build = Join-Path $run 'target'
+$evidence = Join-Path $run 'd30-cedro-preparo-evidencias'
+# Saida exclusiva deste preparo, com nome reconhecido pela guarda local D30.
+if (Test-Path -LiteralPath $evidence) { throw 'DEV02_BUILD_EVIDENCE_ALREADY_EXISTS' }
+$null = New-Item -ItemType Directory -Path $evidence
 $sourceHash = Get-WmsBackendSourceHash $repository
 $wrapper = Join-Path $repository 'backend/mvnw.cmd'
-foreach ($path in @($wrapper, $build)) { if ($path -match '["\r\n%!]') { throw 'DEV02_BUILD_PATH_INVALID' } }
+foreach ($path in @($wrapper, $build, $evidence)) { if ($path -match '["\r\n%!]') { throw 'DEV02_BUILD_PATH_INVALID' } }
 $info = [Diagnostics.ProcessStartInfo]::new()
 $info.FileName = Join-Path $env:SystemRoot 'System32/cmd.exe'
 $info.Arguments = '/d /c ""' + $wrapper + '" -B "-Dwms.build.directory=' + $build +
-    '" "-P!sqlserver-it,!migrations,!migrations-wrapper-confirmado" ' +
+    '" "-Dwms.test.evidencias.dir=' + $evidence + '" "-Dwms.test.local.guard=D30" ' +
+    '"-P!sqlserver-it,!migrations,!migrations-wrapper-confirmado" ' +
     '"-Dtest=LoginIntegrationTest,VisaoOperacaoIntegrationTest,VisaoOperacaoServiceTest,ArquiteturaTest,EstoqueIntegrationTest#dashboard*,NfeDocumentoServiceTest,NfeXmlServiceTest,PedidoEntradaXmlIntegrationTest,RecebimentoIntegrationTest" verify"'
 $info.WorkingDirectory = Join-Path $repository 'backend'
 $info.UseShellExecute = $false

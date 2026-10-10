@@ -10,6 +10,7 @@ Registrado em 05/10/2026, conforme D13 e BE16. O responsável pediu configuraç�
 - Usar Bean Validation nos DTOs e nas entradas públicas dos cinco serviços cadastrais (`@Validated`, `@Valid`, `@NotNull` e IDs positivos). Invariantes entre campos continuam nos serviços; restrições relacionais e unicidade também ficam no banco.
 - Escritas têm transação explícita. Auditoria participa da mesma transação, obrigatoriamente. Versão recebida e locks protegem alterações concorrentes; conferir os testes antes de mudar a ordem dos locks ou antecipar consultas de entidades gerenciadas.
 - Métodos de leitura são `readOnly`; `open-in-view` permanece desligado. Mapear DTOs dentro da transação e limitar consultas com paginação. Precisões e quantidades usam `BigDecimal`, sem conversão financeira para `double`.
+- Para processamento de dados e redução de hidratação/consultas repetidas, aplicar a [decisão QUAL-CONF01-PERF01-DEC01](06-decisoes-e-pendencias.md#qual-conf01-perf01-dec01--processamento-adequado-no-banco-10102026): preferir execução adequada no banco com equivalência funcional e benefício medidos, mantendo coordenação, autorização e transação nos serviços.
 - Preservar erros padronizados, correlação por operação e logs sem valores sensíveis. Autorização deve existir nos serviços, além da proteção HTTP. Não confiar em IDs ou funções informados pelo navegador.
 - Evitar herança de CRUD e interfaces sem necessidade concreta. Compartilhar apenas comportamentos realmente comuns, como paginação, revisão e auditoria; regras próprias continuam em serviços explícitos.
 

@@ -839,8 +839,15 @@ public class CalculoCobrancaService {
                                 .multiply(responsavel)
                                 .divide(base.quantidade(), 6, RoundingMode.HALF_UP);
         BigDecimal liquida = suspensa == null ? null : base.equivalencia().subtract(suspensa);
+        // A contribuição e sua explicação usam a mesma origem no mesmo instante/transação.
+        var quantidadesOrigem =
+                new LinkedHashMap<br.com.rodogarcia.wms.models.ConteudoUnidade, BigDecimal>();
+        for (var c : conteudos.buscarOrigens(u.getId()))
+            quantidadesOrigem.put(c, quantidadeOrigemNoInstante(u, c, instante));
         BigDecimal valor =
-                ambiguo ? null : valorEstoque(u, instante, base.quantidade(), danificada, dia, p);
+                ambiguo
+                        ? null
+                        : valorEstoque(u, base.quantidade(), danificada, dia, p, quantidadesOrigem);
         return new CalculoCobrancaDto.Contribuicao(
                 u.getId(),
                 u.getCodigo(),
@@ -856,21 +863,22 @@ public class CalculoCobrancaService {
                         .filter(f -> !f.getOcorridaEm().isAfter(instante))
                         .map(FatoPermanencia::getId)
                         .toList(),
-                origensValor(u, instante));
+                origensValor(quantidadesOrigem));
     }
 
     private BigDecimal valorEstoque(
             UnidadeLogistica u,
-            Instant instante,
             BigDecimal base,
             BigDecimal avariada,
             LocalDate dia,
-            List<CalculoCobrancaDto.Pendencia> p) {
+            List<CalculoCobrancaDto.Pendencia> p,
+            Map<br.com.rodogarcia.wms.models.ConteudoUnidade, BigDecimal> quantidadesOrigem) {
         BigDecimal soma = ZERO, quantidade = ZERO;
         boolean completo = true;
         br.com.rodogarcia.wms.models.ItemNotaEntrada referenciaPreco = null;
-        for (var c : conteudos.buscarOrigens(u.getId())) {
-            BigDecimal q = quantidadeOrigemNoInstante(u, c, instante);
+        for (var origem : quantidadesOrigem.entrySet()) {
+            var c = origem.getKey();
+            BigDecimal q = origem.getValue();
             if (q.signum() == 0) continue;
             quantidade = quantidade.add(q);
             var i = c.getEntrada().getItemChegada().getItemNota();
@@ -931,10 +939,11 @@ public class CalculoCobrancaService {
     }
 
     private List<CalculoCobrancaDto.OrigemValor> origensValor(
-            UnidadeLogistica u, Instant instante) {
+            Map<br.com.rodogarcia.wms.models.ConteudoUnidade, BigDecimal> quantidadesOrigem) {
         var origens = new ArrayList<CalculoCobrancaDto.OrigemValor>();
-        for (var c : conteudos.buscarOrigens(u.getId())) {
-            var q = quantidadeOrigemNoInstante(u, c, instante);
+        for (var origem : quantidadesOrigem.entrySet()) {
+            var c = origem.getKey();
+            var q = origem.getValue();
             if (q.signum() == 0) continue;
             var i = c.getEntrada().getItemChegada().getItemNota();
             var preco =

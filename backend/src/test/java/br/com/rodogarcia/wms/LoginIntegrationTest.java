@@ -8,6 +8,7 @@ import br.com.rodogarcia.wms.models.Armazem;
 import br.com.rodogarcia.wms.models.Cliente;
 import br.com.rodogarcia.wms.models.Produto;
 import br.com.rodogarcia.wms.models.TipoQuantidade;
+import br.com.rodogarcia.wms.repositories.VisaoOperacaoRepository;
 import br.com.rodogarcia.wms.services.AcessoService;
 import br.com.rodogarcia.wms.services.LoginService;
 import jakarta.persistence.EntityManager;
@@ -33,8 +34,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -53,7 +56,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.transaction.support.TransactionTemplate;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
@@ -82,6 +87,7 @@ class LoginIntegrationTest {
     @Autowired EntityManager em;
     @Autowired EntityManagerFactory emf;
     @Autowired PlatformTransactionManager transactions;
+    @MockitoSpyBean VisaoOperacaoRepository visaoRepository;
     private Navegador principal;
 
     @Test
@@ -108,6 +114,32 @@ class LoginIntegrationTest {
         boolean previous = stats.isStatisticsEnabled();
         stats.setStatisticsEnabled(true);
         var measurements = new ArrayList<Map<String, Object>>();
+        var transactionFlags = new AtomicReference<Map<String, Object>>();
+        org.mockito.Mockito.doAnswer(
+                        invocation -> {
+                            var flags = new LinkedHashMap<String, Object>();
+                            flags.put(
+                                    "springTransactionActive",
+                                    TransactionSynchronizationManager.isActualTransactionActive());
+                            flags.put(
+                                    "springReadOnly",
+                                    TransactionSynchronizationManager
+                                            .isCurrentTransactionReadOnly());
+                            em.unwrap(Session.class)
+                                    .doWork(
+                                            connection -> {
+                                                flags.put(
+                                                        "jdbcIsolation",
+                                                        connection.getTransactionIsolation());
+                                                flags.put(
+                                                        "jdbcReadOnlyHint",
+                                                        connection.isReadOnly());
+                                            });
+                            transactionFlags.set(flags);
+                            return invocation.callRealMethod();
+                        })
+                .when(visaoRepository)
+                .capacidade(org.mockito.ArgumentMatchers.anyList());
         try {
             int prepared = 0;
             for (int products : List.of(1, 12, 101)) {
@@ -153,6 +185,11 @@ class LoginIntegrationTest {
                 m.put("entitiesLoaded", stats.getEntityLoadCount());
                 m.put("elapsedNanosDiagnosticOnly", elapsed);
                 m.put("queryExecutions", stats.getQueryExecutionCount());
+                assertThat(transactionFlags.get().get("springTransactionActive")).isEqualTo(true);
+                assertThat(transactionFlags.get().get("springReadOnly")).isEqualTo(true);
+                assertThat(transactionFlags.get().get("jdbcIsolation"))
+                        .isEqualTo(java.sql.Connection.TRANSACTION_SERIALIZABLE);
+                m.put("transaction", transactionFlags.get());
                 measurements.add(m);
             }
             assertThat(service.jwtAtivo(decoder.decode(principal.token))).isTrue();
@@ -175,6 +212,7 @@ class LoginIntegrationTest {
                     StandardOpenOption.CREATE_NEW);
         } finally {
             stats.setStatisticsEnabled(previous);
+            org.mockito.Mockito.reset(visaoRepository);
         }
     }
 

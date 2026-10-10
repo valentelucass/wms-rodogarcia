@@ -23,10 +23,24 @@
 - [x] Confrontar metadados atuais com o runtime existente: PIDs/inícios/JAR/config/TLS/ACL compatíveis com a guarda de lançamento WMS_DEV/WMSDEV, sem nova conexão SQL. Permissões/catálogo/histórico/handshake continuam provas datadas de 17:15 UTC.
 - [x] Medir uma atualização normal na mesma sessão/origem: 10.541,001 ms até observar `aria-busy=false`, incluindo UI/IPC; não mede TTFB/API/SQL/CPU. Network/DevTools indisponíveis, ResourceTiming recusado por CSP e inventário CUA vazio; sem bypass.
 - [x] Reproduzir localmente trabalho excessivo: financeiro H2 24/112/827 statements para 1/12/101 produtos; mapa 14/21/53 para páginas 1/8/40 com a mesma massa. Resultados funcionais preservados antes das assertions estruturais. Frontend: quatro falhas em seis casos demonstraram catálogos repetidos e paginação após erro/cancelamento.
-- [ ] Corrigir a origem mínima, preservar alcance/sessão/CSRF/BigDecimal/null, demonstrar antes/depois local e regressão/build final.
-- [ ] Confrontar fonte/pacote/runtime, incluindo delta paralelo A08, e registrar revisão Vigia e medidas reais ainda indisponíveis com instrumento/responsável.
+- [x] Corrigir frontend: quatro vermelhos passaram sem mudar assertions; regressão 507/507 em 49 arquivos, focal pós-delta de tabelas 57/57 em seis, browser interceptado 3/3, tipagem/lint/build verdes. Snapshot 19:25:45–19:27:55 UTC, 270 arquivos estáveis incluindo A08/tabelas; pacote preparado, sem promoção.
+- [x] Corrigir a origem mínima, preservar alcance/sessão/CSRF/BigDecimal/null, demonstrar antes/depois local e regressão/build final: 865 casos padrão e um LoginBrowser H2 separado atual, sem falhas/erros; cinco contextos H2 reais.
+- [x] Confrontar fonte/pacote/runtime, incluindo deltas paralelos A08/tabelas, e revisar com Vigia: fonte backend 388 arquivos/113F…, JAR novo 2C1A…, runtime ainda 43BD…; frontend 270 arquivos e pacote b086…. Medidas reais indisponíveis têm instrumento/responsável definidos.
+- [ ] Preparar pacote utilizável pelo fluxo local documentado após verify/revisão, conferir dois recibos WMS e backups/JAR/fonte, preservando site/processos/SQL existentes.
+- [ ] Reavaliar o custo residual de valoração por unidade/históricos conforme a decisão expressa [QUAL-CONF01-PERF01-DEC01](docs/06-decisoes-e-pendencias.md#qual-conf01-perf01-dec01--processamento-adequado-no-banco-10102026), com ganho/equivalência demonstrados ou residual e próxima prova declarados; sem bloquear preparo por especulação.
 
-**Próximo:** Cedro otimiza consultas e Lume evita requisições desnecessárias; Vigia revisa contadores/oráculos/segurança. Não atribuir a demora do portal ao H2 nem chamar pacote preparado de runtime promovido. Sem SQL direto/DDL/índices/cache global/reinício/processo real novo. A preservação é conferida por conteúdo/hashes; a mudança externa de HEAD e de paths sujos não prova autoria ou remoção. P01 segue parcial em paralelo, sem bloquear este complemento.
+**Resultado local atual:** mapa 14/21/53 → 13/13/13 statements; financeiro vazio 24/112/827 → 16/16/16; com 1/8/40 unidades, valoração 28/105/457 → 25/81/337 e leituras de origem 2/16/80 → 1/8/40. Valores literais 55,5525/null e 2,50/20/100 preservados. Ainda há consultas por unidade/histórico; [reavaliação DEC01](orchestracao/.runtime/qual-conf01/perf01/cedro/dec01-reassessment.json) explicita oportunidades SQL/lote e equivalência temporal adicional não demonstrada. Não atribuir a demora do portal ao H2 nem chamar pacote preparado de runtime promovido.
+
+**Próximo:** concluir o preparo oficial único em execução por Cedro após [revisão favorável do isolamento](orchestracao/.runtime/qual-conf01/perf01/vigia/parecer-preparo-harness.md), confrontar os dois recibos/backup/JAR e consolidar parecer parcial. [Limite instrumental exato](orchestracao/.runtime/qual-conf01/perf01/limite-instrumental-farol.json): CLI/skill atuais não expõem Network/DevTools; operador/Farol e responsável Maestri precisam disponibilizar opção documentada da mesma superfície antes de outra medida. Sem bypass/nova aba/conexão. Somente após pacote/recibos prontos, carregar o backend novo requer operador encerrar seu console DEV com Ctrl+C e executar `iniciar-dev.bat`, conforme [procedimento existente](docs/19-desenvolvimento-integrado-dev.md); equipe não executa esse passo. Sem SQL direto/DDL/índices/cache global/reinício/processo real novo. Preservação por conteúdo/hashes; mudança externa de HEAD/paths não demonstra autoria ou remoção. P01 segue material, sem correção.
+
+## BE02-DEV-ARTEF01-A02 — atualização do pacote local, 10/10/2026
+
+**Em andamento, solicitação de Lucas após `DEV02_ARTIFACT_NOT_CURRENT` na execução `afa22fb8500b40f1a57c9acdf6950231`:** fonte backend diverge do pacote selecionado pelos recibos. Dependência BE02-DEV-ARTEF01; preparo pelo script existente com testes H2, backups e guarda de fonte/artefato. Separado da conclusão geral de QUAL-CONF01-PERF01.
+
+- [x] Confirmar divergência e ausência de outro processo executando o mesmo preparo.
+- [ ] Concluir preparo, conferir os dois recibos e a correspondência entre fonte/JAR/configuração.
+
+**Próximo:** concluir o pacote local e devolver o comando `iniciar-dev.bat` ao operador, sem iniciar serviços ou consultar SQL Server.
 
 ## FE02-REG01-A08 — ações compactas nas tabelas, 10/10/2026
 

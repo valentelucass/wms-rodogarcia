@@ -33,6 +33,8 @@ Os 110 subitens Q01 a Q27 já receberam respostas. AC01 a AC16 trazem soluções
 
 Controllers recebem solicitações; services aplicam regras e coordenam operações; repositories consultam/gravam; models representam os dados; DTOs delimitam contratos. Não trocar por outra organização arquitetural ou tecnologia sem orientação do responsável.
 
+**QUAL-CONF01-PERF01-DEC01, decisão expressa de Lucas em 10/10/2026:** a organização por camadas permite processamento Java → SQL adequado e com benefício demonstrado. Seguir a [decisão vigente](docs/06-decisoes-e-pendencias.md#qual-conf01-perf01-dec01--processamento-adequado-no-banco-10102026), preservando controles, regras e transações coordenados nos serviços; a decisão não autoriza intervenção no banco real.
+
 Configurações Spring em `resources` devem usar `.properties`, inclusive nos testes e perfis. Segredos continuam externos. Seguir os [padrões de engenharia](docs/16-padroes-de-engenharia-backend.md): dependências por construtor, validação e permissão nos serviços, transações explícitas, DTOs nas APIs, formatação conferida no build e testes das fronteiras entre camadas. Manter os padrões proporcionais ao problema, sem criar abstrações genéricas sem uso concreto.
 
 O backend é responsável por regras, permissões, disponibilidade e cálculo. O frontend apresenta os resultados e ajuda o operador; não decide sozinho liberação de estoque, autorização de usuário ou valor faturável. O navegador e os coletores não acessam diretamente o SQL Server.

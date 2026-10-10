@@ -1,5 +1,7 @@
 # Documentação do WMS Rodogarcia
 
+[QUAL-CONF01-PERF01-DEC01 — decisão vigente de processamento adequado no banco](06-decisoes-e-pendencias.md#qual-conf01-perf01-dec01--processamento-adequado-no-banco-10102026): arquitetura por camadas permite Java → SQL com ganho e equivalência demonstrados; sem autorização adicional para intervenção real.
+
 **QUAL-CONF01 — rodada atual de qualidade e confiabilidade:** [andamento e critérios](../STATES.md#qual-conf01--qualidade-e-confiabilidade-10102026), [escopo autorizado](06-decisoes-e-pendencias.md#qual-conf01--qualidade-e-confiabilidade-10102026) e [continuidade](09-continuidade.md#qual-conf01--rodada-atual-10102026). Evidências novas e saídas isoladas em `orchestracao/.runtime/qual-conf01/`; baseline, correções e limites reais registrados separadamente.
 
 **QUAL-CONF01-PERF01 — complemento material em andamento:** [Início, dashboard/visão/contexto e segurança](../STATES.md#qual-conf01-perf01--início-desempenho-e-segurança), [autorização/limites](06-decisoes-e-pendencias.md#qual-conf01-perf01--inicio-desempenho-e-seguranca). Bloco anterior é baseline local parcial; novas provas em `orchestracao/.runtime/qual-conf01/perf01/`, com custos locais separados das medidas do portal.
