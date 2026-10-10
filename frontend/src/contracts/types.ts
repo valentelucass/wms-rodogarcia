@@ -651,6 +651,7 @@ export interface DashboardDto_Fila {
 }
 export interface DashboardDto_Produto {
   produtoId: string;
+  clienteId: string;
   sku: string;
   unidadeMedida: string;
   fisicoTotal: string;
@@ -660,8 +661,8 @@ export interface DashboardDto_Produto {
   pendenteUnitizacao: string;
 }
 export interface DashboardDto_Resumo {
-  clienteId: string;
-  armazemId: string;
+  clienteId: string | null;
+  armazemId: string | null;
   consultadoEm: string;
   fuso: string;
   posicoesCliente: string;

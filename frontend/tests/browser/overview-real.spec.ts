@@ -3,6 +3,7 @@ import { origin } from "./environment";
 import { overviewExample } from "../../src/api/mock/overview";
 import type { Values } from "../../src/contracts/runtime";
 import type { Request } from "../../src/api/client";
+import { fulfillOverviewRead } from "./overview-fixture";
 const numeric = new Set([
     "id",
     "versao",
@@ -144,6 +145,11 @@ test("três correções: nomes, mapa completo, detalhes e destino sem escrita au
                 body: JSON.stringify(wire(data)),
             });
         }
+        if (
+            url.pathname === "/api/v1/dashboard" &&
+            (await fulfillOverviewRead(route))
+        )
+            return;
         unknown.push(url.pathname);
         return route.abort();
     });
@@ -159,7 +165,10 @@ test("três correções: nomes, mapa completo, detalhes e destino sem escrita au
     await expect(
         page.getByText("104 registros", { exact: false }),
     ).toBeVisible();
-    await page.getByRole("button", { name: "Próxima", exact: true }).click();
+    await overview
+        .locator(".warehouse-map")
+        .getByRole("button", { name: "Próxima", exact: true })
+        .click();
     await expect(overview.locator(".map-position")).toHaveCount(4);
     const client = page.getByRole("combobox", { name: "Cliente", exact: true });
     await client.click();
@@ -178,6 +187,9 @@ test("três correções: nomes, mapa completo, detalhes e destino sem escrita au
     await expect(overview.locator(".map-position")).toHaveCount(80);
     expect(calls.at(-1)?.searchParams.get("clienteId")).toBe("1");
     expect(calls.at(-1)?.searchParams.get("armazemId")).toBe("1");
+    await overview
+        .getByRole("button", { name: "Filtros", exact: true })
+        .click();
     await page.getByLabel("Mostrar posições").selectOption("OCUPADO");
     await expect(overview.locator(".map-position")).toHaveCount(2);
     await expect(overview.getByText("3%", { exact: true })).toBeVisible();

@@ -2,6 +2,7 @@ package br.com.rodogarcia.wms.repositories;
 
 import br.com.rodogarcia.wms.models.Produto;
 import jakarta.persistence.LockModeType;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,6 +16,8 @@ public interface ProdutoRepository extends JpaRepository<Produto, Long> {
     Optional<Long> buscarIdPorSku(Long clienteId, String sku);
 
     Page<Produto> findByClienteId(Long clienteId, Pageable pageable);
+
+    Page<Produto> findByClienteIdIn(List<Long> clienteIds, Pageable pageable);
 
     @org.springframework.data.jpa.repository.Query(
             "select p from Produto p where p.cliente.id=:clienteId and (:produtoId is null or p.id=:produtoId)")

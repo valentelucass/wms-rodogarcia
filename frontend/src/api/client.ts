@@ -137,7 +137,8 @@ export function realTransport(options: {
                     throw new DOMException("Contexto encerrado.", "AbortError");
                 const correlation =
                     response.headers.get("X-Request-Id") ?? requestId;
-                if (response.status === 401) options.onExpired();
+                if (response.status === 401 && options.token() === token)
+                    options.onExpired();
                 if (!response.ok) {
                     const uncertainWrite =
                         response.status >= 500 && r.endpoint.method !== "GET";

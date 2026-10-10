@@ -23,7 +23,7 @@ $info = [Diagnostics.ProcessStartInfo]::new()
 $info.FileName = Join-Path $env:SystemRoot 'System32/cmd.exe'
 $info.Arguments = '/d /c ""' + $wrapper + '" -B "-Dwms.build.directory=' + $build +
     '" "-P!sqlserver-it,!migrations,!migrations-wrapper-confirmado" ' +
-    '"-Dtest=LoginIntegrationTest,VisaoOperacaoIntegrationTest,VisaoOperacaoServiceTest,ArquiteturaTest,NfeDocumentoServiceTest,NfeXmlServiceTest,PedidoEntradaXmlIntegrationTest,RecebimentoIntegrationTest" verify"'
+    '"-Dtest=LoginIntegrationTest,VisaoOperacaoIntegrationTest,VisaoOperacaoServiceTest,ArquiteturaTest,EstoqueIntegrationTest#dashboard*,NfeDocumentoServiceTest,NfeXmlServiceTest,PedidoEntradaXmlIntegrationTest,RecebimentoIntegrationTest" verify"'
 $info.WorkingDirectory = Join-Path $repository 'backend'
 $info.UseShellExecute = $false
 $info.CreateNoWindow = $true

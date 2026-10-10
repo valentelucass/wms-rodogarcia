@@ -4,9 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import br.com.rodogarcia.wms.dto.AcessoDtos;
+import br.com.rodogarcia.wms.services.AcessoService;
 import br.com.rodogarcia.wms.services.LoginService;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
+import java.net.HttpCookie;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -14,6 +16,7 @@ import java.net.http.HttpResponse;
 import java.security.KeyPairGenerator;
 import java.security.SecureRandom;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Base64;
 import java.util.HexFormat;
 import java.util.List;
@@ -24,11 +27,16 @@ import javax.crypto.spec.PBEKeySpec;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -55,6 +63,8 @@ class LoginIntegrationTest {
     @Autowired JsonMapper mapper;
     @Autowired JdbcTemplate jdbc;
     @Autowired LoginService service;
+    @Autowired JwtDecoder decoder;
+    @Autowired AcessoService acesso;
     private Navegador principal;
 
     @DynamicPropertySource
@@ -465,6 +475,90 @@ class LoginIntegrationTest {
         } finally {
             pool.shutdownNow();
         }
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"sessao_expirada", "usuario_inativo", "versao_revogada"})
+    void qualConf01RevalidaSessaoNoHttpENoServicoComJwtAindaValido(String estado) throws Exception {
+        String email = UUID.randomUUID() + "@test.invalid";
+        String id = criar(email, false).path("id").asString();
+        var n = new Navegador();
+        // Emissão pelo serviço real H2: não acrescenta tentativas ao ensaio existente de rate
+        // limit.
+        n.token =
+                service.entrar(new AcessoDtos.Login(email, TEMPORARIA), null)
+                        .resposta()
+                        .accessToken();
+        assertThat(
+                        n.req(
+                                        "POST",
+                                        "/api/auth/senha",
+                                        Map.of("senhaAtual", TEMPORARIA, "novaSenha", DEFINITIVA))
+                                .statusCode())
+                .isEqualTo(204);
+        var entrada = service.entrar(new AcessoDtos.Login(email, DEFINITIVA), null);
+        n.token = entrada.resposta().accessToken();
+        var cookie = new HttpCookie("WMS_REFRESH", entrada.renovacao());
+        cookie.setVersion(0);
+        cookie.setPath("/api/auth");
+        n.cookies.getCookieStore().add(n.uri("/api/auth"), cookie);
+        var jwt = decoder.decode(n.token);
+        assertThat(jwt.getExpiresAt()).isAfter(Instant.now());
+        assertThat(service.jwtAtivo(jwt)).isTrue();
+        assertThat(n.req("GET", "/api/v1/clientes", null).statusCode()).isEqualTo(200);
+        long sessoes =
+                jdbc.queryForObject(
+                        "select count(*) from wms.sessao_acesso where usuario_id=?",
+                        Long.class,
+                        id);
+        long renovacoes =
+                jdbc.queryForObject(
+                        "select count(*) from wms.renovacao_acesso r join wms.sessao_acesso s on s.id=r.sessao_id where s.usuario_id=?",
+                        Long.class,
+                        id);
+        int alterados =
+                switch (estado) {
+                    case "sessao_expirada" ->
+                            jdbc.update(
+                                    "update wms.sessao_acesso set expira=? where id=?",
+                                    java.sql.Timestamp.from(Instant.now().minusSeconds(60)),
+                                    jwt.getClaimAsString("sid"));
+                    case "usuario_inativo" ->
+                            jdbc.update("update wms.usuario_acesso set ativo=false where id=?", id);
+                    case "versao_revogada" ->
+                            jdbc.update(
+                                    "update wms.usuario_acesso set versao_tokens=versao_tokens+1 where id=?",
+                                    id);
+                    default -> throw new AssertionError(estado);
+                };
+        assertThat(alterados).isEqualTo(1);
+        assertThat(service.jwtAtivo(jwt)).isFalse();
+        var anterior = SecurityContextHolder.getContext();
+        try {
+            var contexto = SecurityContextHolder.createEmptyContext();
+            contexto.setAuthentication(new JwtAuthenticationToken(jwt, List.of()));
+            SecurityContextHolder.setContext(contexto);
+            assertThatThrownBy(acesso::usuario).isInstanceOf(AccessDeniedException.class);
+        } finally {
+            SecurityContextHolder.setContext(anterior);
+        }
+        assertThat(n.req("GET", "/api/auth/eu", null).statusCode()).isEqualTo(401);
+        assertThat(n.req("GET", "/api/v1/clientes", null).statusCode()).isEqualTo(401);
+        assertThat(jwt.getExpiresAt()).isAfter(Instant.now());
+        n.token = null;
+        assertThat(n.req("POST", "/api/auth/renovar", null).statusCode()).isEqualTo(401);
+        assertThat(
+                        jdbc.queryForObject(
+                                "select count(*) from wms.sessao_acesso where usuario_id=?",
+                                Long.class,
+                                id))
+                .isEqualTo(sessoes);
+        assertThat(
+                        jdbc.queryForObject(
+                                "select count(*) from wms.renovacao_acesso r join wms.sessao_acesso s on s.id=r.sessao_id where s.usuario_id=?",
+                                Long.class,
+                                id))
+                .isEqualTo(renovacoes);
     }
 
     private Map<String, Object> cadastro(String email, boolean admin) {

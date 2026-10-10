@@ -1483,12 +1483,12 @@
       {
         "name": "clienteId",
         "type": "Long",
-        "required": true
+        "required": false
       },
       {
         "name": "armazemId",
         "type": "Long",
-        "required": true
+        "required": false
       },
       {
         "name": "fuso",

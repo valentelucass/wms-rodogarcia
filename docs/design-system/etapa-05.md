@@ -1,6 +1,6 @@
 # FE02-CTX01 / BE14-DASH02 → FE02-DASH02 — seleção por nome e visão geral
 
-Pedido expresso de Lucas em 09/10/2026: implementar os seletores de cliente e armazém e ajustar o Início conforme o texto anexado. Esta entrega substitui a composição do Início de DASH01; seu contrato e componente de gráficos permanecem preservados. As regras de estoque e cobrança continuam nos serviços existentes.
+Pedido expresso de Lucas em 09/10/2026: implementar os seletores de cliente e armazém e ajustar o Início conforme o texto anexado. A composição inicial desta entrega substituiu o Início de DASH01. Em 10/10, Lucas pediu reincluir os gráficos e exibi-los também com Todos; a composição vigente está no [incremento A03](#gráficos-no-início-e-opção-todos--be14-dash01-a01--fe02-dash02-a03). As regras de estoque e cobrança continuam nos serviços existentes.
 
 ## Seleção de contexto
 
@@ -33,11 +33,41 @@ O percentual e as posições consideram todos os clientes dos armazéns selecion
 
 O mapa vem de todos os endereços cadastrados nos armazéns permitidos, agrupados por armazém, rua, nível decrescente e posição. Quantidades de ruas, níveis e posições não são fixadas. As colunas mantêm a relação entre as posições dos níveis, inclusive quando há lacunas. Endereços disponíveis usam verde; ocupados, vermelho; áreas especiais/inativos têm estado próprio. Legenda, texto e nomes acessíveis acompanham as cores.
 
-Busca por código e filtros Todas/Disponíveis/Ocupadas afetam somente o mapa. Paginação de 100 endereços e rolagem dentro da rua mantêm todos os cadastros alcançáveis; os totais continuam do contexto inteiro. São identificados total de registros, quantidade nesta página e capacidade considerada. Vazio, busca sem resultado, carregamento e falha são explícitos.
+Busca por código e filtros Todas/Disponíveis/Ocupadas afetam somente o mapa. A paginação de 100 endereços mantém todos os cadastros alcançáveis; as setas percorrem as colunas da rua nesta página, conforme a apresentação vigente de [A06](#mapa-do-início-conforme-referência--fe02-dash02-a06). Os totais continuam do contexto inteiro. O mapa identifica o total de endereços; quando há mais de uma página, mostra também o intervalo e os controles de paginação. Informações de capacidade ficam nos indicadores e na explicação expansível. Vazio, busca sem resultado, carregamento e falha são explícitos.
 
 Cada posição abre um diálogo com código completo, armazém, rua, nível, posição, estado, tipo, capacidade de peso/dimensões/empilhamento/unidade permitida e ocupação. Para conteúdo autorizado, mostra produto, SKU, lote, quantidade, etiqueta, pedido de origem, bloqueio, reserva, quarentena e último movimento de estoque registrado. Ausência de movimento não é substituída pela data de edição. Conteúdo de outro cliente fora do alcance fica oculto; somente sua ocupação física permanece visível.
 
 Endereçar está disponível para endereço livre com cliente selecionado. Abre o Coletor existente com armazém e destino preenchidos, visíveis desde a leitura. Caso o endereço esteja fora da página de posições consultada pelo coletor, é buscado pelo ID e o armazém é conferido. Ler, escolher ou abrir detalhes não grava movimentação. O comando exige leitura da unidade, conferência do destino e confirmação existente; permissões, disponibilidade e capacidade são revalidadas pelos serviços.
+
+## Mapa compacto e navegação por setas — FE02-DASH02-A04
+
+Pedido expresso de Lucas em 10/10/2026: reduzir a altura dos cartões, organizar as ruas e usar setas para mostrar as posições anteriores/próximas. Ruas passam a ter divisões finas, sem grandes painéis internos. Cartões comuns medem 44 px de altura; bloqueio ou reserva acrescentam uma linha e totalizam 54 px. Verde/vermelho, estado textual, código e acesso aos detalhes permanecem.
+
+Cada rua calcula quantas colunas cabem na largura disponível. Quando necessário, setas laterais mostram o grupo anterior/próximo, com indicação de colunas visíveis e controles desabilitados no início/fim. O mesmo grupo vale para todos os níveis da rua, mantendo lacunas e alinhamento vertical; posições têm ordem numérica/textual crescente e níveis, decrescente. Em telas pequenas, o nome da rua fica acima dos níveis. Não há barra horizontal. As setas trabalham sobre a página recebida; a paginação de endereços continua separada.
+
+Conferência local: tipagem, lint focal, formatação, builds real/fictício e oito testes existentes aprovados. Chrome com API interceptada: dois casos, incluindo 16 medições em oito larguras de 320 a 1920 px, nos dois temas; três casos do exercício aprovados. Verificados lacunas, estados, ausência de transbordamento, todas as 20 colunas do cenário, ida/volta, limites, redimensionamento, Tab/Shift+Tab/Enter/Escape e retorno do foco após fechar detalhes. Cartão anterior de 64 px passou a 44 px; a rua do cenário que quebrava posições do mesmo nível em duas linhas passou de 208 para 69 px em 1500 px. Capturas claro/escuro em desktop/mobile inspecionadas. [Medidas](../../frontend/evidencias/map-a04-medidas.json), [recibo](../../orchestracao/.runtime/map-a04/resultado.json). Sem integração SQL ou reinício do DEV nesta alteração visual; previews próprios encerrados.
+
+`graphify update .` executado somente AST: substituição integral recusada por extração de 13.286 contra 15.220 nós, sem `--force`. Houve poda de quatro nós de arquivos ignorados; não se declara atualização integral do grafo. [Log](../../orchestracao/.runtime/map-a04/graphify.log).
+
+## Armazéns com fundos alternados — FE02-DASH02-A05
+
+Pedido expresso de Lucas em 10/10/2026: distinguir cada armazém no empilhamento com fundo alternado. Os blocos completos, do título à última rua, alternam superfície normal e superfície elevada neutra dos tokens existentes. Espaçamento e cantos discretos delimitam os grupos; os rótulos de nível acompanham o fundo. A margem compensa o preenchimento lateral para preservar a largura disponível às posições. Cores semânticas, altura dos cartões e navegação por setas de A04 permanecem.
+
+Conferência proporcional ao ajuste CSS: formatação/build real aprovados; Chrome com API interceptada, quatro armazéns fictícios em seis composições de 320/390/1500 px, claro/escuro. Verificados alternância, separação vertical, rótulos, cartões de 44/54 px, ausência de transbordamento e ida/volta pelas setas. Capturas desktop claro e mobile escuro inspecionadas. [Medidas](../../frontend/evidencias/map-a05-medidas.json), [recibo](../../orchestracao/.runtime/map-a05/resultado.json). Preview próprio encerrado; sem backend, SQL ou reinício do DEV. Graphify AST recusou substituição integral por extração menor, sem forçar; limite registrado no recibo.
+
+## Mapa do Início conforme referência — FE02-DASH02-A06
+
+Pedido expresso de Lucas em 10/10/2026, com imagem de um mapa compacto: aproximar a apresentação da referência, com organização simples e alta densidade. Dependência BE14-DASH02 → FE02-DASH02-A04/A05. Esta composição substitui a apresentação de cartões de A04, preservando fundos alternados entre armazéns de A05.
+
+- Cabeçalho discreto, seletor de armazém compacto e legenda juntos. Busca, estado e explicações ficam em Filtros, recolhido inicialmente e acessível por teclado; quando aplicado, o filtro continua indicado mesmo recolhido.
+- Rua identificada acima da grade. Níveis descendentes com rótulo numérico discreto e nome completo acessível; posições em ordem natural e lacunas preservadas. As setas e o intervalo ficam no cabeçalho da rua, sem recuar as grades que precisam de navegação.
+- Células de 64 × 28 px no desktop; 64 × 44 px em telas até 700 px ou dispositivos de ponteiro de toque. Código cadastrado visível, verde/vermelho preenchidos com contraste nos dois temas e estado indisponível neutro. Código extenso tem elipse, nome acessível completo, descrição no hover e detalhe ao abrir; nenhum código é reescrito.
+- Bloqueio e reserva aparecem como marcadores independentes, inclusive simultaneamente; os caracteres iniciais `!` e `R` foram substituídos pelos ícones de [A07](#ícones-do-mapa--fe02-dash02-a07). Estado e avisos completos continuam no nome acessível, descrição e diálogo. Cor de livre usa somente disponibilidade retornada pelo backend.
+- Nome visual do armazém omitido quando há um único grupo, preservando identificação acessível; múltiplos grupos conservam títulos e fundos alternados. Uma página mostra apenas o total de endereços; mais páginas conservam a paginação existente.
+
+Conferência local: tipagem, lint focal, formatação e builds real/fictício aprovados; oito testes de contexto e cinco casos Chrome. Doze medições em 320/390/768/1024/1500/1920 px e claro/escuro: altura, largura, alinhamento entre ruas/níveis, lacunas e ausência de transbordamento conferidos. Todas as 20 colunas do cenário percorridas por ida/volta; bloqueio/reserva simultâneos, filtro ativo/recolhido, escolha de armazém, paginação, erro/vazio, detalhes, destino e Enter/Escape/retorno do foco verificados. Capturas desktop claro e mobile escuro inspecionadas. [Medidas](../../frontend/evidencias/map-a06-medidas.json), [recibo](../../orchestracao/.runtime/map-a06/resultado.json).
+
+API interceptada e exercício explícito são provas de interface, sem backend ou SQL Server reais. Previews próprios encerrados; processos existentes preservados. Graphify AST tentou atualizar o mapa e recusou substituição integral por extração menor, sem `--force`; [log](../../orchestracao/.runtime/map-a06/graphify-final.log). Não se declara atualização integral do grafo.
 
 ## Contratos e atualização
 
@@ -52,6 +82,24 @@ Dez testes locais backend (cinco de arquitetura, três de integração JPA/H2 is
 Conferência focal final: 23 testes, incluindo destino fora da página, resposta atrasada e catálogo com mais de uma página. Dois casos nativos finais repetiram nomes/Long/valores restritos e o destino visível no coletor. Provas locais em `frontend/evidencias/visao-operacao*-browser-resultados.json`; [recibo da entrega](../../orchestracao/.runtime/visao-operacao-resultado.json). Capturas mantidas fora do Git. Não foram executados SQL Server, migrações, reinícios, publicação ou operação real. Dialeto/plano/desempenho em SQL Server, dados operacionais, NFS-e real, equipamento e versão já em execução permanecem verificações de ambiente, sem converter testes isolados em homologação.
 
 `graphify update .` foi executado na raiz, somente AST, e recusou reduzir o mapa de 15.220 para 12.961 nós; o mapa principal foi preservado, sem `--force`. A manutenção do grafo permanece separada da entrega.
+
+## Gráficos no Início e opção Todos — BE14-DASH01-A01 → FE02-DASH02-A03
+
+Pedido expresso de Lucas em 10/10/2026, após identificar os gráficos ausentes: reutilizar a implementação existente e mostrar informação também com Todos os clientes e Todos os armazéns. A composição passa a ser Acesso rápido → dez indicadores → gráficos de ocupação física, fila de saída e disponibilidade por produto → mapa. `WarehouseOverview` recebe o painel `OperationDashboard` entre os indicadores e o mapa, tanto no aplicativo real quanto no exercício. Os quatro cartões antigos não são repetidos; nomes autorizados identificam a seleção.
+
+`GET /api/v1/dashboard` passa a aceitar cliente/armazém opcionais, independentemente. O serviço resolve Todos como cadastros do Gestor ou listas permitidas da identidade dos demais perfis. Os agregados usam os mesmos conjuntos autorizados, sem carregar todas as unidades, consultar cada par ou somar páginas no navegador. Sem alcance, o resultado é vazio; pedido explícito fora do alcance continua recusado. Capacidade e posições livres nos gráficos mantêm a permissão de Gestor do contrato DASH01.
+
+Produtos continuam agrupados pelo ID do produto e paginados no servidor, com `clienteId` em cada item para identificar o proprietário. O mesmo SKU de dois clientes permanece em linhas separadas, assim como KG e UN; somente o saldo do mesmo produto é agregado entre os armazéns selecionados. Posições e fila representam o contexto completo, independentemente da página de produtos. Na visão agregada, o contrato antigo de avisos de validade permanece sem valor: não extrapola uma antecedência de um cliente/armazém para os demais. Esse cartão não é exibido no Início atual.
+
+Atualizar gráficos é uma leitura explícita, sem polling. Trocar contexto ou alcance descarta respostas antigas e reinicia a paginação na composição do Início. Falha/403 conserva o aviso separado de zero e remove os gráficos da consulta recusada. A gravação operacional, a reserva, o cálculo financeiro e o mapa mantêm seus serviços e regras existentes.
+
+A conferência e a versão preparada estão no [recibo A03](../../orchestracao/.runtime/graficos-inicio/resultado.json). Testes HTTP/JPA usam somente H2 isolado; Chrome usa respostas interceptadas no modo real e transporte fictício no exercício, sem API ou SQL Server real. Pacote preparado não significa backend em execução atualizado: o operador deve encerrar o console DEV anterior e executar `iniciar-dev.bat` para carregar a nova consulta. Nenhuma migration ou intervenção no SQL Server é necessária.
+
+## Ícones do mapa — FE02-DASH02-A07
+
+Pedido expresso de Lucas em 10/10/2026. Bloqueada usa cadeado SVG e Reservada usa marcador SVG, substituindo os caracteres !/R de A06. Cada estado forma um item próprio da legenda, mantendo ícone/rótulo juntos na quebra de linha. Ícones da legenda têm 18 px e alinhamento central; os marcadores nas células mantêm 12 px para não encobrir o código. São decorativos para leitores de tela: nomes dos estados continuam nos rótulos visíveis e nos nomes acessíveis das posições. Cores de ocupação, consultas e regras não mudam.
+
+Tipagem, lint focal, formatação/build real, oito testes de contexto/mapa e um caso Chrome aprovados, com 12 combinações de seis larguras (320/390/768/1024/1500/1920) e dois temas. Capturas da legenda e das posições inspecionadas; alinhamento, dimensões, ausência de transbordamento, filtros, detalhes e teclado conferidos com API interceptada. [Recibo](../../orchestracao/.runtime/map-icons/resultado.json). Graphify recusou a atualização por extração menor; sem substituição forçada.
 
 ## Alinhamento da busca — FE02-DASH02-A01
 

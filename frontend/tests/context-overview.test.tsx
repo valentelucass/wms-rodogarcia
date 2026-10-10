@@ -1,10 +1,4 @@
-import {
-    fireEvent,
-    render,
-    screen,
-    waitFor,
-    within,
-} from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { expect, it, vi } from "vitest";
 import { FictitiousTransport } from "../src/api/fictitious";
 import { ReferenceCatalogProvider } from "../src/components/context/ReferenceCatalog";
@@ -97,6 +91,7 @@ it("mapa e indicadores distinguem 80 posições, duas ocupadas e uma unidade; fi
         region.querySelector(".overview-metric--3 strong"),
     ).toHaveTextContent("1");
     expect(region.querySelectorAll(".map-position")).toHaveLength(80);
+    fireEvent.click(screen.getByRole("button", { name: "Filtros" }));
     fireEvent.change(screen.getByLabelText("Mostrar posições"), {
         target: { value: "OCUPADO" },
     });
@@ -135,7 +130,7 @@ it("área especial e endereço inativo nunca recebem cor de livre", () => {
     expect(buttons.every((b) => b.classList.contains("map-state--other"))).toBe(
         true,
     );
-    expect(within(buttons[0]).getByText("Quarentena")).toBeInTheDocument();
+    expect(buttons[0]).toHaveAccessibleName(`${p.codigo} · Quarentena`);
     fireEvent.click(buttons[0]);
     expect(select).toHaveBeenCalledWith(expect.objectContaining({ id: "10" }));
 });

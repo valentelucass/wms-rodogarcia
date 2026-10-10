@@ -21,23 +21,23 @@ export function HomeOverview({ navigate }: { navigate: Navigate }) {
             className="home-shortcuts"
             aria-labelledby="home-shortcuts-title"
         >
-            <h2 id="home-shortcuts-title">Acesso rápido</h2>
+            <h2 id="home-shortcuts-title" className="sr-only">
+                Acesso rápido
+            </h2>
             <div className="shortcut-grid">
                 {shortcuts.map(([page, title, description]) => (
                     <button
                         key={page}
                         type="button"
                         className={`shortcut-card shortcut-card--${page}`}
+                        title={description}
                         onClick={() => navigate(page)}
                     >
                         <span className="shortcut-icon">
                             <Icon name={page} />
                         </span>
-                        <span>
-                            <strong>{title}</strong>
-                            <span>{description}</span>
-                        </span>
-                        <Icon name="arrow" />
+                        <strong>{title}</strong>
+                        <span className="sr-only">{description}</span>
                     </button>
                 ))}
             </div>

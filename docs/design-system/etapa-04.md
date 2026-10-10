@@ -1,6 +1,6 @@
 # BE14-DASH01 → FE02-DASH01 — gráficos do Início
 
-**Composição histórica DASH01:** a nova demanda CTX01/DASH02 substitui a apresentação do Início por dez indicadores e mapa; este contrato, componente e provas permanecem preservados. Ver [composição atual](etapa-05.md).
+**Composição histórica DASH01:** CTX01/DASH02 substituiu inicialmente a apresentação por dez indicadores e mapa. Em 10/10, os gráficos foram reincluídos com apoio à opção Todos no incremento BE14-DASH01-A01 → FE02-DASH02-A03. Este documento preserva a prova original; ver [composição e contrato atuais](etapa-05.md#gráficos-no-início-e-opção-todos--be14-dash01-a01--fe02-dash02-a03).
 
 Lucas autorizou a aplicação em 09/10/2026, após pedir gráficos abaixo do Acesso rápido, aderência ao design system e uma preparação proporcional do backend em `backend/`. Este incremento entrega ocupação física, disponibilidade por SKU e fila de saída. Séries históricas de entrada/saída e indicadores financeiros permanecem propostas para outro incremento.
 

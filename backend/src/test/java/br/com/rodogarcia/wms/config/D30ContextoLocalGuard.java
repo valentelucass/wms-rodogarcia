@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -26,6 +27,8 @@ import tools.jackson.databind.json.JsonMapper;
 
 /** Guarda somente de testes D30: confere ambiente antes de instanciar DataSource/servicos. */
 public class D30ContextoLocalGuard implements ContextCustomizerFactory {
+    private static final Set<String> LOGIN_PROPRIO =
+            Set.of("LoginIntegrationTest", "LoginHttpsIntegrationTest", "LoginBrowserTest");
     private static final Map<String, String> BANCOS =
             Map.ofEntries(
                     Map.entry("CadastrosIntegrationTest", "wms-cadastros"),
@@ -39,7 +42,12 @@ public class D30ContextoLocalGuard implements ContextCustomizerFactory {
                     Map.entry("JornadaBackendIntegrationTest", "wms-jornada"),
                     Map.entry("PedidoSaidaIntegrationTest", "wms-saida"),
                     Map.entry("RecebimentoIntegrationTest", "wms-recebimento"),
-                    Map.entry("UnidadeLogisticaIntegrationTest", "wms-unidades"));
+                    Map.entry("UnidadeLogisticaIntegrationTest", "wms-unidades"),
+                    Map.entry("LoginIntegrationTest", "wms-login-d32"),
+                    Map.entry("LoginHttpsIntegrationTest", "wms-login-https"),
+                    Map.entry("LoginBrowserTest", "wms-login-browser-d32"),
+                    Map.entry("VisaoOperacaoIntegrationTest", "visao-operacao"),
+                    Map.entry("PedidoEntradaXmlIntegrationTest", "wms-entrada-xml"));
 
     @Override
     public ContextCustomizer createContextCustomizer(
@@ -57,7 +65,10 @@ public class D30ContextoLocalGuard implements ContextCustomizerFactory {
                 ? null
                 : "jdbc:h2:mem:"
                         + banco
-                        + ";DB_CLOSE_DELAY=-1;LOCK_TIMEOUT=10000;INIT=CREATE SCHEMA IF NOT EXISTS wms";
+                        + (Set.of("LoginHttpsIntegrationTest", "VisaoOperacaoIntegrationTest")
+                                        .contains(classe)
+                                ? ";DB_CLOSE_DELAY=-1;INIT=CREATE SCHEMA IF NOT EXISTS wms"
+                                : ";DB_CLOSE_DELAY=-1;LOCK_TIMEOUT=10000;INIT=CREATE SCHEMA IF NOT EXISTS wms");
     }
 
     public static boolean urlCapturaLocalPermitida(String url) {
@@ -92,6 +103,8 @@ public class D30ContextoLocalGuard implements ContextCustomizerFactory {
         String url = env.getProperty("spring.datasource.url");
         boolean h2 = BANCOS.containsKey(classe);
         if (h2) {
+            if (LOGIN_PROPRIO.contains(classe))
+                exigir(env.getProperty("wms.auth.enabled", Boolean.class, false), "login ficticio");
             exigir(urlEsperada(classe).equals(url), "URL H2 isolada");
             exigir(
                     "org.h2.Driver".equals(env.getProperty("spring.datasource.driver-class-name")),
@@ -173,16 +186,16 @@ public class D30ContextoLocalGuard implements ContextCustomizerFactory {
                                         == 0,
                                 "config SQLServer");
                         if (BANCOS.containsKey(classe) || "D30JwtHttpHeaderTest".equals(classe)) {
-                            exigir(
-                                    factory.containsBeanDefinition("jwtDecoder"),
-                                    "decoder ficticio");
-                            String owner =
-                                    factory.getBeanDefinition("jwtDecoder").getFactoryBeanName();
+                            boolean proprio = LOGIN_PROPRIO.contains(classe);
+                            String decoder = proprio ? "loginDecoder" : "jwtDecoder";
+                            exigir(factory.containsBeanDefinition(decoder), "decoder ficticio");
+                            String owner = factory.getBeanDefinition(decoder).getFactoryBeanName();
                             exigir(
                                     owner != null
                                             && factory.containsBeanDefinition(owner)
-                                            && IdentidadeTesteConfig.class
-                                                    .getName()
+                                            && (proprio
+                                                            ? LoginConfig.class.getName()
+                                                            : IdentidadeTesteConfig.class.getName())
                                                     .equals(
                                                             factory.getBeanDefinition(owner)
                                                                     .getBeanClassName()),

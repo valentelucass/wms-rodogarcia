@@ -11,6 +11,10 @@ test("visão geral fictícia nos dois temas e mudança de armazém", async ({
         name: "Visão geral da operação",
     });
     await expect(overview.locator(".overview-metric")).toHaveCount(10);
+    const charts = page.getByRole("region", { name: "Gráficos da operação" });
+    await expect(charts.locator(".dashboard-chart")).toHaveCount(3);
+    await expect(charts.getByText("DEMO-BOBINA")).toBeVisible();
+    await expect(charts.locator(".dashboard-metric")).toHaveCount(0);
     await expect(overview.locator(".map-position")).toHaveCount(80);
     await chooseTheme(page, "light");
     await chooseTheme(page, "dark");
@@ -22,6 +26,8 @@ test("visão geral fictícia nos dois temas e mudança de armazém", async ({
     await picker.press("Enter");
     await expect(overview.locator(".map-position")).toHaveCount(24);
     await expect(overview.getByText("0%", { exact: true })).toBeVisible();
+    await expect(charts.locator(".dashboard-chart")).toHaveCount(3);
+    await expect(charts).toContainText("Anexo fictício");
     await page
         .getByLabel("Perfil de apresentação fictício")
         .selectOption("OPERACAO");

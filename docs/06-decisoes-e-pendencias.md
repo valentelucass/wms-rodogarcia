@@ -1,5 +1,59 @@
 # Decisões e pendências do WMS Rodogarcia
 
+## QUAL-CONF01 — qualidade e confiabilidade, 10/10/2026
+
+Nova demanda expressa de Lucas após reset: ler a documentação vigente, executar primeiro as suítes atuais em saídas isoladas, inventariar áreas/riscos de forma compacta e corrigir erros demonstrados por testes ou prova concreta. Cada correção exige reprodução, causa, menor ajuste, verde/regressão/build da fonte final e revisão independente. Propostas AC permanecem identificadas; não inventar parâmetros ou transformar baseline verde em ausência universal de erros.
+
+Posses exclusivas: Cedro backend/regras/transações/segurança/testes; Lume frontend/contratos/fluxos/erros/acessibilidade/browser; Prumo scripts/database/infra/pareamento JPA-DDL em arquivo e testes isolados; Vigia revisão em leitura; Farol canônicos/consolidação. Preservar toda alteração preexistente e paralela; sem reset/revert/stash/commit/push. Locais, H2 efêmero isolado e browser interceptado autorizados. Integração real pertinente somente WMS_DEV/WMSDEV após prova atual do runtime/alvo/TLS/permissões/catálogo/histórico e sessão legítima; não iniciar servidores reais por inferência. Sem SQLfixture/DELETE/reset/DDL/migrations/grants/PROD/sa na API/servidor/runtime compartilhado/kill ou restart existente/fiscal ou cobrança externa/dispositivos reais/ETL/publicação/rotinas. POP e a autorização histórica de população SQL não são retomados.
+
+**Steering de Lucas:** priorizar diferença entre site aberto e fonte. Inspeção atual somente de leitura, sem SQL/novo login/senha/processo real novo. Uma recarga do portal WMS é autorizada se não houver edição/operação pendente, preservando a sessão sem inspecionar tokens/cookies; se não for seguro, orientar Ctrl+Shift+R sem alegar execução. Reinício de processos do usuário exige devolver o limite e o comando documentado antes de agir. [Andamento oficial](../STATES.md#qual-conf01--qualidade-e-confiabilidade-10102026); provas em `orchestracao/.runtime/qual-conf01/`.
+
+**Conferência expressa durante a rodada:** preservar os testes históricos não substitui provar os comportamentos vigentes do runner D22 atual. Exercitar em cópias isoladas, com stubs/dados fictícios e sem alterar executores/migrations/históricos: retomada/reexecução/corrida Create→Check, falha PROD preservando DEV, gates PreValidate/Migrate/PostValidate/Info/catálogo e sanitização de checksum/transporte. Caso não executável exige barreira concreta; não declarar validação integral. Intermitência em File.Replace permanece pendência material até causa/teste determinístico ou justificativa explícita; uma rodada verde não apaga o vermelho.
+
+## FE02-DS01-A04 — setas e blur no menu lateral, 10/10/2026
+
+Lucas pediu usar setas e blur quando o menu lateral não couber em monitor pequeno. Autoriza ocultar a barra de rolagem e introduzir controles de anterior/próximo com desfoque nas bordas, mantendo destinos, roda/toque e teclado. [Definição](design-system/etapa-01.md#setas-e-desfoque-na-lateral--fe02-ds01-a04).
+
+## FE02-DASH02-A07 — ícones de bloqueio e reserva, 10/10/2026
+
+Lucas pediu corrigir os ícones da legenda do mapa. A apresentação usa cadeado para bloqueio e marcador para reserva, em SVG, com alinhamento central e o mesmo símbolo nas posições. Estados e rótulos mantidos. [Definição](design-system/etapa-05.md#ícones-do-mapa--fe02-dash02-a07).
+
+## FE02-REG01-A06 — disposição dos botões de auditoria, 10/10/2026
+
+Lucas pediu organizar os botões Auditar Cliente/Serviço que estavam empilhados sem intervalo. O componente compartilhado passa a alinhar as ações com espaçamento e quebra conforme a largura. Aviso de vínculo/legado e seleção de cada namespace permanecem. [Definição](design-system/etapa-06.md#botões-da-auditoria--fe02-reg01-a06).
+
+## FE05-PED01-A01 — botões da consulta de pedidos, 10/10/2026
+
+Lucas pediu reorganizar a posição dos botões de Pedidos de entrada. Aplicar/Restaurar passam a compartilhar a faixa com Atualizar lista, mantendo Novo pedido no cabeçalho e disposição adaptada ao celular. Mudança de apresentação sem alterar consultas ou regras. [Definição](design-system/etapa-07.md#botões-da-consulta--fe05-ped01-a01).
+
+## FE02-REG01-A05 — compactação dos diálogos e rastreamento de padrões, 10/10/2026
+
+Lucas enviou detalhes de serviço e edição de cliente, pediu reduzir espaços/divisões vazias e acordeões dispensáveis e rastrear o padrão no projeto. Autoriza corrigir os componentes compartilhados de apresentação e registrar tudo o que mudou. A edição mostra identificação fixa compacta e campos editáveis; o detalhe completo continua acessível. Referências úteis, confirmações, dados, permissões e proteção de alterações pendentes permanecem. [Inventário e definição](design-system/etapa-06.md#diálogos-e-formulários-compactos--fe02-reg01-a05).
+
+## FE02-REG01-A04 — tabela sem rolagem lateral no desktop, 10/10/2026
+
+Lucas pediu melhorar a tabela de Cadastros que rolava lateralmente em monitor de 1500 px. Autoriza distribuir a largura entre colunas, quebrar códigos/documentos extensos e compactar detalhes/edição em ícones identificados, na tabela compartilhada. Dados completos, comandos, permissões e acesso por teclado permanecem. Em telas estreitas, a rolagem fica restrita à tabela. [Definição e conferência](design-system/etapa-06.md#tabelas-ajustadas-à-largura--fe02-reg01-a04).
+
+## FE02-DASH02-A06 — mapa compacto conforme imagem, 10/10/2026
+
+Lucas forneceu uma nova referência e pediu melhor organização do mapa do Início. A apresentação passa a usar códigos em células pequenas preenchidas de verde/vermelho, ruas com título acima da grade, legenda junto da seleção e filtros/informações secundárias recolhidos. Setas no cabeçalho de cada rua preservam o mesmo alinhamento entre grades. A06 substitui a apresentação dos cartões de A04; fundos alternados de A05, estados, consultas e detalhes continuam. [Definição e conferência](design-system/etapa-05.md#mapa-do-início-conforme-referência--fe02-dash02-a06).
+
+## FE02-DASH02-A05 — fundos alternados no empilhamento, 10/10/2026
+
+Lucas pediu separar melhor cada grupo empilhado com fundo alternado. Aplicado ao bloco completo de cada armazém, com superfície normal e cinza suave alternados, conforme o tema. [Definição e conferência](design-system/etapa-05.md#armazéns-com-fundos-alternados--fe02-dash02-a05).
+
+## FE02-DASH02-A04 — mapa compacto com setas, 10/10/2026
+
+Lucas pediu simplificar ruas/cartões, reduzir a altura e corrigir o alinhamento. Ao conferir muitas posições na rua, orientou usar setas para mostrar mais/menos, substituindo a barra horizontal. Autoriza a apresentação compartilhada com grupos de colunas ajustados à largura, preservando níveis, lacunas, estados e acesso aos detalhes. [Definição e conferência](design-system/etapa-05.md#mapa-compacto-e-navegação-por-setas--fe02-dash02-a04).
+
+## FE02-DS03-A06 — atalhos compactos com borda, 10/10/2026
+
+Lucas pediu alinhar atalhos, Início e administração, reduzir a altura, padronizar o botão administrativo e aumentar a separação dos indicadores. Após conferir a composição, pediu simplificar os botões e manter uma borda. A apresentação neutra substitui a orientação de fundos marcantes de A05; destinos e permissões permanecem iguais. [Definição atual](design-system/etapa-03.md#atalhos-compactos-e-neutros--fe02-ds03-a06).
+
+## FE02-CTX01-A02 — contexto no cabeçalho a partir de 1200 px, 10/10/2026
+
+Lucas pediu manter os seletores de cliente/armazém e Aplicar contexto na linha principal até 1200 px. Autoriza ajustar o limite responsivo e o espaçamento do cabeçalho compartilhado. [Composição e conferência](design-system/etapa-03.md#contexto-na-linha-principal--fe02-ctx01-a02). Seleção, catálogo e regras operacionais preservados.
+
 ## POP-DEV01-SQL01 — canal SQL direto autorizado, 10/10/2026
 
 Lucas pediu popular o banco DEV e esclareceu expressamente que a população deve ser por SQL, sem entrar no site. Autoriza inserir a massa fictícia diretamente em WMS_DEV pela identidade própria WMSDEV, substituindo somente a exigência anterior de escrita HTTP para este recorte. Permanecem as guardas atuais de alvo/identidade/TLS/permissões/histórico, integridade transacional e preservação de dados, contas, migrations e processos. Não autoriza PROD, DDL, grants, exclusão ou emissão fiscal/financeira externa. Prefixo `LUCASDEV20261010`; valores comerciais da massa são apenas demonstração fictícia. [Andamento](../STATES.md#pop-dev01-sql01--população-direta-de-wms_dev-10102026).
@@ -42,7 +96,11 @@ Lucas pediu expressamente refatorar as 12 áreas: abrir lista/fila/overview ao e
 
 ## FE02-CTX01 / BE14-DASH02 → FE02-DASH02 — contexto por nome e mapa, 09/10/2026
 
-Lucas solicitou expressamente as três implementações: cliente por nome, armazém por nome e Início conforme o texto anexado. IDs continuam internos; nomes/códigos vêm dos cadastros autorizados, sem criação implícita. Todos significa alcance permitido. A composição atual substitui os quatro indicadores/gráficos do Início de DASH01 por dez indicadores e mapa cadastral; contrato/componente anterior ficam preservados. Capacidade física considera armazenagem ativa, enquanto o mapa mantém áreas especiais e inativos com estado próprio. Ocupação do armazém inclui seus clientes; demais indicadores seguem também o cliente escolhido. Valor reutiliza o indicador de estoque; faturamento é parcial do mês pelas NFS-e registradas, sem emitir documento ou recalcular cobrança. Operação não recebe valores financeiros; conteúdo fora do alcance é ocultado. Endereçar preenche o coletor, mantendo confirmação e regras backend. [Definições completas e conferência](design-system/etapa-05.md).
+Lucas solicitou expressamente as três implementações: cliente por nome, armazém por nome e Início conforme o texto anexado. IDs continuam internos; nomes/códigos vêm dos cadastros autorizados, sem criação implícita. Todos significa alcance permitido. A composição inicial substituiu os quatro indicadores/gráficos de DASH01 por dez indicadores e mapa cadastral; a reinclusão dos gráficos em 10/10 está no incremento A03 abaixo. Capacidade física considera armazenagem ativa, enquanto o mapa mantém áreas especiais e inativos com estado próprio. Ocupação do armazém inclui seus clientes; demais indicadores seguem também o cliente escolhido. Valor reutiliza o indicador de estoque; faturamento é parcial do mês pelas NFS-e registradas, sem emitir documento ou recalcular cobrança. Operação não recebe valores financeiros; conteúdo fora do alcance é ocultado. Endereçar preenche o coletor, mantendo confirmação e regras backend. [Definições completas e conferência](design-system/etapa-05.md).
+
+## BE14-DASH01-A01 → FE02-DASH02-A03 — gráficos e opção Todos, 10/10/2026
+
+Lucas pediu ajustar a exibição dos gráficos existentes e esclareceu que devem mostrar informação também com Todos os clientes e Todos os armazéns. Essa orientação amplia o contrato de leitura DASH01 e complementa os dez indicadores e o mapa, sem retirar nenhuma dessas partes. Todos segue o alcance autorizado; produtos de clientes distintos e unidades de medida distintas não são fundidos. [Composição, contrato e limites](design-system/etapa-05.md#gráficos-no-início-e-opção-todos--be14-dash01-a01--fe02-dash02-a03). Conferência local e pacote DEV separados da versão em execução, sem migration, banco real ou reinício pelo agente.
 
 ## BE14-DASH01 → FE02-DASH01 — gráficos do Início, 09/10/2026
 

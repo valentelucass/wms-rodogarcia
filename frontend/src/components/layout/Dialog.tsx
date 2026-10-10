@@ -11,6 +11,7 @@ export function Dialog({
     wide = false,
     account = false,
     icon,
+    className = "",
 }: {
     title: string;
     children: ReactNode;
@@ -19,6 +20,7 @@ export function Dialog({
     wide?: boolean;
     account?: boolean;
     icon?: string;
+    className?: string;
 }) {
     const ref = useRef<HTMLDialogElement>(null);
     const opener = useRef(document.activeElement);
@@ -45,7 +47,8 @@ export function Dialog({
             className={
                 "workspace-dialog" +
                 (wide ? " workspace-dialog--wide" : "") +
-                (account ? " account-dialog" : "")
+                (account ? " account-dialog" : "") +
+                (className ? " " + className : "")
             }
             aria-labelledby={titleId}
             onCancel={(event) => {

@@ -3539,9 +3539,15 @@ class CobrancaIntegrationTest {
                         "select table_name from information_schema.tables where table_schema='WMS' and table_type='BASE TABLE' order by table_name",
                         String.class)) {
             assertThat(tabela).matches("[A-Z_]+");
-            result.put(tabela, jdbc.queryForList("select * from wms." + tabela + " order by id"));
+            String chave = "RENOVACAO_ACESSO".equals(tabela) ? "hash" : "id";
+            result.put(
+                    tabela,
+                    jdbc.queryForList("select * from wms." + tabela + " order by " + chave));
         }
-        assertThat(result).hasSize(64);
+        assertThat(result)
+                .hasSize(68)
+                .containsKeys(
+                        "USUARIO_ACESSO", "SESSAO_ACESSO", "RENOVACAO_ACESSO", "EVENTO_ACESSO");
         return result;
     }
 
@@ -4421,7 +4427,26 @@ class CobrancaIntegrationTest {
         assertThat(audit.get("ACAO")).isEqualTo(acao);
         assertThat(audit.get("USUARIO")).isEqualTo("cobranca-GESTOR");
         assertThat(audit.get("ID_OPERACAO")).isEqualTo(requestId);
-        assertThat(mapper.readTree(audit.get("DADOS_ANTES").toString())).isEqualTo(original);
-        assertThat(mapper.readTree(audit.get("DADOS_DEPOIS").toString())).isEqualTo(resultado);
+        JsonNode esperadoAntes = original;
+        JsonNode esperadoDepois = resultado;
+        if ("VINCULO_TABELA".equals(acao)) {
+            // O contrato compara JSON; os dois lados atravessam a mesma fronteira de parse.
+            esperadoAntes =
+                    mapper.readTree(
+                            mapper.writeValueAsString(
+                                    Map.of(
+                                            "tipoRegistro", "VINCULO_COBRANCA",
+                                            "registroId", id,
+                                            "resultado", original)));
+            esperadoDepois =
+                    mapper.readTree(
+                            mapper.writeValueAsString(
+                                    Map.of(
+                                            "tipoRegistro", "VINCULO_COBRANCA",
+                                            "registroId", id,
+                                            "resultado", resultado)));
+        }
+        assertThat(mapper.readTree(audit.get("DADOS_ANTES").toString())).isEqualTo(esperadoAntes);
+        assertThat(mapper.readTree(audit.get("DADOS_DEPOIS").toString())).isEqualTo(esperadoDepois);
     }
 }

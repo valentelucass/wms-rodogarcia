@@ -85,7 +85,9 @@ function V9ModelTexto([string]$texto) {
     if($table.Count -eq 1) {
         $tabela=V9TextoJava (V9Atributo $table[0].argumentos 'name');$schema=V9TextoJava (V9Atributo $table[0].argumentos 'schema' '""')
         foreach($a in @(V9Anotacoes $table[0].argumentos)) {
-            if($a.nome -notin @('UniqueConstraint','Index')){throw 'PARSER_TABLE_ANOTACAO_DESCONHECIDA'}
+            if($a.nome -notin @('UniqueConstraint','Index','CheckConstraint')){throw 'PARSER_TABLE_ANOTACAO_DESCONHECIDA'}
+            # CheckConstraint nao e chave/indice; seu predicado exige comparacao propria.
+            if($a.nome -eq 'CheckConstraint'){continue}
             if($a.nome -eq 'Index' -and (V9Atributo $a.argumentos 'unique' 'false') -ne 'true'){continue}
             $key=if($a.nome -eq 'Index'){'columnList'}else{'columnNames'};$v=V9Atributo $a.argumentos $key
             $cols=if($v.StartsWith('{')){@((V9Delimitado $v 0).partes|Where-Object {$_}|ForEach-Object {V9TextoJava $_})}else{@((V9TextoJava $v) -split '\s*,\s*')}

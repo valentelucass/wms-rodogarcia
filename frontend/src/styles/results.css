@@ -1,16 +1,16 @@
 .record {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: var(--og-space-2);
+    grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr));
+    gap: var(--og-space-3) var(--og-space-4);
+    margin: 0;
 }
-.record div {
-    border-bottom: 1px solid var(--og-border);
-    padding: var(--og-space-2);
+.record > div {
     min-width: 0;
 }
 .record dt {
     font-size: var(--og-type-caption);
     font-weight: var(--og-font-semibold);
+    color: var(--og-text-muted);
 }
 .record dd {
     margin: 0;
@@ -47,9 +47,10 @@ caption {
     margin-top: 0;
 }
 .result-section {
-    margin: var(--og-space-4) 0;
-    padding: var(--og-space-2);
-    border-left: 2px solid var(--og-border);
+    margin: var(--og-space-3) 0 0;
+    padding: var(--og-space-3);
+    border: 1px solid var(--og-border);
+    border-radius: var(--og-radius-control);
 }
 .empty {
     padding: var(--og-space-4);
@@ -63,7 +64,7 @@ caption {
     max-width: 600px;
     overflow-wrap: anywhere;
 }
-@media (max-width: 800px) {
+@media (max-width: 480px) {
     .record {
         grid-template-columns: 1fr;
     }

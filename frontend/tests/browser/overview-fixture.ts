@@ -1,6 +1,7 @@
 import type { Route } from "@playwright/test";
 import { LosslessNumber, stringify } from "lossless-json";
 import { overviewExample } from "../../src/api/mock/overview";
+import { dashboardExample } from "../../src/api/mock/dashboard";
 import type { Request } from "../../src/api/client";
 import type { Perfil } from "../../src/contracts/runtime";
 
@@ -28,6 +29,19 @@ const numbers = new Set([
     "alturaMetros",
     "larguraMetros",
     "profundidadeMetros",
+    "posicoesCliente",
+    "unidadesDisponiveis",
+    "pedidosAbertos",
+    "unidadesComAviso",
+    "capacidadeAtiva",
+    "livresArmazem",
+    "pedidos",
+    "produtoId",
+    "fisicoTotal",
+    "disponivel",
+    "reservado",
+    "indisponivel",
+    "pendenteUnitizacao",
 ]);
 export function overviewWire(v: unknown, key = ""): unknown {
     return Array.isArray(v)
@@ -83,6 +97,19 @@ export async function fulfillOverviewRead(
             },
             perfil,
             true,
+        );
+    else if (url.pathname === "/api/v1/dashboard")
+        data = dashboardExample(
+            {
+                endpoint: {
+                    id: "DashboardController.consultar",
+                } as Request["endpoint"],
+                params: {},
+                query: Object.fromEntries(url.searchParams),
+                signal: new AbortController().signal,
+            },
+            perfil,
+            false,
         );
     else return false;
     await route.fulfill({

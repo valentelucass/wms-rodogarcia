@@ -68,10 +68,28 @@ function D20Adicionar($Tabela,[string]$Trecho,[string]$Origem) {
     $rest=$m.Groups['rest'].Value.Trim()
     if($rest){D20Constraint $Tabela $rest $n $Origem}
 }
+function D20StatementsEstruturais($Fonte) {
+    # V10 tem guardas procedurais. Somente a fonte imutavel conhecida pode
+    # ser projetada nos dois ALTERs; isto nao executa nem aprova suas guardas.
+    if([IO.Path]::GetFileName($Fonte.arquivo) -ceq 'V10__permitir_ajuste_estoque_em_fato_permanencia.sql') {
+        $sha=[Security.Cryptography.SHA256]::Create()
+        try {
+            $hash=([BitConverter]::ToString($sha.ComputeHash([Text.Encoding]::UTF8.GetBytes(
+                $Fonte.texto.Replace("`r`n","`n"))))).Replace('-','')
+        } finally {$sha.Dispose()}
+        if($hash -cne 'C4A2D6BDF4EEB7C839C292285918A767255052D25A593A4606578292EC3AC4E9') {
+            throw 'D20_V10_FONTE_DIVERGENTE'
+        }
+        $ddl=@(D20Partes (D20LimparSql $Fonte.texto) ';' | Where-Object {$_ -cmatch '^ALTER TABLE wms\.fato_permanencia '})
+        if($ddl.Count -ne 2){throw 'D20_V10_ALTERS_DIVERGENTES'}
+        return $ddl
+    }
+    D20Partes (D20LimparSql $Fonte.texto) ';'
+}
 function D20SchemaEfetivo([object[]]$Fontes) {
     $tabelas=[ordered]@{};$alteracoes=@();$dml=@();$sessao=@()
     foreach($f in $Fontes){
-        foreach($s in @(D20Partes (D20LimparSql $f.texto) ';')){
+        foreach($s in @(D20StatementsEstruturais $f)){
             if($s -match '(?s)^IF DB_NAME\(\).*THROW 51000,'){continue}
             if($s -match '^SET \w+ (ON|OFF)$'){$sessao+=[pscustomobject]@{origem=$f.arquivo;sql=$s};continue}
             if($s -match '(?s)^CREATE TABLE wms\.(?<nome>\w+)\s*\((?<corpo>.*)\)$'){

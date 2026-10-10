@@ -55,13 +55,15 @@ export function ReferenceLookup({
                         {title}
                     </button>
                 ))}
-                <button
-                    type="button"
-                    disabled={!result || pending}
-                    onClick={() => setShowResult(true)}
-                >
-                    Ver referências consultadas
-                </button>
+                {result && !showResult && (
+                    <button
+                        type="button"
+                        disabled={pending}
+                        onClick={() => setShowResult(true)}
+                    >
+                        Ver referências consultadas
+                    </button>
+                )}
             </div>
             {pending && <p role="status">Consultando referências…</p>}
             {error && <p role="alert">{error}</p>}

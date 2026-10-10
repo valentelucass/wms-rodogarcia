@@ -7,7 +7,9 @@ import { resolve } from "node:path";
 const port = process.argv[2];
 if (!/^[1-9]\d{0,4}$/.test(port ?? "") || Number(port) > 65535)
     throw new Error("PORTA_FIXTURE_INVALIDA");
-const output = resolve("../orchestracao/.runtime/login-d32");
+const output = resolve(
+    process.env.WMS_BROWSER_OUTPUT_DIR ?? "../orchestracao/.runtime/login-d32",
+);
 await mkdir(output, { recursive: true });
 let server, browser, page;
 let stage = "abrir_login";
@@ -16,6 +18,7 @@ try {
     server = await preview({
         configFile: false,
         root: process.cwd(),
+        build: { outDir: process.env.WMS_BROWSER_DIST_DIR ?? "dist" },
         preview: {
             host: "127.0.0.1",
             port: 59999,

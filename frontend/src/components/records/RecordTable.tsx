@@ -9,6 +9,7 @@ import { resultName } from "../../domain/resultNames";
 import { recordActionLabel } from "../../domain/recordPages";
 import { StatusBadge } from "../../design-system/StatusBadge";
 import { Icon } from "../../design-system/Icon";
+import type { CSSProperties } from "react";
 
 const columns: Record<string, string[]> = {
     "ClienteDto.Resposta": ["nome", "codigo", "documentoFiscal", "situacao"],
@@ -213,8 +214,17 @@ export function RecordTable({
             ),
         ].slice(0, 7);
     return (
-        <div className="table-scroll record-table">
+        <div
+            className="table-scroll record-table"
+            style={{ "--record-column-count": keys.length } as CSSProperties}
+        >
             <table>
+                <colgroup>
+                    {keys.map((key) => (
+                        <col key={key} />
+                    ))}
+                    <col className="record-column-actions" />
+                </colgroup>
                 <caption>
                     <span className="record-table-heading">
                         <span>
@@ -291,24 +301,31 @@ export function RecordTable({
                                 <td className="record-cell-actions">
                                     <div className="record-row-actions">
                                         <button
+                                            className="record-action-icon"
                                             type="button"
+                                            title="Ver detalhes"
                                             disabled={pending}
                                             onClick={() => onOpen(row)}
                                         >
                                             <Icon name="eye" />
-                                            Ver detalhes
+                                            <span className="sr-only">
+                                                Ver detalhes
+                                            </span>
                                         </button>
                                         {edit && (
                                             <button
-                                                className="primary"
+                                                className="primary record-action-icon"
                                                 type="button"
+                                                title="Editar"
                                                 disabled={pending}
                                                 onClick={() =>
                                                     onOpen(row, edit)
                                                 }
                                             >
                                                 <Icon name="edit" />
-                                                Editar
+                                                <span className="sr-only">
+                                                    Editar
+                                                </span>
                                             </button>
                                         )}
                                         {!edit && operation && (
@@ -327,7 +344,11 @@ export function RecordTable({
                                                 }
                                             >
                                                 <Icon name="arrow" />
-                                                {recordActionLabel(operation)}
+                                                <span className="record-action-label">
+                                                    {recordActionLabel(
+                                                        operation,
+                                                    )}
+                                                </span>
                                             </button>
                                         )}
                                     </div>

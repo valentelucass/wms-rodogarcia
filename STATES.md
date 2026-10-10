@@ -1,5 +1,157 @@
 # Estado e trilha de implementação do WMS Rodogarcia
 
+## QUAL-CONF01 — qualidade e confiabilidade, 10/10/2026
+
+**Em andamento, nova demanda expressa de Lucas após reset.** Rodada sobre a fonte suja atual, com histórico preservado e sem retomar POP. Dependências: contratos e entregas existentes BE01–BE16 → FE01–FE13, incluindo D32/D33 e incrementos atuais. [Escopo e limites](docs/06-decisoes-e-pendencias.md#qual-conf01--qualidade-e-confiabilidade-10102026); evidências novas em `orchestracao/.runtime/qual-conf01/`.
+
+- [x] Registrar baseline suja e distribuir posses exclusivas: Cedro backend; Lume frontend/browser; Prumo database/infra; Vigia revisão; Farol canônicos.
+- [x] Executar primeira baseline antes de ampliar documentos: frontend 493/493 em 47 arquivos, tipagem/lint/build real aprovados; scripts DEV 9/9 e 7/7; checks independentes de contratos/configuração aprovados.
+- [x] Preservar baseline Maven com JDK 21: 836 casos, três falhas e oito erros; ambiente, seleção indevida e helpers de evidência/oráculo diagnosticados. Focal corrigido: 220 casos, zero falhas/erros. JDK 21 existente somente no processo, sem desativar Enforcer.
+- [x] Concluir recorte frontend: 500/500 em 48 arquivos, seis casos browser integralmente interceptados, tipagem/lint/build final aprovados e parecer independente favorável.
+- [ ] Concluir inventário compacto por área/risco, reproduções, correções mínimas, regressão da fonte final e revisão independente.
+- [ ] Fechar relatório com contagens calculadas, versões e áreas executadas ou impedimentos concretos.
+
+**Versão servida — encaminhamento confirmado:** inspeção de leitura identificou BE PID 50200/JAR `2b94a77f`, fonte correspondente e 549/549 classes iguais à compilação; FE PID 73436, Vite da raiz em modo real. Assets novos correspondem à fonte; o DOM aberto conservava a composição anterior. A única recarga autorizada, após conferir ausência de edição/operação pendente, trouxe o cabeçalho atual e quatro atalhos de 44 px. Sessão continuou acessível. Causa profunda da retenção não comprovada; sem reinício. [Provas](orchestracao/.runtime/qual-conf01/lume/resultado.json).
+
+**Achado corrigido QUAL-CONF01-A01:** 401 atrasado com Bearer anterior encerrava sessão renovada. Correção mínima em `frontend/src/api/client.ts`, dois vermelhos preservados, regressão/build verde e reprodução/revisão independente. Pareamento JPA–DDL local: 3.695 verificações, zero falhas, sem SQL. Fonte backend estabilizada após corrigir apenas o preparo de SKU de uma fixture; regressão padrão em execução. A revisão infra permanece aberta para famílias vigentes do runner D22 atual; `File.Replace` intermitente é pendência material com causa não demonstrada, mesmo após verdes. Provas locais/H2/browser interceptado não comprovam SQL Server. Não houve nova guarda/conexão SQL direta ou teste real de negócio pela equipe; a recarga pode provocar leituras/renovações normais da aplicação. **Próximo:** regressão padrão/build, LoginBrowser H2 separado, provas D22 atuais, revisão geral e relatório calculado, sem confirmação por bloco.
+
+## FE02-DS01-A04 — setas e desfoque na navegação lateral, 10/10/2026
+
+**Concluído e conferido localmente, pedido expresso de Lucas:** substituir a barra visível da lateral curta por navegação com setas e desfoque nas bordas. Dependências FE02-DS01/DS03; navegação transversal, sem mudança nos contratos backend. [Definição](docs/design-system/etapa-01.md#setas-e-desfoque-na-lateral--fe02-ds01-a04).
+
+- [x] Setas condicionais ao espaço disponível, limites desabilitados e desfoque apenas na direção com itens ocultos.
+- [x] Preservar roda/toque, módulo selecionado, foco, menu minimizado/expandido, drawer e movimento reduzido.
+- [x] Conferir tipagem/lint/formatação, builds e regressão local de navegação.
+
+**Evidência:** 25 testes existentes e cinco casos Chrome aprovados; dois temas, lateral de 64/256 px, alturas de 400/600/1200 px, acesso a todos os módulos, retorno do foco, mouse e drawer móvel de 390×560 px. Capturas inspecionadas. [Recibo](orchestracao/.runtime/sidebar-arrows/resultado.json). API interceptada, sem backend/SQL ou reinício/publicação. Preview próprio encerrado; graphify recusou extração menor, sem substituição forçada. Validação deste incremento separada da rodada QUAL-CONF01.
+
+**Próximo:** conferir a navegação na versão atualizada do frontend.
+
+## FE02-DASH02-A07 — ícones da legenda do mapa, 10/10/2026
+
+**Concluído e conferido localmente, pedido expresso de Lucas:** corrigir os pequenos símbolos desalinhados de Bloqueada/Reservada. Dependência BE14-DASH02 → FE02-DASH02-A06. Cadeado e marcador SVG substituem !/R na legenda e nas posições; rótulos e estados acessíveis preservados. [Definição](docs/design-system/etapa-05.md#ícones-do-mapa--fe02-dash02-a07).
+
+- [x] Uniformizar tamanho e alinhamento, mantendo cada ícone junto do respectivo rótulo.
+- [x] Conferir tipagem, lint focal, formatação/build real, oito testes e um caso Chrome em seis larguras e dois temas.
+
+**Evidência:** 12 combinações de 320–1920 px, símbolos da legenda em 18 px e células em 12 px, sem transbordamento; capturas inspecionadas e teclado/detalhes/filtros conferidos. [Recibo](orchestracao/.runtime/map-icons/resultado.json). API interceptada, sem backend/SQL ou reinício/publicação; preview próprio encerrado. Graphify AST recusou substituir o índice por extração menor, sem forçar; manutenção separada.
+
+**Próximo:** conferir os ícones na versão atualizada do frontend.
+
+## FE02-REG01-A06 — botões da seleção de auditoria, 10/10/2026
+
+**Concluído e conferido localmente, pedido expresso de Lucas:** organizar os botões do painel Auditoria de um registro consultado. Dependências FE02-REG01/FE12 e contrato existente `AuditoriaController.listar`. [Definição](docs/design-system/etapa-06.md#botões-da-auditoria--fe02-reg01-a06).
+
+- [x] Alinhar botões lado a lado com espaçamento e quebra natural, mantendo aviso/consulta de legado no grupo próprio.
+- [x] Conferir tipagem, lint focal, formatação, build real, seleção/permissões e disposição em 1500/360 px, claro/escuro.
+
+**Evidência:** oito testes existentes e quatro casos Chrome aprovados; capturas inspecionadas, Tab, IDs longos, alvos de toque e ausência de transbordamento conferidos. [Recibo](orchestracao/.runtime/audit-buttons/resultado.json). API interceptada, sem backend/SQL ou reinício/publicação. Preview próprio encerrado; resultado da tentativa de atualização AST do graphify no recibo.
+
+**Próximo:** conferir visualmente a versão atualizada do frontend.
+
+## FE05-PED01-A01 — posição dos botões da consulta, 10/10/2026
+
+**Concluído e conferido localmente, pedido expresso de Lucas:** reorganizar os botões da tela Pedidos de entrada. Dependências BE06 → FE05-PED01 e componente de consulta FE02-REG01. Aplicar/Restaurar juntos à esquerda e Atualizar lista à direita da mesma faixa; Novo pedido permanece no cabeçalho. Mobile usa duas colunas e atualização na linha seguinte. [Definição](docs/design-system/etapa-07.md#botões-da-consulta--fe05-ped01-a01).
+
+- [x] Reunir os comandos de consulta e adaptar a disposição ao celular.
+- [x] Conferir teclado, carregamento, consulta, temas e larguras 1500/768/360 px.
+
+**Conferência:** tipagem, lint focal, formatação e build real aprovados; 36 testes de recebimento/páginas e quatro casos Chrome com API interceptada. Alinhamento, ordem Tab, toque de 44 px, ausência de transbordamento, pré-requisitos da consulta e atualização por leitura verificados; capturas inspecionadas. [Recibo](orchestracao/.runtime/buttons-a01/resultado.json). Sem backend/SQL, publicação ou reinício da aplicação existente. Preview próprio encerrado; tentativa de atualização AST do graphify registrada separadamente no recibo.
+
+**Próximo:** conferir a apresentação com a versão atualizada do frontend.
+
+## FE02-REG01-A05 — detalhes e formulários compactos, 10/10/2026
+
+**Concluído e conferido localmente, pedido expresso de Lucas:** reorganizar os dois diálogos enviados e rastrear no frontend blocos vazios, separadores e acordeões desnecessários. Dependências FE02-REG01/A04 e contratos existentes BE05 → FE04, com componentes comuns às demais jornadas. [Definição e inventário](docs/design-system/etapa-06.md#diálogos-e-formulários-compactos--fe02-reg01-a05).
+
+- [x] Corrigir na origem divisórias vazias, repetição de ações/dados, referências sem conteúdo e formulários excessivamente espaçados.
+- [x] Rastrear os oito usos de acordeão; preservar os cinco usos com conteúdo operacional útil.
+- [x] Concluir conferência de tipagem, lint, builds, fluxos, teclado, temas e larguras 1500/768/360 px.
+
+**Conferência:** 493 testes da suíte frontend e dez casos Chrome aprovados; tipagem, lint, formatação e builds real/fictício aprovados. Navegação das 12 áreas, cadastro/edição/situação, erro, permissões, revisão, repetição de chegada, teclado e descarte pendente preservados. Capturas de detalhes e edição em 1500/768/360 px, claro/escuro, inspecionadas; sem rolagem lateral. [Suíte](frontend/evidencias/dialog-a05-suite.json), [navegador](frontend/evidencias/dialog-a05-browser.json), [recibo](orchestracao/.runtime/dialog-a05/resultado.json). API interceptada localmente, sem integração real/backend/SQL; preview próprio encerrado. Graphify AST recusou substituir 15.220 nós por extração menor de 13.291, sem forçar; avisos de esquema/comunidades registrados e manutenção do índice separada.
+
+**Próximo:** conferir visualmente a apresentação atualizada na aplicação do operador. Nenhum reinício/publicação executado; não há pendência de implementação deste incremento.
+
+## FE02-REG01-A04 — tabelas ajustadas à largura disponível, 10/10/2026
+
+**Concluído e conferido localmente, pedido expresso de Lucas:** organizar a tabela de Cadastros que exigia rolagem lateral em monitor de 1500 px. Dependências FE02-REG01/A01/A03, preservando contratos BE05 → FE04 e os demais leitores da tabela compartilhada. [Definição vigente](docs/design-system/etapa-06.md#tabelas-ajustadas-à-largura--fe02-reg01-a04).
+
+- [x] Distribuir colunas, quebrar valores extensos e compactar ações com identificação acessível.
+- [x] Conferir 1500 px, larguras menores, temas, teclado, detalhes/edição, permissões e outros tipos da tabela.
+- [x] Registrar conferência e definição na etapa 06.
+
+**Conferência:** tipagem, lint focal, formatação e builds real/fictício aprovados; 25 testes de páginas por registro e oito casos Chrome com API interceptada. Vinte medições de Clientes em 1200/1280/1400/1500/1920 px, claro/escuro e menu aberto/recolhido: zero rolagem lateral da tabela/página, códigos/documentos longos completos e ações visíveis. Armazéns em três larguras; estoque, saída, contraste, estados, filtro, perfil Operação, detalhes/edição, Enter/Escape e retorno do foco conferidos. Mobile 360 px mantém rolagem somente dentro da tabela e ações de 44 px. Capturas inspecionadas. [Medidas](frontend/evidencias/table-a04-medidas.json), [recibo](orchestracao/.runtime/table-a04/resultado.json). Previews próprios encerrados; sem backend/SQL ou reinício de processos existentes. Graphify AST recusou substituição integral por extração menor, sem forçar; manutenção separada.
+
+**Próximo:** recarregar Cadastros para carregar a nova apresentação.
+
+## FE02-DASH02-A06 — mapa do Início conforme referência compacta, 10/10/2026
+
+**Concluído e conferido localmente, pedido expresso de Lucas:** organizar o mapa como a imagem fornecida, com células pequenas, ruas separadas, códigos e legenda junto da seleção do armazém. Dependência BE14-DASH02 → FE02-DASH02-A04/A05. Ajuste frontend compartilhado; [definição vigente](docs/design-system/etapa-05.md#mapa-do-início-conforme-referência--fe02-dash02-a06).
+
+- [x] Compactar apresentação desktop, manter toque mobile e recolher filtros/informações secundárias.
+- [x] Conferir tipagem/build, testes pertinentes, temas, teclado, detalhes, lacunas e telas pequenas.
+- [x] Registrar evidências e definição na etapa 05.
+
+**Conferência:** tipagem, lint focal, formatação e builds real/fictício aprovados; oito testes existentes de contexto e cinco casos Chrome. Doze medições em seis larguras de 320 a 1920 px, claro/escuro: células de 64 × 28 px no desktop e 64 × 44 px no mobile, ruas e níveis alinhados, lacunas preservadas, ausência de transbordamento e todas as 20 colunas acessíveis. Busca/filtro, paginação, erro/vazio, seleção de armazém, bloqueio/reserva simultâneos, Enter/Escape e retorno do foco conferidos. Capturas desktop/mobile inspecionadas. [Medidas](frontend/evidencias/map-a06-medidas.json), [recibo](orchestracao/.runtime/map-a06/resultado.json). Prova local com API interceptada e exercício separado, sem backend/SQL ou reinício de processos existentes. Graphify AST recusou substituição integral por extração menor, sem forçar; manutenção do grafo separada.
+
+**Próximo:** atualizar o Início para carregar a nova composição.
+
+## FE02-DASH02-A05 — separação dos armazéns empilhados, 10/10/2026
+
+**Concluído e conferido localmente, pedido expresso de Lucas:** alternar fundo suave e fundo normal entre os blocos de armazém, para distinguir cada grupo no empilhamento. Dependência BE14-DASH02 → FE02-DASH02-A04. Ajuste CSS compartilhado; [definição](docs/design-system/etapa-05.md#armazéns-com-fundos-alternados--fe02-dash02-a05).
+
+- [x] Aplicar fundos alternados aos blocos completos, incluindo título e ruas.
+- [x] Conferir temas, larguras e navegação existente.
+
+**Conferência:** formatação e build real aprovados. Chrome com API interceptada: quatro armazéns em seis composições, 320/390/1500 px e temas claro/escuro. Fundos alternados, rótulos sem manchas, separação dos blocos, cartões de 44/54 px, ausência de transbordamento e ida/volta das setas conferidos; capturas desktop/mobile inspecionadas. [Medidas](frontend/evidencias/map-a05-medidas.json), [recibo](orchestracao/.runtime/map-a05/resultado.json). Preview próprio encerrado; sem backend, SQL ou reinício de processos existentes. Graphify AST recusou substituição integral por extração menor, sem forçar; manutenção do grafo separada.
+
+**Próximo:** atualizar a página aberta para carregar os fundos alternados.
+
+## FE02-DASH02-A04 — mapa compacto de ruas e posições, 10/10/2026
+
+**Concluído e conferido localmente, pedido expresso de Lucas:** simplificar ruas/cartões, corrigir o alinhamento e substituir a barra horizontal por setas de anterior/próximo. Dependências BE14-DASH02 → FE02-DASH02/FE02-DASH02-A03. [Definição vigente](docs/design-system/etapa-05.md#mapa-compacto-e-navegação-por-setas--fe02-dash02-a04).
+
+- [x] Compactar ruas, níveis e posições sem esconder bloqueio ou reserva.
+- [x] Conferir temas, teclado, detalhes, lacunas entre níveis e telas pequenas.
+
+**Conferência:** tipagem, lint focal, formatação e builds real/fictício aprovados; oito testes existentes de contexto/visão geral. Chrome: dois casos no modo real com API interceptada e três no exercício; 16 medições em oito larguras de 320 a 1920 px e dois temas. Cartões comuns de 44 px contra 64 px anteriores; bloqueados/reservados de 54 px. Todas as 20 colunas do cenário percorridas pelas setas, com limites, redimensionamento, lacunas, detalhes e foco conferidos. Capturas desktop/mobile inspecionadas. [Recibo](orchestracao/.runtime/map-a04/resultado.json), [medidas](frontend/evidencias/map-a04-medidas.json). Previews próprios encerrados; sem backend, SQL ou reinício de processos existentes. Graphify AST recusou substituição integral por extração menor, sem forçar; manutenção do grafo permanece separada.
+
+**Próximo:** atualizar a página aberta para carregar o mapa atual.
+
+## FE02-DS03-A06 — atalhos compactos na faixa do Início, 10/10/2026
+
+**Concluído e conferido localmente, pedido expresso de Lucas:** atalhos e administração alinhados ao Início, compactos e neutros, com borda fina e maior separação dos indicadores. A orientação final substitui a apresentação colorida de A05. Dependências FE02-DS03-A05/FE02-DASH02-A03; [definição vigente](docs/design-system/etapa-03.md#atalhos-compactos-e-neutros--fe02-ds03-a06).
+
+- [x] Integrar atalhos compactos à faixa de título.
+- [x] Conferir temas, teclado, destinos e adaptação para telas pequenas.
+
+**Conferência:** tipagem, lint focal, formatação e builds real/fictício aprovados; 24 testes existentes em quatro arquivos. Chrome: 88 medições em 11 larguras de 320 a 1920 px, dois temas, menu aberto/recolhido e ambos os modos. Altura de 44 px contra 170 px anteriores; textos, bordas, alinhamento, separação, hover, foco, Tab/Shift+Tab/Enter, quatro destinos e administração/ausência para não administrador conferidos. Capturas desktop claro e mobile escuro inspecionadas. [Recibo](orchestracao/.runtime/shortcuts-a06/resultado.json), [medidas](frontend/evidencias/shortcuts-a06-resultados.json). API interceptada e exercício separado; sem backend/SQL real ou reinício de processos existentes. Previews próprios encerrados. Graphify AST recusou substituição integral por extração menor, sem forçar.
+
+**Próximo:** atualizar a página aberta para carregar a apresentação final.
+
+## FE02-CTX01-A02 — contexto na linha do cabeçalho a partir de 1200 px, 10/10/2026
+
+**Concluído e conferido localmente, pedido expresso de Lucas:** manter cliente, armazém e Aplicar contexto na linha principal a partir de 1200 px. Dependência FE02-CTX01-A01/FE02-CTX01. Ajuste somente CSS; a definição atual está na [etapa 03](docs/design-system/etapa-03.md#contexto-na-linha-principal--fe02-ctx01-a02).
+
+- [x] Ajustar largura e limite sem mudar a seleção de contexto.
+- [x] Conferir cabeçalho, ações, listas, temas e menu lateral em larguras intermediárias e mobile.
+
+**Conferência:** formatação e build real próprios aprovados. Chrome com API interceptada: 24 medições em 12 larguras de 320 a 1920 px, com menu lateral aberto/recolhido; textos completos, listas dentro da tela e ausência de rolagem horizontal. Cabeçalho de 64 px a partir de 1200 px; capturas de 1200/1500 px inspecionadas, além da conferência no tema escuro. [Recibo](orchestracao/.runtime/context-header-a02/resultado.json). Preview próprio encerrado, sem backend, SQL ou reinício de processos existentes. Atualização AST do Graphify recusou a substituição integral por extração menor, sem forçar; manutenção do mapa permanece separada.
+
+**Próximo:** atualizar a página aberta para carregar o CSS.
+
+## BE14-DASH01-A01 → FE02-DASH02-A03 — gráficos novamente no Início, 10/10/2026
+
+**Concluído e conferido localmente, pedido expresso de Lucas:** reincluir os gráficos existentes junto dos dez indicadores e do mapa; mostrar também o agregado com Todos os clientes e Todos os armazéns. Dependências BE14-DASH01/BE14-DASH02 → FE02-DASH01/FE02-DASH02 e FE02-CTX01. Consulta backend com escopo opcional, mantendo regras e permissões operacionais.
+
+- [x] Reutilizar os gráficos nos modos real e fictício, sem duplicar os cartões.
+- [x] Conferir montagem no Início, seleção de contexto, atualização, permissões, teclado e telas pequenas.
+- [x] Registrar evidências e limites da conferência.
+
+**Conferência:** `verify` com 86 testes HTTP/JPA/H2 isolados, incluindo seis cenários de dashboard e agregação de dois clientes/dois armazéns com SKU igual e saldos distintos; seleção parcial, alcance vazio, restrição e paginação. 491 testes frontend em 46 arquivos aprovados com dois workers após um timeout na primeira execução concorrente; tipagem, lint, formatação e builds real/fictício aprovados. Cinco casos Chrome com respostas interceptadas/exercício, seleção por nome, Long/Bearer, Todos, 403, teclado, mapa e telas pequenas nos dois temas. Capturas inspecionadas. Pacote DEV preparado com recibos, JAR, fontes e contratos concordantes. [Definição](docs/design-system/etapa-05.md#gráficos-no-início-e-opção-todos--be14-dash01-a01--fe02-dash02-a03), [recibo local](orchestracao/.runtime/graficos-inicio/resultado.json).
+
+**Próximo:** operador encerra o console DEV anterior e executa `iniciar-dev.bat` para carregar o pacote preparado, depois recarrega o Início; pode manter Todos. Todos significa alcance permitido, com produtos separados por cliente, SKU e unidade de medida. Sem SQL Server, migrations, reinício de processos existentes ou homologação real nesta entrega; desempenho/dialeto reais e versão em execução permanecem separados. Graphify AST executado, com substituição integral recusada por extração menor (13.283 contra 15.220 nós), sem force; manutenção do mapa permanece separada da entrega funcional.
+
 ## POP-DEV01-SQL01 — população direta de WMS_DEV, 10/10/2026
 
 **Concluído e conferido no banco real, orientação expressa de Lucas:** popular por SQL, sem entrar no site. Esta orientação substitui o canal HTTP e a dependência de sessão do POP-DEV01 para este recorte. Dependências BE03/BE05–BE14 → FE04–FE13 e SQL-TLS-ATUAL. Somente WMS_DEV/WMSDEV, dados fictícios identificados por `LUCASDEV20261010`; dados e históricos existentes, usuários, senhas, processos e migrations preservados.
@@ -666,7 +818,9 @@ Atualizado em06/10/2026. **D21 BE03/BE15 concluída localmente:** BAT de bootstr
 
 
 
-## Estado atual
+## Resumo histórico D27/D29 — preservado, substituído pelos resultados datados acima
+
+Esta fotografia pertence ao histórico anterior ao frontend e ao login D32. Não descreve a fonte nem o escopo atual; consultar o primeiro bloco deste arquivo para a rodada vigente.
 
 
 

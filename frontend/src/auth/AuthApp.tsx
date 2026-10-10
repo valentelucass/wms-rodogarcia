@@ -9,6 +9,7 @@ import { Collector } from "../components/Collector";
 import { PageHeader } from "../components/layout/PageHeader";
 import { HomeOverview } from "../components/layout/HomeOverview";
 import { WarehouseOverview } from "../components/dashboard/WarehouseOverview";
+import { OperationDashboard } from "../components/dashboard/OperationDashboard";
 import { ReferenceCatalogProvider } from "../components/context/ReferenceCatalog";
 import { ContextPicker } from "../components/context/ContextPicker";
 import { journeys } from "../domain/journeys";
@@ -245,20 +246,26 @@ function Workspace({
                 ) : (
                     <>
                         <PageHeader
+                            className="home-header"
                             title="Início"
                             icon="inicio"
                             description="Visão geral da operação"
                             actions={
                                 user.administrador && (
                                     <button
+                                        className="shortcut-card shortcut-card--usuarios"
                                         onClick={() => nav.navigate("usuarios")}
                                     >
-                                        Administrar usuários
+                                        <span className="shortcut-icon">
+                                            <Icon name="usuarios" />
+                                        </span>
+                                        <strong>Administrar usuários</strong>
                                     </button>
                                 )
                             }
-                        />
-                        <HomeOverview navigate={nav.navigate} />
+                        >
+                            <HomeOverview navigate={nav.navigate} />
+                        </PageHeader>
                         <WarehouseOverview
                             key={accessScope}
                             transport={transport}
@@ -273,7 +280,15 @@ function Workspace({
                                 });
                                 nav.navigate("coletor");
                             }}
-                        />
+                        >
+                            <OperationDashboard
+                                transport={transport}
+                                context={context}
+                                perfil={user.perfil}
+                                navigate={nav.navigate}
+                                showMetrics={false}
+                            />
+                        </WarehouseOverview>
                     </>
                 )}
                 {(passwordOpen || nav.page === "senha") && (

@@ -194,7 +194,7 @@ for (const [width, theme] of [
         expect(new Set(palette.map((color) => color.background)).size).toBe(3);
         const row = table.getByRole("row").nth(1),
             edit = row.getByRole("button", { name: "Editar", exact: true });
-        await expect(edit).toHaveClass("primary");
+        await expect(edit).toHaveClass(/(?:^|\s)primary(?:\s|$)/);
         const view = row.getByRole("button", {
             name: "Ver detalhes",
             exact: true,

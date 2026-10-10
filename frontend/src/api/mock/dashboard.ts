@@ -36,8 +36,14 @@ export function dashboardExample(
         ["DEMO-VOLUME", "UN", "0", "0", "0", "0", "0"],
     ];
     return {
-        clienteId: String(request.query.clienteId),
-        armazemId: String(request.query.armazemId),
+        clienteId:
+            request.query.clienteId == null
+                ? null
+                : String(request.query.clienteId),
+        armazemId:
+            request.query.armazemId == null
+                ? null
+                : String(request.query.armazemId),
         consultadoEm: new Date().toISOString(),
         fuso: String(request.query.fuso),
         posicoesCliente: empty ? "0" : "64",
@@ -77,18 +83,17 @@ export function dashboardExample(
             totalPaginas: empty ? 0 : 2,
             itens: empty
                 ? []
-                : samples
-                      .slice(pagina * 6, pagina * 6 + 6)
-                      .map((p, i) => ({
-                          produtoId: String(pagina * 6 + i + 1),
-                          sku: p[0],
-                          unidadeMedida: p[1],
-                          fisicoTotal: p[2],
-                          disponivel: p[3],
-                          reservado: p[4],
-                          indisponivel: p[5],
-                          pendenteUnitizacao: p[6],
-                      })),
+                : samples.slice(pagina * 6, pagina * 6 + 6).map((p, i) => ({
+                      produtoId: String(pagina * 6 + i + 1),
+                      clienteId: String(request.query.clienteId ?? "1"),
+                      sku: p[0],
+                      unidadeMedida: p[1],
+                      fisicoTotal: p[2],
+                      disponivel: p[3],
+                      reservado: p[4],
+                      indisponivel: p[5],
+                      pendenteUnitizacao: p[6],
+                  })),
         },
     };
 }

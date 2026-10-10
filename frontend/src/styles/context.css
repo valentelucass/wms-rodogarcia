@@ -77,7 +77,7 @@
     padding: var(--og-space-2);
 }
 .topbar--context {
-    grid-template-columns: minmax(100px, 1fr) minmax(540px, 600px) auto;
+    grid-template-columns: minmax(100px, 1fr) minmax(480px, 600px) auto;
 }
 .topbar--context .topbar-actions {
     min-width: max-content;
@@ -101,7 +101,15 @@
 .context > .reference-select {
     flex: 1 1 220px;
 }
-@media (min-width: 1024px) and (max-width: 1399px) {
+@media (min-width: 1200px) and (max-width: 1399px) {
+    .topbar-context {
+        padding-inline: var(--og-space-2);
+    }
+    .topbar-context .auth-context {
+        gap: var(--og-space-2);
+    }
+}
+@media (min-width: 1024px) and (max-width: 1199px) {
     .topbar--context {
         grid-template-columns: minmax(0, 1fr) auto;
     }

@@ -32,6 +32,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
@@ -360,6 +362,160 @@ class PedidoEntradaXmlIntegrationTest {
                                 .path("diferenca")
                                 .decimalValue())
                 .isEqualByComparingTo("-31900");
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void qualConf01AlcanceParcialRecusaPreviaReplayReciboEDocumentoSemEfeitos(
+            boolean clientePermitido) throws Exception {
+        var xml = xml();
+        var cmd = comando(xml, previa(xml, List.of()), List.of());
+        var criado = resposta(post("xml/confirmacao", cmd), 201);
+        long id = criado.path("pedido").path("id").asLong();
+        long nota = resposta(get(String.valueOf(id)), 200).path("notas").get(0).path("id").asLong();
+        var antes = contagens();
+        String restrito =
+                token(
+                        clientePermitido ? List.of(tigre.getId()) : List.of(),
+                        clientePermitido ? List.of() : List.of(dalga.getId()));
+        var leitura =
+                Map.of(
+                        "xml",
+                        xml,
+                        "clienteId",
+                        tigre.getId(),
+                        "armazemId",
+                        dalga.getId(),
+                        "associacoes",
+                        List.of());
+        resposta(enviar("POST", "xml/previa", leitura, restrito), 403);
+        resposta(enviar("POST", "xml/confirmacao", cmd, restrito), 403);
+        resposta(enviar("GET", "xml/operacoes/" + cmd.get("operacaoId"), null, restrito), 403);
+        var recusado = enviar("GET", id + "/notas/" + nota + "/documento", null, restrito);
+        resposta(recusado, 403);
+        assertThat(recusado.body()).doesNotContain(xml, "xmlOriginal");
+        assertThat(contagens()).isEqualTo(antes);
+        assertThat(resposta(get("xml/operacoes/" + cmd.get("operacaoId")), 200)).isEqualTo(criado);
+    }
+
+    @Test
+    void qualConf01ProdutoInativadoInvalidaRevisaoERecusaConfirmacaoAtualizadaSemFisico()
+            throws Exception {
+        String sku =
+                ("QUAL-" + UUID.randomUUID().toString().substring(0, 8))
+                        .toUpperCase(java.util.Locale.ROOT);
+        var isolado =
+                produtos.saveAndFlush(
+                        new Produto(
+                                tigre,
+                                sku,
+                                "Produto fictício exclusivo",
+                                "PEC",
+                                TipoQuantidade.CONTAGEM,
+                                0,
+                                false,
+                                false,
+                                null,
+                                Instant.now()));
+        var xml = xml().replace("<cProd>69230424</cProd>", "<cProd>" + sku + "</cProd>");
+        var inicial = previa(xml, List.of());
+        var prova =
+                Map.of(
+                        "demanda", "QUAL-CONF01",
+                        "clienteId", tigre.getId(),
+                        "produtoId", isolado.getId(),
+                        "skuGravado", produtos.findById(isolado.getId()).orElseThrow().getSku(),
+                        "skuNormalizadoDaBusca",
+                                br.com.rodogarcia.wms.services.CadastroSupport.codigo(sku),
+                        "produtoEncontradoPeloSkuNormalizado",
+                                produtos.buscarIdPorSku(
+                                                tigre.getId(),
+                                                br.com.rodogarcia.wms.services.CadastroSupport
+                                                        .codigo(sku))
+                                        .orElse(-1L),
+                        "xmlFicticio", xml,
+                        "previaCompleta", inicial);
+        String evidencias = System.getProperty("wms.test.evidencias.dir");
+        if (evidencias != null)
+            java.nio.file.Files.writeString(
+                    java.nio.file.Path.of(
+                            evidencias,
+                            "qual-conf01-previa-inicial-" + UUID.randomUUID() + ".json"),
+                    mapper.writeValueAsString(prova),
+                    java.nio.file.StandardOpenOption.CREATE_NEW);
+        assertThat(
+                        produtos.buscarIdPorSku(
+                                tigre.getId(),
+                                br.com.rodogarcia.wms.services.CadastroSupport.codigo(sku)))
+                .contains(isolado.getId());
+        assertThat(inicial.path("itens").get(0).path("produtoId").asLong())
+                .isEqualTo(isolado.getId());
+        assertThat(inicial.path("podeConfirmar").asBoolean()).as(inicial.toString()).isTrue();
+        var cmd = comando(xml, inicial, List.of());
+        var antes = contagens();
+        assertThat(
+                        jdbc.update(
+                                "update wms.produto set situacao='INATIVO', versao=versao+1 where id=?",
+                                isolado.getId()))
+                .isEqualTo(1);
+        assertThat(resposta(post("xml/confirmacao", cmd), 409).path("codigo").asString())
+                .isEqualTo("PREVIA_DESATUALIZADA");
+        var atualizada = previa(xml, List.of());
+        assertThat(atualizada.path("revisaoPrevia").asString())
+                .isNotEqualTo(inicial.path("revisaoPrevia").asString());
+        assertThat(atualizada.path("podeConfirmar").asBoolean()).isFalse();
+        assertThat(
+                        resposta(post("xml/confirmacao", comando(xml, atualizada, List.of())), 400)
+                                .path("codigo")
+                                .asString())
+                .isEqualTo("DADOS_INVALIDOS");
+        assertThat(contagens()).isEqualTo(antes);
+    }
+
+    @Test
+    void qualConf01D33ArmazemAutorizadoComDocumentoDiferenteMantemEmitenteProprietario()
+            throws Exception {
+        var alternativo =
+                armazens.saveAndFlush(
+                        new Armazem(
+                                "QUAL-" + UUID.randomUUID().toString().substring(0, 8),
+                                "Outro local fictício",
+                                "88888888000100",
+                                "Curitiba",
+                                "PR",
+                                Instant.now()));
+        String auth = token(List.of(tigre.getId()), List.of(alternativo.getId()));
+        var xml = xml();
+        var antes = contagens();
+        var previa =
+                resposta(
+                        enviar(
+                                "POST",
+                                "xml/previa",
+                                Map.of(
+                                        "xml",
+                                        xml,
+                                        "clienteId",
+                                        tigre.getId(),
+                                        "armazemId",
+                                        alternativo.getId(),
+                                        "associacoes",
+                                        List.of()),
+                                auth),
+                        200);
+        assertThat(previa.path("podeConfirmar").asBoolean()).isTrue();
+        assertThat(previa.path("clienteId").asLong()).isEqualTo(tigre.getId());
+        assertThat(previa.path("armazemId").asLong()).isEqualTo(alternativo.getId());
+        assertThat(previa.path("avisos").toString()).contains("difere do destinatário");
+        var cmd = comando(xml, previa, List.of());
+        cmd.put("armazemId", alternativo.getId());
+        var criado = resposta(enviar("POST", "xml/confirmacao", cmd, auth), 201);
+        assertThat(criado.path("pedido").path("clienteId").asLong()).isEqualTo(tigre.getId());
+        assertThat(criado.path("pedido").path("armazemId").asLong()).isEqualTo(alternativo.getId());
+        assertThat(produtos.findById(produto.getId()).orElseThrow().getCliente().getId())
+                .isEqualTo(tigre.getId());
+        for (var tabela : List.of("chegada_recebimento", "entrada_conferida", "unidade_logistica"))
+            assertThat(contar(tabela)).isEqualTo(antes.get(tabela));
     }
 
     private String xml() throws Exception {

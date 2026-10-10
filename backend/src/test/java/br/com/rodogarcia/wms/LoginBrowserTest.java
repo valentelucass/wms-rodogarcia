@@ -40,17 +40,26 @@ class LoginBrowserTest {
         assertThat(environment.getProperty("spring.datasource.url"))
                 .startsWith("jdbc:h2:mem:wms-login-browser-d32");
         Path root = Path.of("..").toAbsolutePath().normalize();
-        Path output = root.resolve("orchestracao/.runtime/login-d32");
+        Path output =
+                Path.of(
+                                System.getProperty(
+                                        "wms.test.evidencias.dir",
+                                        root.resolve("orchestracao/.runtime/login-d32").toString()))
+                        .toAbsolutePath()
+                        .normalize();
         Files.createDirectories(output);
-        var process =
+        var builder =
                 new ProcessBuilder(
                                 "node.exe",
                                 root.resolve("frontend/tools/login-browser.mjs").toString(),
                                 environment.getProperty("local.server.port"))
                         .directory(root.resolve("frontend").toFile())
                         .redirectErrorStream(true)
-                        .redirectOutput(output.resolve("browser.log").toFile())
-                        .start();
+                        .redirectOutput(output.resolve("browser.log").toFile());
+        builder.environment().put("WMS_BROWSER_OUTPUT_DIR", output.toString());
+        String dist = System.getProperty("wms.test.frontend.dist.dir");
+        if (dist != null) builder.environment().put("WMS_BROWSER_DIST_DIR", dist);
+        var process = builder.start();
         try {
             assertThat(process.waitFor(120, TimeUnit.SECONDS))
                     .as("Prazo do navegador local")

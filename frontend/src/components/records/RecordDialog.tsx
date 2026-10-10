@@ -303,6 +303,11 @@ export function RecordDialog({
                       : undefined,
             ).length > 0,
     );
+    const contextActions = available.filter(
+        (id) =>
+            (id !== action || completedAction === action) &&
+            (journey.id !== "entrada" || receivingSection(id) === section),
+    );
     const commandReceipt = (
         r: Receipt,
         type: string,
@@ -455,6 +460,7 @@ export function RecordDialog({
     };
     return (
         <Dialog
+            className="record-dialog"
             title={
                 record
                     ? `${recordTitle(record)} · ${recordIdentity(record)}`
@@ -500,18 +506,7 @@ export function RecordDialog({
                         </div>
                     )}
                     {action && (
-                        <details
-                            className="record-related-references"
-                            open={
-                                journey.id === "entrada" &&
-                                action === "PedidoEntradaController.nota"
-                                    ? true
-                                    : undefined
-                            }
-                        >
-                            <summary>
-                                Referências relacionadas à operação
-                            </summary>
+                        <>
                             <ReferenceLookup
                                 inline
                                 journey={journey}
@@ -536,6 +531,7 @@ export function RecordDialog({
                                 />
                             )}
                             {["precos", "relatorios"].includes(journey.id) &&
+                                action === "AuditoriaController.listar" &&
                                 perfil === "GESTOR" && (
                                     <AuditSelection
                                         workflow={workingWorkflow.current}
@@ -543,7 +539,7 @@ export function RecordDialog({
                                         disabled={locked}
                                     />
                                 )}
-                        </details>
+                        </>
                     )}
                     {record && journey.id === "entrada" && (
                         <ReceivingDetail
@@ -562,25 +558,16 @@ export function RecordDialog({
                             workflow={workingWorkflow.current}
                         />
                     )}
-                    {record && journey.id !== "entrada" && (
+                    {record && !action && journey.id !== "entrada" && (
                         <section
                             className="record-detail"
                             aria-label="Dados do registro"
                         >
-                            {action ? (
-                                <details>
-                                    <summary>
-                                        Identificação e dados somente leitura
-                                    </summary>
-                                    <Result data={record} type={recordType} />
-                                </details>
-                            ) : (
-                                <Result
-                                    data={record}
-                                    type={recordType}
-                                    onSelect={selectRecord}
-                                />
-                            )}
+                            <Result
+                                data={record}
+                                type={recordType}
+                                onSelect={selectRecord}
+                            />
                         </section>
                     )}
                     {record &&
@@ -603,35 +590,6 @@ export function RecordDialog({
                                 onRecord={selectRecord}
                             />
                         ))}
-                    {record && (
-                        <div
-                            className="record-context-actions"
-                            role="group"
-                            aria-label="Operações deste registro"
-                        >
-                            {available
-                                .filter(
-                                    (id) =>
-                                        journey.id !== "entrada" ||
-                                        receivingSection(id) === section,
-                                )
-                                .map((id) => (
-                                    <button
-                                        key={id}
-                                        type="button"
-                                        disabled={
-                                            locked ||
-                                            (journey.id === "entrada" &&
-                                                (refreshing ||
-                                                    Boolean(refreshError)))
-                                        }
-                                        onClick={() => chooseAction(id)}
-                                    >
-                                        {recordActionLabel(id)}
-                                    </button>
-                                ))}
-                        </div>
-                    )}
                     {action &&
                         (!opening.row ||
                             available.includes(action) ||
@@ -744,7 +702,44 @@ export function RecordDialog({
                                 para conferir.
                             </p>
                         )}
-                    <div className="actions">
+                    <div className="actions record-dialog-footer">
+                        {record && contextActions.length > 0 && (
+                            <div
+                                className="record-context-actions"
+                                role="group"
+                                aria-label="Operações deste registro"
+                            >
+                                {contextActions.map((id) => (
+                                    <button
+                                        key={id}
+                                        type="button"
+                                        disabled={
+                                            locked ||
+                                            (journey.id === "entrada" &&
+                                                (refreshing ||
+                                                    Boolean(refreshError)))
+                                        }
+                                        onClick={() => chooseAction(id)}
+                                    >
+                                        {recordActionLabel(id)}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                        {record && action && (
+                            <button
+                                type="button"
+                                disabled={locked}
+                                onClick={() => {
+                                    if (canClose()) {
+                                        setAction("");
+                                        edit.current.dirty = false;
+                                    }
+                                }}
+                            >
+                                Ver detalhes do registro
+                            </button>
+                        )}
                         <button
                             type="button"
                             disabled={locked}

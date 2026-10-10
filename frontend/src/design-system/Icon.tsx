@@ -19,6 +19,7 @@ const paths: Record<string, string> = {
         "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2 M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8 M17 4a4 4 0 0 1 0 8 M22 21v-2a4 4 0 0 0-3-4",
     acesso: "m12 3 8 3v6c0 5-8 9-8 9s-8-4-8-9V6z M8 12l3 3 5-6",
     senha: "M5 10h14v11H5z M8 10V6a4 4 0 0 1 8 0v4 M12 14v3",
+    bookmark: "M6 3h12v18l-6-4-6 4z",
     menu: "M4 6h16 M4 12h16 M4 18h16",
     close: "m6 6 12 12 M6 18 18 6",
     collapse: "M3 4h18v16H3z M9 4v16 m7-12-4 4 4 4",

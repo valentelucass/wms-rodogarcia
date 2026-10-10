@@ -34,6 +34,36 @@ const receipt = (r: Request, data: DashboardDto_Resumo): Receipt => {
     };
 };
 
+it.each([{}, { clienteId: "1" }, { armazemId: "2" }])(
+    "gráficos consultam Todos no contexto %j e preservam as três visualizações",
+    async (scope) => {
+        const transport = new FictitiousTransport("GESTOR");
+        render(
+            <OperationDashboard
+                transport={transport}
+                context={scope}
+                perfil="GESTOR"
+                navigate={vi.fn()}
+                showMetrics={false}
+            />,
+        );
+        await screen.findByText("DEMO-BOBINA");
+        const region = screen.getByRole("region", {
+            name: "Gráficos da operação",
+        });
+        expect(region.querySelectorAll(".dashboard-chart")).toHaveLength(3);
+        expect(region.querySelectorAll(".dashboard-metric")).toHaveLength(0);
+        expect(transport.requests[0].query).toMatchObject({
+            clienteId: scope.clienteId,
+            armazemId: scope.armazemId,
+        });
+        if (!scope.clienteId)
+            expect(region).toHaveTextContent("Todos os clientes permitidos");
+        if (!scope.armazemId)
+            expect(region).toHaveTextContent("Todos os armazéns permitidos");
+    },
+);
+
 it("dashboard consulta agregados, preserva contexto Long, separa unidades e pagina no servidor", async () => {
     const transport = new FictitiousTransport("OPERACAO");
     const navigate = vi.fn();
@@ -64,7 +94,7 @@ it("dashboard consulta agregados, preserva contexto Long, separa unidades e pagi
     expect(navigate).toHaveBeenCalledWith("saida");
 });
 
-it("ausência de contexto não consulta; aviso sem configuração e estoque vazio não viram dados inventados", async () => {
+it("contexto inválido não consulta; aviso sem configuração e estoque vazio não viram dados inventados", async () => {
     const send = vi.fn(async (r: Request) =>
         receipt(r, {
             ...dashboardExample(r, "GESTOR", true),
@@ -77,7 +107,9 @@ it("ausência de contexto não consulta; aviso sem configuração e estoque vazi
         perfil: "GESTOR" as const,
         navigate: vi.fn(),
     };
-    const view = render(<OperationDashboard {...props} context={{}} />);
+    const view = render(
+        <OperationDashboard {...props} context={{ clienteId: "invalido" }} />,
+    );
     expect(send).not.toHaveBeenCalled();
     expect(
         screen.getByRole("button", { name: "Atualizar indicadores" }),

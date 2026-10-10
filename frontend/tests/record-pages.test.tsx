@@ -331,6 +331,7 @@ describe("REG01 Clientes por registro", () => {
         expect(
             dialog.queryByRole("button", { name: "Reativar cliente" }),
         ).toBeNull();
+        click("Ver detalhes do registro", dialog);
         click("Solicitar desativação de cliente", dialog);
         change("Motivo / justificativa *", "Solicitação motivada", dialog);
         await confirm(dialog);

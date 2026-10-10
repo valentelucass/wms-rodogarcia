@@ -101,6 +101,20 @@ Formatação e tipagem/build real próprio passaram. [Seis casos Chrome](../../f
 
 Todas as APIs foram interceptadas com dados fictícios; essa prova confere a interface servida, sem comprovar integração backend/SQL. O processo DEV existente foi preservado, sem reinício. `graphify update .` executou a extração AST, mas recusou substituir 15.220 nós por 13.133, sem `--force`; a atualização AST não foi concluída. [Recibo e log do ajuste](../../orchestracao/.runtime/record-refresh-a02/resultado.json). Recarregar a página carrega a fonte atual; a URL da imagem enviada não foi identificada.
 
+## Tabelas ajustadas à largura — FE02-REG01-A04
+
+Pedido expresso de Lucas em 10/10/2026: melhorar a tabela de Cadastros que exigia rolagem lateral em monitor de 1500 px. Dependências FE02-REG01/A01/A03; contratos e vínculos BE05 → FE04 e dos demais leitores mantidos.
+
+`RecordTable` usa colunas distribuídas na largura disponível, com coluna de ações definida e largura mínima proporcional ao número de campos. Códigos e documentos extensos podem quebrar linha; os valores completos continuam na tabela, sem elipse ou alteração do conteúdo. Situações longas também podem quebrar, mantendo cor, rótulo e marcador. Cabeçalho e quantidade acompanham a largura da tabela.
+
+Ver detalhes e Editar usam ícones com nomes acessíveis originais, título no hover e indicação de foco. O nome do registro continua abrindo detalhes. As operações específicas mantêm ícone e rótulo textual, com quebra quando necessária. Botões de consulta/edição têm 36 px no desktop e 44 px em mobile/ponteiro de toque. Seus rótulos ocultos ficam contidos no botão, evitando transbordamento da página. Nenhum comando, permissão, revisão, filtro ou contrato foi alterado.
+
+Clientes com códigos/documentos longos da forma mostrada na imagem ocupa toda a área sem rolagem lateral nas larguras verificadas de 1200/1280/1400/1500/1920 px, nos dois temas e com menu aberto/recolhido. Em 1500 px, com menu aberto, a tabela cabe na área disponível e as ações permanecem visíveis. Uma tela estreita ou tabela com muitos campos conserva rolagem interna para manter a leitura; a página não se alarga.
+
+Conferência local: tipagem, lint focal, formatação e builds real/fictício aprovados; 25 testes existentes de páginas por registro e oito casos Chrome. Vinte medições de Clientes; Armazéns em 1200/1500/1920 px, estoque e saída nos dois temas. Conferidos valores longos completos, ações visíveis, contraste, filtro de situação, ausência de edição para Operação, detalhes/edição via Enter, Escape e retorno de foco. Em 360 px, alvos de 44 px e rolagem restrita à tabela. Capturas desktop claro/escuro e mobile inspecionadas. [Medidas](../../frontend/evidencias/table-a04-medidas.json), [recibo](../../orchestracao/.runtime/table-a04/resultado.json).
+
+Navegador com API interceptada e dados fictícios; sem backend/SQL, reinício de processos existentes ou publicação. Previews próprios encerrados. `graphify update .` executou extração AST e recusou substituição integral por extração menor, sem `--force`; [log](../../orchestracao/.runtime/table-a04/graphify.log). A manutenção do grafo permanece separada da entrega visual.
+
 ## Verificação e limites
 
 Tipagem, lint e builds real/fictício aprovados. A [suíte completa](../../frontend/evidencias/record-pages-regressao-final.json) passou com **467 testes**; os [25 testes focais](../../frontend/evidencias/record-pages-focal-final.json) incluem todas as páginas, Clientes, resposta desconhecida, IDs de domínios distintos, 41 registros/paginação e recuperação de última página. As jornadas adaptadas também verificam entrada/divergência, unitização, divisão/reagrupamento, etiquetas, avaria, reserva/FIFO, fiscal/retirada, configuração/cálculo/fechamento, carga/contagem, contingência e auditoria.
@@ -110,3 +124,28 @@ Os [seis casos Chrome](../../frontend/evidencias/record-pages-browser.json) pass
 Os builds preservam o aviso preexistente de bundle acima de 500 kB, sem falha. `graphify update .` foi executado; a ferramenta recusou substituir o grafo de 15.220 nós por uma extração menor. O mapa existente foi preservado, sem `--force`; esse impedimento não é apresentado como atualização bem-sucedida.
 
 Nenhum backend, SQL Server, migration, emissão fiscal, impressão em dispositivo, publicação ou processo existente foi iniciado/alterado por este recorte. Integração real no WMS_DEV, equipamentos e versão carregada na aplicação em execução permanecem conferências de ambiente. Não representam páginas omitidas na implementação local.
+
+## Diálogos e formulários compactos — FE02-REG01-A05
+
+Pedido expresso de Lucas em 10/10/2026, a partir das imagens de detalhe de serviço e edição de cliente. Correção nos componentes compartilhados das jornadas, incluindo Cadastros, Entrada, Estoque, Saída, Fiscal, Financeiro, Regularização e Relatórios; não altera contratos ou regras backend.
+
+| Ponto rastreado | Alteração |
+| --- | --- |
+| `RecordDialog`: faixa de operações sem botões gerava duas linhas e espaço vazio | Só renderiza o grupo se houver comandos; ações secundárias e navegação reunidas no rodapé, com uma separação. |
+| `RecordDialog`: acordeão de referências podia envolver componentes que retornavam `null` | Removido o envoltório; consultas e seleções úteis aparecem diretamente. Auditoria auxiliar aparece apenas no comando de auditoria. |
+| `RecordDialog`: identificação recolhida repetia dados durante a edição | Removido o acordeão. Formulário mostra as referências fixas; botão Ver detalhes do registro retorna aos dados completos e respeita o descarte de alterações pendentes. |
+| `OperationForm`: moldura e legenda genérica acrescentavam uma hierarquia sem utilidade | Campos editáveis em grade sem moldura externa; identificação/revisão fixas em faixa compacta. Grupos sem campos não são renderizados. Sem alterar valores, validação ou conteúdo enviado. |
+| `RecordDialog`: botão repetia o comando já aberto | Oculto durante essa ação; reaparece após conclusão quando o domínio permite uma nova operação, incluindo nova chegada física. |
+| `Result`: cada coleção vazia gerava um bloco grande | Coleções/objetos vazios aninhados aparecem como item curto com seu rótulo; conteúdo preenchido conserva seção própria. Resposta `{}` informa ausência de dados. Zero, falso e campos não informados permanecem distintos. |
+| `Result` e estilos de diálogo | Grade de dados responsiva, sem linha embaixo de cada campo; espaçamentos menores, rótulos discretos, quebra de texto e rodapé adaptado a celular/tablet. |
+| `ReferenceLookup`: botão de reabertura sem resultado disponível | Só oferece Ver referências consultadas quando há consulta já obtida e recolhida. |
+
+**Inventário completo de acordeões em `frontend/src`:** oito usos encontrados. Dois removidos em `RecordDialog`; um corrigido em `OperationForm` para aparecer somente se o contrato do coletor contiver medidas/conjunto. Cinco preservados por terem conteúdo útil: identidade consultada do coletor (`Collector`), detalhe por linha de resultados (`Result`), dados para conferência abertos por padrão (`OperationConfirmation`), recibo detalhado do coletor (`CollectorReceipt`) e menu de comandos do pedido (`ReceivingList`). Nenhum desses cinco serve como seção genérica vazia.
+
+As proteções de carregamento/erro, identidade exata, revisão, permissões, alteração pendente, envio, resposta desconhecida, repetição idempotente, Escape e retorno do foco continuam. Interface local com API interceptada não comprova integração real. Conferência final e evidências registradas em `STATES.md` e `orchestracao/.runtime/dialog-a05/resultado.json`.
+
+## Botões da auditoria — FE02-REG01-A06
+
+Pedido expresso de Lucas em 10/10/2026. `AuditSelection`, utilizado em Serviços e tabelas, Relatórios e no diálogo de auditoria, apresenta os botões lado a lado, com intervalo de 8 px e quebra natural quando faltar largura. Rótulos/identificadores extensos quebram dentro do botão sem transbordar. O vínculo de cobrança mantém seu botão, explicação e consulta de legado em um grupo próprio, sem confundir histórico confirmado com legado não atribuído. Sem seleção disponível, permanece a orientação existente e não há faixa vazia. Eventos, bloqueio e mapeamento do alvo da auditoria não mudam.
+
+Tipagem, lint focal, formatação, build real, oito testes de auditoria/consultas e quatro casos Chrome aprovados. Capturas de 1500/360 px nos dois temas inspecionadas, incluindo IDs longos, espaçamento, ordem Tab e alvos de toque. API interceptada; sem validação de backend/SQL ou publicação. [Recibo](../../orchestracao/.runtime/audit-buttons/resultado.json).

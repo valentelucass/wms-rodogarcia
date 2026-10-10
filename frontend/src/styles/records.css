@@ -1,14 +1,31 @@
 .record-workspace {
     min-width: 0;
 }
+.audit-selection-actions {
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: var(--og-space-2);
+}
+.audit-selection-target {
+    min-width: 0;
+    max-width: 100%;
+}
+.audit-selection-target > button {
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+.audit-selection-target--legacy {
+    flex-basis: 100%;
+}
 .record-view-picker {
     display: grid;
     gap: var(--og-space-2);
     margin-bottom: var(--og-space-4);
     max-width: 360px;
 }
-.record-related,
-.record-related-references {
+.record-related {
     margin-block: var(--og-space-4);
 }
 .record-workspace .dialog-header {
@@ -134,8 +151,15 @@
     text-align: left;
     overflow-wrap: anywhere;
 }
+.record-table table {
+    table-layout: fixed;
+    min-width: calc(var(--record-column-count) * 90px + 112px);
+}
+.record-table th,
 .record-table td {
-    max-width: 360px;
+    min-width: 0;
+}
+.record-table td {
     overflow-wrap: anywhere;
     vertical-align: middle;
     padding: 10px var(--og-space-3);
@@ -155,18 +179,38 @@
     background: color-mix(in srgb, var(--og-selection) 22%, var(--og-surface));
 }
 .record-cell-identity {
-    min-width: 180px;
+    font-weight: var(--og-font-semibold);
 }
 .record-cell-code {
     font-variant-numeric: tabular-nums;
     font-size: 13px;
-    white-space: nowrap;
+    white-space: normal;
 }
-.record-cell-actions {
-    width: 1%;
+.record-column-actions {
+    width: 112px;
 }
 .record-cell-actions .record-row-actions {
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
+}
+.record-row-actions > .record-action-icon {
+    position: relative;
+    flex: 0 0 var(--og-control-height);
+    width: var(--og-control-height);
+    min-height: var(--og-control-height);
+    padding: 0;
+}
+.record-cell-actions .record-row-actions > button:not(.record-action-icon) {
+    max-width: 100%;
+    white-space: normal;
+}
+.record-table .record-status {
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+.record-action-label {
+    min-width: 0;
+    overflow-wrap: anywhere;
 }
 .record-table caption {
     padding: var(--og-space-4);
@@ -231,9 +275,41 @@
     background: currentColor;
 }
 .record-context-actions {
-    margin-block: var(--og-space-4);
-    padding-block: var(--og-space-3);
-    border-block: 1px solid var(--og-border);
+    margin-right: auto;
+}
+.record-dialog .dialog-header,
+.record-dialog .dialog-body {
+    padding: var(--og-space-4);
+}
+.record-dialog .dialog-heading h2 {
+    overflow-wrap: anywhere;
+}
+.record-dialog .dialog-body > .operation {
+    padding-top: 0;
+}
+.record-dialog .record-detail > button {
+    margin-top: var(--og-space-3);
+}
+.record-dialog .dialog-body .operation .actions {
+    border-top: 0;
+    padding-top: 0;
+    margin-top: var(--og-space-3);
+}
+.record-dialog .record-dialog-footer {
+    margin-top: var(--og-space-4);
+    padding-top: var(--og-space-3);
+}
+@media (min-width: 601px) {
+    .record-dialog-footer button {
+        width: auto;
+    }
+}
+.record-dialog .reference-lookup {
+    margin: 0 0 var(--og-space-3);
+    padding: var(--og-space-3);
+}
+.record-dialog .reference-lookup > h2 {
+    margin-bottom: var(--og-space-2);
 }
 .record-filters {
     margin-block: var(--og-space-3);
@@ -250,6 +326,15 @@
 .record-filters > .actions {
     margin-bottom: 0;
 }
+.record-filter-actions {
+    align-items: center;
+}
+.record-filter-actions > button {
+    width: auto;
+}
+.record-filter-actions > .record-refresh {
+    margin-left: auto;
+}
 .record-feedback {
     padding: var(--og-space-3);
     background: var(--og-success-bg);
@@ -261,6 +346,25 @@
     color: var(--og-warning-text);
 }
 @media (max-width: 600px) {
+    .record-filter-actions {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .record-filter-actions > .record-refresh {
+        grid-column: 1 / -1;
+        margin-left: 0;
+    }
+    .record-dialog .record-dialog-footer {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .record-dialog-footer > .record-context-actions,
+    .record-dialog-footer > button:last-child {
+        grid-column: 1 / -1;
+    }
+    .record-dialog-footer > .record-context-actions {
+        width: 100%;
+    }
     .record-header-actions,
     .record-header-actions button {
         width: 100%;
@@ -281,6 +385,14 @@
 @media (pointer: coarse), (max-width: 767px) {
     .record-table .record-link {
         min-height: var(--og-touch-height);
+    }
+    .record-row-actions > .record-action-icon {
+        flex-basis: var(--og-touch-height);
+        width: var(--og-touch-height);
+        min-height: var(--og-touch-height);
+    }
+    .record-column-actions {
+        width: 128px;
     }
     .record-toolbar input,
     .record-toolbar select {

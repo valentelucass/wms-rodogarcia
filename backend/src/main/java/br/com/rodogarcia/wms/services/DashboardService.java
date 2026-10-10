@@ -2,13 +2,17 @@ package br.com.rodogarcia.wms.services;
 
 import br.com.rodogarcia.wms.dto.DashboardDto;
 import br.com.rodogarcia.wms.dto.PaginaResponse;
+import br.com.rodogarcia.wms.exceptions.RegraNegocioException;
+import br.com.rodogarcia.wms.models.CadastroBase;
+import br.com.rodogarcia.wms.models.Produto;
 import br.com.rodogarcia.wms.models.SituacaoPedidoSaida;
 import br.com.rodogarcia.wms.models.TipoEndereco;
+import br.com.rodogarcia.wms.repositories.ArmazemRepository;
+import br.com.rodogarcia.wms.repositories.ClienteRepository;
 import br.com.rodogarcia.wms.repositories.ConfiguracaoAvisoValidadeRepository;
 import br.com.rodogarcia.wms.repositories.DashboardRepository;
 import br.com.rodogarcia.wms.repositories.ProdutoRepository;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import java.math.BigDecimal;
 import java.time.Clock;
@@ -20,6 +24,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -36,6 +41,8 @@ public class DashboardService {
     private final ProdutoRepository produtos;
     private final ConfiguracaoAvisoValidadeRepository avisos;
     private final AcessoService acesso;
+    private final ClienteRepository clientes;
+    private final ArmazemRepository armazens;
     private final Clock clock;
 
     public DashboardService(
@@ -43,22 +50,27 @@ public class DashboardService {
             ProdutoRepository produtos,
             ConfiguracaoAvisoValidadeRepository avisos,
             AcessoService acesso,
+            ClienteRepository clientes,
+            ArmazemRepository armazens,
             Clock clock) {
         this.dashboard = dashboard;
         this.produtos = produtos;
         this.avisos = avisos;
         this.acesso = acesso;
+        this.clientes = clientes;
+        this.armazens = armazens;
         this.clock = clock;
     }
 
     public DashboardDto.Resumo consultar(
-            @NotNull @Positive Long clienteId,
-            @NotNull @Positive Long armazemId,
+            @Positive Long clienteId,
+            @Positive Long armazemId,
             @NotBlank String fuso,
             int pagina,
             int tamanho) {
-        acesso.cliente(clienteId);
-        acesso.armazem(armazemId);
+        var cs = clientes(clienteId);
+        var as = armazens(armazemId);
+        boolean vazio = cs.isEmpty() || as.isEmpty();
         var paginacao = CadastroSupport.pagina(pagina, tamanho);
         if (tamanho > 12) throw CadastroSupport.invalido("Consulte até 12 produtos por página.");
         ZoneId zona;
@@ -70,14 +82,17 @@ public class DashboardService {
         Instant agora = Instant.now(clock);
         boolean gestor = acesso.gestor();
         var ocupacao =
-                dashboard.ocupacaoCliente(clienteId, armazemId).stream()
-                        .collect(
-                                Collectors.toMap(
-                                        DashboardRepository.AreaCliente::getTipo,
-                                        DashboardRepository.AreaCliente::getPosicoes));
+                (vazio
+                                ? List.<DashboardRepository.AreaCliente>of()
+                                : dashboard.ocupacaoCliente(cs, as))
+                        .stream()
+                                .collect(
+                                        Collectors.toMap(
+                                                DashboardRepository.AreaCliente::getTipo,
+                                                DashboardRepository.AreaCliente::getPosicoes));
         var capacidade =
-                gestor
-                        ? dashboard.capacidadeArmazem(armazemId).stream()
+                gestor && !as.isEmpty()
+                        ? dashboard.capacidadeArmazem(as).stream()
                                 .collect(
                                         Collectors.toMap(
                                                 DashboardRepository.AreaArmazem::getTipo,
@@ -100,11 +115,12 @@ public class DashboardService {
                                 })
                         .toList();
         var contagens =
-                dashboard.fila(clienteId, armazemId).stream()
-                        .collect(
-                                Collectors.toMap(
-                                        DashboardRepository.Fila::getSituacao,
-                                        DashboardRepository.Fila::getPedidos));
+                (vazio ? List.<DashboardRepository.Fila>of() : dashboard.fila(cs, as))
+                        .stream()
+                                .collect(
+                                        Collectors.toMap(
+                                                DashboardRepository.Fila::getSituacao,
+                                                DashboardRepository.Fila::getPedidos));
         var fila =
                 List.of(
                                 SituacaoPedidoSaida.RASCUNHO,
@@ -114,7 +130,10 @@ public class DashboardService {
                         .stream()
                         .map(s -> new DashboardDto.Fila(s, contagens.getOrDefault(s, 0L)))
                         .toList();
-        var config = avisos.findByClienteIdAndArmazemId(clienteId, armazemId).orElse(null);
+        var config =
+                clienteId == null || armazemId == null
+                        ? null
+                        : avisos.findByClienteIdAndArmazemId(clienteId, armazemId).orElse(null);
         Integer antecedencia = config == null ? null : config.getDiasAntecedencia();
         Long quantidadeAvisos =
                 antecedencia == null
@@ -123,28 +142,18 @@ public class DashboardService {
                                 clienteId,
                                 armazemId,
                                 agora.atZone(zona).toLocalDate().plusDays(antecedencia));
-        var page =
-                produtos.findByClienteId(
-                        clienteId,
-                        PageRequest.of(
-                                paginacao.getPageNumber(),
-                                paginacao.getPageSize(),
-                                Sort.by("sku").and(Sort.by("id"))));
+        var productPage =
+                PageRequest.of(
+                        paginacao.getPageNumber(),
+                        paginacao.getPageSize(),
+                        Sort.by("sku").and(Sort.by("id")));
+        Page<Produto> page =
+                vazio ? Page.empty(productPage) : produtos.findByClienteIdIn(cs, productPage);
         var ids = page.getContent().stream().map(p -> p.getId()).toList();
-        var fisico =
-                quantidades(
-                        ids.isEmpty() ? List.of() : dashboard.fisico(clienteId, armazemId, ids));
-        var disponivel =
-                quantidades(
-                        ids.isEmpty()
-                                ? List.of()
-                                : dashboard.disponivel(clienteId, armazemId, ids));
-        var reservado =
-                quantidades(
-                        ids.isEmpty() ? List.of() : dashboard.reservado(clienteId, armazemId, ids));
-        var pendente =
-                quantidades(
-                        ids.isEmpty() ? List.of() : dashboard.pendente(clienteId, armazemId, ids));
+        var fisico = quantidades(ids.isEmpty() ? List.of() : dashboard.fisico(cs, as, ids));
+        var disponivel = quantidades(ids.isEmpty() ? List.of() : dashboard.disponivel(cs, as, ids));
+        var reservado = quantidades(ids.isEmpty() ? List.of() : dashboard.reservado(cs, as, ids));
+        var pendente = quantidades(ids.isEmpty() ? List.of() : dashboard.pendente(cs, as, ids));
         var saldo =
                 PaginaResponse.de(
                         page,
@@ -155,6 +164,7 @@ public class DashboardService {
                             var n = pendente.getOrDefault(p.getId(), BigDecimal.ZERO);
                             return new DashboardDto.Produto(
                                     p.getId(),
+                                    p.getCliente().getId(),
                                     p.getSku(),
                                     p.getUnidadeMedida(),
                                     f.add(n),
@@ -169,7 +179,7 @@ public class DashboardService {
                 agora,
                 zona.getId(),
                 areas.stream().mapToLong(DashboardDto.Area::posicoesCliente).sum(),
-                dashboard.unidadesDisponiveis(clienteId, armazemId),
+                vazio ? 0 : dashboard.unidadesDisponiveis(cs, as),
                 fila.stream().mapToLong(DashboardDto.Fila::pedidos).sum(),
                 quantidadeAvisos,
                 antecedencia,
@@ -177,6 +187,28 @@ public class DashboardService {
                 areas,
                 fila,
                 saldo);
+    }
+
+    private List<Long> clientes(Long id) {
+        if (id != null) {
+            acesso.cliente(id);
+            if (!clientes.existsById(id)) throw RegraNegocioException.naoEncontrado();
+            return List.of(id);
+        }
+        return acesso.gestor()
+                ? clientes.findAll().stream().map(CadastroBase::getId).toList()
+                : acesso.clientes();
+    }
+
+    private List<Long> armazens(Long id) {
+        if (id != null) {
+            acesso.armazem(id);
+            if (!armazens.existsById(id)) throw RegraNegocioException.naoEncontrado();
+            return List.of(id);
+        }
+        return acesso.gestor()
+                ? armazens.findAll().stream().map(CadastroBase::getId).toList()
+                : acesso.armazens();
     }
 
     private Map<Long, BigDecimal> quantidades(List<DashboardRepository.Quantidade> valores) {

@@ -179,6 +179,51 @@
     border-radius: var(--og-radius-control);
     margin-block: var(--og-space-3);
 }
+.operation .operation-fields,
+.operation .operation-fixed-fields {
+    border: 0;
+    padding: 0;
+    gap: var(--og-space-3);
+}
+.operation .operation-fixed-fields {
+    position: relative;
+    padding: var(--og-space-2) var(--og-space-3);
+    background: var(--og-surface-raised);
+}
+.operation-fixed-fields > .field,
+.operation-fixed-fields > label {
+    flex: 0 1 180px;
+    margin: 0;
+}
+.operation-fixed-fields input:disabled,
+.operation-fixed-fields select:disabled {
+    min-height: 24px;
+    height: auto;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--og-text);
+    opacity: 1;
+    -webkit-text-fill-color: var(--og-text);
+}
+.operation-fixed-fields label {
+    font-size: var(--og-type-caption);
+    color: var(--og-text-muted);
+}
+@media (max-width: 800px) {
+    .operation-fixed-fields > .field,
+    .operation-fixed-fields > label {
+        flex: 1 1 120px;
+    }
+    .operation-fixed-fields input:disabled {
+        font-size: var(--og-type-body);
+    }
+}
+.operation-fields > label,
+.operation-fields > .field {
+    margin-bottom: 0;
+}
 .operation .actions {
     justify-content: flex-end;
     margin: var(--og-space-3) 0;
@@ -490,118 +535,78 @@ td details {
 .users-list .row-actions {
     flex-wrap: nowrap;
 }
-.home-shortcuts {
-    margin-bottom: var(--og-space-6);
+.home-header {
+    display: grid;
+    grid-template-columns: minmax(200px, 1fr) minmax(512px, 3fr) auto;
+    align-items: center;
+    gap: var(--og-space-3);
+    margin-bottom: calc(var(--og-space-6) * 2);
 }
-.home-shortcuts h2 {
-    margin-top: 0;
+.home-header .page-heading {
+    align-items: center;
+}
+.home-shortcuts {
+    min-width: 0;
 }
 .shortcut-grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: var(--og-space-3);
+    gap: var(--og-space-2);
 }
 .shortcut-card {
     position: relative;
-    isolation: isolate;
-    overflow: hidden;
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     text-align: left;
-    padding: var(--og-space-4);
-    gap: var(--og-space-3);
-    border-color: var(--shortcut-to);
-    border-radius: var(--og-radius-card);
-    color: var(--wms-shortcut-text);
-    --shortcut-background:
-        radial-gradient(
-            ellipse at top right,
-            var(--wms-shortcut-glow),
-            transparent 70%
-        ),
-        linear-gradient(125deg, var(--shortcut-from), var(--shortcut-to));
-    background: var(--shortcut-background);
-}
-.shortcut-card--entrada {
-    --shortcut-from: var(--wms-shortcut-entrada-from);
-    --shortcut-to: var(--wms-shortcut-entrada-to);
-}
-.shortcut-card--coletor {
-    --shortcut-from: var(--wms-shortcut-coletor-from);
-    --shortcut-to: var(--wms-shortcut-coletor-to);
-}
-.shortcut-card--saida {
-    --shortcut-from: var(--wms-shortcut-saida-from);
-    --shortcut-to: var(--wms-shortcut-saida-to);
-}
-.shortcut-card--fechamento {
-    --shortcut-from: var(--wms-shortcut-fechamento-from);
-    --shortcut-to: var(--wms-shortcut-fechamento-to);
-}
-.shortcut-card::before {
-    content: "";
-    position: absolute;
-    z-index: -1;
-    width: 180px;
-    height: 180px;
-    right: -55px;
-    top: -80px;
-    border: 1px solid var(--wms-shortcut-art);
-    border-radius: var(--og-radius-overlay);
-    transform: rotate(35deg);
-    box-shadow:
-        0 0 0 18px var(--wms-shortcut-art-soft),
-        0 0 0 40px var(--wms-shortcut-art-soft);
-    pointer-events: none;
-}
-.shortcut-card--coletor::before {
-    border-radius: 50%;
-    top: -60px;
-}
-.shortcut-card--saida::before {
-    width: 220px;
-    height: 100px;
-    top: -20px;
-    transform: rotate(-30deg);
-}
-.shortcut-card--fechamento::before {
-    right: -70px;
-    top: -45px;
-    transform: rotate(-12deg);
+    min-height: var(--og-touch-height);
+    padding: var(--og-space-1) var(--og-space-2);
+    gap: var(--og-space-2);
+    border-color: var(--og-border);
+    border-radius: var(--og-radius-control);
+    color: var(--og-text);
+    background: transparent;
 }
 .shortcut-card:hover:not(:disabled) {
-    border-color: var(--wms-shortcut-text);
-    background: var(--shortcut-background);
+    border-color: var(--og-border-strong);
+    background: var(--og-surface-hover);
 }
 .shortcut-card:focus-visible {
     outline-offset: var(--og-space-1);
+    background: var(--og-surface-hover);
 }
 .shortcut-card .shortcut-icon {
-    color: var(--wms-shortcut-text);
-    background: var(--wms-shortcut-icon-bg);
-    border: 1px solid var(--wms-shortcut-art);
+    flex-basis: 20px;
+    width: 20px;
+    height: 20px;
+    color: var(--og-text-muted);
+    background: transparent;
 }
-.shortcut-card > span:nth-child(2) {
-    display: grid;
-    gap: var(--og-space-2);
+.shortcut-card .shortcut-icon svg {
+    width: 18px;
+    height: 18px;
 }
-.shortcut-card > span > span {
-    color: var(--wms-shortcut-text);
+.shortcut-card > strong {
+    min-width: 0;
     font-size: var(--og-type-caption);
-    font-weight: var(--og-font-regular);
-}
-.shortcut-card > svg {
-    align-self: flex-end;
-    color: var(--wms-shortcut-text);
+    line-height: var(--og-leading-caption);
+    font-weight: var(--og-font-medium);
+    overflow-wrap: normal;
 }
 @media (max-width: 1199px) {
     .journey-workspace {
         grid-template-columns: 184px minmax(0, 1fr);
         gap: var(--og-space-3);
     }
-    .shortcut-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+    .home-header {
+        grid-template-columns: minmax(0, 1fr) auto;
+    }
+    .home-header .home-shortcuts {
+        grid-column: 1 / -1;
+        grid-row: 2;
+    }
+    .home-header .page-actions {
+        grid-column: 2;
+        grid-row: 1;
     }
 }
 @media (max-width: 1023px) {
@@ -634,6 +639,9 @@ td details {
     .page-header {
         flex-direction: column;
         margin-bottom: var(--og-space-4);
+    }
+    .home-header {
+        margin-bottom: var(--og-space-8);
     }
     .page-actions {
         width: 100%;
@@ -673,14 +681,20 @@ td details {
     .dialog-body {
         padding: var(--og-space-4);
     }
-    .shortcut-card {
-        padding: var(--og-space-3);
+}
+@media (max-width: 600px) {
+    .home-header {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .home-header .page-actions {
+        grid-column: 1;
+        grid-row: 3;
+    }
+    .shortcut-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 @media (max-width: 379px) {
-    .shortcut-grid {
-        grid-template-columns: 1fr;
-    }
     .pagination-controls > span {
         width: 100%;
         order: -1;

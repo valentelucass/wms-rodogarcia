@@ -992,6 +992,60 @@ class EstoqueIntegrationTest {
         var area = r.get("areas").get(0);
         assertThat(area.get("capacidadeAtiva").longValue()).isEqualTo(2);
         assertThat(area.get("livresArmazem").longValue()).isZero();
+        String todos = "/api/v1/dashboard?fuso=America/Sao_Paulo";
+        var geral = resposta(get(todos, gestor), 200);
+        assertThat(geral.get("clienteId").isNull()).isTrue();
+        assertThat(geral.get("armazemId").isNull()).isTrue();
+        assertThat(geral.get("posicoesCliente").longValue()).isEqualTo(3);
+        assertThat(geral.get("unidadesDisponiveis").longValue()).isEqualTo(3);
+        assertThat(geral.get("produtos").get("totalItens").longValue()).isEqualTo(2);
+        assertThat(geral.get("areas").get(0).get("capacidadeAtiva").longValue()).isEqualTo(3);
+        for (var item : geral.get("produtos").get("itens")) {
+            boolean principal = item.get("produtoId").longValue() == produtoPrincipal.getId();
+            assertThat(item.get("clienteId").longValue())
+                    .isEqualTo(principal ? clientePrincipal.getId() : produto.getCliente().getId());
+            assertThat(item.get("fisicoTotal").decimalValue())
+                    .isEqualByComparingTo(principal ? "10" : "20");
+        }
+        var todosClientes =
+                resposta(get(todos + "&armazemId=" + armazemPrincipal.getId(), gestor), 200);
+        assertThat(todosClientes.get("posicoesCliente").longValue()).isEqualTo(2);
+        var todosArmazens =
+                resposta(get(todos + "&clienteId=" + produto.getCliente().getId(), gestor), 200);
+        assertThat(todosArmazens.get("posicoesCliente").longValue()).isEqualTo(2);
+        assertThat(todosArmazens.get("produtos").get("itens").size()).isEqualTo(1);
+        assertThat(
+                        todosArmazens
+                                .get("produtos")
+                                .get("itens")
+                                .get(0)
+                                .get("disponivel")
+                                .decimalValue())
+                .isEqualByComparingTo("20");
+        var restrito = resposta(get(todos, operador), 200);
+        assertThat(restrito.get("posicoesCliente").longValue()).isEqualTo(1);
+        assertThat(restrito.get("produtos").get("itens").size()).isEqualTo(1);
+        assertThat(restrito.get("areas").get(0).get("capacidadeAtiva").isNull()).isTrue();
+        var pagina = resposta(get(todos + "&tamanho=1&pagina=1", gestor), 200);
+        assertThat(pagina.get("produtos").get("itens").size()).isEqualTo(1);
+        assertThat(pagina.get("produtos").get("totalItens").longValue()).isEqualTo(2);
+        assertThat(pagina.get("posicoesCliente").longValue()).isEqualTo(3);
+        assertThat(pagina.get("unidadesComAviso").isNull()).isTrue();
+    }
+
+    @Test
+    void dashboardTodosSemAlcanceNaoExibeCadastrosOuSaldos() throws Exception {
+        posicionar(unidade(), endereco("DASH-SEM-ALCANCE", "ARMAZENAGEM"));
+        var vazio =
+                resposta(
+                        get("/api/v1/dashboard?fuso=UTC", token("OPERACAO", List.of(), List.of())),
+                        200);
+        assertThat(vazio.get("posicoesCliente").longValue()).isZero();
+        assertThat(vazio.get("unidadesDisponiveis").longValue()).isZero();
+        assertThat(vazio.get("produtos").get("itens").size()).isZero();
+        assertThat(vazio.get("produtos").get("totalItens").longValue()).isZero();
+        resposta(get("/api/v1/dashboard?fuso=UTC&clienteId=-1", gestor), 400);
+        resposta(get("/api/v1/dashboard?fuso=UTC&armazemId=0", gestor), 400);
     }
 
     @Test

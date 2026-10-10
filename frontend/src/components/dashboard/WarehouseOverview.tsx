@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { ApiError, call, type Transport } from "../../api/client";
 import type { Values } from "../../contracts/runtime";
 import type {
@@ -43,6 +43,7 @@ type Props = {
     onScope: (v: Values) => void;
     onAddress: (p: VisaoOperacaoDto_Posicao) => void;
     ficticio?: boolean;
+    children?: ReactNode;
 };
 
 export function WarehouseOverview(props: Props) {
@@ -59,6 +60,7 @@ function Overview({
     onScope,
     onAddress,
     ficticio = false,
+    children,
 }: Props) {
     const catalog = useReferenceCatalog();
     const [revision, setRevision] = useState(0),
@@ -67,6 +69,8 @@ function Overview({
         [search, setSearch] = useState(""),
         [code, setCode] = useState("");
     const [selected, setSelected] = useState<VisaoOperacaoDto_Posicao>();
+    const [filtersOpen, setFiltersOpen] = useState(false);
+    const filtersId = useId();
     const key = `${revision}/${page}/${filter}/${code}`;
     const [result, setResult] = useState<{
         key: string;
@@ -255,22 +259,20 @@ function Overview({
                     </article>
                 ))}
             </div>
+            {children}
             <section
                 className="warehouse-map"
                 aria-labelledby="warehouse-map-title"
             >
                 <header className="overview-map-heading">
-                    <div>
-                        <h2 id="warehouse-map-title">Mapa do armazém</h2>
-                        <p>
-                            Endereços cadastrados, organizados por rua, nível e
-                            posição.
-                        </p>
-                    </div>
+                    <h2 id="warehouse-map-title">Mapa do armazém</h2>
+                </header>
+                <div className="map-controls">
                     <ReferenceSelect
                         kind="armazens"
                         title="Visualizar armazém"
                         all
+                        compact
                         value={String(context.armazemId ?? "")}
                         onChange={(armazemId) =>
                             onScope({
@@ -279,65 +281,91 @@ function Overview({
                             })
                         }
                     />
-                </header>
-                <div className="map-tools">
-                    <form
-                        onSubmit={(e) => {
-                            e.preventDefault();
-                            setCode(search.trim());
-                            setPage(0);
-                        }}
+                    <div className="map-legend" aria-label="Legenda do mapa">
+                        <span className="map-state--free">Livre</span>
+                        <span className="map-state--occupied">Ocupada</span>
+                        <span className="map-state--other">Indisponível</span>
+                        <span className="map-legend-flags">
+                            <Icon name="senha" /> Bloqueada
+                        </span>
+                        <span className="map-legend-flags">
+                            <Icon name="bookmark" /> Reservada
+                        </span>
+                    </div>
+                    <button
+                        type="button"
+                        className="map-filter-toggle"
+                        aria-expanded={filtersOpen}
+                        aria-controls={filtersId}
+                        onClick={() => setFiltersOpen((open) => !open)}
                     >
-                        <label>
-                            Buscar endereço
-                            <input
-                                value={search}
-                                maxLength={40}
-                                onChange={(e) => setSearch(e.target.value)}
-                                placeholder="Código do endereço"
-                            />
-                        </label>
-                        <button disabled={loading}>Buscar</button>
-                        {code && (
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    setSearch("");
-                                    setCode("");
-                                    setPage(0);
-                                }}
-                            >
-                                Limpar
-                            </button>
-                        )}
-                    </form>
-                    <label>
-                        Mostrar posições
-                        <select
-                            value={filter}
-                            onChange={(e) => {
-                                setFilter(e.target.value);
+                        Filtros{code || filter !== "TODAS" ? " · ativos" : ""}
+                        <Icon name="chevron-down" />
+                    </button>
+                </div>
+                <div
+                    id={filtersId}
+                    className="map-filter-panel"
+                    hidden={!filtersOpen}
+                >
+                    <div className="map-tools">
+                        <form
+                            onSubmit={(e) => {
+                                e.preventDefault();
+                                setCode(search.trim());
                                 setPage(0);
                             }}
                         >
-                            <option value="TODAS">Todas</option>
-                            <option value="DISPONIVEL">Disponíveis</option>
-                            <option value="OCUPADO">Ocupadas</option>
-                        </select>
-                    </label>
+                            <label>
+                                Buscar endereço
+                                <input
+                                    value={search}
+                                    maxLength={40}
+                                    onChange={(e) => setSearch(e.target.value)}
+                                    placeholder="Código do endereço"
+                                />
+                            </label>
+                            <button disabled={loading}>Buscar</button>
+                            {code && (
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setSearch("");
+                                        setCode("");
+                                        setPage(0);
+                                    }}
+                                >
+                                    Limpar
+                                </button>
+                            )}
+                        </form>
+                        <label>
+                            Mostrar posições
+                            <select
+                                value={filter}
+                                onChange={(e) => {
+                                    setFilter(e.target.value);
+                                    setPage(0);
+                                }}
+                            >
+                                <option value="TODAS">Todas</option>
+                                <option value="DISPONIVEL">Disponíveis</option>
+                                <option value="OCUPADO">Ocupadas</option>
+                            </select>
+                        </label>
+                    </div>
+                    <p className="map-note">
+                        O mapa e a ocupação física consideram todos os clientes
+                        do armazém. Os demais indicadores seguem o cliente
+                        selecionado. Busca e estado filtram somente o mapa.
+                    </p>
+                    <p className="map-note">
+                        Um endereço de armazenagem ativo equivale a uma posição;
+                        áreas especiais e endereços inativos ficam fora do
+                        percentual. Os indicadores consideram todo o contexto,
+                        independentemente da página do mapa.
+                    </p>
                 </div>
-                <div className="map-legend" aria-label="Legenda do mapa">
-                    <span className="map-state--free">Disponível</span>
-                    <span className="map-state--occupied">Ocupado</span>
-                    <span className="map-state--other">
-                        Indisponível / área especial
-                    </span>
-                </div>
-                <p className="map-note">
-                    O mapa e a ocupação física consideram todos os clientes do
-                    armazém. Os demais indicadores seguem o cliente selecionado.
-                    Busca e estado filtram somente o mapa.
-                </p>
                 {!loading &&
                     !result.error &&
                     data?.mapa.itens?.length === 0 && (
@@ -354,22 +382,21 @@ function Overview({
                             onSelect={setSelected}
                             disabled={loading}
                         />
-                        <Pagination
-                            page={page}
-                            pages={data.mapa.totalPaginas}
-                            total={data.mapa.totalItens}
-                            count={data.mapa.itens?.length ?? 0}
-                            size={100}
-                            disabled={loading}
-                            onPage={setPage}
-                        />
-                        <p className="map-note">
-                            O mapa exibe os endereços desta página. Os
-                            indicadores consideram todo o contexto. Capacidade:
-                            um endereço de armazenagem ativo equivale a uma
-                            posição; áreas especiais e endereços inativos ficam
-                            fora do percentual.
-                        </p>
+                        {data.mapa.totalPaginas > 1 ? (
+                            <Pagination
+                                page={page}
+                                pages={data.mapa.totalPaginas}
+                                total={data.mapa.totalItens}
+                                count={data.mapa.itens?.length ?? 0}
+                                size={100}
+                                disabled={loading}
+                                onPage={setPage}
+                            />
+                        ) : (
+                            <p className="map-summary">
+                                {quantity(data.mapa.totalItens)} endereços
+                            </p>
+                        )}
                     </>
                 )}
             </section>
@@ -395,10 +422,6 @@ export function AddressMap({
     onSelect: (p: VisaoOperacaoDto_Posicao) => void;
     disabled?: boolean;
 }) {
-    const columns = (levels: Map<number, VisaoOperacaoDto_Posicao[]>) =>
-        [...new Set([...levels.values()].flat().map((p) => p.posicao))].sort(
-            (a, b) => a.localeCompare(b, "pt-BR", { numeric: true }),
-        );
     const groups = new Map<
         string,
         {
@@ -423,90 +446,210 @@ export function AddressMap({
                     className="map-warehouse"
                     aria-label={group.name}
                 >
-                    <h3>
+                    <h3 className={groups.size === 1 ? "sr-only" : undefined}>
                         <Icon name="armazens" />
                         {group.name}
                     </h3>
                     <div className="map-streets">
                         {[...group.streets].map(([street, levels]) => (
-                            <section
+                            <MapStreet
                                 key={street}
-                                className="map-street"
-                                aria-label={`Rua ${street}`}
-                            >
-                                <h4>Rua {street}</h4>
-                                <div
-                                    className="map-scroll"
-                                    tabIndex={0}
-                                    aria-label={`Posições da rua ${street}`}
-                                >
-                                    <div className="map-levels">
-                                        {[...levels]
-                                            .sort(([a], [b]) => b - a)
-                                            .map(([level, slots]) => (
-                                                <div
-                                                    className="map-level"
-                                                    key={level}
-                                                >
-                                                    <span className="map-level-label">
-                                                        Nível {level}
-                                                    </span>
-                                                    <div
-                                                        className="map-slots"
-                                                        style={{
-                                                            gridTemplateColumns: `repeat(${columns(levels).length}, 88px)`,
-                                                        }}
-                                                    >
-                                                        {slots.map((p) => (
-                                                            <button
-                                                                type="button"
-                                                                key={p.id}
-                                                                style={{
-                                                                    gridColumn:
-                                                                        columns(
-                                                                            levels,
-                                                                        ).indexOf(
-                                                                            p.posicao,
-                                                                        ) + 1,
-                                                                }}
-                                                                disabled={
-                                                                    disabled
-                                                                }
-                                                                className={`map-position map-state--${p.ocupada ? "occupied" : p.disponivel ? "free" : "other"}`}
-                                                                onClick={() =>
-                                                                    onSelect(p)
-                                                                }
-                                                                aria-label={`${p.codigo} · ${positionState(p)}${p.bloqueada ? " · Bloqueado" : ""}${p.reservada ? " · Reservado" : ""}`}
-                                                            >
-                                                                <strong>
-                                                                    {p.posicao}
-                                                                </strong>
-                                                                <small>
-                                                                    {positionState(
-                                                                        p,
-                                                                    )}
-                                                                </small>
-                                                                {(p.bloqueada ||
-                                                                    p.reservada) && (
-                                                                    <span>
-                                                                        {p.bloqueada
-                                                                            ? "Bloqueado"
-                                                                            : "Reservado"}
-                                                                    </span>
-                                                                )}
-                                                            </button>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                            ))}
-                                    </div>
-                                </div>
-                            </section>
+                                street={street}
+                                levels={levels}
+                                onSelect={onSelect}
+                                disabled={disabled}
+                            />
                         ))}
                     </div>
                 </section>
             ))}
         </div>
+    );
+}
+
+function MapStreet({
+    street,
+    levels,
+    onSelect,
+    disabled,
+}: {
+    street: string;
+    levels: Map<number, VisaoOperacaoDto_Posicao[]>;
+    onSelect: (p: VisaoOperacaoDto_Posicao) => void;
+    disabled: boolean;
+}) {
+    const columns = [
+        ...new Set([...levels.values()].flat().map((p) => p.posicao)),
+    ].sort((a, b) => a.localeCompare(b, "pt-BR", { numeric: true }));
+    const [capacity, setCapacity] = useState(0);
+    const [start, setStart] = useState(0);
+    const windowRef = useRef<HTMLDivElement>(null);
+    const viewportId = useId();
+    useEffect(() => {
+        const el = windowRef.current;
+        if (!el) return;
+        const update = () => {
+            if (!el.clientWidth) return;
+            const style = getComputedStyle(el);
+            const viewport = el.querySelector(".map-window-viewport")!;
+            const viewportStyle = getComputedStyle(viewport);
+            const level = el.querySelector(".map-level")!;
+            const label = el.querySelector(".map-level-label")!;
+            const gap = parseFloat(
+                getComputedStyle(el.querySelector(".map-slots")!).columnGap,
+            );
+            const columnWidth = parseFloat(
+                style.getPropertyValue("--map-slot-width"),
+            );
+            const available =
+                el.clientWidth -
+                label.getBoundingClientRect().width -
+                parseFloat(getComputedStyle(level).columnGap) -
+                parseFloat(viewportStyle.paddingLeft) -
+                parseFloat(viewportStyle.paddingRight);
+            setCapacity(
+                Math.max(
+                    1,
+                    Math.floor((available + gap) / (columnWidth + gap)),
+                ),
+            );
+        };
+        update();
+        if (typeof ResizeObserver === "undefined") return;
+        const observer = new ResizeObserver(update);
+        observer.observe(el);
+        return () => observer.disconnect();
+    }, [columns.length]);
+    const count = Math.min(capacity || columns.length, columns.length);
+    const maxStart = Math.max(0, columns.length - count);
+    const offset = Math.min(start, maxStart);
+    const visible = columns.slice(offset, offset + count);
+    const paged = count < columns.length;
+    return (
+        <section className="map-street" aria-label={`Rua ${street}`}>
+            <div className="map-street-heading">
+                <h4>Rua {street}</h4>
+                {paged && (
+                    <div className="map-street-navigation">
+                        <p className="map-window-note" aria-live="polite">
+                            Colunas {offset + 1}–{offset + visible.length} de{" "}
+                            {columns.length}
+                        </p>
+                        <button
+                            type="button"
+                            className="map-window-arrow"
+                            aria-label={`Posições anteriores da rua ${street}`}
+                            aria-controls={viewportId}
+                            disabled={disabled || offset === 0}
+                            onClick={() =>
+                                setStart(Math.max(0, offset - count))
+                            }
+                        >
+                            <Icon name="chevron-left" />
+                        </button>
+                        <button
+                            type="button"
+                            className="map-window-arrow"
+                            aria-label={`Próximas posições da rua ${street}`}
+                            aria-controls={viewportId}
+                            disabled={disabled || offset >= maxStart}
+                            onClick={() =>
+                                setStart(Math.min(maxStart, offset + count))
+                            }
+                        >
+                            <Icon name="chevron-right" />
+                        </button>
+                    </div>
+                )}
+            </div>
+            <div>
+                <div ref={windowRef} className="map-window">
+                    <div
+                        id={viewportId}
+                        className="map-window-viewport"
+                        role="group"
+                        aria-label={`Posições da rua ${street}`}
+                    >
+                        <div className="map-levels">
+                            {[...levels]
+                                .sort(([a], [b]) => b - a)
+                                .map(([level, slots]) => (
+                                    <div className="map-level" key={level}>
+                                        <span className="map-level-label">
+                                            <span className="sr-only">
+                                                Nível{" "}
+                                            </span>
+                                            {level}
+                                        </span>
+                                        <div
+                                            className="map-slots"
+                                            style={{
+                                                gridTemplateColumns: `repeat(${visible.length}, var(--map-slot-width))`,
+                                            }}
+                                        >
+                                            {slots
+                                                .slice()
+                                                .sort((a, b) =>
+                                                    a.posicao.localeCompare(
+                                                        b.posicao,
+                                                        "pt-BR",
+                                                        { numeric: true },
+                                                    ),
+                                                )
+                                                .map((p) => {
+                                                    const column =
+                                                        visible.indexOf(
+                                                            p.posicao,
+                                                        );
+                                                    return (
+                                                        <button
+                                                            type="button"
+                                                            key={p.id}
+                                                            hidden={column < 0}
+                                                            style={{
+                                                                gridRow: 1,
+                                                                gridColumn:
+                                                                    column >= 0
+                                                                        ? column +
+                                                                          1
+                                                                        : undefined,
+                                                            }}
+                                                            disabled={disabled}
+                                                            className={`map-position map-state--${p.ocupada ? "occupied" : p.disponivel ? "free" : "other"}`}
+                                                            onClick={() =>
+                                                                onSelect(p)
+                                                            }
+                                                            title={`${p.codigo} · ${positionState(p)}${p.bloqueada ? " · Bloqueado" : ""}${p.reservada ? " · Reservado" : ""}`}
+                                                            aria-label={`${p.codigo} · ${positionState(p)}${p.bloqueada ? " · Bloqueado" : ""}${p.reservada ? " · Reservado" : ""}`}
+                                                        >
+                                                            <strong>
+                                                                {p.codigo}
+                                                            </strong>
+                                                            {(p.bloqueada ||
+                                                                p.reservada) && (
+                                                                <span
+                                                                    className="map-position-flags"
+                                                                    aria-hidden="true"
+                                                                >
+                                                                    {p.bloqueada && (
+                                                                        <Icon name="senha" />
+                                                                    )}
+                                                                    {p.reservada && (
+                                                                        <Icon name="bookmark" />
+                                                                    )}
+                                                                </span>
+                                                            )}
+                                                        </button>
+                                                    );
+                                                })}
+                                        </div>
+                                    </div>
+                                ))}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
     );
 }
 function PositionDetail({

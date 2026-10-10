@@ -13,6 +13,39 @@ export function OperationForm({
     collector?: boolean;
     fixedFields?: string[];
 }) {
+    const queryFields = s.e.query.filter(
+        (f) => !["pagina", "tamanho"].includes(f.name),
+    );
+    const bodyFields = s.e.request ? records[s.e.request] : [];
+    const collectorFields = collector
+        ? bodyFields.filter((f) => ["medidas", "conjuntoId"].includes(f.name))
+        : [];
+    const groups = [
+        {
+            fields: s.e.params,
+            values: s.params,
+            onChange: s.setParams,
+            schema: "",
+        },
+        {
+            fields: queryFields,
+            values: s.query,
+            onChange: s.setQuery,
+            schema: s.e.id + ".query",
+        },
+        {
+            fields: bodyFields.filter((f) => !collectorFields.includes(f)),
+            values: s.body,
+            onChange: s.updateBody,
+            schema: s.e.request ?? "",
+        },
+    ];
+    const hasFixedFields = groups.some((group) =>
+        group.fields.some((f) => fixedFields.includes(f.name)),
+    );
+    const hasEditableFields = groups.some((group) =>
+        group.fields.some((f) => !fixedFields.includes(f.name)),
+    );
     return (
         <form
             onSubmit={(e) => {
@@ -21,62 +54,52 @@ export function OperationForm({
             }}
             noValidate
         >
-            {(s.e.params.length > 0 ||
-                s.e.query.some(
-                    (f) => !["pagina", "tamanho"].includes(f.name),
-                ) ||
-                s.e.request ||
+            {hasFixedFields && (
+                <fieldset className="operation-fixed-fields" disabled>
+                    <legend className="sr-only">Registro selecionado</legend>
+                    {groups.map((group, index) => (
+                        <Fields
+                            key={index}
+                            {...group}
+                            fields={group.fields.filter((f) =>
+                                fixedFields.includes(f.name),
+                            )}
+                            perfil={perfil}
+                            lockedFields={fixedFields}
+                        />
+                    ))}
+                </fieldset>
+            )}
+            {(hasEditableFields ||
+                collectorFields.length > 0 ||
                 s.e.multipart) && (
-                <fieldset disabled={s.pending || s.uncertain || s.completed}>
-                    <legend>Contexto e referências da operação</legend>
-                    {s.e.params.length > 0 && (
+                <fieldset
+                    className="operation-fields"
+                    disabled={s.pending || s.uncertain || s.completed}
+                >
+                    <legend className="sr-only">Dados da operação</legend>
+                    {groups.map((group, index) => (
                         <Fields
-                            fields={s.e.params}
-                            values={s.params}
-                            onChange={s.setParams}
-                            perfil={perfil}
-                            lockedFields={fixedFields}
-                        />
-                    )}
-                    {s.e.query.length > 0 && (
-                        <Fields
-                            fields={s.e.query.filter(
-                                (f) => !["pagina", "tamanho"].includes(f.name),
+                            key={index}
+                            {...group}
+                            fields={group.fields.filter(
+                                (f) => !fixedFields.includes(f.name),
                             )}
-                            values={s.query}
-                            onChange={s.setQuery}
                             perfil={perfil}
-                            schema={s.e.id + ".query"}
                             lockedFields={fixedFields}
                         />
-                    )}
-                    {s.e.request && (
-                        <Fields
-                            fields={records[s.e.request].filter(
-                                (f) =>
-                                    !collector ||
-                                    !["medidas", "conjuntoId"].includes(f.name),
-                            )}
-                            values={s.body}
-                            onChange={s.updateBody}
-                            perfil={perfil}
-                            schema={s.e.request}
-                            lockedFields={fixedFields}
-                        />
-                    )}
-                    {collector && s.e.request && (
+                    ))}
+                    {collectorFields.length > 0 && (
                         <details>
                             <summary>
                                 Medidas físicas e conjunto de duas posições
                             </summary>
                             <Fields
-                                fields={records[s.e.request].filter((f) =>
-                                    ["medidas", "conjuntoId"].includes(f.name),
-                                )}
+                                fields={collectorFields}
                                 values={s.body}
                                 onChange={s.updateBody}
                                 perfil={perfil}
-                                schema={s.e.request}
+                                schema={s.e.request ?? undefined}
                             />
                         </details>
                     )}

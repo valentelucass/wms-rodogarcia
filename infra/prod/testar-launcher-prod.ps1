@@ -4,7 +4,7 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
 $repository=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 $evidence=[IO.Path]::GetFullPath($EvidenceDirectory)
-$allowed=Join-Path $repository 'orchestracao/.runtime/launcher-producao/farol'
+$allowed=Join-Path $repository 'orchestracao/.runtime'
 if (-not $evidence.StartsWith($allowed+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)) { throw 'HARNESS_PATH_OUTSIDE_OWN_EVIDENCE' }
 if (Test-Path -LiteralPath $evidence) { throw 'HARNESS_CREATE_ONLY' }
 $null=New-Item -ItemType Directory -Path $evidence

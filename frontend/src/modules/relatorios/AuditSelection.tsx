@@ -26,32 +26,18 @@ export function AuditSelection({
                     jornada.
                 </p>
             )}
-            {available.map((t) => (
-                <div key={t.dto}>
-                    <button
-                        type="button"
-                        disabled={disabled}
-                        onClick={() =>
-                            onSelect(
-                                {
-                                    dto: t.dto,
-                                    registroId: workflow.selected[t.dto].id,
-                                },
-                                "Auditoria.alvo",
-                            )
-                        }
-                    >
-                        Auditar {t.label} {String(workflow.selected[t.dto].id)}
-                    </button>
-                    {t.tipo === "VINCULO_COBRANCA" && (
-                        <>
-                            <p>
-                                O histórico confirmado usa o vínculo
-                                selecionado. Candidatos legados ambíguos não são
-                                histórico confirmado deste vínculo. Coincidência
-                                de ID não comprova que o registro pertence ao
-                                vínculo.
-                            </p>
+            {available.length > 0 && (
+                <div className="audit-selection-actions">
+                    {available.map((t) => (
+                        <div
+                            key={t.dto}
+                            className={
+                                "audit-selection-target" +
+                                (t.tipo === "VINCULO_COBRANCA"
+                                    ? " audit-selection-target--legacy"
+                                    : "")
+                            }
+                        >
                             <button
                                 type="button"
                                 disabled={disabled}
@@ -61,19 +47,49 @@ export function AuditSelection({
                                             dto: t.dto,
                                             registroId:
                                                 workflow.selected[t.dto].id,
-                                            legado: true,
                                         },
                                         "Auditoria.alvo",
                                     )
                                 }
                             >
-                                Consultar legado não atribuído do vínculo{" "}
+                                Auditar {t.label}{" "}
                                 {String(workflow.selected[t.dto].id)}
                             </button>
-                        </>
-                    )}
+                            {t.tipo === "VINCULO_COBRANCA" && (
+                                <>
+                                    <p>
+                                        O histórico confirmado usa o vínculo
+                                        selecionado. Candidatos legados ambíguos
+                                        não são histórico confirmado deste
+                                        vínculo. Coincidência de ID não comprova
+                                        que o registro pertence ao vínculo.
+                                    </p>
+                                    <button
+                                        type="button"
+                                        disabled={disabled}
+                                        onClick={() =>
+                                            onSelect(
+                                                {
+                                                    dto: t.dto,
+                                                    registroId:
+                                                        workflow.selected[t.dto]
+                                                            .id,
+                                                    legado: true,
+                                                },
+                                                "Auditoria.alvo",
+                                            )
+                                        }
+                                    >
+                                        Consultar legado não atribuído do
+                                        vínculo{" "}
+                                        {String(workflow.selected[t.dto].id)}
+                                    </button>
+                                </>
+                            )}
+                        </div>
+                    ))}
                 </div>
-            ))}
+            )}
         </section>
     );
 }

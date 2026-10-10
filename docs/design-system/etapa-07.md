@@ -10,6 +10,10 @@ Quantidades e valores conservam representação decimal sem passar por `Number`;
 
 Regras, APIs e limites no [contrato do incremento](../45-pedido-entrada-manual-xml.md). Este incremento acrescenta APIs de prévia/confirmar/recuperar/documento, conservando o fluxo anterior de conferência física e a possibilidade de anexar XML depois da criação manual.
 
+## Botões da consulta — FE05-PED01-A01
+
+Pedido expresso de Lucas em 10/10/2026. Aplicar filtros e Restaurar filtros ficam juntos à esquerda; Atualizar lista passa para a extremidade direita da mesma faixa, dentro da área de filtros. Novo pedido continua no cabeçalho. Até 600 px, Aplicar/Restaurar dividem a primeira linha e Atualizar ocupa a seguinte. A ordem do teclado acompanha a apresentação. Atualizar mantém `type="button"` e a consulta já aplicada; não submete os filtros em edição. Handlers, contratos e bloqueio durante carregamento preservados. Conferência e evidências em `STATES.md` e `orchestracao/.runtime/buttons-a01/resultado.json`.
+
 ## Fontes e alcance
 
 O [inventário anterior](inventario-paginas.md#entrada-e-conferência) conserva os IDs `entrada-1` a `entrada-4` e seus comandos. Esses IDs agora identificam grupos de capacidades da mesma visão, sem quatro páginas globais. O [contrato de recebimento](../18-recebimento-e-conferencia.md), controllers, DTOs e serviços existentes determinam regras, permissões, revisões e efeitos de estoque. Nenhuma tabela, migration ou API foi acrescentada nesta entrega.

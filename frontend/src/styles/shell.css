@@ -97,13 +97,79 @@
     font-weight: var(--og-font-medium);
 }
 .main-nav {
+    height: 100%;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: none;
+}
+.main-nav::-webkit-scrollbar {
+    display: none;
+}
+.main-nav-items {
     padding: var(--og-space-1) var(--og-space-3) var(--og-space-4);
     display: flex;
     flex-direction: column;
     gap: var(--og-space-1);
+}
+.nav-scroll {
+    display: flex;
+    flex-direction: column;
     flex: 1;
-    overflow-y: auto;
     min-height: 0;
+}
+.nav-scroll-window {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+}
+.nav-scroll-window::before,
+.nav-scroll-window::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    height: 24px;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0;
+    backdrop-filter: blur(3px);
+    background: color-mix(in srgb, var(--og-sidebar) 70%, transparent);
+}
+.nav-scroll-window::before {
+    top: 0;
+    mask-image: linear-gradient(to bottom, black, transparent);
+}
+.nav-scroll-window::after {
+    bottom: 0;
+    mask-image: linear-gradient(to top, black, transparent);
+}
+.nav-scroll-window[data-up="true"]::before,
+.nav-scroll-window[data-down="true"]::after {
+    opacity: 1;
+}
+.nav-scroll-arrow {
+    display: grid;
+    place-items: center;
+    flex: 0 0 32px;
+    min-height: 32px;
+    margin-inline: var(--og-space-2);
+    padding: var(--og-space-1);
+    background: transparent;
+    border-color: transparent;
+    color: var(--og-text-muted);
+}
+.nav-scroll-arrow:hover:not(:disabled) {
+    color: var(--og-text);
+    background: var(--og-surface-raised);
+}
+.nav-scroll-arrow--up svg {
+    transform: rotate(180deg);
+}
+@media (pointer: coarse), (max-width: 767px) {
+    .nav-scroll-arrow {
+        flex-basis: var(--og-touch-height);
+        min-height: var(--og-touch-height);
+    }
 }
 .main-nav button {
     display: flex;
@@ -167,7 +233,7 @@
 .app-shell--collapsed .nav-label {
     display: none;
 }
-.app-shell--collapsed .main-nav {
+.app-shell--collapsed .main-nav-items {
     padding-inline: var(--og-space-2);
 }
 .app-shell--collapsed .main-nav button {

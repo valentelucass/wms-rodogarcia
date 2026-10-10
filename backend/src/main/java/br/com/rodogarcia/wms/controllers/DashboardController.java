@@ -18,8 +18,8 @@ public class DashboardController {
 
     @GetMapping("/api/v1/dashboard")
     public DashboardDto.Resumo consultar(
-            @RequestParam Long clienteId,
-            @RequestParam Long armazemId,
+            @RequestParam(required = false) Long clienteId,
+            @RequestParam(required = false) Long armazemId,
             @RequestParam String fuso,
             @RequestParam(defaultValue = "0") int pagina,
             @RequestParam(defaultValue = "6") int tamanho) {

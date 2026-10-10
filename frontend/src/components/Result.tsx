@@ -103,6 +103,8 @@ export function Result({
         );
     }
     if (isObject(data)) {
+        if (Object.keys(data).length === 0)
+            return <p className="empty">Nenhum dado informado.</p>;
         if (type.startsWith("PaginaResponse<") && Array.isArray(data.itens)) {
             return (
                 <div className="paged-results" aria-busy={pending}>
@@ -130,38 +132,54 @@ export function Result({
         const nested = Object.entries(data).filter(
             ([, x]) => Array.isArray(x) || isObject(x),
         );
+        const emptyNested = nested.filter(
+            ([, x]) => Object.keys(x as object).length === 0,
+        );
         return (
             <>
-                <dl className="record">
-                    {scalar.map(([k, x]) => (
-                        <div key={k}>
-                            <dt>{label(k)}</dt>
-                            <dd>{display(x)}</dd>
-                        </div>
-                    ))}
-                </dl>
+                {(scalar.length > 0 || emptyNested.length > 0) && (
+                    <dl className="record">
+                        {scalar.map(([k, x]) => (
+                            <div key={k}>
+                                <dt>{label(k)}</dt>
+                                <dd>{display(x)}</dd>
+                            </div>
+                        ))}
+                        {emptyNested.map(([k]) => (
+                            <div key={k}>
+                                <dt>{label(k)}</dt>
+                                <dd className="hint">
+                                    Nenhum registro informado.
+                                </dd>
+                            </div>
+                        ))}
+                    </dl>
+                )}
                 {onSelect && records[type] && data.id !== undefined && (
                     <button type="button" onClick={() => onSelect(data, type)}>
                         Selecionar este registro
                     </button>
                 )}
-                {nested.map(([k, x]) => (
-                    <section className="result-section" key={k}>
-                        <h4>{label(k)}</h4>
-                        <Result
-                            data={x}
-                            type={
-                                type.startsWith("PaginaResponse<") &&
-                                k === "itens"
-                                    ? "List<" + type.slice(15, -1) + ">"
-                                    : (records[type]?.find((f) => f.name === k)
-                                          ?.type ?? "unknown")
-                            }
-                            onSelect={onSelect}
-                            depth={depth + 1}
-                        />
-                    </section>
-                ))}
+                {nested
+                    .filter((entry) => !emptyNested.includes(entry))
+                    .map(([k, x]) => (
+                        <section className="result-section" key={k}>
+                            <h4>{label(k)}</h4>
+                            <Result
+                                data={x}
+                                type={
+                                    type.startsWith("PaginaResponse<") &&
+                                    k === "itens"
+                                        ? "List<" + type.slice(15, -1) + ">"
+                                        : (records[type]?.find(
+                                              (f) => f.name === k,
+                                          )?.type ?? "unknown")
+                                }
+                                onSelect={onSelect}
+                                depth={depth + 1}
+                            />
+                        </section>
+                    ))}
             </>
         );
     }

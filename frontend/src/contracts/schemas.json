@@ -3579,6 +3579,12 @@
         "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/DashboardDto.java"
       },
       {
+        "name": "clienteId",
+        "type": "Long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/DashboardDto.java"
+      },
+      {
         "name": "sku",
         "type": "String",
         "required": true,
@@ -3625,13 +3631,13 @@
       {
         "name": "clienteId",
         "type": "Long",
-        "required": true,
+        "required": false,
         "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/DashboardDto.java"
       },
       {
         "name": "armazemId",
         "type": "Long",
-        "required": true,
+        "required": false,
         "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/DashboardDto.java"
       },
       {

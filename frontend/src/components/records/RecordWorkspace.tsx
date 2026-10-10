@@ -267,7 +267,7 @@ function PageRecords(props: Props & { definition: RecordPage }) {
                                     schema={query.e.id + ".query"}
                                 />
                             </fieldset>
-                            <div className="actions">
+                            <div className="actions record-filter-actions">
                                 <button
                                     className="primary"
                                     type="submit"
@@ -282,6 +282,17 @@ function PageRecords(props: Props & { definition: RecordPage }) {
                                 >
                                     Restaurar filtros
                                 </button>
+                                {journey.id === "entrada" && (
+                                    <button
+                                        className="record-refresh"
+                                        type="button"
+                                        disabled={query.pending}
+                                        onClick={query.refresh}
+                                    >
+                                        <Icon name="refresh" />
+                                        Atualizar lista
+                                    </button>
+                                )}
                             </div>
                         </form>
                     )}
@@ -349,17 +360,6 @@ function PageRecords(props: Props & { definition: RecordPage }) {
                                 Atualizar lista
                             </button>
                         </div>
-                    )}
-                    {journey.id === "entrada" && (
-                        <button
-                            className="record-refresh"
-                            type="button"
-                            disabled={query.pending}
-                            onClick={query.refresh}
-                        >
-                            <Icon name="refresh" />
-                            Atualizar lista
-                        </button>
                     )}
                     {query.pending && (
                         <p role="status">

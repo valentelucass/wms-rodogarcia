@@ -5,6 +5,7 @@ import type { Perfil, Values } from "../../contracts/runtime";
 import type { Navigate } from "../../hooks/useNavigation";
 import { Icon } from "../../design-system/Icon";
 import { Pagination } from "../layout/Pagination";
+import { useReferenceCatalog } from "../context/ReferenceCatalog";
 
 const areaNames: Record<string, string> = {
     ARMAZENAGEM: "Armazenagem",
@@ -89,18 +90,24 @@ export function OperationDashboard({
     perfil,
     navigate,
     ficticio = false,
+    showMetrics = true,
 }: {
     transport: Transport;
     context: Values;
     perfil: Perfil;
     navigate: Navigate;
     ficticio?: boolean;
+    showMetrics?: boolean;
 }) {
+    const catalog = useReferenceCatalog();
     const clienteId = String(context.clienteId ?? ""),
         armazemId = String(context.armazemId ?? "");
+    const client = catalog?.clientes.find((c) => c.id === clienteId)?.nome;
+    const warehouse = catalog?.armazens.find((a) => a.id === armazemId)?.nome;
     const valid = (v: string) =>
         /^[1-9]\d*$/.test(v) && BigInt(v) <= 9223372036854775807n;
-    const configured = valid(clienteId) && valid(armazemId);
+    const configured =
+        (!clienteId || valid(clienteId)) && (!armazemId || valid(armazemId));
     const [pagina, setPagina] = useState(0),
         [revision, setRevision] = useState(0);
     const productsHeading = useRef<HTMLHeadingElement>(null);
@@ -123,8 +130,8 @@ export function OperationDashboard({
             undefined,
             {},
             {
-                clienteId,
-                armazemId,
+                clienteId: clienteId || undefined,
+                armazemId: armazemId || undefined,
                 pagina,
                 tamanho: 6,
                 fuso: Intl.DateTimeFormat().resolvedOptions().timeZone,
@@ -177,12 +184,16 @@ export function OperationDashboard({
                     <span className="dashboard-eyebrow">
                         {ficticio
                             ? "Exercício fictício"
-                            : "Cliente e armazém selecionados"}
+                            : "Contexto da operação"}
                     </span>
-                    <h2 id="dashboard-title">Visão da operação</h2>
+                    <h2 id="dashboard-title">
+                        {showMetrics
+                            ? "Visão da operação"
+                            : "Gráficos da operação"}
+                    </h2>
                     <p>
                         {data
-                            ? `Cliente ${data.clienteId} · Armazém ${data.armazemId} · Atualizado às ${new Date(data.consultadoEm).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: data.fuso })}`
+                            ? `${clienteId ? (client ?? `Cliente ${data.clienteId}`) : "Todos os clientes permitidos"} · ${armazemId ? (warehouse ?? `Armazém ${data.armazemId}`) : "Todos os armazéns permitidos"} · Atualizado às ${new Date(data.consultadoEm).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: data.fuso })}`
                             : "Estoque, espaço e pedidos no contexto atual."}
                     </p>
                 </div>
@@ -193,15 +204,20 @@ export function OperationDashboard({
                     onClick={() => setRevision((r) => r + 1)}
                 >
                     <Icon name="relatorios" />
-                    {loading ? "Consultando…" : "Atualizar indicadores"}
+                    {loading
+                        ? "Consultando…"
+                        : showMetrics
+                          ? "Atualizar indicadores"
+                          : "Atualizar gráficos"}
                 </button>
             </header>
             {!configured ? (
                 <div className="dashboard-notice">
                     <Icon name="estoque" />
                     <p>
-                        Selecione cliente e armazém no topo para consultar os
-                        indicadores da operação.
+                        Confira a seleção de cliente e armazém no topo para
+                        consultar os
+                        {showMetrics ? "indicadores" : "gráficos"} da operação.
                     </p>
                 </div>
             ) : error ? (
@@ -230,50 +246,56 @@ export function OperationDashboard({
                                 deste contexto são atualizados…
                             </p>
                         )}
-                        <div className="dashboard-metrics">
-                            {[
-                                [
-                                    "estoque",
-                                    "Posições ocupadas",
-                                    formatQuantity(data.posicoesCliente),
-                                    "Ocupação física do cliente",
-                                ],
-                                [
-                                    "unidades",
-                                    "Unidades disponíveis",
-                                    formatQuantity(data.unidadesDisponiveis),
-                                    "Pallets e bobinas elegíveis à saída",
-                                ],
-                                [
-                                    "saida",
-                                    "Pedidos de saída abertos",
-                                    formatQuantity(data.pedidosAbertos),
-                                    "Da elaboração até a retirada",
-                                ],
-                                [
-                                    "contingencia",
-                                    "Avisos de validade",
-                                    data.unidadesComAviso === null
-                                        ? "—"
-                                        : formatQuantity(data.unidadesComAviso),
-                                    data.antecedenciaValidade === null
-                                        ? "Antecedência ainda não configurada"
-                                        : `Vencidas ou a vencer em até ${data.antecedenciaValidade} dias`,
-                                ],
-                            ].map(([icon, label, value, description]) => (
-                                <article
-                                    className="dashboard-metric"
-                                    key={label}
-                                >
-                                    <span className="dashboard-metric-icon">
-                                        <Icon name={icon} />
-                                    </span>
-                                    <span>{label}</span>
-                                    <strong>{value}</strong>
-                                    <small>{description}</small>
-                                </article>
-                            ))}
-                        </div>
+                        {showMetrics && (
+                            <div className="dashboard-metrics">
+                                {[
+                                    [
+                                        "estoque",
+                                        "Posições ocupadas",
+                                        formatQuantity(data.posicoesCliente),
+                                        "Ocupação física no contexto",
+                                    ],
+                                    [
+                                        "unidades",
+                                        "Unidades disponíveis",
+                                        formatQuantity(
+                                            data.unidadesDisponiveis,
+                                        ),
+                                        "Pallets e bobinas elegíveis à saída",
+                                    ],
+                                    [
+                                        "saida",
+                                        "Pedidos de saída abertos",
+                                        formatQuantity(data.pedidosAbertos),
+                                        "Da elaboração até a retirada",
+                                    ],
+                                    [
+                                        "contingencia",
+                                        "Avisos de validade",
+                                        data.unidadesComAviso === null
+                                            ? "—"
+                                            : formatQuantity(
+                                                  data.unidadesComAviso,
+                                              ),
+                                        data.antecedenciaValidade === null
+                                            ? "Antecedência ainda não configurada"
+                                            : `Vencidas ou a vencer em até ${data.antecedenciaValidade} dias`,
+                                    ],
+                                ].map(([icon, label, value, description]) => (
+                                    <article
+                                        className="dashboard-metric"
+                                        key={label}
+                                    >
+                                        <span className="dashboard-metric-icon">
+                                            <Icon name={icon} />
+                                        </span>
+                                        <span>{label}</span>
+                                        <strong>{value}</strong>
+                                        <small>{description}</small>
+                                    </article>
+                                ))}
+                            </div>
+                        )}
                         <div className="dashboard-charts">
                             <article
                                 className="dashboard-chart"
@@ -288,7 +310,7 @@ export function OperationDashboard({
                                             Ocupação física
                                         </h3>
                                         <p>
-                                            Posições ocupadas pelo cliente, por
+                                            Posições ocupadas no contexto, por
                                             área.
                                         </p>
                                     </div>
@@ -330,7 +352,7 @@ export function OperationDashboard({
                                 </div>
                                 <p className="dashboard-scale">
                                     Escala de 0 a {formatQuantity(areaMax)}{" "}
-                                    posições do cliente.
+                                    posições no contexto.
                                 </p>
                                 <footer>
                                     <span>
@@ -460,6 +482,16 @@ export function OperationDashboard({
                                                         </small>
                                                     </span>
                                                 </div>
+                                                {!clienteId && (
+                                                    <small>
+                                                        {catalog?.clientes.find(
+                                                            (c) =>
+                                                                c.id ===
+                                                                p.clienteId,
+                                                        )?.nome ??
+                                                            `Cliente ${p.clienteId}`}
+                                                    </small>
+                                                )}
                                                 <svg
                                                     className="dashboard-bar"
                                                     viewBox="0 0 1000 16"

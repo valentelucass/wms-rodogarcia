@@ -68,13 +68,44 @@ class D30ContextoLocalGuardTest {
                 "JornadaBackendIntegrationTest",
                 "PedidoSaidaIntegrationTest",
                 "RecebimentoIntegrationTest",
-                "UnidadeLogisticaIntegrationTest"
+                "UnidadeLogisticaIntegrationTest",
+                "LoginIntegrationTest",
+                "LoginHttpsIntegrationTest",
+                "LoginBrowserTest",
+                "VisaoOperacaoIntegrationTest",
+                "PedidoEntradaXmlIntegrationTest"
             })
     void aceitaSomenteConfiguracaoDescobertaDaSuite(String classe) {
         var env = seguro(classe);
         var proof = D30ContextoLocalGuard.conferirConfiguracao(classe, env);
         assertThat(proof.get("sqlServer")).isEqualTo(false);
         assertThat(proof.get("URL")).isEqualTo(D30ContextoLocalGuard.urlEsperada(classe));
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+            strings = {
+                "LoginIntegrationTest",
+                "LoginHttpsIntegrationTest",
+                "LoginBrowserTest",
+                "VisaoOperacaoIntegrationTest",
+                "PedidoEntradaXmlIntegrationTest"
+            })
+    void novosContextosRecusamSqlServerArquivoEOutraMemoriaAntesDosSingletons(String classe) {
+        for (String url :
+                java.util.List.of(
+                        "jdbc:sqlserver://alvo-ficticio;databaseName=WMS_DEV",
+                        "jdbc:h2:file:nao-permitido",
+                        "jdbc:h2:mem:outra-suite")) {
+            assertThatThrownBy(
+                            () ->
+                                    D30ContextoLocalGuard.conferirConfiguracao(
+                                            classe,
+                                            seguro(classe)
+                                                    .withProperty("spring.datasource.url", url)))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("antes dos singletons");
+        }
     }
 
     @ParameterizedTest
@@ -122,6 +153,9 @@ class D30ContextoLocalGuardTest {
                         .withProperty("spring.flyway.enabled", "false")
                         .withProperty("spring.jpa.generate-ddl", "false");
         env.setActiveProfiles("test");
+        if (java.util.Set.of(
+                        "LoginIntegrationTest", "LoginHttpsIntegrationTest", "LoginBrowserTest")
+                .contains(classe)) env.withProperty("wms.auth.enabled", "true");
         if (D30ContextoLocalGuard.urlEsperada(classe) != null) {
             env.withProperty("spring.datasource.url", D30ContextoLocalGuard.urlEsperada(classe))
                     .withProperty("spring.datasource.driver-class-name", "org.h2.Driver")

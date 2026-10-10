@@ -87,7 +87,10 @@ class D30EmbalagemFisicoTest {
                                 BigDecimal.class))
                 .isEqualByComparingTo("10");
         var antes = fotografia();
-        assertThat(antes).hasSize(64);
+        assertThat(antes)
+                .hasSize(68)
+                .containsKeys(
+                        "USUARIO_ACESSO", "SESSAO_ACESSO", "RENOVACAO_ACESSO", "EVENTO_ACESSO");
         salvar("d30-cedro-embalagem-fisico-antes.json", antes);
         var temporaisAntes = D30FotografiaTemporal.capturar(jdbc);
         assertThat(temporaisAntes).hasSize(64);
@@ -215,7 +218,10 @@ class D30EmbalagemFisicoTest {
                         String.class);
         for (String tabela : tabelas) {
             assertThat(tabela).matches("[A-Z_]+");
-            foto.put(tabela, jdbc.queryForList("select * from wms." + tabela + " order by id"));
+            String chave = "RENOVACAO_ACESSO".equals(tabela) ? "hash" : "id";
+            foto.put(
+                    tabela,
+                    jdbc.queryForList("select * from wms." + tabela + " order by " + chave));
         }
         return foto;
     }

@@ -20,6 +20,7 @@ public final class DashboardDto {
 
     public record Produto(
             @NotNull Long produtoId,
+            @NotNull Long clienteId,
             @NotNull String sku,
             @NotNull String unidadeMedida,
             @NotNull BigDecimal fisicoTotal,
@@ -29,8 +30,8 @@ public final class DashboardDto {
             @NotNull BigDecimal pendenteUnitizacao) {}
 
     public record Resumo(
-            @NotNull Long clienteId,
-            @NotNull Long armazemId,
+            Long clienteId,
+            Long armazemId,
             @NotNull Instant consultadoEm,
             @NotNull String fuso,
             long posicoesCliente,

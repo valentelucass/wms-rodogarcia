@@ -63,11 +63,21 @@ Lucas pediu fundos marcantes e diferentes para cada card de Acesso rápido, mant
 | Reservar e separar | Índigo, `#2E1065` → `#5B21B6` | Faixas inclinadas |
 | Conferir fechamento | Grafite azulado, `#111827` → `#334155` | Moldura deslocada |
 
-As variantes usam tokens `--wms-shortcut-*`, degradês e geometria CSS, sem imagens externas ou animação. O texto fica branco para leitura sobre os fundos intensos; nomes, descrições, ícones, ordem e destinos permanecem iguais. Os fundos funcionam nos dois temas e permanecem no hover; o foco por teclado conserva contorno visível. A grade existente continua com quatro, duas ou uma coluna conforme a largura.
+Na composição original A05, as variantes usavam tokens `--wms-shortcut-*`, degradês e geometria CSS, sem imagens externas ou animação. Texto branco, nomes, descrições, ícones, ordem e destinos foram preservados; os fundos funcionavam nos dois temas e no hover, com foco visível por teclado e quatro, duas ou uma coluna conforme a largura. A orientação posterior A06 abaixo substitui essa apresentação por botões neutros.
 
 **Conferência local:** tipagem, lint focal, formatação e builds real/fictício isolados aprovados; seis casos Chrome finais em 320/390/768/1024/1440/1920 px, nos dois temas. Verificados quatro fundos diferentes, contraste conservador de pelo menos 4,5:1 para texto branco nos extremos dos degradês com sobreposição clara de 18%, descrições preservadas, hover, Tab/Shift+Tab/Enter, foco no conteúdo ao navegar e os quatro destinos. Sem rolagem horizontal ou erro de página. Capturas desktop claro e mobile escuro inspecionadas. A primeira prova confundia foco programático após mouse com foco visível de teclado; o cenário foi ajustado para Tab/Shift+Tab, sem mudança operacional. [Prova final](../../frontend/evidencias/shortcuts-a05-final-resultados.json). Preview próprio 5212 encerrado; sem backend/banco, equipamento ou reinício de processos existentes. Esta prova de apresentação não comprova integração real.
 
 **Mapa:** a atualização AST recusou reduzir 15.220 → 12.708 nós; o mapa principal foi preservado, sem forçar. Manutenção permanece pendente. [Log](../../orchestracao/.runtime/shortcuts-a05-graphify.txt), [recibo local com hashes](../../orchestracao/.runtime/shortcuts-a05-resultado.json).
+
+## Atalhos compactos e neutros — FE02-DS03-A06
+
+Orientação expressa de Lucas em 10/10/2026: alinhar os atalhos com Início e Administrar usuários, reduzir bastante a altura, padronizar a administração e separar a faixa de Todos os armazéns. Após ver a composição, pediu simplificar os botões e manter alguma borda. A apresentação vigente usa ícone discreto e texto, fundo transparente e borda de 1 px pelo token `--og-border`; hover reforça a borda e usa a superfície existente. O foco mantém o contorno visível. Essa orientação substitui os fundos coloridos/decorativos de A05, preservando as cores dos demais componentes.
+
+`PageHeader` recebe conteúdo opcional e classe local para compor o Início real e fictício. Os quatro atalhos ficam entre o título e a administração a partir de 1200 px; nas telas menores ocupam a linha seguinte. Até 600 px formam duas colunas e a administração ocupa uma linha própria. Altura de 44 px, contra 170 px na composição anterior, com área de toque preservada. A faixa mantém 48 px de separação dos indicadores no desktop e 32 px até 767 px. Os nomes, destinos e permissão administrativa continuam iguais; as descrições ficam no texto acessível e no tooltip, e Acesso rápido continua identificando a região para leitores de tela.
+
+Dependências FE02-DS03-A05/FE02-DASH02-A03; mudança somente de apresentação. Tipagem, lint focal, formatação e builds real/fictício aprovados; 24 testes existentes em quatro arquivos. Chrome: 88 medições em 320/390/600/768/1024/1199/1200/1280/1440/1500/1920 px, com menu aberto/recolhido, dois temas e modos real com API interceptada/fictício. Textos completos, bordas de 1 px, alinhamento, altura de 44 px, separação, ausência de rolagem horizontal, hover, foco, Tab/Shift+Tab/Enter, quatro destinos e administração/ausência para não administrador conferidos. Capturas desktop claro e mobile escuro inspecionadas. [Prova final](../../frontend/evidencias/shortcuts-a06-resultados.json), [recibo A06](../../orchestracao/.runtime/shortcuts-a06/resultado.json). Previews próprios encerrados; nenhum backend, SQL real ou processo existente reiniciado.
+
+Atualização AST executada após o ajuste final: recusou substituir 15.220 nós por 13.284, sem `--force`; 804 avisos de esquema preexistentes e remoção de quatro nós de arquivos já ignorados registrados. [Log](../../orchestracao/.runtime/shortcuts-a06/graphify-final.log). Manutenção do mapa permanece separada da entrega visual.
 
 ## Header e preferências
 
@@ -97,9 +107,17 @@ Atualização AST A03 executada sem `--force`: recusou a redução de 15.220 par
 
 ## Espaço dos seletores — FE02-CTX01-A01
 
-Lucas pediu em 09/10/2026 somente aliviar o aperto dos seletores no topo de Cadastros, conservando todos os clientes/armazéns e Aplicar contexto. `context.css` remove a largura fixa de 170 px, dá largura fluida às colunas e reserva espaço às ações do topo. Em 1024–1399 px o contexto ocupa a linha seguinte; até 600 px os seletores empilham. O exercício também distribui os seletores com largura flexível. São ajustes de apresentação, sem alteração do catálogo, seleção, validação ou backend.
+Lucas pediu em 09/10/2026 somente aliviar o aperto dos seletores no topo de Cadastros, conservando todos os clientes/armazéns e Aplicar contexto. `context.css` remove a largura fixa de 170 px, dá largura fluida às colunas e reserva espaço às ações do topo. A composição inicial colocava o contexto na linha seguinte em 1024–1399 px; o incremento A02 abaixo atualiza esse limite. Até 600 px os seletores empilham. O exercício também distribui os seletores com largura flexível. São ajustes de apresentação, sem alteração do catálogo, seleção, validação ou backend.
 
 Formatação e build real próprios aprovados; Chrome com API interceptada em 320/390/600/768/1024/1280/1440 px confirmou textos completos, listas dentro da tela e ausência de rolagem horizontal após a adaptação do layout. Capturas claro/escuro inspecionadas, inclusive as ações do topo. [Medidas e prova](../../frontend/evidencias/context-spacing-resultados.json). Preview próprio encerrado; sem nova suíte unitária para este recorte CSS. `graphify update .` recusou substituir o mapa por extração menor, sem `--force`; [log](../../orchestracao/.runtime/context-spacing-graphify.log). A entrega funcional CTX01/DASH02 mantém validação e estado próprios.
+
+## Contexto na linha principal — FE02-CTX01-A02
+
+Lucas pediu em 10/10/2026 manter os seletores dentro da linha principal do cabeçalho até 1200 px. `context.css` passa a reservar de 480 a 600 px para o contexto e reduz espaçamento interno e entre campos para 8 px entre 1200 e 1399 px. Cliente, armazém, Aplicar contexto e ações permanecem na mesma linha a partir de 1200 px, com cabeçalho de 64 px. Em 1024–1199 px o contexto ocupa a segunda linha; o comportamento mobile existente continua abaixo desse intervalo. Dependência FE02-CTX01-A01/FE02-CTX01; seleção e contratos preservados.
+
+**Conferência local:** formatação e build real próprios aprovados; 24 medições Chrome com API interceptada em 320/600/1024/1199/1200/1240/1279/1280/1399/1400/1500/1920 px, com menu lateral aberto e recolhido. Conferidos textos completos, abertura das listas dentro da tela, ausência de sobreposição e rolagem horizontal e posição do contexto em cada intervalo. Capturas de 1200/1500 px inspecionadas e tema escuro conferido. [Medidas](../../frontend/evidencias/context-header-a02-resultados.json), [recibo com hash](../../orchestracao/.runtime/context-header-a02/resultado.json). Preview próprio encerrado; esta prova de interface não acessou backend ou SQL Server. Para carregar o CSS, atualizar a página.
+
+`graphify update .` executou a extração AST e recusou substituir 15.220 nós por 13.283, sem `--force`; apontou os 804 avisos de esquema preexistentes e removeu quatro nós de arquivos já ignorados. Manutenção do mapa continua separada da entrega visual.
 
 ## Conferência e limites
 
