@@ -63,7 +63,7 @@ function Test-WmsDevProcessProof($Receipt, $Process, [string[]]$Arguments, [stri
             $expected = @($Executable, (Join-Path $root 'frontend/node_modules/vite/bin/vite.js'), '--config', 'vite.dev.config.ts')
         }
         if (-not $proof.listenerOwned -or $proof.pid -ne $Process.Id -or
-            [DateTimeOffset]::Parse($proof.startUtc).UtcTicks -ne $Process.StartTime.ToUniversalTime().Ticks -or
+            [DateTimeOffset]::Parse($proof.startUtc).UtcDateTime.Ticks -ne $Process.StartTime.ToUniversalTime().Ticks -or
             $Arguments.Count -ne $expected.Count) { return $false }
         for ($i=0; $i -lt $expected.Count; $i++) {
             if ($Arguments[$i] -cne $expected[$i]) { return $false }
@@ -79,6 +79,7 @@ function Assert-WmsDevRestartTarget($Target, [string]$Repository, $Listeners) {
         throw 'DEV_RESTART_OTHER_LISTENER_REFUSED'
     }
     $metadata = Get-CimInstance Win32_Process -Filter ('ProcessId=' + $Target.Process.Id) -ErrorAction Stop
+    if ($Target.Process.HasExited) { return }
     if ($null -eq $metadata -or [string]::IsNullOrWhiteSpace($metadata.CommandLine)) { throw 'DEV_RESTART_PROCESS_UNREADABLE' }
     $arguments = @(Split-WmsDevCommandLine $metadata.CommandLine)
     if (-not (Test-WmsDevProcessProof $Target.Receipt $Target.Process $arguments $metadata.ExecutablePath $Repository $Target.Port)) {
@@ -101,10 +102,12 @@ function Get-WmsDevRestartPlan([string]$Repository, [int]$BackendPort, [int]$Fro
                 # Fixar o handle nativo antes da validacao impede encerrar um PID reutilizado.
                 $null = $process.Handle
                 $runs = Join-Path $Repository 'orchestracao/.runtime/frontend-integracao-dev-runs'
+                if ((Get-Item -LiteralPath $runs).Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'DEV_RESTART_OWNER_NOT_CONFIRMED' }
                 foreach ($directory in @(Get-ChildItem -LiteralPath $runs -Directory -ErrorAction Stop | Sort-Object LastWriteTime -Descending)) {
                     if ($directory.Attributes -band [IO.FileAttributes]::ReparsePoint) { continue }
                     $path = Join-Path $directory.FullName 'launcher.json'
                     if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { continue }
+                    if ((Get-Item -LiteralPath $path).Attributes -band [IO.FileAttributes]::ReparsePoint) { continue }
                     try {
                         $receipt = Get-Content -LiteralPath $path -Raw -Encoding UTF8 | ConvertFrom-Json
                         $candidate = [pscustomobject]@{Port=$port;Process=$process;Receipt=$receipt;PreviousRun=$directory.Name}
@@ -138,7 +141,13 @@ function Stop-WmsDevRestartPlan($Plan, [string]$Repository, [scriptblock]$OnStop
     foreach ($target in $Plan) {
         if ($target.Process.HasExited) { continue }
         Assert-WmsDevRestartTarget $target $Repository @(Get-WmsDevListeners)
-        $target.Process.Kill()
+        if ($target.Process.HasExited) { continue }
+        try { $target.Process.Kill() }
+        catch {
+            # O launcher anterior pode limpar seu backend ao observar o frontend sair.
+            if ($target.Process.HasExited) { continue }
+            throw 'DEV_RESTART_STOP_FAILED'
+        }
         & $OnStopped ([ordered]@{pid=$target.Process.Id;port=$target.Port;previousRun=$target.PreviousRun;stoppedUtc=[DateTime]::UtcNow.ToString('o')})
         if (-not $target.Process.WaitForExit(5000)) { throw 'DEV_RESTART_STOP_TIMEOUT' }
     }

@@ -1,5 +1,9 @@
 # Continuidade do projeto WMS Rodogarcia
 
+## BE02-DEV-REINICIO01 — comportamento do BAT, 10/10/2026
+
+Nova autorização expressa: `iniciar-dev.bat` substitui automaticamente somente a instância deste WMS em DEV (25580/25581), após pré-requisitos/guarda e comprovação dos processos. Produção, outros projetos e demais portas são preservados; origem incerta interrompe. [Regra vigente e procedimento](19-desenvolvimento-integrado-dev.md#reinicio-dev-exclusivo) prevalecem sobre instruções históricas de encerramento manual. Testes isolados aprovados; reinício integrado real fica para a próxima execução do operador, não foi executado pelo agente. Pacote local A02 atualizado com 103 testes H2 e os dois recibos conferidos, sem promover runtime real.
+
 ## QUAL-CONF01 — rodada atual, 10/10/2026
 
 Nova demanda de Lucas após reset, sem retomar POP: qualidade/confiabilidade na fonte suja atual. [Andamento/checklist](../STATES.md#qual-conf01--qualidade-e-confiabilidade-10102026), [autorização e limites](06-decisoes-e-pendencias.md#qual-conf01--qualidade-e-confiabilidade-10102026). Cedro backend, Lume frontend, Prumo database/infra, Vigia revisão e Farol canônicos, em posses exclusivas; evidências novas em `orchestracao/.runtime/qual-conf01/`.

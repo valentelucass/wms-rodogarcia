@@ -53,7 +53,10 @@ function Write-WmsDevConsoleReady([string]$FrontendUrl,[int]$BackendPort,[string
 
 function Write-WmsDevConsoleFailure([string]$Reason,[string]$ReceiptPath) {
     $message=switch -Regex ($Reason) {
-        '^PORT_OCCUPIED_' { 'A porta ja esta em uso. Confira se o WMS ja esta aberto em outro console.';break }
+        '^PORT_OCCUPIED_' { 'A porta DEV continua ocupada. Nenhum processo desconhecido sera encerrado.';break }
+        '^DEV_RESTART_IN_PROGRESS$' { 'Outra inicializacao deste WMS DEV esta em andamento. Aguarde sua conclusao.';break }
+        '^DEV_RESTART_PORTS_NOT_ALLOWED$' { 'Este launcher usa somente as portas DEV 25580 e 25581. Producao foi preservada.';break }
+        '^DEV_RESTART_' { 'Nao foi possivel comprovar ou encerrar somente a instancia DEV deste projeto. Processos desconhecidos foram preservados.';break }
         '^AUTH_NATIVE_CONFIGURATION_REQUIRED$' { 'Falta a configuracao inicial do login. Use infra\auth\configurar-login-dev.bat.';break }
         '^AUTH_' { 'A configuracao de login precisa ser conferida.';break }
         '^GUARD_' { 'A verificacao do banco nao foi aprovada. Confira a orientacao acima.';break }

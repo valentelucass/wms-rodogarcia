@@ -10,6 +10,7 @@ $repository = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 . (Join-Path $PSScriptRoot 'console-dev.ps1')
 . (Join-Path $PSScriptRoot 'espera-conexao.ps1')
 . (Join-Path $PSScriptRoot 'artefato-backend.ps1')
+. (Join-Path $PSScriptRoot 'reiniciar-instancia.ps1')
 $connectionWaitPolicy = Get-WmsDevConnectionWaitPolicy
 $runsRoot = Join-Path $repository 'orchestracao/.runtime/frontend-integracao-dev-runs'
 $runId = [guid]::NewGuid().ToString('N')
@@ -23,6 +24,7 @@ $receipt = [ordered]@{
     backendPort=$BackendPort; frontendPort=$FrontendPort; guard=$null; backend=$null; frontend=$null
     sqlGuardInvoked=$false; backendStarted=$false; frontendStarted=$false
     realRoundtripVerified=$false; mockFallback=$false; existingProcessesAltered=$false
+    restart=@{ stopped=@(); scope='WMS_DEV_ONLY_25580_25581' }
 }
 $backendHandle = $null
 $backendResult = $null
@@ -30,6 +32,9 @@ $frontendHandle = $null
 $guardProcess = $null
 $guardStarted = $false
 $frontendStarted = $false
+$restartPlan = @()
+$startupMutex = $null
+$startupLock = $false
 
 function Save-LauncherReceipt {
     $receipt['observadoUtc'] = [DateTime]::UtcNow.ToString('o')
@@ -97,9 +102,14 @@ function Require-PublicIdentity {
 try {
     Initialize-WmsDevConsole
     Write-WmsDevConsoleStep 1 'Conferindo portas, login e arquivos...'
-    if ($BackendPort -eq $FrontendPort) { Fail-Startup 50 'BACKEND_FRONTEND_PORTS_EQUAL' }
-    Assert-FreePort $BackendPort
-    Assert-FreePort $FrontendPort
+    Assert-WmsDevRestartPorts $BackendPort $FrontendPort
+    $mutexHash = [Security.Cryptography.SHA256]::Create()
+    try { $mutexKey = [BitConverter]::ToString($mutexHash.ComputeHash([Text.Encoding]::UTF8.GetBytes($repository.ToLowerInvariant()))).Replace('-','') }
+    finally { $mutexHash.Dispose() }
+    $startupMutex = [Threading.Mutex]::new($false, ('Local\WmsDevStartup_' + $mutexKey))
+    try { $startupLock = $startupMutex.WaitOne(0) } catch [Threading.AbandonedMutexException] { $startupLock = $true }
+    if (-not $startupLock) { Fail-Startup 50 'DEV_RESTART_IN_PROGRESS' }
+    $restartPlan = @(Get-WmsDevRestartPlan $repository $BackendPort $FrontendPort)
     # Configuracao publica primeiro: nao abrir SQL quando a autenticacao nem esta configurada.
     $identity = Require-PublicIdentity
     $guardHelper = Join-Path $repository 'infra/dev02/guarda-wmsdev.ps1'
@@ -173,6 +183,15 @@ try {
     }
     if ((Get-FileHash -LiteralPath $guardHelper -Algorithm SHA256).Hash -ne $guardHash) { Fail-Startup 20 'GUARD_HELPER_CHANGED' }
     Write-WmsDevConsoleStep 2 'Banco WMS_DEV e conexao segura conferidos' -Done
+    if ($restartPlan.Count) { Write-Host '  Reiniciando somente a instancia DEV deste WMS (25580/25581)...' -ForegroundColor Yellow }
+    Stop-WmsDevRestartPlan $restartPlan $repository {
+        param($stopped)
+        $receipt['restart']['stopped'] += $stopped
+        $receipt['existingProcessesAltered'] = $true
+        Save-LauncherReceipt
+    }
+    Assert-FreePort $BackendPort
+    Assert-FreePort $FrontendPort
     Write-WmsDevConsoleStep 3 'Iniciando backend e aguardando resposta...'
 
     # O helper backend valida o esquema e a procedencia da guarda antes de DPAPI/Java.
@@ -249,6 +268,8 @@ try {
     $receipt['exitCode']=0
     Save-LauncherReceipt
     Write-WmsDevConsoleStep 4 'Frontend disponivel' -Done
+    $startupMutex.ReleaseMutex()
+    $startupLock = $false
     Write-WmsDevConsoleReady -FrontendUrl $receipt.frontendUrl -BackendPort $BackendPort -ReceiptPath $receiptPath -TunnelMode:$tunnelMode -FrontendPort $FrontendPort
     while (-not $frontendHandle.HasExited -and -not $backendHandle.HasExited) { Start-Sleep -Milliseconds 500 }
     $receipt['estado']='OWN_PROCESS_EXITED'; $receipt['observadoUtc']=[DateTime]::UtcNow.ToString('o')
@@ -259,8 +280,10 @@ try {
     exit 1
 } catch {
     # Nao imprimir excecao arbitraria: pode conter configuracao ou argumento sensivel.
+    if ($_.Exception.Message -match '^DEV_RESTART_[A-Z_]+$') { Fail-Startup 50 $_.Exception.Message }
     Fail-Startup 30 'LOCAL_STARTUP_FAILED'
 } finally {
+    foreach ($target in $restartPlan) { $target.Process.Dispose() }
     # Um objeto Process sem Start bem-sucedido nao possui HasExited valido.
     # Uma falha ao limpar FE nao pode impedir a limpeza do BE proprio.
     try {
@@ -272,9 +295,16 @@ try {
         try {
             if ($null -ne $backendHandle) { Stop-WmsFrontendDevBackend -Handle $backendResult }
         } finally {
-            if ($null -ne $guardProcess) {
-                if ($guardStarted -and -not $guardProcess.HasExited) { $guardProcess.Kill(); $guardProcess.WaitForExit() }
-                $guardProcess.Dispose()
+            try {
+                if ($null -ne $guardProcess) {
+                    if ($guardStarted -and -not $guardProcess.HasExited) { $guardProcess.Kill(); $guardProcess.WaitForExit() }
+                    $guardProcess.Dispose()
+                }
+            } finally {
+                if ($null -ne $startupMutex) {
+                    if ($startupLock) { $startupMutex.ReleaseMutex() }
+                    $startupMutex.Dispose()
+                }
             }
         }
     }

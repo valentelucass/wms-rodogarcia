@@ -35,12 +35,26 @@
 
 ## BE02-DEV-ARTEF01-A02 — atualização do pacote local, 10/10/2026
 
-**Em andamento, solicitação de Lucas após `DEV02_ARTIFACT_NOT_CURRENT` na execução `afa22fb8500b40f1a57c9acdf6950231`:** fonte backend diverge do pacote selecionado pelos recibos. Dependência BE02-DEV-ARTEF01; preparo pelo script existente com testes H2, backups e guarda de fonte/artefato. Separado da conclusão geral de QUAL-CONF01-PERF01.
+**Concluído localmente, solicitação de Lucas após `DEV02_ARTIFACT_NOT_CURRENT` na execução `afa22fb8500b40f1a57c9acdf6950231`:** pacote atualizado pelo script existente, com 103 testes H2 e zero falhas. Dependência BE02-DEV-ARTEF01; separado da conclusão geral de QUAL-CONF01-PERF01 e da versão em execução.
 
 - [x] Confirmar divergência e ausência de outro processo executando o mesmo preparo.
-- [ ] Concluir preparo, conferir os dois recibos e a correspondência entre fonte/JAR/configuração.
+- [x] Concluir preparo e conferir `login-d32-preparo.json` e `frontend-dev02-preparo.json`: fonte/JAR/configuração correspondentes. Build, JAR e backups em [a8c58ce2a3864a98a9ed920967ac4a33](orchestracao/.runtime/backend-dev-builds/a8c58ce2a3864a98a9ed920967ac4a33/).
 
-**Próximo:** concluir o pacote local e devolver o comando `iniciar-dev.bat` ao operador, sem iniciar serviços ou consultar SQL Server.
+**Próximo:** operador executar `iniciar-dev.bat` para carregar o pacote; nenhum serviço real iniciado ou SQL Server consultado neste preparo.
+
+## BE02-DEV-REINICIO01 — reinício exclusivo do DEV, 10/10/2026
+
+**Implementado e validado localmente; integração real pendente da execução do operador.** Dependência BE02-DEV-ARTEF01-A02 → FE integrado real. [Decisão e limites](docs/06-decisoes-e-pendencias.md#be02-dev-reinicio01--reinício-exclusivo-do-dev-10102026).
+
+- [x] Restringir portas a 25580/25581 e comprovar origem por recibo, projeto, PID/início, executável/comando e perfil DEV.
+- [x] Preservar outros projetos/portas/PROD, recusar escuta adicional, revalidar todos os donos antes de encerrar, usar handles fixados e serializar inicializações.
+- [x] Preservar instância anterior em falha de pré-requisitos/guarda e registrar cada encerramento no recibo da nova execução.
+- [x] Validar 27 casos isolados de reinício, 7 de espera, 9 de acesso e 6 de artefato. [Prova dos 27 casos](orchestracao/.runtime/reinicio-dev/51bec53676c24953a3a5e581ed491da3/resultado.json). Sem processos reais encerrados, SQL ou produção.
+- [ ] Conferir reinício integrado real na próxima execução do BAT pelo operador.
+
+**Próximo:** executar o BAT normalmente; não precisa fechar previamente a instância DEV anterior. O novo comportamento substitui o encerramento manual citado em históricos anteriores.
+
+**Índice auxiliar:** `graphify update .` executado; recusou substituir o grafo existente de 15.220 nós pela extração de 13.382. Grafo preservado, sem `--force`; [log](orchestracao/.runtime/reinicio-dev/graphify-update.log). Não altera o resultado dos testes do launcher.
 
 ## FE02-REG01-A08 — ações compactas nas tabelas, 10/10/2026
 

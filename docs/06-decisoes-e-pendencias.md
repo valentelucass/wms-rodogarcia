@@ -1,5 +1,11 @@
 # Decisões e pendências do WMS Rodogarcia
 
+## BE02-DEV-REINICIO01 — reinício exclusivo do DEV, 10/10/2026
+
+**Decisão expressa de Lucas:** cada execução de `iniciar-dev.bat` deve substituir a instância DEV deste WMS, preservando outros projetos, portas e produção. Implementado para 25580/25581 com prova de origem por recibo do próprio projeto, PID/início, executável/comando completo e perfil DEV. Um processo também escutando outra porta não é encerrado. Identidade incerta interrompe a subida; não se usa encerramento indiscriminado por porta ou nome de executável.
+
+O launcher confere pré-requisitos e guarda atual antes de encerrar a instância anterior, revalida os dois donos antes do primeiro encerramento e serializa a inicialização concorrente. Registra PID/porta/execução anterior no recibo novo. A autorização altera somente a restrição histórica de reinício deste DEV; banco, TLS, produção e serviços compartilhados mantêm seus limites. [Procedimento](19-desenvolvimento-integrado-dev.md#reinicio-dev-exclusivo). Validação isolada e pendência real registradas no [estado](../STATES.md#be02-dev-reinicio01--reinício-exclusivo-do-dev-10102026).
+
 ## QUAL-CONF01 — qualidade e confiabilidade, 10/10/2026
 
 Nova demanda expressa de Lucas após reset: ler a documentação vigente, executar primeiro as suítes atuais em saídas isoladas, inventariar áreas/riscos de forma compacta e corrigir erros demonstrados por testes ou prova concreta. Cada correção exige reprodução, causa, menor ajuste, verde/regressão/build da fonte final e revisão independente. Propostas AC permanecem identificadas; não inventar parâmetros ou transformar baseline verde em ausência universal de erros.

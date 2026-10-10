@@ -1,5 +1,13 @@
 # Desenvolvimento integrado WMS_DEV
 
+## Reinicio DEV exclusivo
+
+**BE02-DEV-REINICIO01, 10/10/2026:** execute `iniciar-dev.bat` para iniciar ou reiniciar este WMS. Se já estiver online, o launcher substitui apenas seu backend em 25580 e frontend em 25581, depois de conferir os pré-requisitos e a guarda atual. Não é necessário fechar previamente o console antigo. Produção e outras portas ficam preservadas.
+
+A origem é comprovada por recibos locais, projeto, PID/horário de início, executável/comando e perfil DEV. Porta ocupada por outro projeto, origem desconhecida ou processo que também escute outra porta interrompe a inicialização sem encerrá-lo. Duas inicializações simultâneas do mesmo projeto não prosseguem juntas. O recibo `launcher.json` registra em `restart.stopped` os processos anteriores encerrados. O console antigo pode mostrar que seus processos terminaram; o novo console acompanha a nova instância.
+
+Se o pacote estiver desatualizado, execute `powershell -NoProfile -File infra\dev\preparar-backend-dev.ps1` antes do BAT. Uma falha de preparo/guarda preserva a instância anterior. Esta seção substitui as instruções históricas abaixo sobre fechar manualmente o console ou recusar toda porta ocupada. Nenhuma alteração de produção, SQL Server ou serviço compartilhado faz parte do reinício.
+
 ## D32 — login próprio
 
 **D32-DEV07 — túnel variável:** `infra/dev/acesso-dev.json` contém somente `modo: tunnel`; não guarda URL. Use o link HTTPS atual da porta25581 no painel Portas do VS Code. Depois de carregar essa versão pelo BAT, recriar o túnel não exige editar configuração nem reiniciar o WMS. Será necessário entrar novamente no novo endereço. Para voltar ao acesso local, usar `modo: local` e reiniciar. Não refazer o configurador de senha. [Detalhes](43-login-e-administracao-de-usuarios.md#acesso-pelo-dev-tunnel--d32-dev07).
