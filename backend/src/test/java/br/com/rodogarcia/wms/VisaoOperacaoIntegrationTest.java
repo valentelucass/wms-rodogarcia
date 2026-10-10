@@ -21,8 +21,10 @@ import br.com.rodogarcia.wms.models.ItemChegada;
 import br.com.rodogarcia.wms.models.ItemNotaEntrada;
 import br.com.rodogarcia.wms.models.ItemPedidoSaida;
 import br.com.rodogarcia.wms.models.MarcoFinanceiroAvaria;
+import br.com.rodogarcia.wms.models.MovimentoEstoque;
 import br.com.rodogarcia.wms.models.NotaEntrada;
 import br.com.rodogarcia.wms.models.OcupacaoEndereco;
+import br.com.rodogarcia.wms.models.OperacaoUnidade;
 import br.com.rodogarcia.wms.models.PedidoEntrada;
 import br.com.rodogarcia.wms.models.PedidoSaida;
 import br.com.rodogarcia.wms.models.Produto;
@@ -446,6 +448,7 @@ class VisaoOperacaoIntegrationTest {
         var p = entrada.getItemChegada().getItemNota().getProduto();
         var embalagem = new Embalagem(p, "UNITS", "Fictícia", BigDecimal.ONE, now);
         em.persist(embalagem);
+        var expectedIds = new ArrayList<Long>();
         for (int i = 0; i < cardinality; i++) {
             var u =
                     new UnidadeLogistica(
@@ -456,6 +459,7 @@ class VisaoOperacaoIntegrationTest {
                             BigDecimal.ONE,
                             now);
             em.persist(u);
+            expectedIds.add(u.getId());
             em.persist(new ConteudoUnidade(u, entrada, BigDecimal.ONE));
             if (i == 0)
                 for (String code : List.of("U1", "U2")) {
@@ -546,6 +550,66 @@ class VisaoOperacaoIntegrationTest {
                             "carga01-rounds-" + cardinality + ".json"),
                     JsonMapper.builder().build().writeValueAsString(rounds),
                     StandardOpenOption.CREATE_NEW);
+            if (cardinality == 501) {
+                // IDs esperados vêm de cada raiz persistida, antes de selecionar/calcular.
+                var roots =
+                        expectedIds.stream()
+                                .map(id -> em.find(UnidadeLogistica.class, id))
+                                .toList();
+                Perf01StatementInspector.iniciar();
+                var processed =
+                        calculos.indicadoresUnidades(
+                                roots, now.plusSeconds(1), java.time.ZoneOffset.UTC);
+                var idSql = Perf01StatementInspector.terminar();
+                var actualIds = processed.stream().map(v -> v.unidade().unidadeId()).toList();
+                assertThat(actualIds)
+                        .hasSize(501)
+                        .doesNotHaveDuplicates()
+                        .containsExactlyInAnyOrderElementsOf(expectedIds);
+                assertThat(processed)
+                        .allSatisfy(
+                                v -> {
+                                    assertThat(v.unidade().quantidade()).isEqualByComparingTo("1");
+                                    assertThat(v.unidade().valorEstoque())
+                                            .isEqualByComparingTo("2.50");
+                                    assertThat(v.pendencias()).isEmpty();
+                                });
+                assertThat(
+                                idSql.stream()
+                                        .filter(q -> q.contains(" from wms.conteudo_unidade "))
+                                        .count())
+                        .isEqualTo(2);
+                assertThat(
+                                idSql.stream()
+                                        .mapToInt(
+                                                q ->
+                                                        (int)
+                                                                q.chars()
+                                                                        .filter(ch -> ch == '?')
+                                                                        .count())
+                                        .max()
+                                        .orElse(0))
+                        .isLessThan(2000);
+                Files.writeString(
+                        Path.of(
+                                System.getProperty("wms.test.evidencias.dir"),
+                                "carga01-processed-ids-501.json"),
+                        JsonMapper.builder()
+                                .build()
+                                .writeValueAsString(
+                                        Map.of(
+                                                "expectedRootIds",
+                                                expectedIds,
+                                                "actualContributionIds",
+                                                actualIds,
+                                                "contributions",
+                                                processed,
+                                                "queries",
+                                                idSql,
+                                                "measurementBoundary",
+                                                "additional ID oracle in same fixture/transaction, outside the three timed Home rounds")),
+                        StandardOpenOption.CREATE_NEW);
+            }
             assertThat(
                             sql.stream()
                                     .mapToInt(q -> (int) q.chars().filter(ch -> ch == '?').count())
@@ -1063,6 +1127,10 @@ class VisaoOperacaoIntegrationTest {
                                     units, now.plusSeconds(seconds[i]), java.time.ZoneOffset.UTC)
                             .getFirst();
             var sql = Perf01StatementInspector.terminar();
+            var legacy = carga01LegadoIntegral(units.getFirst(), now.plusSeconds(seconds[i]));
+            var parser = JsonMapper.builder().build();
+            assertThat(parser.readTree(parser.writeValueAsString(v)))
+                    .isEqualTo(parser.readTree(parser.writeValueAsString(legacy)));
             assertThat(v.unidade().quantidade()).isEqualByComparingTo(quantity[i]);
             assertThat(v.unidade().origens()).hasSize(2);
             assertThat(v.unidade().origens().get(0).quantidade())
@@ -1147,6 +1215,433 @@ class VisaoOperacaoIntegrationTest {
                                         List.of(u), now, java.time.ZoneOffset.UTC))
                 .isInstanceOf(AccessDeniedException.class);
         assertThat(Perf01StatementInspector.terminar()).isEmpty();
+    }
+
+    /** Compara o caminho legado de consulta e o batch; os valores esperados continuam literais. */
+    private br.com.rodogarcia.wms.services.CalculoCobrancaService.ValorIndicador
+            carga01LegadoIntegral(UnidadeLogistica u, Instant instante) throws Exception {
+        var target = org.springframework.test.util.AopTestUtils.getUltimateTargetObject(calculos);
+        var as = avarias.findByUnidadeIdOrderById(u.getId());
+        Object legadas =
+                org.springframework.test.util.ReflectionTestUtils.invokeMethod(
+                        target, "avariasLegadas", u, as);
+        var constructor =
+                Class.forName("br.com.rodogarcia.wms.services.CalculoCobrancaService$Historico")
+                        .getDeclaredConstructors()[0];
+        constructor.setAccessible(true);
+        var h =
+                constructor.newInstance(
+                        u,
+                        fatos.findByUnidadeIdOrderByOcorridaEmAscIdAsc(u.getId()),
+                        as,
+                        legadas,
+                        null);
+        var pendencias = new ArrayList<br.com.rodogarcia.wms.dto.CalculoCobrancaDto.Pendencia>();
+        br.com.rodogarcia.wms.dto.CalculoCobrancaDto.Contribuicao contribuicao =
+                org.springframework.test.util.ReflectionTestUtils.invokeMethod(
+                        target,
+                        "contribuicao",
+                        h,
+                        instante,
+                        instante.atZone(java.time.ZoneOffset.UTC).toLocalDate(),
+                        pendencias,
+                        true);
+        return new br.com.rodogarcia.wms.services.CalculoCobrancaService.ValorIndicador(
+                contribuicao, List.copyOf(pendencias));
+    }
+
+    private UnidadeLogistica carga01Unidade(Cliente c, Armazem a, String sku, String quantity) {
+        var entrada =
+                perf01Entrada(
+                        c, a, sku, new BigDecimal("25"), new BigDecimal("10"), BigDecimal.ZERO);
+        entrada.marcarUnitizada(now);
+        var embalagem =
+                new Embalagem(
+                        entrada.getItemChegada().getItemNota().getProduto(),
+                        sku,
+                        "Fictícia",
+                        BigDecimal.ONE,
+                        now);
+        em.persist(embalagem);
+        var u =
+                new UnidadeLogistica(
+                        entrada,
+                        embalagem,
+                        TipoUnidadeLogistica.PALLET,
+                        CondicaoMercadoria.BOA,
+                        new BigDecimal(quantity),
+                        now);
+        em.persist(u);
+        em.persist(new ConteudoUnidade(u, entrada, new BigDecimal(quantity)));
+        return u;
+    }
+
+    private void carga01CompararEPersistir(
+            String name, UnidadeLogistica u, Instant instante, String value, String... pendencias)
+            throws Exception {
+        Perf01StatementInspector.iniciar();
+        var batch =
+                calculos.indicadoresUnidades(List.of(u), instante, java.time.ZoneOffset.UTC)
+                        .getFirst();
+        var sql = Perf01StatementInspector.terminar();
+        var legacy = carga01LegadoIntegral(u, instante);
+        var mapper = JsonMapper.builder().build();
+        assertThat(mapper.readTree(mapper.writeValueAsString(batch)))
+                .isEqualTo(mapper.readTree(mapper.writeValueAsString(legacy)));
+        Files.writeString(
+                Path.of(
+                        System.getProperty("wms.test.evidencias.dir"),
+                        "carga01-boundary-" + name + ".json"),
+                mapper.writeValueAsString(
+                        Map.of(
+                                "instant", instante, "batch", batch, "legacy", legacy, "queries",
+                                sql)),
+                StandardOpenOption.CREATE_NEW);
+        if (value == null) assertThat(batch.unidade().valorEstoque()).isNull();
+        else assertThat(batch.unidade().valorEstoque()).isEqualByComparingTo(value);
+        assertThat(batch.pendencias()).extracting(q -> q.codigo()).containsExactly(pendencias);
+        assertThat(sql.stream().filter(q -> q.contains(" from wms.fato_permanencia ")).count())
+                .isEqualTo(1);
+        assertThat(sql.stream().filter(q -> q.contains(" from wms.movimento_estoque ")).count())
+                .isEqualTo(1);
+    }
+
+    @Test
+    void carga01CadeiaFuturaInconsistenteNaoOcultaPendencia() throws Exception {
+        var c = client();
+        var a = warehouse("CHAIN");
+        var u = carga01Unidade(c, a, "O92", "5");
+        em.persist(
+                new FatoPermanencia(
+                        u,
+                        "f1",
+                        "RETIRADA",
+                        now.plusSeconds(60),
+                        now.plusSeconds(60),
+                        new BigDecimal("10"),
+                        new BigDecimal("8"),
+                        BigDecimal.ONE,
+                        BigDecimal.ONE));
+        // Segunda mudança futura começa em7; a anterior terminou em8. Deve recusar mesmo antes de
+        // ambas.
+        em.persist(
+                new FatoPermanencia(
+                        u,
+                        "f2",
+                        "AJUSTE_ESTOQUE",
+                        now.plusSeconds(120),
+                        now.plusSeconds(120),
+                        new BigDecimal("7"),
+                        new BigDecimal("5"),
+                        BigDecimal.ONE,
+                        BigDecimal.ONE));
+        em.flush();
+        em.clear();
+        login("SUPERVISOR", List.of(c.getId()), List.of(a.getId()));
+        carga01CompararEPersistir(
+                "future-chain",
+                em.find(UnidadeLogistica.class, u.getId()),
+                now.plusSeconds(30),
+                null,
+                "HISTORICO_QUANTIDADE_INSUFICIENTE");
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    void carga01TransformacaoEmpateIdEJsonInvalidoPorUnidade(boolean invalid) throws Exception {
+        var c = client();
+        var a = warehouse("TRANSFORM");
+        var u = carga01Unidade(c, a, "O93", "4");
+        var mapper = JsonMapper.builder().build();
+        u.alterarQuantidade(new BigDecimal("6"), now);
+        var first =
+                new br.com.rodogarcia.wms.dto.UnidadeLogisticaDto.Resultado(
+                        java.util.UUID.randomUUID(),
+                        u.getPedido().getId(),
+                        0,
+                        List.of(
+                                new br.com.rodogarcia.wms.dto.UnidadeLogisticaDto.Detalhe(
+                                        br.com.rodogarcia.wms.dto.UnidadeLogisticaDto.Resumo.de(
+                                                u, false),
+                                        List.of())));
+        em.persist(
+                new OperacaoUnidade(
+                        u.getPedido(),
+                        "trans1",
+                        "0".repeat(64),
+                        "UNIDADE_DIVIDIDA",
+                        "teste",
+                        now.plusSeconds(60),
+                        mapper.writeValueAsString(first)));
+        u.alterarQuantidade(new BigDecimal("4"), now);
+        var last =
+                new br.com.rodogarcia.wms.dto.UnidadeLogisticaDto.Resultado(
+                        java.util.UUID.randomUUID(),
+                        u.getPedido().getId(),
+                        0,
+                        List.of(
+                                new br.com.rodogarcia.wms.dto.UnidadeLogisticaDto.Detalhe(
+                                        br.com.rodogarcia.wms.dto.UnidadeLogisticaDto.Resumo.de(
+                                                u, false),
+                                        List.of())));
+        em.persist(
+                new OperacaoUnidade(
+                        u.getPedido(),
+                        "trans2",
+                        "0".repeat(64),
+                        "UNIDADES_REAGRUPADAS",
+                        "teste",
+                        now.plusSeconds(60),
+                        invalid ? "{" : mapper.writeValueAsString(last)));
+        em.flush();
+        em.clear();
+        login("SUPERVISOR", List.of(c.getId()), List.of(a.getId()));
+        var loaded = em.find(UnidadeLogistica.class, u.getId());
+        carga01CompararEPersistir(
+                "transform-before-" + invalid,
+                loaded,
+                now.plusSeconds(30),
+                null,
+                "HISTORICO_QUANTIDADE_INSUFICIENTE");
+        if (invalid)
+            carga01CompararEPersistir(
+                    "transform-after-invalid",
+                    loaded,
+                    now.plusSeconds(60),
+                    null,
+                    "HISTORICO_QUANTIDADE_INSUFICIENTE");
+        else carga01CompararEPersistir("transform-after-valid", loaded, now.plusSeconds(60), "10");
+    }
+
+    @Test
+    void carga01LegadoPrimeiroDetalhadoECicloSeguintePreservados() throws Exception {
+        var c = client();
+        var a = warehouse("LEGACY");
+        var u = carga01Unidade(c, a, "O94", "10");
+        var first =
+                new AvariaEstoque(
+                        u,
+                        new BigDecimal("2"),
+                        new BigDecimal("10"),
+                        BigDecimal.ONE,
+                        "cycle1",
+                        now.plusSeconds(10),
+                        now.plusSeconds(10),
+                        "{}",
+                        "Fictício");
+        first.reconhecer("RODOGARCIA", "teste", now.plusSeconds(10));
+        first.reparar(now.plusSeconds(15));
+        em.persist(first);
+        var second =
+                new AvariaEstoque(
+                        u,
+                        BigDecimal.ONE,
+                        new BigDecimal("10"),
+                        BigDecimal.ONE,
+                        "cycle2",
+                        now.plusSeconds(30),
+                        now.plusSeconds(30),
+                        "{}",
+                        "Fictício");
+        second.reconhecer("RODOGARCIA", "teste", now.plusSeconds(30));
+        em.persist(second);
+        var mapper = JsonMapper.builder().build();
+        var beforeDto =
+                new br.com.rodogarcia.wms.dto.EstoqueDto.Unidade(
+                        br.com.rodogarcia.wms.dto.UnidadeLogisticaDto.Resumo.de(u, false),
+                        null,
+                        null,
+                        false,
+                        true,
+                        false,
+                        null,
+                        null,
+                        0,
+                        null,
+                        List.of());
+        var beforeJson = mapper.writeValueAsString(beforeDto);
+        em.persist(
+                new MovimentoEstoque(
+                        u.getPedido(),
+                        u,
+                        "mark1",
+                        "0".repeat(64),
+                        "AVARIA_ESTOQUE",
+                        "teste",
+                        "Fictício",
+                        now.plusSeconds(5),
+                        "{}",
+                        "{}"));
+        em.persist(
+                new MovimentoEstoque(
+                        u.getPedido(),
+                        u,
+                        "detail1",
+                        "0".repeat(64),
+                        "AVARIA_DETALHADA",
+                        "teste",
+                        "Fictício",
+                        now.plusSeconds(10),
+                        beforeJson,
+                        mapper.writeValueAsString(
+                                new br.com.rodogarcia.wms.dto.EstoqueDto.Confirmacao(
+                                        java.util.UUID.randomUUID(),
+                                        u.getPedido().getId(),
+                                        0,
+                                        beforeDto,
+                                        carga01Ocorrencia(first)))));
+        em.persist(
+                new MovimentoEstoque(
+                        u.getPedido(),
+                        u,
+                        "mark2",
+                        "0".repeat(64),
+                        "AVARIA_ESTOQUE",
+                        "teste",
+                        "Fictício",
+                        now.plusSeconds(20),
+                        "{}",
+                        "{}"));
+        em.persist(
+                new MovimentoEstoque(
+                        u.getPedido(),
+                        u,
+                        "detail2",
+                        "0".repeat(64),
+                        "AVARIA_DETALHADA",
+                        "teste",
+                        "Fictício",
+                        now.plusSeconds(30),
+                        beforeJson,
+                        mapper.writeValueAsString(
+                                new br.com.rodogarcia.wms.dto.EstoqueDto.Confirmacao(
+                                        java.util.UUID.randomUUID(),
+                                        u.getPedido().getId(),
+                                        0,
+                                        beforeDto,
+                                        carga01Ocorrencia(second)))));
+        u.registrarAvaria(now.plusSeconds(20));
+        em.flush();
+        em.clear();
+        login("SUPERVISOR", List.of(c.getId()), List.of(a.getId()));
+        var loaded = em.find(UnidadeLogistica.class, u.getId());
+        Object configuredTarget =
+                org.springframework.test.util.AopTestUtils.getUltimateTargetObject(calculos);
+        var configuredMapper =
+                (JsonMapper)
+                        org.springframework.test.util.ReflectionTestUtils.getField(
+                                configuredTarget, "mapper");
+        var parserProof = new ArrayList<Map<String, Object>>();
+        for (var movimento : movimentos.findByUnidadeIdOrderByInstanteAscIdAsc(loaded.getId())) {
+            if (!movimento.getAcao().equals("AVARIA_DETALHADA")) continue;
+            var proof = new LinkedHashMap<String, Object>();
+            proof.put("rawBefore", movimento.getDadosAntes());
+            proof.put("rawResult", movimento.getResultado());
+            try {
+                proof.put(
+                        "parsedBefore",
+                        configuredMapper.readValue(
+                                movimento.getDadosAntes(),
+                                br.com.rodogarcia.wms.dto.EstoqueDto.Unidade.class));
+                proof.put(
+                        "parsedResult",
+                        configuredMapper.readValue(
+                                movimento.getResultado(),
+                                br.com.rodogarcia.wms.dto.EstoqueDto.Confirmacao.class));
+            } catch (RuntimeException error) {
+                proof.put("exceptionType", error.getClass().getName());
+                proof.put("error", error.getMessage());
+            }
+            parserProof.add(proof);
+        }
+        Files.writeString(
+                Path.of(
+                        System.getProperty("wms.test.evidencias.dir"),
+                        "carga01-legado-parser.json"),
+                mapper.writeValueAsString(parserProof),
+                StandardOpenOption.CREATE_NEW);
+        carga01CompararEPersistir(
+                "legacy-gap1", loaded, now.plusSeconds(7), null, "AVARIA_BE08_SEM_DETALHE");
+        carga01CompararEPersistir("legacy-cycle1", loaded, now.plusSeconds(12), "20");
+        carga01CompararEPersistir(
+                "legacy-gap2", loaded, now.plusSeconds(25), null, "AVARIA_BE08_SEM_DETALHE");
+        carga01CompararEPersistir("legacy-cycle2", loaded, now.plusSeconds(35), "22.5");
+    }
+
+    private br.com.rodogarcia.wms.dto.AvariaDto.Ocorrencia carga01Ocorrencia(AvariaEstoque a) {
+        return new br.com.rodogarcia.wms.dto.AvariaDto.Ocorrencia(
+                a.getId(),
+                a.getVersao(),
+                a.getUnidade().getId(),
+                a.getQuantidade(),
+                a.getQuantidadeBase(),
+                a.getEquivalenciaBase(),
+                a.getCicloId(),
+                a.getOcorridaEm(),
+                a.getRegistradaEm(),
+                a.getResponsabilidade(),
+                a.getRelato(),
+                a.getReconhecidaEm(),
+                a.getValidadaPor(),
+                a.getTratativa(),
+                a.getResolvidaEm(),
+                null,
+                null);
+    }
+
+    @Test
+    void carga01ValorNaoHidrataXmlDeNotaMantemIdsEPreco() throws Exception {
+        var c = client();
+        var a = warehouse("XMLFETCH");
+        var u = carga01Unidade(c, a, "O95", "1");
+        var nota = u.getNota();
+        var noteId = nota.getId();
+        nota.vincularXml(
+                "1".repeat(44), "0".repeat(64), "<fixture>" + "x".repeat(262144) + "</fixture>");
+        em.flush();
+        em.clear();
+        login("SUPERVISOR", List.of(c.getId()), List.of(a.getId()));
+        var loaded = em.find(UnidadeLogistica.class, u.getId());
+        var stats = em.getEntityManagerFactory().unwrap(SessionFactory.class).getStatistics();
+        boolean previous = stats.isStatisticsEnabled();
+        stats.setStatisticsEnabled(true);
+        stats.clear();
+        try {
+            Perf01StatementInspector.iniciar();
+            var result =
+                    calculos.indicadoresUnidades(
+                                    List.of(loaded), now.plusSeconds(1), java.time.ZoneOffset.UTC)
+                            .getFirst();
+            var sql = Perf01StatementInspector.terminar();
+            assertThat(result.unidade().valorEstoque()).isEqualByComparingTo("2.50");
+            assertThat(result.unidade().origens()).hasSize(1);
+            assertThat(result.unidade().origens().getFirst().notaId()).isEqualTo(noteId);
+            assertThat(result.pendencias()).isEmpty();
+            long notes = stats.getEntityStatistics(NotaEntrada.class.getName()).getLoadCount();
+            Files.writeString(
+                    Path.of(
+                            System.getProperty("wms.test.evidencias.dir"),
+                            "carga01-note-fetch.json"),
+                    JsonMapper.builder()
+                            .build()
+                            .writeValueAsString(
+                                    Map.of(
+                                            "xmlFixtureChars",
+                                            262163,
+                                            "noteId",
+                                            noteId,
+                                            "notaEntitiesLoaded",
+                                            notes,
+                                            "result",
+                                            result,
+                                            "queries",
+                                            sql)),
+                    StandardOpenOption.CREATE_NEW);
+            assertThat(notes).isZero();
+            assertThat(sql).noneMatch(q -> q.contains("xml_original"));
+        } finally {
+            stats.setStatisticsEnabled(previous);
+        }
     }
 
     @AfterEach

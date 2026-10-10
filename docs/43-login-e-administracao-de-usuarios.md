@@ -88,6 +88,26 @@ Preparar um pacote não troca o processo já aberto. Depois da preparação apro
 
 ## Verificação
 
+### Cores e alinhamento das ações — FE03-AUTH01-COLOR01
+
+Pedido de Lucas em 10/10/2026: Editar usa azul da marca; Redefinir senha usa fundo/borda âmbar com texto contrastante dos tokens de cada tema. Hover e pressionamento têm reforço de cor; foco visível e desabilitação seguem o padrão compartilhado. Complemento: cabeçalho Ações, botões e indicação Conta protegida alinhados à direita, coluna dimensionada pelo conteúdo e rótulos dos botões em uma linha. Ajuste exclusivo de apresentação em `UsersPage.tsx`/`workspace.css`, sem modificar permissões, diálogos ou chamadas de criação/redefinição. Conferência local com API interceptada, sem alterar contas reais: [recibo](../orchestracao/.runtime/user-button-colors/resultado.json).
+
+### Contas fictícias de teste no WMS_DEV — FE03-AUTH01-TEST01
+
+Criadas em 10/10/2026, a pedido expresso de Lucas e com alvo WMS_DEV confirmado antes da escrita:
+
+| Conta | Perfil | Alcance operacional |
+| --- | --- | --- |
+| `gestor.teste@wms.invalid` | Gestor | Geral, conforme regra do perfil |
+| `supervisor.teste@wms.invalid` | Supervisor | Cliente 64, DEV fictício - Alfa Tubos; armazém 31, DEV fictício - Armazém 1 |
+| `operacao.teste@wms.invalid` | Operação | Mesmo cliente/armazém fictícios |
+
+Todas estão ativas, sem administração de usuários e com troca obrigatória da senha temporária. A conta principal não foi alterada. Senhas aleatórias ficam cifradas com DPAPI em `%LOCALAPPDATA%\Rodogarcia\WMS\dev-test-users\20261010-1bbe9c5b.clixml`, fora do repositório e com ACL privada. O operador pode abrir [ver-senhas.bat](../orchestracao/.runtime/usuarios-teste-dev/20261010-1bbe9c5b/ver-senhas.bat) no mesmo usuário Windows/máquina para mostrar ou copiar cada senha; o visualizador não grava senha literal nem a imprime no console.
+
+Execução: guarda real aprovada com TLS obrigatório/certificado atual e WMSDEV restrita; uma transação com três INSERTs em `usuario_acesso` e três em `evento_acesso`. A auditoria `DEV_USUARIO_TESTE_CRIADO` identifica população fictícia, com ator/alvo da própria conta como vínculo técnico, sem simular autoria autenticada. Nenhum UPDATE/DELETE/DDL, migração, alteração de sessão existente ou acesso PROD. O executor recusa duplicidade e nova execução, sem redefinir senha. Hashes conferidos com o codificador Spring; vínculos e flags relidos após commit. [Recibo](../orchestracao/.runtime/usuarios-teste-dev/20261010-1bbe9c5b/resultado.json). O primeiro login, a troca de senha e as telas de cada perfil ainda devem ser exercitados pelo operador; a releitura do banco não comprova essa jornada.
+
+### Verificação da entrega D32
+
 Entrega local aprovada em 09/10/2026: 19 testes backend (18 de API/segurança/arquitetura e um de navegador com quatro jornadas), 359 testes frontend, tipagem/lint/build, 9 verificações de contratos e configuração fictícia e 20 do helper. A inspeção visual confirmou desktop e troca de senha em 360px, com teclado e sem tokens no storage. [Recibo da entrega](../orchestracao/.runtime/login-d32/resultado.json). A chamada nativa `fetch` foi corrigida após falha observada no navegador e a jornada completa passou depois da correção. A atualização graphify foi recusada pelo limite de redução do grafo; mapa anterior preservado.
 
 As evidências da entrega ficam em `orchestracao/.runtime/login-d32/` e no diretório de build próprio `backend/target-auth-d32`. `LoginIntegrationTest` usa HTTP real e H2 efêmero; `LoginBrowserTest` usa Chromium, frontend e backend reais com H2 efêmero. Os scripts locais usam somente material fictício e comparação de contratos em memória. Nenhuma dessas provas comprova dialeto/permissões do SQL Server.

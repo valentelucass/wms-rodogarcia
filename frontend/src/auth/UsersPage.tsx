@@ -441,7 +441,9 @@ export function UsersPage({
                                     <th>Perfil</th>
                                     <th>Permissões</th>
                                     <th>Situação</th>
-                                    <th>Ações</th>
+                                    <th className="user-actions-column">
+                                        Ações
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -467,13 +469,14 @@ export function UsersPage({
                                                   ? "Troca de senha pendente"
                                                   : "Ativo"}
                                         </td>
-                                        <td>
+                                        <td className="user-actions-column">
                                             <div className="row-actions">
                                                 {u.principal ? (
                                                     "Conta protegida"
                                                 ) : (
                                                     <>
                                                         <button
+                                                            className="primary"
                                                             disabled={
                                                                 busy ||
                                                                 !!editing ||
@@ -489,6 +492,7 @@ export function UsersPage({
                                                         {u.id !==
                                                             current.id && (
                                                             <button
+                                                                className="user-password-action"
                                                                 disabled={
                                                                     busy ||
                                                                     !!editing ||

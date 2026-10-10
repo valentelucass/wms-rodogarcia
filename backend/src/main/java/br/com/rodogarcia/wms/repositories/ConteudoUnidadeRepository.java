@@ -16,6 +16,6 @@ public interface ConteudoUnidadeRepository extends JpaRepository<ConteudoUnidade
             Long entradaId, br.com.rodogarcia.wms.models.CondicaoMercadoria condicao);
 
     @Query(
-            "select c from ConteudoUnidade c join fetch c.entrada e join fetch e.itemChegada i join fetch i.itemNota n join fetch n.nota where c.unidade.id in :ids order by c.unidade.id,e.id")
+            "select c from ConteudoUnidade c join fetch c.entrada e join fetch e.itemChegada i join fetch i.itemNota where c.unidade.id in :ids order by c.unidade.id,e.id")
     List<ConteudoUnidade> buscarParaIndicador(List<Long> ids);
 }

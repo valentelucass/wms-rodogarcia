@@ -35,6 +35,7 @@ async function offline(page: Page, dashboardError = false, allowWrite = false) {
         method: string;
         page: number;
         size: number;
+        scope: Record<string, string>;
         startMs: number;
         endMs?: number;
         status?: number;
@@ -74,6 +75,11 @@ async function offline(page: Page, dashboardError = false, allowWrite = false) {
             method: request.method(),
             page: Number(url.searchParams.get("pagina") ?? 0),
             size: Number(url.searchParams.get("tamanho") ?? 0),
+            scope: Object.fromEntries(
+                [...url.searchParams].filter(([key]) =>
+                    ["clienteId", "armazemId"].includes(key),
+                ),
+            ),
             startMs: performance.now() - started,
             endMs: undefined as number | undefined,
             status: undefined as number | undefined,
@@ -439,6 +445,13 @@ test("CARGA01 contexto de armazém aplica sem esperar clientes Todos e mantém l
     await expect
         .poll(() => page.locator(".map-position").count())
         .toBeGreaterThan(0);
+    expect(
+        proof.calls.filter((c) => c.path === "/api/v1/visao-operacao").at(-1)
+            ?.scope,
+    ).toEqual({ armazemId: "1" });
+    expect(
+        proof.calls.filter((c) => c.path === "/api/v1/dashboard").at(-1)?.scope,
+    ).toEqual({ armazemId: "1" });
     proof.releaseTail();
     proof.releaseGraph();
     await expect(
@@ -446,6 +459,7 @@ test("CARGA01 contexto de armazém aplica sem esperar clientes Todos e mantém l
     ).toBeEnabled();
     await proof.proof(info, {
         selectedWarehouseBeforeClientEnumeration: true,
+        wireScope: { armazemId: "1" },
         mandatoryContextRulesUnchanged: true,
         noCatalogReenumeration:
             proof.calls.filter((c) =>

@@ -54,14 +54,22 @@ public class LinhaTemporalEstoqueService {
     }
 
     private Base reconstruir(UnidadeLogistica u, Instant instante, boolean aceitarZero) {
+        // Manter a ordem e as recusas antecipadas do caminho histórico existente.
+        if (instante.isBefore(u.getCriadaEm())) throw pendente();
+        var transformacao =
+                ultimaTransformacao(
+                        u,
+                        transformacoes.findByPedidoIdAndTipoInOrderByRegistradaEmAscIdAsc(
+                                u.getPedido().getId(),
+                                List.of("UNIDADE_DIVIDIDA", "UNIDADES_REAGRUPADAS")));
+        if (transformacao != null && instante.isBefore(transformacao.registradaEm()))
+            throw pendente();
         return reconstruir(
                 u,
                 instante,
                 aceitarZero,
                 fatos.findByUnidadeIdOrderByOcorridaEmAscIdAsc(u.getId()),
-                transformacoes.findByPedidoIdAndTipoInOrderByRegistradaEmAscIdAsc(
-                        u.getPedido().getId(),
-                        List.of("UNIDADE_DIVIDIDA", "UNIDADES_REAGRUPADAS")));
+                transformacao);
     }
 
     @Transactional(
@@ -73,7 +81,12 @@ public class LinhaTemporalEstoqueService {
             Instant instante,
             List<br.com.rodogarcia.wms.models.FatoPermanencia> fatosCarregados,
             List<br.com.rodogarcia.wms.models.OperacaoUnidade> transformacoesCarregadas) {
-        return reconstruir(u, instante, true, fatosCarregados, transformacoesCarregadas);
+        return reconstruir(
+                u,
+                instante,
+                true,
+                fatosCarregados,
+                ultimaTransformacao(u, transformacoesCarregadas));
     }
 
     @Transactional(propagation = Propagation.MANDATORY, readOnly = true)
@@ -95,9 +108,8 @@ public class LinhaTemporalEstoqueService {
             Instant instante,
             boolean aceitarZero,
             List<br.com.rodogarcia.wms.models.FatoPermanencia> fatosCarregados,
-            List<br.com.rodogarcia.wms.models.OperacaoUnidade> transformacoesCarregadas) {
+            Transformacao transformacao) {
         if (instante.isBefore(u.getCriadaEm())) throw pendente();
-        var transformacao = ultimaTransformacao(u, transformacoesCarregadas);
         // O resultado BE07 comprova o conteúdo após a confirmação, sem datar o estado anterior.
         // Não projetar essa quantidade para antes da última transformação da identidade.
         if (transformacao != null && instante.isBefore(transformacao.registradaEm()))

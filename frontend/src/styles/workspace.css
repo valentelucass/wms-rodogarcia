@@ -534,6 +534,36 @@ td details {
 }
 .users-list .row-actions {
     flex-wrap: nowrap;
+    justify-content: flex-end;
+}
+.users-list .row-actions > button {
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+.users-list .user-actions-column {
+    width: 1%;
+    text-align: right;
+    white-space: nowrap;
+}
+.users-list .user-password-action {
+    background: var(--og-warning-bg);
+    border-color: var(--og-warning);
+    color: var(--og-warning-text);
+}
+.users-list .user-password-action:hover:not(:disabled) {
+    background: color-mix(
+        in srgb,
+        var(--og-warning-bg) 88%,
+        var(--og-warning-text)
+    );
+    border-color: var(--og-warning-text);
+}
+.users-list .user-password-action:active:not(:disabled) {
+    background: color-mix(
+        in srgb,
+        var(--og-warning-bg) 80%,
+        var(--og-warning-text)
+    );
 }
 .home-header {
     display: grid;

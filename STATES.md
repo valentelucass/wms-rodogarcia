@@ -1,5 +1,14 @@
 # Estado e trilha de implementação do WMS Rodogarcia
 
+## FE03-AUTH01-COLOR01 — cores das ações de usuários, 10/10/2026
+
+**Concluído e conferido localmente, pedido expresso de Lucas e complemento de alinhamento.** Dependências FE03-AUTH01 e tokens FE02. Editar usa azul da marca e Redefinir senha usa âmbar; cabeçalho Ações, botões e Conta protegida alinhados à direita. Coluna dimensionada pelo conteúdo, com rótulos dos botões em uma linha. Preservados nomes, permissões, desabilitação, diálogos e foco.
+
+- [x] Aplicar cores por tokens, hover/pressionamento e alinhamento local da coluna; corrigir quebra de rótulos identificada na inspeção visual.
+- [x] Tipagem, lint focal, formatação, build isolado e 14 testes existentes de autenticação aprovados. Três cenários Chrome aprovados em 390/1024/1440 px, nos temas claro/escuro: contraste mínimo de texto 4,5:1, hover, foco via Tab, alinhamento, rótulos em uma linha e regressão dos diálogos/paginação. Capturas desktop inspecionadas.
+
+**Evidências e limite:** [recibo](orchestracao/.runtime/user-button-colors/resultado.json), [Chrome](orchestracao/.runtime/user-button-colors/browser.json), [definição](docs/43-login-e-administracao-de-usuarios.md#cores-e-alinhamento-das-ações--fe03-auth01-color01). Preview próprio e API interceptada, sem backend/SQL real ou reinício de serviços existentes. Graphify update executado e recusou extração menor, sem `--force`. Próximo: atualizar a página do operador para carregar a apresentação atual.
+
 ## FE02-HOME01 — ícone da marca como acesso ao Início, 10/10/2026
 
 **Concluído e conferido localmente, pedido expresso de Lucas.** Dependência FE02/AppShell. Ícone azul do WMS aciona a navegação existente para Início, preservando a guarda de saída, foco e comportamento do menu. Na tela de login, a marca permanece sem ação.
@@ -11,12 +20,16 @@
 
 ## FE03-AUTH01-TEST01 — contas de teste DEV, 10/10/2026
 
-**Pendente de sessão administrativa acessível, pedido expresso de Lucas.** Dependências D32/FE03-AUTH01 e ambiente WMS_DEV confirmado antes da escrita. Preparados os perfis Gestor, Supervisor e Operação, sem administração de usuários; Supervisor/Operação propostos para o cliente fictício 64 e armazém 31 do recibo de população, ainda a revalidar. Gestor tem alcance operacional geral pela regra existente.
+**População DEV concluída e conferida, pedido expresso de Lucas.** Dependências D32/FE03-AUTH01. Após o preparo sem navegador conectado, Lucas esclareceu que a população deve ocorrer no WMS_DEV; o recorte foi executado com WMSDEV, guarda atual de alvo/TLS/permissões/catálogo/histórico e uma transação exclusiva de três contas fictícias. Sem administração de usuários nas contas novas. Supervisor/Operação vinculados ao cliente fictício 64 e armazém 31, ativos e revalidados; Gestor tem alcance operacional geral pela regra existente.
 
 - [x] Conferir contrato de criação e preparar [nomes, e-mails e vínculos](orchestracao/.runtime/usuarios-teste-dev/plano.json), sem senha.
-- [ ] Criar pelo cadastro autenticado, conferir listagem e troca obrigatória da senha temporária.
+- [x] Criar e reler Gestor, Supervisor e Operação exclusivamente WMS_DEV: ativos, não principais, sem administração, com troca obrigatória de senha.
+- [x] Conferir hashes com o codificador Spring real, rejeição de senha incorreta, salts distintos e política de tamanho; gravar senhas cifradas DPAPI fora do repositório e validar recuperação/construção do visualizador local sem exibi-las.
+- [x] Registrar três eventos identificados como população fictícia, preservar conta principal e verificar ausência de UPDATE/DELETE/DDL/PROD no executor.
 
-**Impedimento concreto:** inventário de navegador desta sessão sem abas/navegadores conectados; nenhuma sessão administrativa utilizável. Nenhuma conta criada, senha gerada, escrita SQL ou mudança da conta principal. Próximo: disponibilizar a aba DEV autenticada, revalidar ambiente/catálogo/duplicidade e concluir pelo fluxo normal. Portas DEV observadas ativas não comprovam autorização de sessão nem nova guarda SQL.
+**Evidências e limite:** [recibo real](orchestracao/.runtime/usuarios-teste-dev/20261010-1bbe9c5b/resultado.json), [guarda atual](orchestracao/.runtime/usuarios-teste-dev/20261010-1bbe9c5b/guarda.json) e [procedimento](docs/43-login-e-administracao-de-usuarios.md#contas-fictícias-de-teste-no-wms_dev--fe03-auth01-test01). Criação por SQL parametrizado, sem sessão/JWT forjado e sem atribuir a execução ao administrador principal. Três INSERTs de usuários e três de eventos; duplicidade recusa sem redefinir senhas. Sem reinício dos serviços existentes. Próximo: operador atualizar a lista de usuários e testar primeiro login/troca obrigatória com as senhas do [visualizador local](orchestracao/.runtime/usuarios-teste-dev/20261010-1bbe9c5b/ver-senhas.bat). A releitura SQL não comprova essa jornada de navegador.
+
+Verificações locais no [registro](orchestracao/.runtime/usuarios-teste-dev/20261010-1bbe9c5b/validacao-local.json); sintaxe PowerShell e diferenças documentais conferidas. Graphify update executado e recusou substituir o grafo por extração menor, sem `--force`.
 
 ## FE07-ALINHA01 — alinhamento da identificação no Coletor, 10/10/2026
 
@@ -72,19 +85,21 @@
 
 **Runtime atual comprovado por metadados às 20:46:58 UTC:** BE 61588 iniciado 20:04:16/JAR a8 `2C1A…`, FE 59336 iniciado 20:04:54, SQL 48480 preservado. Recibo 78f vincula processos/config/perfil/fonte ae6; bytes do JAR iguais ao pacote e64, caminhos distintos. A diferença de 100 ns no início FE entre CIM/recibo está explícita, mesmo microssegundo; não alegar igualdade exata. B097/43BD/50200/73436 são históricos, sem autoria ou reinício inferidos. [Conciliação](orchestracao/.runtime/qual-conf01/perf01/prumo/confronto-final-e64-conciliado.json), [revisão do vínculo](orchestracao/.runtime/qual-conf01/perf01/vigia/runtime-bound-receipt-review.json). Não comprova roundtrip/SQL/benefício real.
 
-**Próximo:** implementar CARGA01 e aguardar o confronto amplo de preservação já em leitura natural, sem preparador adicional. INIT01 está favorável no corte datado abaixo. [Limite instrumental exato](orchestracao/.runtime/qual-conf01/perf01/limite-instrumental-farol.json): operador/Farol e responsável Maestri precisam disponibilizar Network documentado na mesma superfície antes de outra medida; sem bypass/nova aba/conexão. Não orientar reinício por premissa de JAR 43BD atual. O [procedimento DEV vigente](docs/19-desenvolvimento-integrado-dev.md#reinicio-dev-exclusivo) permanece disponível ao operador, sem execução pela equipe QUAL; não exige Ctrl+C prévio. P01 segue material, sem correção; preservação por conteúdo/hashes e sem autoria inferida de mudanças externas.
+**Próximo:** implementar CARGA01; confronto amplo natural encerrado/revisado8/8, sem preparador adicional. INIT01 está favorável no corte datado abaixo. [Limite instrumental exato](orchestracao/.runtime/qual-conf01/perf01/limite-instrumental-farol.json): operador/Farol e responsável Maestri precisam disponibilizar Network documentado na mesma superfície antes de outra medida; sem bypass/nova aba/conexão. Não orientar reinício por premissa de JAR 43BD atual. O [procedimento DEV vigente](docs/19-desenvolvimento-integrado-dev.md#reinicio-dev-exclusivo) permanece disponível ao operador, sem execução pela equipe QUAL; não exige Ctrl+C prévio. P01 segue material, sem correção; preservação por conteúdo/hashes e sem autoria inferida de mudanças externas.
 
 ### QUAL-CONF01-PERF01-CARGA01 — implementação do carregamento, 10/10/2026
 
 **Em implementação, nova autorização expressa de Lucas dentro da mesma rodada.** Dependências: PERF01/DEC01, correções INIT01 e BE14-DASH01/02 → FE02-DASH01/02/CTX01. [Escopo vigente](docs/06-decisoes-e-pendencias.md#qual-conf01-perf01-carga01--implementação-do-carregamento-10102026); saídas exclusivas `orchestracao/.runtime/qual-conf01/perf01/carga01/`.
 
-- [ ] Executar baseline focal do caminho crítico na fonte vigente, separando custo SQL/H2, HTTP, transferência e render quando mensuráveis.
+- [x] Executar baseline focal do caminho crítico na fonte vigente: H2 1/8/40/200 unidades, 25/81/337/1.617 statements com valores exatos; browser interceptado mediu sequência/bytes/DOM, separado do portal real. Vigia 22/22 das primeiras provas.
 - [ ] Reduzir de fato o residual de valoração por unidade/histórico com lote/projeção/SQL adequado e consultas limitadas por lote, mantendo oráculos temporais independentes, alcance, BigDecimal/null e transações.
-- [ ] Corrigir waterfall/repetição frontend demonstrados, permitindo resultados independentes progressivos sem dados antigos, cache global ou perda das guardas INIT01; preservar visual/Information paralelo.
+- [x] Corrigir waterfall frontend demonstrado: catálogo de armazéns concluído não espera clientes; páginas restantes em paralelo limitado a três e readiness do contexto por referências escolhidas. Mesmo payload/opções/DOM, invalidação após escrita e INIT01 preservados. 76/76 pertinentes em nove arquivos, 16/16 browser e suplemento wire 1/1, build/tipagem/lint aprovados; Vigia v2 28/28, leitor v1 vermelho preservado.
 - [ ] Conferir sucesso/vazio/erro/contexto/alcance/escrita/invalidação/navegação e concorrência, antes/depois na mesma massa, regressão/build separados e revisão Vigia.
 - [ ] Consolidar ganho calculado, fonte/pacote/runtime e limites; nenhum preparador adicional ou reinício neste incremento.
 
 **Posses e próximo:** Cedro backend/lote/oráculos, Lume carregamento frontend, Prumo metadados e propostas em leitura, Vigia revisão, Farol canônicos. Primeiro resultado deve ser execução/ganho ou gate concreto, sem substituir implementação por estudo DEC01. Runtime comprovado às 20:46:58 UTC: BE 61588/JAR a8 `2C1A…`, FE 59336 e SQL 48480; bytes iguais ao pacote e64 em outro caminho, sem prova de benefício real, nova guarda SQL ou autoria de reinício. P01 e barreira Network continuam limites próprios.
+
+**Ganhos exercitados, validação backend final pendente:** H2 1/8/40/200 passou a 25 statements; 501 unidades/dois lotes: 33 e máximo 500 binds medido. Oito casos verdes incluem origens/preços distintos, retirada, revisão, avaria/marcos e recuperação temporal; Vigia 44/44. Para 40 unidades, −92,58% de statements; 200, −98,45%; uma unidade sem redução. Hidratação não diminuiu (200: 406 → 407 entidades); tempos locais/bytes SQL e JSON não são latência/transferência SQL Server. Complemento de 501 IDs exatos e transformações/cadeia/JSON passou, mas fixture histórica incompleta voltou null nos dois caminhos: faltava `bloqueada`, mapper estrito corretamente recusou. Menor correção somente no preparo da fixture, oráculos intactos, focal único 1/1 verde. Join fetch desnecessário da nota inteira foi removido: focal com XML fictício de 256 KiB passou sem hidratar Nota nem selecionar XML, preservando preço/ID. Fonte backend final em 21:29:20 UTC: 388 arquivos/C25A4209, onze main e um teste alterados; verify padrão em execução, seguido de LoginBrowser H2 separado com o pacote frontend 529d. Sem preparo adicional ou promoção. [Métricas calculadas](orchestracao/.runtime/qual-conf01/perf01/carga01/metricas-parciais.json), [frontend entregue](orchestracao/.runtime/qual-conf01/perf01/carga01/lume/recibo.md), [review v2](orchestracao/.runtime/qual-conf01/perf01/carga01/vigia/frontend-final-review-v2.json). Fonte FE280/app157 21:11 e pacote sete/529d… são artefatos datados, sem promoção atestada.
 
 ### QUAL-CONF01-PERF01-INIT01 — independência de Início, 10/10/2026
 

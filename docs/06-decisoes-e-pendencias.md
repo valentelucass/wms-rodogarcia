@@ -1,5 +1,11 @@
 # Decisões e pendências do WMS Rodogarcia
 
+## FE03-AUTH01-TEST01 — usuários fictícios exclusivamente DEV, 10/10/2026
+
+**Pedido expresso de Lucas:** criar usuários de teste; complemento “popular seria no WMS_DEV estamos em desenvolvimento” delimita o banco. Aplicado somente a três novas contas fictícias de Gestor, Supervisor e Operação. A execução deste recorte usa SQL parametrizado com WMSDEV após guarda atual, sem retomar população de estoque ou o escopo QUAL-CONF01, alterar contas existentes, migrar schema ou acessar produção.
+
+Escolhas de implementação: contas ativas, não principais, sem administração de usuários, senhas temporárias aleatórias e troca obrigatória. Supervisor/Operação restritos ao cliente fictício 64 e armazém 31 revalidados; Gestor segue o alcance operacional geral existente. Segredos cifrados DPAPI fora do repositório, com ACL privada e visualizador local. Eventos `DEV_USUARIO_TESTE_CRIADO` ligados à própria conta identificam a importação fictícia, sem representar ação autenticada dessa conta ou do administrador. [Procedimento e evidências](43-login-e-administracao-de-usuarios.md#contas-fictícias-de-teste-no-wms_dev--fe03-auth01-test01).
+
 ## FE02-INFO01 — catálogo único de ajuda, 10/10/2026
 
 **Pedido expresso de Lucas:** popups em indicadores/cartões com explicações centralizadas em um único `.ts`, revisado quando a função correspondente mudar. Catálogo em `frontend/src/content/information.ts`, manutenção registrada em AGENTS.md. O complemento de Lucas pede o “i” menor, mais visível e melhor posicionado; definição e consumidores em [etapa 05](design-system/etapa-05.md#popups-informativos--fe02-info01). Explicações usam dados já autorizados, sem novas consultas ou cálculos de negócio por hover.
