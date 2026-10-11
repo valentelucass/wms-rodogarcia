@@ -1,11 +1,23 @@
 ﻿[CmdletBinding()]
-param([switch]$SomenteBuild)
+param([switch]$SomenteBuild,[string]$ValidacaoSql,[string]$ValidacaoSqlSha256)
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 # SQL01: build sem banco e aceite SQL sao etapas distintas. Sem prova SQL
 # vinculada ao candidato, este script nao publica recibos nem recomenda o BAT.
-if (-not $SomenteBuild) { throw 'SQL01_INTEGRACAO_OBRIGATORIA' }
 $repository = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
+if (-not $SomenteBuild) {
+    . (Join-Path $PSScriptRoot 'selecionar-candidato-sql.ps1')
+    if(!$ValidacaoSql -or !$ValidacaoSqlSha256){
+        $active=Get-Content -LiteralPath (Join-Path $repository 'backend/evidencias/login-d32-preparo.json') -Raw -Encoding UTF8|ConvertFrom-Json
+        if($active.PSObject.Properties.Name -notcontains 'validacaoSql'){
+            Write-Host 'O build precisa da partida e das leituras autenticadas no WMS_DEV. Informe o recibo real em -ValidacaoSql e seu SHA256; -SomenteBuild apenas compila.'
+            throw 'SQL01_INTEGRACAO_OBRIGATORIA'
+        }
+        $ValidacaoSql=$active.validacaoSql.path;$ValidacaoSqlSha256=$active.validacaoSql.sha256
+    }
+    Select-WmsSqlValidatedCandidate $repository $ValidacaoSql $ValidacaoSqlSha256
+    return
+}
 . (Join-Path $PSScriptRoot 'artefato-backend.ps1')
 $receiptPaths = @('backend/evidencias/login-d32-preparo.json', 'backend/evidencias/frontend-dev02-preparo.json')
 $previous = Get-Content -LiteralPath (Join-Path $repository $receiptPaths[0]) -Raw -Encoding UTF8 | ConvertFrom-Json

@@ -209,8 +209,10 @@ public class IndicadorEstoqueService {
         BigDecimal conhecido = BigDecimal.ZERO;
         boolean completo = true;
         if (consultarValor) {
-            for (var u : us) {
-                var v = calculos.indicadorUnidade(u, Instant.now(clock), zona);
+            var valores = calculos.indicadoresUnidades(us, Instant.now(clock), zona);
+            for (int indice = 0; indice < us.size(); indice++) {
+                var u = us.get(indice);
+                var v = valores.get(indice);
                 v.pendencias().forEach(pp -> pendencias.add(pp.codigo() + ":" + u.getCodigo()));
                 var c = v.unidade();
                 if (c.valorEstoque() == null) completo = false;

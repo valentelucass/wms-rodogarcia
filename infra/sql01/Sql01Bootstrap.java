@@ -23,12 +23,23 @@ class Sql01Bootstrap {
         Path expected = root.resolve("orchestracao/.runtime/qual-conf01/sql01/prumo/runs")
                 .resolve(args[10]).resolve("bootstrap-diagnostic.json");
         Path requested = Path.of(args[11]).toAbsolutePath().normalize();
-        if (!requested.equals(expected) || Files.exists(requested)) throw new IllegalStateException();
+        Path reg01 = root.resolve("orchestracao/.runtime/qual-conf01/sql01/reg01/prumo/runs")
+                .resolve(args[10]).resolve("bootstrap-diagnostic.json");
+        if ((!requested.equals(expected) && !requested.equals(reg01)) || Files.exists(requested))
+            throw new IllegalStateException();
         for (Path parent = requested.getParent(); parent != null; parent = parent.getParent()) {
             if (Files.isSymbolicLink(parent) || !parent.toRealPath().equals(parent))
                 throw new IllegalStateException();
         }
         return requested;
+    }
+
+    static String localOrigin(int port) {
+        String origin = System.getProperty("wms.sql01.local-origin", "http://127.0.0.1:" + port);
+        // The one private REG01 frontend and the original own API origin only.
+        if (!origin.equals("http://127.0.0.1:" + port)
+                && !origin.equals("http://127.0.0.1:25585")) throw new IllegalStateException();
+        return origin;
     }
 
     static String safeType(Throwable error) {
@@ -85,6 +96,7 @@ class Sql01Bootstrap {
                     || !args[4].matches("[A-Za-z0-9._-]{1,253}")
                     || !args[8].matches("[a-f0-9]{64}") || !args[9].matches("[a-fA-F0-9]{64}")
                     || !java.util.UUID.fromString(args[10]).toString().equals(args[10])) throw new IllegalStateException();
+            String localOrigin = localOrigin(port);
             phase = "JAR_HASH";
             try (var source = Files.newInputStream(jar)) {
                 var digest = MessageDigest.getInstance("SHA-256");
@@ -131,7 +143,7 @@ class Sql01Bootstrap {
                 "--wms.identity.issuer=https://wms.localhost",
                 "--wms.identity.jwk-set-uri=https://wms.localhost/api/auth/jwks",
                 "--wms.identity.audience=wms-dev", "--wms.auth.enabled=true",
-                "--wms.auth.origin=http://127.0.0.1:" + port,
+                "--wms.auth.origin=" + localOrigin,
                 "--wms.auth.proxy-origin=", "--wms.auth.secure-cookie=false",
                 "--wms.auth.bootstrap-hash=",
                 "--wms.sql01.observation.enabled=true", "--wms.sql01.repository-root=" + args[6],
