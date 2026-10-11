@@ -1,5 +1,24 @@
 # Backend do WMS Rodogarcia
 
+## Política de testes vigente — QUAL-CONF01-SQL01
+
+`test` e `verify` sem perfil interrompem em `validate`: persistência exige SQL Server real, WMS_DEV/WMSDEV, runner legítimo guardado e prova revisada. Uma flag Maven ou um build não certifica integração SQL. H2 permanece histórico, sem aceite novo.
+
+O perfil explícito `pure-no-db` seleciona somente `Sql01ObservationConfigTest`, `Sql01JdbcObservationTest`, `SqlServerConfigTest`, `SqlServerLocalITTest`, `SqlServerUpdateMappingTest` e `Sql01MavenPolicyTest`. São mocks, leitura XML e preparação estática de SQL sem conexão; o nome SQLServer não significa execução SQL. `-Dtest` aceita somente nomes dessa lista separados por vírgula; persistência, curingas e seletores de métodos são recusados antes do contexto.
+
+Use uma saída inédita para testes e evidências, na pasta backend:
+
+```powershell
+$saidaQual = Join-Path (Resolve-Path ../orchestracao/.runtime/qual-conf01/sql01/cedro) ('pure-' + [Guid]::NewGuid().ToString())
+./mvnw.cmd -Ppure-no-db "-Dwms.build.directory=$saidaQual/target" "-Dwms.test.evidencias.dir=$saidaQual/evidencias" verify
+```
+
+Build explícito sem testes usa `-Ppure-no-db` junto de `-Dmaven.test.skip=true`: testes=0, somente pacote, sem aceite SQL. O contrato de `preparar-backend-dev.ps1 -SomenteBuild` inclui esse perfil e mantém os cinco perfis administrativos/IT desabilitados; adaptação e execução do preparador pertencem ao fluxo de infra, não são executadas por esta política.
+
+Histórico H2 significa fontes, logs e provas preservados, sem modificar corpos, URLs ou assertions. Sua reexecução está proibida: `h2-historical` sempre falha em `validate`, inclusive com override para modo puro. O seletor permitido usa regex literal no Enforcer, sem propriedade `allowedSelection` editável. O perfil antigo `sqlserver-it`, que exige banco vazio, também é recusado antes de conexão. Não substituir URLs históricas por DEV populado nem usar create-drop, INIT, limpeza ou fixtures SQL no DEV.
+
+O aceite real depende de recibos vinculados de guarda, fonte/JAR/runtime, JDBC SQLServer/WMS_DEV/WMSDEV/TLS, autenticação legítima, casos HTTP e revisão. [Contrato da prova](../orchestracao/.runtime/qual-conf01/sql01/contrato-prova-sql.schema.json). Os recortes e comandos D24–D30 abaixo são históricos; não substituem a política vigente nem autorizam repetir jornadas.
+
 ## Integração local atual D24–D27 — BE03/BE15
 
 O perfil `sqlserver-dev` aceita somente **WMS_DEV** nesta rodada. Exige `WMS_DB_CONFIRMED_SERVER`, além de host/porta/banco/usuário/senha e confirmação do destino. Cada conexão Hikari fixa os SETs de índices filtrados, confirma ServerName/DB_NAME e recusa os privilégios administrativos/DDL enumerados no initSQL; TLS valida o certificado. Essa guarda não substitui a atestação completa de mínimo privilégio (VIG07). Alternativas JPA de criação de esquema/conexão são recusadas antes do pool. Segredos continuam externos. Nunca usar `sa`/administrador na API ou no IT.

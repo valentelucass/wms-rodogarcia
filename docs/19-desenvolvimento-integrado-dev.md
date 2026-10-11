@@ -1,12 +1,21 @@
 # Desenvolvimento integrado WMS_DEV
 
+## Política vigente de testes — QUAL-CONF01-SQL01
+
+**Decisão permanente de Lucas, 10/10/2026:** testes de persistência, integração/backend com banco, performance de dados, HTTP e browser integrado usam SQL Server real somente WMS_DEV/WMSDEV. H2/mockSQL não substituem aceite; puros sem banco, TS/lint/build ficam separados. [Regra e autorização](06-decisoes-e-pendencias.md#qual-conf01-sql01--testes-reais-sql-server-10102026). Os procedimentos e resultados H2 abaixo são históricos e não autorizam nova execução, mesmo por opt-in/perfil/override.
+
+Antes do teste: guarda atual DB_NAME/identidade/TLS/SQLprocesso/ACL/permissões/catálogo/histórico e canal protegido próprio; EncryptMandatory e TSCfalse, sem segredo em env/log/chat. STOP em falha de transporte/inconclusivo sem retry/fallback. Não executar SQL-IT antigo com exigência de banco vazio, create-drop/INIT/reset/cleanup/DELETE no DEV populado. Caminho SQL seguro exige validate/initnever/migrationsOFF e autenticação legítima; fixtures fictícias necessárias por HTTP/API identificado, idempotente e preservado.
+
+O preparador DEV foi alterado neste incremento: a execução padrão recusa `SQL01_INTEGRACAO_OBRIGATORIA` antes de processo; `-SomenteBuild` compila/package sem testes de banco, gera somente candidatos com aceite SQL pendente e preserva os dois recibos ativos. [Revisão desse recorte](../orchestracao/.runtime/qual-conf01/sql01/vigia/preparador-build-only-review.json). O modo build usa perfil `pure-no-db` e skip explícito/tests0; a whitelist literal de seis classes é a única seleção pura permitida. Perfil H2 e SQLIT antigo são recusados em validate, inclusive combinado com modo puro. [Negativas executadas](../orchestracao/.runtime/qual-conf01/sql01/cedro/policy-1312ea14-9416-426d-a73f-4542320263ca/negative-gates-final.json). Build não comprova integração nem deixa BAT pronto para fonte nova. A primeira leitura funcional pelo candidato próprio revisado não depende de promover recibos do operador; [caminho crítico](../orchestracao/.runtime/qual-conf01/sql01/caminho-critico.md). Comandos/outputs efetivamente executados ficam no [andamento SQL01](../orchestracao/.runtime/qual-conf01/sql01/andamento.json). Revalidar origem/dono/recibo antes de qualquer BATDEV; preservar listeners existentes no teste loopback. Nenhum DDL/PROD/grant/sharedruntime ou senha/JWT forjado.
+
+
 ## Reinicio DEV exclusivo
 
 **BE02-DEV-REINICIO01, 10/10/2026:** execute `iniciar-dev.bat` para iniciar ou reiniciar este WMS. Se já estiver online, o launcher substitui apenas seu backend em 25580 e frontend em 25581, depois de conferir os pré-requisitos e a guarda atual. Não é necessário fechar previamente o console antigo. Produção e outras portas ficam preservadas.
 
 A origem é comprovada por recibos locais, projeto, PID/horário de início, executável/comando e perfil DEV. Porta ocupada por outro projeto, origem desconhecida ou processo que também escute outra porta interrompe a inicialização sem encerrá-lo. Duas inicializações simultâneas do mesmo projeto não prosseguem juntas. O recibo `launcher.json` registra em `restart.stopped` os processos anteriores encerrados. O console antigo pode mostrar que seus processos terminaram; o novo console acompanha a nova instância.
 
-Se o pacote estiver desatualizado, execute `powershell -NoProfile -File infra\dev\preparar-backend-dev.ps1` antes do BAT. Uma falha de preparo/guarda preserva a instância anterior. Esta seção substitui as instruções históricas abaixo sobre fechar manualmente o console ou recusar toda porta ocupada. Nenhuma alteração de produção, SQL Server ou serviço compartilhado faz parte do reinício.
+O pacote precisa estar aceito e vinculado aos recibos atuais antes do BAT. Em SQL01 o preparador padrão recusa aceite sem integração SQL, e `-SomenteBuild` não atualiza esses recibos; não usar build candidato como indicação de reiniciar para carregar código novo. A confirmação segura de pacote fica separada da primeira leitura funcional SQL. Uma falha de preparo/guarda preserva a instância anterior. Esta seção substitui as instruções históricas abaixo sobre fechar manualmente o console ou recusar toda porta ocupada. Nenhuma alteração de produção, SQL Server ou serviço compartilhado faz parte do reinício.
 
 ## D32 — login próprio
 

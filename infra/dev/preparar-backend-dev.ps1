@@ -1,7 +1,10 @@
-[CmdletBinding()]
-param()
+﻿[CmdletBinding()]
+param([switch]$SomenteBuild)
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+# SQL01: build sem banco e aceite SQL sao etapas distintas. Sem prova SQL
+# vinculada ao candidato, este script nao publica recibos nem recomenda o BAT.
+if (-not $SomenteBuild) { throw 'SQL01_INTEGRACAO_OBRIGATORIA' }
 $repository = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 . (Join-Path $PSScriptRoot 'artefato-backend.ps1')
 $receiptPaths = @('backend/evidencias/login-d32-preparo.json', 'backend/evidencias/frontend-dev02-preparo.json')
@@ -16,8 +19,8 @@ if ([IO.Path]::GetFileName($javaPath) -ine 'java.exe' -or
 $run = Join-Path $repository ('orchestracao/.runtime/backend-dev-builds/' + [guid]::NewGuid().ToString('N'))
 $null = New-Item -ItemType Directory -Path $run
 $build = Join-Path $run 'target'
-$evidence = Join-Path $run 'd30-cedro-preparo-evidencias'
-# Saida exclusiva deste preparo, com nome reconhecido pela guarda local D30.
+$evidence = Join-Path $run 'sql01-prumo-build-evidencias'
+# Saida exclusiva do build. Nao seleciona os contextos H2/D30 historicos.
 if (Test-Path -LiteralPath $evidence) { throw 'DEV02_BUILD_EVIDENCE_ALREADY_EXISTS' }
 $null = New-Item -ItemType Directory -Path $evidence
 $sourceHash = Get-WmsBackendSourceHash $repository
@@ -26,9 +29,8 @@ foreach ($path in @($wrapper, $build, $evidence)) { if ($path -match '["\r\n%!]'
 $info = [Diagnostics.ProcessStartInfo]::new()
 $info.FileName = Join-Path $env:SystemRoot 'System32/cmd.exe'
 $info.Arguments = '/d /c ""' + $wrapper + '" -B "-Dwms.build.directory=' + $build +
-    '" "-Dwms.test.evidencias.dir=' + $evidence + '" "-Dwms.test.local.guard=D30" ' +
-    '"-P!sqlserver-it,!migrations,!migrations-wrapper-confirmado" ' +
-    '"-Dtest=LoginIntegrationTest,VisaoOperacaoIntegrationTest,VisaoOperacaoServiceTest,ArquiteturaTest,EstoqueIntegrationTest#dashboard*,NfeDocumentoServiceTest,NfeXmlServiceTest,PedidoEntradaXmlIntegrationTest,RecebimentoIntegrationTest" verify"'
+    '" "-Dwms.test.evidencias.dir=' + $evidence + '" "-Dmaven.test.skip=true" ' +
+    '"-Ppure-no-db,!sqlserver-it,!migrations,!migrations-wrapper-confirmado,!bootstrap-local,!bootstrap-local-wrapper-confirmado" package"'
 $info.WorkingDirectory = Join-Path $repository 'backend'
 $info.UseShellExecute = $false
 $info.CreateNoWindow = $true
@@ -45,7 +47,7 @@ $info.EnvironmentVariables['JAVA_HOME'] = $javaHome
 $info.EnvironmentVariables['PATH'] = (Join-Path $javaHome 'bin') + ';' + $info.EnvironmentVariables['PATH']
 $process = [Diagnostics.Process]::new()
 $process.StartInfo = $info
-Write-Host 'Preparando backend atual e conferindo login, visao geral e recebimento/XML em H2 isolado. Sem SQL Server.'
+Write-Host 'Compilando candidato sem banco e sem testes. Integracao SQL obrigatoria pendente; recibos ativos preservados.'
 try {
     $null = $process.Start()
     $stdout = $process.StandardOutput.ReadToEndAsync()
@@ -57,30 +59,36 @@ try {
 if ($sourceHash -cne (Get-WmsBackendSourceHash $repository)) { throw 'DEV02_SOURCE_CHANGED_DURING_BUILD' }
 $jar = Join-Path $build 'wms-backend-0.0.1-SNAPSHOT.jar'
 $config = Join-Path $repository 'backend/src/main/resources/application-frontend-dev.properties'
-$reports = @(Get-ChildItem -LiteralPath (Join-Path $build 'surefire-reports') -Filter 'TEST-*.xml' -File)
-$tests = 0
-foreach ($report in $reports) {
-    $xml = [xml][IO.File]::ReadAllText($report.FullName)
-    if ([int]$xml.testsuite.failures -ne 0 -or [int]$xml.testsuite.errors -ne 0) { throw 'DEV02_TEST_REPORT_FAILED' }
-    $tests += [int]$xml.testsuite.tests
-}
-if ($tests -eq 0) { throw 'DEV02_TEST_REPORT_MISSING' }
+$candidates = New-Object 'Collections.Generic.List[object]'
 foreach ($relative in $receiptPaths) {
     $path = Join-Path $repository $relative
-    $backup = Join-Path $run ([IO.Path]::GetFileName($path))
-    Copy-Item -LiteralPath $path -Destination $backup
     $current = [ordered]@{
-        natureza='BE02_DEV_ARTEF01_FONTE_ATUAL_LOGIN_E_VISAO'; observadoUtc=[DateTime]::UtcNow.ToString('o')
+        natureza='SQL01_CANDIDATO_BUILD_SEM_BANCO'; observadoUtc=[DateTime]::UtcNow.ToString('o')
+        estado='BUILD_SEM_BANCO_SQL_PENDENTE'; ativosAtualizados=$false
         sourceHash=$sourceHash
         java=@{path=$javaPath;sha256=(Get-FileHash -LiteralPath $javaPath -Algorithm SHA256).Hash.ToLowerInvariant()}
         jar=@{path=$jar;sha256=(Get-FileHash -LiteralPath $jar -Algorithm SHA256).Hash.ToLowerInvariant()}
         config=@{path=$config;sha256=(Get-FileHash -LiteralPath $config -Algorithm SHA256).Hash.ToLowerInvariant()}
-        verificacao=@{testes=$tests;ambiente='H2 isolado';sqlServer=$false;log=(Join-Path $run 'build.log')}
-        linhagem=@{reciboAnterior=$backup;sha256=(Get-FileHash -LiteralPath $backup -Algorithm SHA256).Hash.ToLowerInvariant()}
+        verificacao=@{testes=0;ambiente='Build sem banco';sqlServer=$false;integracaoSqlObrigatoria=$true;log=(Join-Path $run 'build.log')}
+        linhagem=@{reciboAnterior=$path;sha256=(Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash.ToLowerInvariant();preservado=$true}
     }
     $prepared = Join-Path $run ('novo-' + [IO.Path]::GetFileName($path))
-    [IO.File]::WriteAllText($prepared, ($current | ConvertTo-Json -Depth 5) + [Environment]::NewLine, [Text.UTF8Encoding]::new($false))
+    $stream = [IO.File]::Open($prepared, [IO.FileMode]::CreateNew, [IO.FileAccess]::Write, [IO.FileShare]::None)
+    try {
+        $bytes = [Text.UTF8Encoding]::new($false).GetBytes(($current | ConvertTo-Json -Depth 5) + [Environment]::NewLine)
+        $stream.Write($bytes, 0, $bytes.Length)
+    } finally { $stream.Dispose() }
     $null = Assert-WmsDevApplicationArtifact $repository $prepared
-    Copy-Item -LiteralPath $prepared -Destination $path
+    $candidates.Add([pscustomobject]@{path=$prepared;sha256=(Get-FileHash -LiteralPath $prepared -Algorithm SHA256).Hash.ToLowerInvariant()})
 }
-Write-Host ('Pacote atual preparado: ' + $tests + ' testes aprovados. Execute iniciar-dev.bat para carrega-lo.')
+$manifest = [ordered]@{
+    natureza='SQL01_CANDIDATO_BUILD_SEM_BANCO'; observadoUtc=[DateTime]::UtcNow.ToString('o')
+    estado='BUILD_SEM_BANCO_SQL_PENDENTE'; sourceHash=$sourceHash;jar=$current.jar
+    verificacao=$current.verificacao;ativosAtualizados=$false;candidatos=$candidates.ToArray()
+}
+$stream = [IO.File]::Open((Join-Path $run 'preparo-candidato.json'), [IO.FileMode]::CreateNew, [IO.FileAccess]::Write, [IO.FileShare]::None)
+try {
+    $bytes = [Text.UTF8Encoding]::new($false).GetBytes(($manifest | ConvertTo-Json -Depth 6) + [Environment]::NewLine)
+    $stream.Write($bytes, 0, $bytes.Length)
+} finally { $stream.Dispose() }
+Write-Host ('Candidato compilado: ' + (Join-Path $run 'preparo-candidato.json') + '. Integracao SQL obrigatoria pendente; nenhum recibo ativo atualizado.')

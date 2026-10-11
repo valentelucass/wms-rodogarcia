@@ -28,6 +28,8 @@
         <wms.migrations.initSql>THROW 51002, 'Guarda de migrations ausente. Use o wrapper WMS.', 1;</wms.migrations.initSql>
         <wms.bootstrap.skip>true</wms.bootstrap.skip>
         <wms.bootstrap.initSql>THROW 51021, 'Guarda do bootstrap manual ausente. Use o launcher WMS.', 1;</wms.bootstrap.initSql>
+        <wms.tests.mode>SQL_PROOF_REQUIRED</wms.tests.mode>
+        <test>Sql01ObservationConfigTest,Sql01JdbcObservationTest,SqlServerConfigTest,SqlServerLocalITTest,SqlServerUpdateMappingTest,Sql01MavenPolicyTest</test>
     </properties>
     <dependencies>
         <dependency>
@@ -106,7 +108,37 @@
                             </rules>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>politica-testes-sql01</id>
+                        <phase>validate</phase>
+                        <goals><goal>enforce</goal></goals>
+                        <configuration>
+                            <rules>
+                                <requireProperty>
+                                    <property>wms.tests.mode</property>
+                                    <regex>PURE_NO_DATABASE</regex>
+                                    <message>SQL01: persistência exige runner SQL Server guardado e prova real revisada. Maven sem perfil não executa H2. Use -Ppure-no-db somente para testes/build sem banco; build não é aceite SQL.</message>
+                                    <regexMessage>SQL01: aceite SQL depende do runner legítimo/prova real, não de flag Maven.</regexMessage>
+                                </requireProperty>
+                                <requireProperty>
+                                    <property>test</property>
+                                    <regex>(Sql01ObservationConfigTest|Sql01JdbcObservationTest|SqlServerConfigTest|SqlServerLocalITTest|SqlServerUpdateMappingTest|Sql01MavenPolicyTest)(,(Sql01ObservationConfigTest|Sql01JdbcObservationTest|SqlServerConfigTest|SqlServerLocalITTest|SqlServerUpdateMappingTest|Sql01MavenPolicyTest))*</regex>
+                                    <message>SQL01: seleção de testes fora da lista sem banco recusada antes do contexto.</message>
+                                    <regexMessage>SQL01: -Dtest não pode selecionar persistência/H2 no perfil puro.</regexMessage>
+                                </requireProperty>
+                            </rules>
+                        </configuration>
+                    </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <test>${test}</test>
+                    <failIfNoTests>true</failIfNoTests>
+                    <failIfNoSpecifiedTests>true</failIfNoSpecifiedTests>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>com.diffplug.spotless</groupId>
@@ -142,6 +174,43 @@
     </build>
     <profiles>
         <profile>
+            <id>pure-no-db</id>
+            <properties>
+                <wms.tests.mode>PURE_NO_DATABASE</wms.tests.mode>
+            </properties>
+        </profile>
+        <profile>
+            <id>h2-historical</id>
+            <properties>
+                <wms.tests.mode>H2_HISTORICAL_ONLY</wms.tests.mode>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-enforcer-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>recusar-h2-sql01</id>
+                                <phase>validate</phase>
+                                <goals><goal>enforce</goal></goals>
+                                <configuration>
+                                    <rules>
+                                        <requireProperty>
+                                            <property>wms.tests.mode</property>
+                                            <regex>DISABLED_H2_TEST_REEXECUTION</regex>
+                                            <message>SQL01: histórico H2 são fontes/logs/provas preservados; reexecução H2 está proibida, inclusive com override de modo puro.</message>
+                                            <regexMessage>SQL01: perfil h2-historical sempre recusado antes do contexto/conexão.</regexMessage>
+                                        </requireProperty>
+                                    </rules>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
             <id>migrations-wrapper-confirmado</id>
             <activation>
                 <property>
@@ -157,6 +226,27 @@
             <id>sqlserver-it</id>
             <build>
                 <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-enforcer-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>recusar-it-vazio-sql01</id>
+                                <phase>validate</phase>
+                                <goals><goal>enforce</goal></goals>
+                                <configuration>
+                                    <rules>
+                                        <requireProperty>
+                                            <property>wms.tests.mode</property>
+                                            <regex>DISABLED_EMPTY_DATABASE_IT</regex>
+                                            <message>SQL01: SqlServerLocalIT antigo exige banco vazio e é proibido no DEV populado. Não trocar URL nem executar esse perfil.</message>
+                                            <regexMessage>SQL01: perfil antigo sqlserver-it recusado antes de qualquer conexão.</regexMessage>
+                                        </requireProperty>
+                                    </rules>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-failsafe-plugin</artifactId>

@@ -1,5 +1,11 @@
 # Padrões de engenharia do backend
 
+## Regra vigente de testes — QUAL-CONF01-SQL01
+
+Decisão expressa e permanente de Lucas em 10/10/2026: persistência, integração/backend com banco, performance de dados, HTTP e browser integrado devem ser exercitados em SQL Server real exclusivamente WMS_DEV/WMSDEV, após guarda atual de alvo, identidade, TLS, processo/ACL, permissões, catálogo e histórico. H2 e SQL simulado não são alternativa ou aceite; evidências anteriores são históricas. Preservar fontes, logs e provas H2 datadas não autoriza nova execução H2, nem por perfil histórico, opt-in ou override. Esses caminhos devem ser recusados antes de contexto, processo de aplicação ou conexão; somente testes comprovadamente puros podem integrar a whitelist sem banco. Testes puros sem banco, tipagem, lint e build ficam separados. [Autorização e preservação](06-decisoes-e-pendencias.md#qual-conf01-sql01--testes-reais-sql-server-10102026).
+
+Não migrar testes antigos trocando a URL: DEV está populado e não admite create-drop, INIT, reset, cleanup, DELETE ou exigência de banco vazio. O caminho real usa validate/initnever/migrations desativadas e autenticação legítima; fixtures necessárias somente HTTP/API, identificadas, idempotentes e preservadas. O preparador deve distinguir build/puro de teste SQL real obrigatório, sem H2 silencioso, e o recibo vincular a mesma fonte/JAR/provider/banco/identidade e casos executados. Mapear cada caso histórico como executado SQL, puro sem banco ou impedimento concreto; não transportar contagens H2 para SQL. Falha de transporte ou guarda inconclusiva interrompe sem retry/fallback.
+
 Registrado em 05/10/2026, conforme D13 e BE16. O responsável pediu configuração em `.properties` e boas práticas de engenharia. As ferramentas abaixo são escolhas técnicas para tornar esses padrões verificáveis no backend atual; não representam homologação dos módulos futuros.
 
 ## Organização e responsabilidades

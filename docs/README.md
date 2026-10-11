@@ -1,12 +1,15 @@
 # Documentação do WMS Rodogarcia
 
+**QUAL-CONF01-SQL01 — estratégia vigente e execução SQL real:** [regra permanente SQL Server/WMS_DEV](06-decisoes-e-pendencias.md#qual-conf01-sql01--testes-reais-sql-server-10102026), [estado](../states.md#qual-conf01-sql01--testes-reais-sql-server-10102026) e [procedimento](19-desenvolvimento-integrado-dev.md#política-vigente-de-testes--qual-conf01-sql01). H2 anterior é histórico; testes puros sem banco ficam separados. Guarda atual e dados preservados antes de integração, sem selecionar testes destrutivos/banco vazio.
+
+
 [QUAL-CONF01-PERF01-DEC01 — decisão vigente de processamento adequado no banco](06-decisoes-e-pendencias.md#qual-conf01-perf01-dec01--processamento-adequado-no-banco-10102026): arquitetura por camadas permite Java → SQL com ganho e equivalência demonstrados; sem autorização adicional para intervenção real.
 
 **QUAL-CONF01 — rodada atual de qualidade e confiabilidade:** [andamento e critérios](../STATES.md#qual-conf01--qualidade-e-confiabilidade-10102026), [escopo autorizado](06-decisoes-e-pendencias.md#qual-conf01--qualidade-e-confiabilidade-10102026) e [continuidade](09-continuidade.md#qual-conf01--rodada-atual-10102026). Evidências novas e saídas isoladas em `orchestracao/.runtime/qual-conf01/`; baseline, correções e limites reais registrados separadamente.
 
 **QUAL-CONF01-PERF01 — complemento material em andamento:** [Início, dashboard/visão/contexto e segurança](../STATES.md#qual-conf01-perf01--início-desempenho-e-segurança), [autorização/limites](06-decisoes-e-pendencias.md#qual-conf01-perf01--inicio-desempenho-e-seguranca). Bloco anterior é baseline local parcial; novas provas em `orchestracao/.runtime/qual-conf01/perf01/`, com custos locais separados das medidas do portal.
 
-**QUAL-CONF01-PERF01-CARGA01 — implementação em execução:** [otimização ponta a ponta de carregamento](../STATES.md#qual-conf01-perf01-carga01--implementação-do-carregamento-10102026), [autorização e limites](06-decisoes-e-pendencias.md#qual-conf01-perf01-carga01--implementação-do-carregamento-10102026); lote/SQL adequado e carregamento progressivo com ganho demonstrado, preservando INIT01 e Information.
+**QUAL-CONF01-PERF01-CARGA01 — implementação local validada e revisada, fecho geral parcial:** [otimização ponta a ponta de carregamento](../STATES.md#qual-conf01-perf01-carga01--implementação-do-carregamento-10102026), [autorização e limites](06-decisoes-e-pendencias.md#qual-conf01-perf01-carga01--implementação-do-carregamento-10102026); lote/SQL adequado e carregamento progressivo com ganho demonstrado, preservando INIT01 e Information.
 
 **QUAL-CONF01-PERF01-INIT01 — verificação local datada:** [carregamento das telas sem visitar Início](../STATES.md#qual-conf01-perf01-init01--independência-de-início-10102026), com rotas/catálogos/contexto/auth.fresh e ordem HTTP isolada; sem preparador adicional ou reinício.
 
