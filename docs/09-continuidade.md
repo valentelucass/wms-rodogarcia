@@ -1,5 +1,9 @@
 # Continuidade do projeto WMS Rodogarcia
 
+## FE03-AUTH-INICIO01 — novo login começa no Início, 12/10/2026
+
+Fecho local: hash anterior mantido no logout causava entrada na última tela. AuthApp:119 agora define #inicio somente após novo login bem-sucedido; hook/refresh/restauração intactos. GREEN 10 aprovados/0 falhas, tipagem/lint/build e revisão Vigia favoráveis; 6 casos não selecionados. [Resultado e limite integrado](../orchestracao/.runtime/fe03-auth-inicio01/resultado.md). Nenhum BAT/SQL/autenticação real; não reabrir preparo histórico ou REG01/879 por este fecho.
+
 ## BE02-DEV-GUARDA02 — timeout na consulta de identidade, 11/10/2026
 
 Falha real do BAT8ccd enviada por Lucas: conexão197,2814ms/TLS concluído; primeira SELECT inconclusiva, -2/258, limite fixo3s. O console dizia incorretamente abertura120s. Corrigidos prazo de consulta30s separado de abertura120s/global240s e diagnóstico por fase/recibo;11/11 focais puros, espera7/7 e revisão12/12 aprovados. Não houve nova SQL/HTTP/DPAPI ou substituição de DEV53800/33036. Causa da demora SQL ainda desconhecida;30s não é prova real. Nova validação depende de autorização após o STOP previsto em SQL01, sem retries/fallback/relaxar26checks/TLS/posse. [Resultado](../orchestracao/.runtime/be02-dev-fonte01/guarda-timeout02/resultado.md), [estado](../states.md#be02-dev-guarda02--timeout-na-identificação-do-banco-11102026).

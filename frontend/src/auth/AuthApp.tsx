@@ -116,6 +116,7 @@ export function AuthApp() {
             <LoginPage
                 auth={auth}
                 onLogin={(u) => {
+                    history.replaceState(history.state, "", "#inicio");
                     setUser(u);
                     setMessage("");
                 }}

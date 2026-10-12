@@ -1,5 +1,16 @@
 # Estado e trilha de implementação do WMS Rodogarcia
 
+## FE03-AUTH-INICIO01 — novo login começa no Início, 12/10/2026
+
+**Concluído localmente; integrado e versão servida não medidos.** Pedido do usuário: novo login deve começar no Início. Vinculado a FE03-AUTH01/navegação FE02, distinto de INIT01.
+
+- [x] Causa: o hash da última rota sobrevivia ao logout; AuthApp atualizava usuário sem alterar a rota, e useNavigation reutilizava esse hash.
+- [x] Delta mínimo: uma linha em AuthApp:119 define #inicio com replaceState(history.state) somente no sucesso de novo login, antes de montar Workspace.
+- [x] RED: 6 falhas esperadas de rota/3 aprovados. GREEN: 9 casos novos + 1 regressão pertinente aprovados, 0 falhas; 6 casos existentes não selecionados.
+- [x] Tipagem, lint focal, formatação e build local aprovados; revisão Vigia favorável ao recorte local. Reload/restauração/renovação, navegação explícita, senha obrigatória, permissões e rascunhos preservados.
+
+Farol canônicos/ID, Lume fonte/testes, Vigia leitura. [Resultado e evidências](orchestracao/.runtime/fe03-auth-inicio01/resultado.md). Sem backend, SQL, HTTP integrado, autenticação real, BAT/restart/kill, commit/push ou retomada REG01/879. Fonte alterada não comprova módulo servido; jornada integrada futura exige escopo e guarda atuais antes de executar.
+
 ## BE02-DEV-GUARDA02 — timeout na identificação do banco, 11/10/2026
 
 **Correção local revisada e única execução real autorizada chegou a SISTEMA PRONTO; falha anterior enviada por Lucas no BAT run8ccd961e preservada.** Dependência BE02-DEV-FONTE01. Conexão abriu em197,2814ms/TLS concluído; primeira SELECT de identidade inconclusiva, SqlNumber-2/native258, elapsed5694,4447ms e CommandTimeout fixo3s. O console chamou isso de abertura da conexão em120s, diagnóstico incorreto. Nenhum backend/frontend iniciou ou processo existente foi substituído.
