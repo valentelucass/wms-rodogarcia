@@ -1,106 +1,76 @@
-﻿[CmdletBinding()]
-param([switch]$SomenteBuild,[string]$ValidacaoSql,[string]$ValidacaoSqlSha256)
+[CmdletBinding()]
+param([switch]$SomenteBuild,[string]$RunDirectory)
 Set-StrictMode -Version Latest
-$ErrorActionPreference = 'Stop'
-# SQL01: build sem banco e aceite SQL sao etapas distintas. Sem prova SQL
-# vinculada ao candidato, este script nao publica recibos nem recomenda o BAT.
-$repository = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
-if (-not $SomenteBuild) {
-    . (Join-Path $PSScriptRoot 'selecionar-candidato-sql.ps1')
-    if(!$ValidacaoSql -or !$ValidacaoSqlSha256){
-        $active=Get-Content -LiteralPath (Join-Path $repository 'backend/evidencias/login-d32-preparo.json') -Raw -Encoding UTF8|ConvertFrom-Json
-        if($active.PSObject.Properties.Name -notcontains 'validacaoSql'){
-            Write-Host 'O build precisa da partida e das leituras autenticadas no WMS_DEV. Informe o recibo real em -ValidacaoSql e seu SHA256; -SomenteBuild apenas compila.'
-            throw 'SQL01_INTEGRACAO_OBRIGATORIA'
-        }
-        $ValidacaoSql=$active.validacaoSql.path;$ValidacaoSqlSha256=$active.validacaoSql.sha256
-    }
-    Select-WmsSqlValidatedCandidate $repository $ValidacaoSql $ValidacaoSqlSha256
-    return
-}
+$ErrorActionPreference='Stop'
+$repository=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 . (Join-Path $PSScriptRoot 'artefato-backend.ps1')
-$receiptPaths = @('backend/evidencias/login-d32-preparo.json', 'backend/evidencias/frontend-dev02-preparo.json')
-$previous = Get-Content -LiteralPath (Join-Path $repository $receiptPaths[0]) -Raw -Encoding UTF8 | ConvertFrom-Json
-$javaPath = [IO.Path]::GetFullPath($previous.java.path)
-$javaHome = Split-Path (Split-Path $javaPath -Parent) -Parent
-if ([IO.Path]::GetFileName($javaPath) -ine 'java.exe' -or
-    -not (Test-Path -LiteralPath $javaPath -PathType Leaf) -or
-    -not ([IO.File]::ReadAllText((Join-Path $javaHome 'release')) -match '(?m)^JAVA_VERSION="21[.\-]')) {
-    throw 'DEV02_JDK21_REQUIRED'
+. (Join-Path $repository 'infra/sql01/launcher-backend.ps1')
+$area=Join-Path $repository 'orchestracao/.runtime/be02-dev-fonte01/prumo/runs'
+if(!$RunDirectory){$RunDirectory=Join-Path $area ([guid]::NewGuid().ToString('D'));$null=New-Item -ItemType Directory -Path $RunDirectory}
+$run=Resolve-WmsSql01Path $RunDirectory $area
+$uuid=[guid]::Empty
+if(![guid]::TryParseExact([IO.Path]::GetFileName($run),'D',[ref]$uuid) -or !(Test-Path -LiteralPath $run -PathType Container)){throw 'DEV_CURRENT_RUN_INVALID'}
+$output=Join-Path $run 'preparo-candidato.json'
+if(Test-Path -LiteralPath $output){throw 'DEV_CURRENT_CANDIDATE_EXISTS'}
+$tool=Get-Content -LiteralPath (Join-Path $repository 'backend/evidencias/login-d32-preparo.json') -Raw -Encoding UTF8|ConvertFrom-Json
+$java=[IO.Path]::GetFullPath($tool.java.path)
+$javaHome=Split-Path (Split-Path $java -Parent) -Parent
+$release=Join-Path $javaHome 'release'
+if([IO.Path]::GetFileName($java) -ine 'java.exe' -or !(Test-Path -LiteralPath $java -PathType Leaf) -or
+    (Get-FileHash -LiteralPath $java).Hash -ine $tool.java.sha256 -or
+    !([IO.File]::ReadAllText($release) -match '(?m)^JAVA_VERSION="21[.\-]')){throw 'DEV_CURRENT_JDK21_REQUIRED'}
+$javaHash=(Get-FileHash -LiteralPath $java).Hash.ToLowerInvariant()
+$releaseHash=(Get-FileHash -LiteralPath $release).Hash.ToLowerInvariant()
+$before=Get-WmsDevInputFingerprint $repository
+$target=Join-Path $run 'target';$evidence=Join-Path $run 'build-pure-evidence'
+if(Test-Path -LiteralPath $target){throw 'DEV_CURRENT_BUILD_TARGET_EXISTS'}
+$null=New-Item -ItemType Directory -Path $evidence
+$wrapper=Join-Path $repository 'backend/mvnw.cmd'
+foreach($path in @($wrapper,$target,$evidence)){if($path -match '["\r\n%!]'){throw 'DEV_CURRENT_BUILD_PATH_INVALID'}}
+$info=[Diagnostics.ProcessStartInfo]::new();$info.FileName=Join-Path $env:SystemRoot 'System32/cmd.exe'
+$info.Arguments='/d /c ""'+$wrapper+'" -B "-Dwms.build.directory='+$target+'" "-Dwms.test.evidencias.dir='+$evidence+'" '+
+    '"-Dmaven.test.skip=true" "-Ppure-no-db,!h2-historical,!sqlserver-it,!migrations,!migrations-wrapper-confirmado,!bootstrap-local,!bootstrap-local-wrapper-confirmado" package"'
+$info.WorkingDirectory=Join-Path $repository 'backend';$info.UseShellExecute=$false;$info.CreateNoWindow=$true
+$info.RedirectStandardOutput=$true;$info.RedirectStandardError=$true;$info.EnvironmentVariables.Clear()
+foreach($name in @('SystemRoot','WINDIR','ComSpec','PATH','PATHEXT','TEMP','TMP','USERPROFILE','HOMEDRIVE','HOMEPATH','APPDATA','LOCALAPPDATA','PROGRAMDATA')){
+    $value=[Environment]::GetEnvironmentVariable($name);if($null -ne $value){$info.EnvironmentVariables[$name]=$value}
 }
-$run = Join-Path $repository ('orchestracao/.runtime/backend-dev-builds/' + [guid]::NewGuid().ToString('N'))
-$null = New-Item -ItemType Directory -Path $run
-$build = Join-Path $run 'target'
-$evidence = Join-Path $run 'sql01-prumo-build-evidencias'
-# Saida exclusiva do build. Nao seleciona os contextos H2/D30 historicos.
-if (Test-Path -LiteralPath $evidence) { throw 'DEV02_BUILD_EVIDENCE_ALREADY_EXISTS' }
-$null = New-Item -ItemType Directory -Path $evidence
-$sourceHash = Get-WmsBackendSourceHash $repository
-$wrapper = Join-Path $repository 'backend/mvnw.cmd'
-foreach ($path in @($wrapper, $build, $evidence)) { if ($path -match '["\r\n%!]') { throw 'DEV02_BUILD_PATH_INVALID' } }
-$info = [Diagnostics.ProcessStartInfo]::new()
-$info.FileName = Join-Path $env:SystemRoot 'System32/cmd.exe'
-$info.Arguments = '/d /c ""' + $wrapper + '" -B "-Dwms.build.directory=' + $build +
-    '" "-Dwms.test.evidencias.dir=' + $evidence + '" "-Dmaven.test.skip=true" ' +
-    '"-Ppure-no-db,!sqlserver-it,!migrations,!migrations-wrapper-confirmado,!bootstrap-local,!bootstrap-local-wrapper-confirmado" package"'
-$info.WorkingDirectory = Join-Path $repository 'backend'
-$info.UseShellExecute = $false
-$info.CreateNoWindow = $true
-$info.RedirectStandardOutput = $true
-$info.RedirectStandardError = $true
-# O build recebe somente ambiente de ferramentas, nunca o material do login ou do SQL.
-$info.EnvironmentVariables.Clear()
-foreach ($name in @('SystemRoot','WINDIR','ComSpec','PATH','PATHEXT','TEMP','TMP','USERPROFILE',
-    'HOMEDRIVE','HOMEPATH','APPDATA','LOCALAPPDATA','PROGRAMDATA')) {
-    $value = [Environment]::GetEnvironmentVariable($name)
-    if ($null -ne $value) { $info.EnvironmentVariables[$name] = $value }
-}
-$info.EnvironmentVariables['JAVA_HOME'] = $javaHome
-$info.EnvironmentVariables['PATH'] = (Join-Path $javaHome 'bin') + ';' + $info.EnvironmentVariables['PATH']
-$process = [Diagnostics.Process]::new()
-$process.StartInfo = $info
-Write-Host 'Compilando candidato sem banco e sem testes. Integracao SQL obrigatoria pendente; recibos ativos preservados.'
-try {
-    $null = $process.Start()
-    $stdout = $process.StandardOutput.ReadToEndAsync()
-    $stderr = $process.StandardError.ReadToEndAsync()
-    $process.WaitForExit()
-    [IO.File]::WriteAllText((Join-Path $run 'build.log'), $stdout.Result + $stderr.Result, [Text.UTF8Encoding]::new($false))
-    if ($process.ExitCode -ne 0) { throw ('DEV02_LOCAL_BUILD_FAILED: ' + (Join-Path $run 'build.log')) }
-} finally { $process.Dispose() }
-if ($sourceHash -cne (Get-WmsBackendSourceHash $repository)) { throw 'DEV02_SOURCE_CHANGED_DURING_BUILD' }
-$jar = Join-Path $build 'wms-backend-0.0.1-SNAPSHOT.jar'
-$config = Join-Path $repository 'backend/src/main/resources/application-frontend-dev.properties'
-$candidates = New-Object 'Collections.Generic.List[object]'
-foreach ($relative in $receiptPaths) {
-    $path = Join-Path $repository $relative
-    $current = [ordered]@{
-        natureza='SQL01_CANDIDATO_BUILD_SEM_BANCO'; observadoUtc=[DateTime]::UtcNow.ToString('o')
-        estado='BUILD_SEM_BANCO_SQL_PENDENTE'; ativosAtualizados=$false
-        sourceHash=$sourceHash
-        java=@{path=$javaPath;sha256=(Get-FileHash -LiteralPath $javaPath -Algorithm SHA256).Hash.ToLowerInvariant()}
-        jar=@{path=$jar;sha256=(Get-FileHash -LiteralPath $jar -Algorithm SHA256).Hash.ToLowerInvariant()}
-        config=@{path=$config;sha256=(Get-FileHash -LiteralPath $config -Algorithm SHA256).Hash.ToLowerInvariant()}
-        verificacao=@{testes=0;ambiente='Build sem banco';sqlServer=$false;integracaoSqlObrigatoria=$true;log=(Join-Path $run 'build.log')}
-        linhagem=@{reciboAnterior=$path;sha256=(Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash.ToLowerInvariant();preservado=$true}
+$info.EnvironmentVariables['JAVA_HOME']=$javaHome
+$info.EnvironmentVariables['PATH']=(Join-Path $javaHome 'bin')+';'+$info.EnvironmentVariables['PATH']
+$process=[Diagnostics.Process]::new();$process.StartInfo=$info;$startedUtc=[DateTime]::UtcNow.ToString('o')
+Write-Host '[WMS DEV] Compilando a fonte atual, sem testes/banco. Instancia existente preservada.'
+try{
+    if(!$process.Start()){throw 'DEV_CURRENT_BUILD_NOT_STARTED'}
+    $stdout=$process.StandardOutput.ReadToEndAsync();$stderr=$process.StandardError.ReadToEndAsync()
+    $process.WaitForExit();$exitCode=$process.ExitCode
+    $build=[ordered]@{scope='PURE_NO_DATABASE';exit=$exitCode;startedUtc=$startedUtc;finishedUtc=[DateTime]::UtcNow.ToString('o');testsExecuted=0;H2=0;SQL=0;rawLogsSaved=$false;stdoutLines=@($stdout.Result -split "`n").Count;stderrLines=@($stderr.Result -split "`n").Count}
+    $digest=[Security.Cryptography.SHA256]::Create()
+    try{$build.logSha256=([BitConverter]::ToString($digest.ComputeHash([Text.Encoding]::UTF8.GetBytes($stdout.Result+$stderr.Result)))).Replace('-','').ToLowerInvariant()}finally{$digest.Dispose()}
+    foreach($kind in @('stdout','stderr')){
+        $capture=if($kind -ceq 'stdout'){$stdout.Result}else{$stderr.Result}
+        $digest=[Security.Cryptography.SHA256]::Create()
+        try{$build[$kind+'Sha256']=([BitConverter]::ToString($digest.ComputeHash([Text.Encoding]::UTF8.GetBytes($capture)))).Replace('-','').ToLowerInvariant()}finally{$digest.Dispose()}
     }
-    $prepared = Join-Path $run ('novo-' + [IO.Path]::GetFileName($path))
-    $stream = [IO.File]::Open($prepared, [IO.FileMode]::CreateNew, [IO.FileAccess]::Write, [IO.FileShare]::None)
-    try {
-        $bytes = [Text.UTF8Encoding]::new($false).GetBytes(($current | ConvertTo-Json -Depth 5) + [Environment]::NewLine)
-        $stream.Write($bytes, 0, $bytes.Length)
-    } finally { $stream.Dispose() }
-    $null = Assert-WmsDevApplicationArtifact $repository $prepared
-    $candidates.Add([pscustomobject]@{path=$prepared;sha256=(Get-FileHash -LiteralPath $prepared -Algorithm SHA256).Hash.ToLowerInvariant()})
-}
-$manifest = [ordered]@{
-    natureza='SQL01_CANDIDATO_BUILD_SEM_BANCO'; observadoUtc=[DateTime]::UtcNow.ToString('o')
-    estado='BUILD_SEM_BANCO_SQL_PENDENTE'; sourceHash=$sourceHash;jar=$current.jar
-    verificacao=$current.verificacao;ativosAtualizados=$false;candidatos=$candidates.ToArray()
-}
-$stream = [IO.File]::Open((Join-Path $run 'preparo-candidato.json'), [IO.FileMode]::CreateNew, [IO.FileAccess]::Write, [IO.FileShare]::None)
-try {
-    $bytes = [Text.UTF8Encoding]::new($false).GetBytes(($manifest | ConvertTo-Json -Depth 6) + [Environment]::NewLine)
-    $stream.Write($bytes, 0, $bytes.Length)
-} finally { $stream.Dispose() }
-Write-Host ('Candidato compilado: ' + (Join-Path $run 'preparo-candidato.json') + '. Integracao SQL obrigatoria pendente; nenhum recibo ativo atualizado.')
+    $build.profiles='pure-no-db,!h2-historical,!sqlserver-it,!migrations,!migrations-wrapper-confirmado,!bootstrap-local,!bootstrap-local-wrapper-confirmado'
+    $build.goal='package';$build.mavenTestSkip='true';$build.publicCommand=$info.Arguments
+    $build.observed=@{testSourcesNotCompiled=$stdout.Result.Contains('Not compiling test sources');testsSkipped=$stdout.Result.Contains('Tests are skipped');buildSuccess=$stdout.Result.Contains('BUILD SUCCESS')}
+    Write-WmsDevCreateOnlyJson (Join-Path $run 'build-result.json') $build
+    if($exitCode -ne 0){throw 'DEV_CURRENT_BUILD_FAILED'}
+    if(!$build.observed.testSourcesNotCompiled -or !$build.observed.testsSkipped -or !$build.observed.buildSuccess){throw 'DEV_CURRENT_BUILD_MARKERS_INCOMPLETE'}
+}finally{$info.EnvironmentVariables.Clear();$process.Dispose()}
+$after=Get-WmsDevInputFingerprint $repository
+if($before.sha256 -cne $after.sha256 -or $before.sourceHash -cne $after.sourceHash -or
+    (Get-FileHash -LiteralPath $java).Hash -ine $javaHash -or (Get-FileHash -LiteralPath $release).Hash -ine $releaseHash){throw 'DEV_CURRENT_SOURCE_CHANGED_DURING_BUILD'}
+$jar=Join-Path $target 'wms-backend-0.0.1-SNAPSHOT.jar'
+$config=Join-Path $run 'application-frontend-dev.properties'
+[IO.File]::Copy((Join-Path $repository 'backend/src/main/resources/application-frontend-dev.properties'),$config,$false)
+$package=Get-WmsDevPackageMetadata $jar
+$value=[ordered]@{id='BE02-DEV-FONTE01';schema='WMS_CURRENT_DEV_ARTIFACT_V1';owner='WMS - Prumo';runId=$uuid.ToString('D');observadoUtc=[DateTime]::UtcNow.ToString('o');reused=$false;sourceHash=$after.sourceHash;sourceHashBefore=$before.sourceHash;sourceHashAfter=$after.sourceHash;fingerprint=$after;build=$build;package=$package;
+    recipe=@{preparer=@{path=$PSCommandPath;sha256=(Get-FileHash -LiteralPath $PSCommandPath).Hash};goal='package';profiles='pure-no-db,!h2-historical,!sqlserver-it,!migrations,!migrations-wrapper-confirmado,!bootstrap-local,!bootstrap-local-wrapper-confirmado';testCompilationSkipped=$true};
+    fingerprintBefore=@{sha256=$before.sha256;sourceHash=$before.sourceHash};fingerprintAfter=@{sha256=$after.sha256;sourceHash=$after.sourceHash};
+    verificacao=@{testes=0;ambiente='Build sem banco';sqlServer=$false;integracaoSqlObrigatoria=$true};
+    jar=@{path=$jar;sha256=(Get-FileHash -LiteralPath $jar).Hash.ToLowerInvariant()};config=@{path=$config;sha256=(Get-FileHash -LiteralPath $config).Hash.ToLowerInvariant()};
+    java=@{path=$java;sha256=$javaHash};javaRelease=@{path=$release;sha256=$releaseHash};integracaoSql=$false;activeReceiptsChanged=$false}
+Write-WmsDevCreateOnlyJson $output $value
+$hash=(Get-FileHash -LiteralPath $output).Hash.ToLowerInvariant();$null=Assert-WmsDevCurrentArtifact $repository $output $hash
+[pscustomobject]@{path=$output;sha256=$hash;artifact=[pscustomobject]$value}

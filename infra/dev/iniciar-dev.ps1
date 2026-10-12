@@ -1,7 +1,8 @@
 [CmdletBinding()]
 param(
     [ValidateRange(1024,65535)][int]$BackendPort = 25580,
-    [ValidateRange(1024,65535)][int]$FrontendPort = 25581
+    [ValidateRange(1024,65535)][int]$FrontendPort = 25581,
+    [string]$AuthSurfaceOrigin = [Environment]::GetEnvironmentVariable('WMS_DEV_AUTH_SURFACE_ORIGIN','Process')
 )
 
 Set-StrictMode -Version Latest
@@ -12,13 +13,13 @@ $repository = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 . (Join-Path $PSScriptRoot 'artefato-backend.ps1')
 . (Join-Path $PSScriptRoot 'reiniciar-instancia.ps1')
 $connectionWaitPolicy = Get-WmsDevConnectionWaitPolicy
-$runsRoot = Join-Path $repository 'orchestracao/.runtime/frontend-integracao-dev-runs'
-$runId = [guid]::NewGuid().ToString('N')
+$runsRoot = Join-Path $repository 'orchestracao/.runtime/be02-dev-fonte01/prumo/runs'
+$runId = [guid]::NewGuid().ToString('D')
 $runDirectory = Join-Path $runsRoot $runId
-$null = New-Item -ItemType Directory -Path $runDirectory -Force
+$null = New-Item -ItemType Directory -Path $runDirectory
 $receiptPath = Join-Path $runDirectory 'launcher.json'
 $receipt = [ordered]@{
-    natureza='D31_DEV02_LAUNCHER_REAL'; runId=$runId; inicioUtc=[DateTime]::UtcNow.ToString('o')
+    id='BE02-DEV-FONTE01'; natureza='D31_DEV02_LAUNCHER_REAL'; runId=$runId; inicioUtc=[DateTime]::UtcNow.ToString('o')
     projectPath=$repository; modo='real'; database='WMS_DEV'; login='WMSDEV'
     estado='PREPARING'; codigo=''; exitCode=$null; frontendUrl=$null
     backendPort=$BackendPort; frontendPort=$FrontendPort; guard=$null; backend=$null; frontend=$null
@@ -66,7 +67,12 @@ function Require-PublicIdentity {
     if ($env:WMS_AUTH_MODE -ne 'externo') {
         . (Join-Path $repository 'infra/auth/login-protegido.ps1')
         try {
-            $native = Get-WmsLoginIdentity -FrontendPort $FrontendPort
+            # Somente metadados/ACL antes da guarda. DPAPI apenas no canal SQL01 apos gates.
+            $nativePath=Get-WmsLoginMaterialPath
+            Assert-WmsLoginPrivatePath (Split-Path $nativePath -Parent);Assert-WmsLoginPrivatePath $nativePath
+            . (Join-Path $PSScriptRoot 'acesso-dev.ps1')
+            $access=Get-WmsDevAccess $FrontendPort
+            $native=@{native=$true;issuer='https://wms.localhost';jwkSetUri='https://wms.localhost/api/auth/jwks';audience='wms-dev';origin=$access.origin;proxyOrigin=$access.proxyOrigin;secureCookie=$access.secureCookie;accessMode=$access.mode}
             $receipt['identityConfiguration'] = @{ mode='native'; protectedMaterialPresent=$true }
             return $native
         } catch {
@@ -80,6 +86,7 @@ function Require-PublicIdentity {
             Fail-Startup 40 'AUTH_NATIVE_CONFIGURATION_REQUIRED'
         }
     }
+    Fail-Startup 40 'DEV_CURRENT_NATIVE_AUTH_REQUIRED'
     $map = [ordered]@{ issuer='WMS_OIDC_ISSUER'; jwkSetUri='WMS_OIDC_JWK_SET_URI'; audience='WMS_OIDC_AUDIENCE' }
     $identity = @{}
     $missing = @()
@@ -113,21 +120,15 @@ try {
     # Configuracao publica primeiro: nao abrir SQL quando a autenticacao nem esta configurada.
     $identity = Require-PublicIdentity
     $guardHelper = Join-Path $repository 'infra/dev02/guarda-wmsdev.ps1'
-    $backendHelper = Join-Path $repository 'backend/scripts/dev/start-backend.ps1'
-    $artifactReceiptPath = Join-Path $repository 'backend/evidencias/frontend-dev02-preparo.json'
-    if ($identity.ContainsKey('native') -and $identity.native) {
-        $artifactReceiptPath = Join-Path $repository 'backend/evidencias/login-d32-preparo.json'
-    }
-    foreach ($required in @($guardHelper,$backendHelper,$artifactReceiptPath)) {
+    $backendHelper = Join-Path $repository 'infra/sql01/launcher-backend.ps1'
+    $preparer=Join-Path $PSScriptRoot 'preparar-backend-dev.ps1'
+    foreach ($required in @($guardHelper,$backendHelper,$preparer)) {
         if (-not (Test-Path -LiteralPath $required -PathType Leaf)) { Fail-Startup 30 'PREPARATION_ARTIFACT_MISSING' }
     }
-    try {
-        $artifact = Assert-WmsDevApplicationArtifact $repository $artifactReceiptPath
-    } catch {
-        Write-Host '[WMS DEV] O pacote do backend nao corresponde ao codigo atual.'
-        Write-Host '[WMS DEV] Prepare o pacote local: powershell -NoProfile -File infra\dev\preparar-backend-dev.ps1'
-        Fail-Startup 30 'DEV02_ARTIFACT_NOT_CURRENT'
-    }
+    $prepared=& $preparer -RunDirectory $runDirectory
+    $artifact=Assert-WmsDevCurrentArtifact $repository $prepared.path $prepared.sha256
+    $receipt['candidate']=@{path=$prepared.path;sha256=$prepared.sha256}
+    $receipt['fingerprint']=$artifact.fingerprint
     $receipt['artifactSourceHash'] = $artifact.sourceHash
     $nodeCommand = Get-Command node.exe -ErrorAction Stop
     $javaCommand = Get-Command java.exe -ErrorAction SilentlyContinue
@@ -182,6 +183,16 @@ try {
         Fail-Startup 20 'GUARD_CURRENT_BLOCKED'
     }
     if ((Get-FileHash -LiteralPath $guardHelper -Algorithm SHA256).Hash -ne $guardHash) { Fail-Startup 20 'GUARD_HELPER_CHANGED' }
+    . (Join-Path $repository 'backend/scripts/dev/start-backend.ps1')
+    $null=Assert-WmsFrontendDevGuard -GuardReceipt $guardReceiptPath -GuardSha256 $guardReceiptHash -GuardProcessId $guardProcess.Id -GuardHelperSha256 $guardHash -RunDirectory $runDirectory
+    if(@($guard.checks).Count -ne 26 -or $guard.aberturaTentativas -ne 1 -or !$guard.aberturaConcluida){Fail-Startup 20 'GUARD_CURRENT_INCOMPLETE'}
+    # Build/selecionar/guardas falhos e fonte alterada param ANTES do primeiro encerramento.
+    $null=Assert-WmsDevCurrentArtifact $repository $prepared.path $prepared.sha256
+    $receipt['preStopCurrentArtifactVerifiedUtc']=[DateTime]::UtcNow.ToString('o')
+    $ownership=@{id='BE02-DEV-FONTE01';runId=$runId;observadoUtc=[DateTime]::UtcNow.ToString('o');scope='ONLY_WMS_DEV_25580_25581';targets=@($restartPlan|ForEach-Object{@{pid=$_.Process.Id;startUtc=$_.Process.StartTime.ToUniversalTime().ToString('o');port=$_.Port;receipt=@{path=$_.ReceiptPath;sha256=$_.ReceiptSha256}}})}
+    $ownershipPath=Join-Path $runDirectory 'posse-anterior.json'
+    Write-WmsDevCreateOnlyJson $ownershipPath $ownership
+    $receipt['ownership']=@{path=$ownershipPath;sha256=(Get-FileHash -LiteralPath $ownershipPath).Hash}
     Write-WmsDevConsoleStep 2 'Banco WMS_DEV e conexao segura conferidos' -Done
     if ($restartPlan.Count) { Write-Host '  Reiniciando somente a instancia DEV deste WMS (25580/25581)...' -ForegroundColor Yellow }
     Stop-WmsDevRestartPlan $restartPlan $repository {
@@ -196,9 +207,9 @@ try {
 
     # O helper backend valida o esquema e a procedencia da guarda antes de DPAPI/Java.
     . $backendHelper
-    $javaPath = $artifact.java.path
-    if ([string]::IsNullOrWhiteSpace($javaPath) -and $javaCommand) { $javaPath=$javaCommand.Source }
-    $backend = Start-WmsFrontendDevBackend -Port $BackendPort -RunDirectory $runDirectory -GuardReceipt $guardReceiptPath -GuardSha256 $guardReceiptHash -GuardProcessId $guardProcess.Id -GuardHelperSha256 $guardHash -JarPath $artifact.jar.path -JarSha256 $artifact.jar.sha256 -JavaPath $javaPath -Identity $identity
+    $null=Assert-WmsDevCurrentArtifact $repository $prepared.path $prepared.sha256
+    $origin=if($identity.accessMode -ceq 'tunnel'){$identity.proxyOrigin}else{$identity.origin}
+    $backend = Start-WmsSql01Backend -DevCurrent -Diagnostico -Candidato $prepared.path -CandidateSha256 $prepared.sha256 -Port $BackendPort -RunDirectory $runDirectory -GuardReceipt $guardReceiptPath -GuardSha256 $guardReceiptHash -LocalOrigin $origin
     $backendResult=$backend
     $backendHandle=$backend.Process
     $receipt['backend']=$backend.Sanitized
@@ -209,7 +220,8 @@ try {
 
     # Contrato nao sensivel FE, vinculado a guarda e ao processo BE real deste run.
     $chain = [ordered]@{
-        natureza='D31_DEV02_INTEGRACAO_PRONTA'; runId=$runId; projectPath=$repository; observadoUtc=[DateTime]::UtcNow.ToString('o')
+        id='BE02-DEV-FONTE01'; natureza='D31_DEV02_INTEGRACAO_PRONTA'; runId=$runId; projectPath=$repository; observadoUtc=[DateTime]::UtcNow.ToString('o')
+        candidate=$receipt.candidate;fingerprint=$artifact.fingerprint;jdbc=$backend.Sanitized.jdbc
         guard=@{ path=$guardReceiptPath; sha256=$guardReceiptHash; helperSha256=$guardHash; processId=$guardProcess.Id }
         backend=@{ receiptPath=$backend.ReceiptPath; receiptSha256=$backend.ReceiptSha256; pid=$backendHandle.Id; url=('http://127.0.0.1:'+$BackendPort) }
         frontend=@{ port=$FrontendPort; modo='real'; proxyPrefix='/api'; mockFallback=$false }
@@ -251,10 +263,7 @@ try {
         if ($frontendHandle.HasExited -or $backendHandle.HasExited) { break }
         $listener=@(Get-NetTCPConnection -State Listen -LocalAddress 127.0.0.1 -LocalPort $FrontendPort -ErrorAction SilentlyContinue)
         if ($listener.Count -eq 1 -and $listener[0].OwningProcess -eq $frontendHandle.Id) {
-            try {
-                $html=Invoke-WebRequest -Uri ('http://127.0.0.1:'+$FrontendPort+'/') -UseBasicParsing -TimeoutSec 3
-                if ($html.StatusCode -eq 200 -and $html.Content -match 'WMS') { $frontendReady=$true; break }
-            } catch { }
+            $frontendReady=$true;break
         }
         Start-Sleep -Milliseconds 300
     }
@@ -267,6 +276,8 @@ try {
     $receipt['codigo']='API_AUTHENTICATED_BROWSER_CHECK_REQUIRED'
     $receipt['exitCode']=0
     Save-LauncherReceipt
+    $gate=New-WmsDevCurrentHttpGate -RuntimePath $backend.RuntimeReceiptPath -RuntimeSha256 $backend.RuntimeReceiptSha256 -LauncherPath $receiptPath -AuthSurfaceOrigin $AuthSurfaceOrigin
+    Write-Host ('[WMS DEV] Gate API/browser atual: '+$gate.path+' SHA256 '+$gate.sha256)
     Write-WmsDevConsoleStep 4 'Frontend disponivel' -Done
     $startupMutex.ReleaseMutex()
     $startupLock = $false
@@ -281,6 +292,7 @@ try {
 } catch {
     # Nao imprimir excecao arbitraria: pode conter configuracao ou argumento sensivel.
     if ($_.Exception.Message -match '^DEV_RESTART_[A-Z_]+$') { Fail-Startup 50 $_.Exception.Message }
+    if ($_.Exception.Message -match '^DEV_CURRENT_[A-Z_]+$') { Fail-Startup 30 $_.Exception.Message }
     Fail-Startup 30 'LOCAL_STARTUP_FAILED'
 } finally {
     foreach ($target in $restartPlan) { $target.Process.Dispose() }
@@ -293,7 +305,7 @@ try {
         }
     } finally {
         try {
-            if ($null -ne $backendHandle) { Stop-WmsFrontendDevBackend -Handle $backendResult }
+            if ($null -ne $backendHandle) { Stop-WmsSql01Backend -Handle $backendResult }
         } finally {
             try {
                 if ($null -ne $guardProcess) {

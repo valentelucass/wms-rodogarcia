@@ -49,21 +49,35 @@ function Test-WmsDevProcessProof($Receipt, $Process, [string[]]$Arguments, [stri
                 $Executable -ine $be.java.path -or [IO.Path]::GetFileName($Executable) -ine 'java.exe') { return $false }
             $jar = [IO.Path]::GetFullPath($be.artifact.path)
             if (-not $jar.StartsWith($root + '\', [StringComparison]::OrdinalIgnoreCase)) { return $false }
-            $config = Join-Path $root 'backend/src/main/resources/application-frontend-dev.properties'
-            $expected = @($Executable, '-jar', $jar, '--spring.profiles.active=sqlserver-dev',
+            if($be.PSObject.Properties.Name -contains 'id' -and $be.id -ceq 'BE02-DEV-FONTE01'){
+                . (Join-Path $root 'infra/dev/artefato-backend.ps1')
+                if($be.estado -cne 'READY' -or !$be.jdbcProviderProved -or $be.observationEnabled -ne $false -or
+                    $be.bootstrapDisabled -ne $true -or $be.candidate.path -ine (Join-Path (Split-Path $be.guard.path -Parent) 'preparo-candidato.json')){return $false}
+                foreach($ref in @($be.artifact,$be.config,$be.java,$be.candidate,$be.guard,$be.jdbc)){
+                    if((Get-FileHash -LiteralPath $ref.path).Hash -ine $ref.sha256){return $false}
+                }
+                $g=Get-Content -LiteralPath $be.guard.path -Raw -Encoding UTF8|ConvertFrom-Json
+                $access=@{mode=$be.accessMode}
+                $plan=@{root=$root;jar=$jar;config=$be.config.path;guard=$g;truststore=$g.perfilProtegido.truststore;run=(Split-Path $be.guard.path -Parent);runId=$be.runId;sourceHash=$be.sourceHash;jarSha256=$be.artifact.sha256;access=$access;localOrigin=$be.localOrigin}
+                $expected=@($Executable)+@(Get-WmsDevCurrentBackendArguments $plan)
+            }else{
+                $config = Join-Path $root 'backend/src/main/resources/application-frontend-dev.properties'
+                $expected = @($Executable, '-jar', $jar, '--spring.profiles.active=sqlserver-dev',
                 '--spring.config.location=classpath:/application.properties,classpath:/application-sqlserver-dev.properties',
                 ('--spring.config.additional-location=' + ([Uri]$config).AbsoluteUri),
                 '--server.address=127.0.0.1', '--server.port=25580', '--wms.cadastros.enabled=true',
                 '--spring.autoconfigure.exclude=', '--spring.jpa.hibernate.ddl-auto=validate', '--spring.jpa.generate-ddl=false',
                 '--spring.sql.init.mode=never', '--spring.flyway.enabled=false', '--spring.liquibase.enabled=false',
                 '--wms.database.name=WMS_DEV', '--wms.database.user=WMSDEV')
+            }
         } else {
             $proof = $Receipt.frontend
             if ($proof.mode -cne 'real' -or [IO.Path]::GetFileName($Executable) -ine 'node.exe') { return $false }
             $expected = @($Executable, (Join-Path $root 'frontend/node_modules/vite/bin/vite.js'), '--config', 'vite.dev.config.ts')
         }
+        $processStart=if($proof.PSObject.Properties.Name -contains 'nativeStartUtc'){$proof.nativeStartUtc}else{$proof.startUtc}
         if (-not $proof.listenerOwned -or $proof.pid -ne $Process.Id -or
-            [DateTimeOffset]::Parse($proof.startUtc).UtcDateTime.Ticks -ne $Process.StartTime.ToUniversalTime().Ticks -or
+            [DateTimeOffset]::Parse($processStart).UtcDateTime.Ticks -ne $Process.StartTime.ToUniversalTime().Ticks -or
             $Arguments.Count -ne $expected.Count) { return $false }
         for ($i=0; $i -lt $expected.Count; $i++) {
             if ($Arguments[$i] -cne $expected[$i]) { return $false }
@@ -74,6 +88,8 @@ function Test-WmsDevProcessProof($Receipt, $Process, [string[]]$Arguments, [stri
 
 function Assert-WmsDevRestartTarget($Target, [string]$Repository, $Listeners) {
     if ($Target.Process.HasExited) { return }
+    if($Target.PSObject.Properties.Name -contains 'ReceiptPath' -and
+        (Get-FileHash -LiteralPath $Target.ReceiptPath).Hash -ine $Target.ReceiptSha256){throw 'DEV_RESTART_RECEIPT_CHANGED'}
     $owned = @($Listeners | Where-Object { $_.OwningProcess -eq $Target.Process.Id })
     if (@($owned | Where-Object { $_.LocalPort -ne $Target.Port -or $_.LocalAddress -cne '127.0.0.1' }).Count) {
         throw 'DEV_RESTART_OTHER_LISTENER_REFUSED'
@@ -101,16 +117,20 @@ function Get-WmsDevRestartPlan([string]$Repository, [int]$BackendPort, [int]$Fro
             try {
                 # Fixar o handle nativo antes da validacao impede encerrar um PID reutilizado.
                 $null = $process.Handle
-                $runs = Join-Path $Repository 'orchestracao/.runtime/frontend-integracao-dev-runs'
-                if ((Get-Item -LiteralPath $runs).Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'DEV_RESTART_OWNER_NOT_CONFIRMED' }
-                foreach ($directory in @(Get-ChildItem -LiteralPath $runs -Directory -ErrorAction Stop | Sort-Object LastWriteTime -Descending)) {
+                $directories=@()
+                foreach($runs in @((Join-Path $Repository 'orchestracao/.runtime/frontend-integracao-dev-runs'),(Join-Path $Repository 'orchestracao/.runtime/be02-dev-fonte01/prumo/runs'))){
+                    if(!(Test-Path -LiteralPath $runs -PathType Container)){continue}
+                    if ((Get-Item -LiteralPath $runs).Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'DEV_RESTART_OWNER_NOT_CONFIRMED' }
+                    $directories+=@(Get-ChildItem -LiteralPath $runs -Directory -ErrorAction Stop)
+                }
+                foreach ($directory in @($directories|Sort-Object FullName)) {
                     if ($directory.Attributes -band [IO.FileAttributes]::ReparsePoint) { continue }
                     $path = Join-Path $directory.FullName 'launcher.json'
                     if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { continue }
                     if ((Get-Item -LiteralPath $path).Attributes -band [IO.FileAttributes]::ReparsePoint) { continue }
                     try {
                         $receipt = Get-Content -LiteralPath $path -Raw -Encoding UTF8 | ConvertFrom-Json
-                        $candidate = [pscustomobject]@{Port=$port;Process=$process;Receipt=$receipt;PreviousRun=$directory.Name}
+                        $candidate = [pscustomobject]@{Port=$port;Process=$process;Receipt=$receipt;PreviousRun=$directory.Name;ReceiptPath=$path;ReceiptSha256=(Get-FileHash -LiteralPath $path).Hash}
                         Assert-WmsDevRestartTarget $candidate $Repository $listeners
                         $matched = $candidate
                         break
@@ -139,16 +159,20 @@ function Stop-WmsDevRestartPlan($Plan, [string]$Repository, [scriptblock]$OnStop
     }
     foreach ($target in $Plan) { Assert-WmsDevRestartTarget $target $Repository $listeners }
     foreach ($target in $Plan) {
-        if ($target.Process.HasExited) { continue }
+        if ($target.Process.HasExited) {
+            & $OnStopped ([ordered]@{pid=$target.Process.Id;port=$target.Port;previousRun=$target.PreviousRun;stoppedUtc=[DateTime]::UtcNow.ToString('o');mechanism='OWN_PROCESS_ALREADY_EXITED'})
+            continue
+        }
         Assert-WmsDevRestartTarget $target $Repository @(Get-WmsDevListeners)
         if ($target.Process.HasExited) { continue }
+        $targetStartUtc=$target.Process.StartTime.ToUniversalTime().ToString('o')
         try { $target.Process.Kill() }
         catch {
             # O launcher anterior pode limpar seu backend ao observar o frontend sair.
             if ($target.Process.HasExited) { continue }
             throw 'DEV_RESTART_STOP_FAILED'
         }
-        & $OnStopped ([ordered]@{pid=$target.Process.Id;port=$target.Port;previousRun=$target.PreviousRun;stoppedUtc=[DateTime]::UtcNow.ToString('o')})
+        & $OnStopped ([ordered]@{pid=$target.Process.Id;port=$target.Port;previousRun=$target.PreviousRun;startUtc=$targetStartUtc;stoppedUtc=[DateTime]::UtcNow.ToString('o');mechanism='CURRENT_OWNERSHIP_GATE_KILL'})
         if (-not $target.Process.WaitForExit(5000)) { throw 'DEV_RESTART_STOP_TIMEOUT' }
     }
     if (@(Get-WmsDevListeners | Where-Object { $_.LocalPort -in @(25580,25581) }).Count) { throw 'DEV_RESTART_PORT_NOT_RELEASED' }
