@@ -14,6 +14,16 @@ Regras, APIs e limites no [contrato do incremento](../45-pedido-entrada-manual-x
 
 Pedido expresso de Lucas em 10/10/2026. Aplicar filtros e Restaurar filtros ficam juntos à esquerda; Atualizar lista passa para a extremidade direita da mesma faixa, dentro da área de filtros. Novo pedido continua no cabeçalho. Até 600 px, Aplicar/Restaurar dividem a primeira linha e Atualizar ocupa a seguinte. A ordem do teclado acompanha a apresentação. Atualizar mantém `type="button"` e a consulta já aplicada; não submete os filtros em edição. Handlers, contratos e bloqueio durante carregamento preservados. Conferência e evidências em `STATES.md` e `orchestracao/.runtime/buttons-a01/resultado.json`.
 
+## Tabela de entrada com rolagem lateral — FE05-PED01-A02
+
+Pedido de Lucas em 12/10/2026, com complementos durante a correção: manter conteúdo em uma linha, reduzir a altura dos registros, usar reticências para textos longos e mostrar o valor completo no mouse. A tabela especializada passa a ter larguras próprias e rolagem horizontal somente dentro da região da tabela, também acessível pelo teclado.
+
+Referência e número do pedido ficam na mesma linha, alinhados na altura. Cliente, armazém, notas, datas e etiquetas longas usam reticências; o texto integral permanece no DOM e aparece por mouse, foco ou toque. Referência continua sendo botão de detalhes com nome acessível completo. Os valores vêm das consultas existentes, sem alterar IDs ou regras.
+
+Ações ficam lado a lado e alinhadas à direita: comando principal com texto, olho para Ver pedido e três pontos verticais para Mais ações. Os três pontos têm fundo e borda transparentes; o foco pelo teclado continua visível. Os ícones revelam seus nomes no mouse/foco, conservam nome acessível e área de toque de 44 px. Conferência e Situação ficam mais próximas. O menu usa popover nativo, fora do recorte da rolagem, sem aumentar a altura do registro; Escape, clique/toque fora, rolagem e redimensionamento o fecham. A disponibilidade dos comandos continua filtrada por situação e permissão.
+
+Tipagem, lint focal, formatação, build e 20 testes pertinentes aprovados; 17 casos Chrome aprovados e sete rechecados após o último alinhamento à direita. Provas em 1440/1152/390 px, dois temas, textos extensos, teclado e toque em contexto com `hasTouch`. As capturas foram inspecionadas. HTTP totalmente interceptado, sem validação de backend/SQL ou dispositivos físicos. [Recibo e capturas](../../orchestracao/.runtime/receiving-table/resultado.md).
+
 ## Fontes e alcance
 
 O [inventário anterior](inventario-paginas.md#entrada-e-conferência) conserva os IDs `entrada-1` a `entrada-4` e seus comandos. Esses IDs agora identificam grupos de capacidades da mesma visão, sem quatro páginas globais. O [contrato de recebimento](../18-recebimento-e-conferencia.md), controllers, DTOs e serviços existentes determinam regras, permissões, revisões e efeitos de estoque. Nenhuma tabela, migration ou API foi acrescentada nesta entrega.

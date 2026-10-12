@@ -1,5 +1,9 @@
 # Continuidade do projeto WMS Rodogarcia
 
+## FE05-PED01-A02 — tabela de entrada, 12/10/2026
+
+Correção visual local concluída conforme pedido e complementos de Lucas: rolagem lateral interna, conteúdo em uma linha com reticências/tooltip, referência e ID alinhados, olho para Ver pedido, ⋮ sem fundo/borda, Ações à direita e Conferência/Situação mais próximas. Tipagem/lint/formatação/build, 20 testes pertinentes e 17 casos Chrome aprovados; sete rechecados após o último alinhamento. [Resultado e capturas](../orchestracao/.runtime/receiving-table/resultado.md). HTTP interceptado, sem backend/SQL/BAT/reinício, medição da sessão DEV servida ou dispositivos físicos. Não reabrir os protocolos históricos por esta apresentação.
+
 ## FE03-AUTH-INICIO01 — novo login começa no Início, 12/10/2026
 
 Fecho local: hash anterior mantido no logout causava entrada na última tela. AuthApp:119 agora define #inicio somente após novo login bem-sucedido; hook/refresh/restauração intactos. GREEN 10 aprovados/0 falhas, tipagem/lint/build e revisão Vigia favoráveis; 6 casos não selecionados. [Resultado e limite integrado](../orchestracao/.runtime/fe03-auth-inicio01/resultado.md). Nenhum BAT/SQL/autenticação real; não reabrir preparo histórico ou REG01/879 por este fecho.

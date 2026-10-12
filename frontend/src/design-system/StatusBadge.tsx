@@ -1,4 +1,5 @@
 import { display } from "../domain/labels";
+import type { ReactNode } from "react";
 
 const states: Record<string, Record<string, string>> = {
     success: {
@@ -85,7 +86,7 @@ export function StatusBadge({
     label,
 }: {
     value: unknown;
-    label?: string;
+    label?: ReactNode;
 }) {
     const state = presentation(value);
     return (

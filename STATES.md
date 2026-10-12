@@ -1,5 +1,16 @@
 # Estado e trilha de implementação do WMS Rodogarcia
 
+## FE05-PED01-A02 — tabela de entrada com rolagem lateral, 12/10/2026
+
+**Concluído e conferido localmente, pedido expresso de Lucas e complementos:** corrigir altura excessiva, textos e botões comprimidos; manter as colunas em uma linha com rolagem lateral. Dependências FE05-PED01/A01 e componentes FE02 → BE06, sem mudança em contratos ou regras de recebimento. [Apresentação vigente](docs/design-system/etapa-07.md#tabela-de-entrada-com-rolagem-lateral--fe05-ped01-a02).
+
+- [x] Causa localizada: tabela especializada sem largura própria para ações; colunas iguais comprimiam os comandos, nomes quebravam e o menu expandia a linha.
+- [x] Larguras próprias, rolagem interna acessível pelo teclado, textos longos com reticências e revelação por mouse/foco/toque; referência/ID em uma linha e menu flutuante.
+- [x] Olho para Ver pedido, ⋮ vertical sem fundo/borda para Mais ações, ações/cabeçalho à direita e Conferência/Situação mais próximas. Permissões, IDs, consultas e confirmação preservados.
+- [x] Tipagem, lint focal, formatação e build aprovados; 20 testes de recebimento/popup e 17 casos Chrome aprovados, sete rechecados após o alinhamento final. 1440/1152/390 px, temas claro/escuro, textos extensos, teclado, foco e toque com hasTouch/tap; capturas inspecionadas.
+
+HTTP interceptado; preview próprio encerrado. [Revisão Vigia favorável](orchestracao/.runtime/receiving-table/vigia-review.md), sem achado impeditivo. [Resultado e limites](orchestracao/.runtime/receiving-table/resultado.md). Este recorte não executou backend/SQL, BAT, reinício ou integração real. Versão servida na sessão DEV e dispositivos físicos não foram medidos. Próximo passo da aplicação continua na trilha existente; esta correção visual não retoma REG01/879 ou a guarda do banco.
+
 ## FE03-AUTH-INICIO01 — novo login começa no Início, 12/10/2026
 
 **Concluído localmente; integrado e versão servida não medidos.** Pedido do usuário: novo login deve começar no Início. Vinculado a FE03-AUTH01/navegação FE02, distinto de INIT01.

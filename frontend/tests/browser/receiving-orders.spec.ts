@@ -1,5 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
 import { nfePreview } from "../nfe-example";
+import { origin } from "./environment";
 import { readFileSync } from "node:fs";
 import { LosslessNumber, stringify } from "lossless-json";
 import type { Endpoint, Values } from "../../src/contracts/runtime";
@@ -52,8 +53,7 @@ function wire(value: unknown, key = ""): unknown {
         ? new LosslessNumber(value)
         : value;
 }
-const origin = "http://127.0.0.1:5222";
-async function api(page: Page, perfil = "SUPERVISOR") {
+async function api(page: Page, perfil = "SUPERVISOR", longText = false) {
     const template = source("PedidoEntradaController.consultar");
     const makeOrder = (
         id: string,
@@ -115,6 +115,20 @@ async function api(page: Page, perfil = "SUPERVISOR") {
     )[0];
     confirmedItem.recebidaBoa = 100;
     confirmedItem.diferenca = 0;
+    if (longText) {
+        orders[0].referencia =
+            "PED-ENT-01 / Referência extensa para conferir o alinhamento das colunas";
+        orders[1].situacao = "RASCUNHO";
+        (details["9007199254740993"].notas as Values[])[0].numero =
+            "9007199254740994";
+        const confirmed = makeOrder("105", "EFETIVADO", "PED-ENT-03");
+        orders.push(confirmed);
+        details["105"] = {
+            pedido: confirmed,
+            divergente: true,
+            notas: [makeNote("306", "406")],
+        };
+    }
     const calls: { id: string; params: string[]; body?: Values }[] = [],
         unknown: string[] = [];
     let failure = false,
@@ -201,6 +215,9 @@ async function api(page: Page, perfil = "SUPERVISOR") {
             record[0].nome = contract.id.startsWith("Cliente")
                 ? "Cliente de ensaio PED01"
                 : "Armazém de ensaio PED01";
+            if (longText)
+                record[0].nome +=
+                    " com nome extenso para conferir reticências e texto completo";
         } else if (contract.id === "ProdutoController.listar") {
             data = source(contract.id);
             const p = ((data as Values).itens as Values[])[0];
@@ -352,6 +369,237 @@ async function ready(page: Page) {
         ),
     ).toHaveCount(0);
 }
+for (const [width, theme] of [
+    [1440, "light"],
+    [1440, "dark"],
+    [1152, "light"],
+    [1152, "dark"],
+    [390, "light"],
+    [390, "dark"],
+] as const) {
+    test(`PED01 tabela alinhada, textos completos e ações em ${width}px ${theme}`, async ({
+        page,
+    }, info) => {
+        const mock = await api(page, "SUPERVISOR", true);
+        await open(page, theme, width);
+        const table = page.getByRole("region", {
+            name: "Pedidos de entrada, tabela com rolagem horizontal",
+        });
+        const row = table.locator("tbody tr").first();
+        const identity = await row
+            .locator(".receiving-order-identity > *")
+            .evaluateAll((elements) =>
+                elements.map((element) => {
+                    const rect = element.getBoundingClientRect();
+                    return {
+                        center: rect.top + rect.height / 2,
+                        left: rect.left,
+                        right: rect.right,
+                    };
+                }),
+            );
+        expect(
+            Math.abs(identity[0].center - identity[1].center),
+        ).toBeLessThanOrEqual(1);
+        expect(identity[1].left - identity[0].right).toBeGreaterThanOrEqual(7);
+        const client = row.locator("td").nth(0).locator(".record-text");
+        await expect(client).toHaveAttribute("tabindex", "0");
+        await expect(client).toHaveCSS("text-overflow", "ellipsis");
+        await client.hover();
+        await expect(page.getByRole("tooltip")).toHaveText(
+            await client.innerText(),
+        );
+        await page.screenshot({ path: info.outputPath("nomes.png") });
+        await page.keyboard.press("Escape");
+        const conference = table
+            .locator("tbody tr")
+            .nth(2)
+            .locator("td")
+            .nth(6)
+            .locator(".record-text");
+        await expect(conference).toHaveAttribute("tabindex", "0");
+        await conference.focus();
+        await expect(page.getByRole("tooltip")).toHaveText(
+            "Conferido com divergência",
+        );
+        await page.keyboard.press("Escape");
+        await client.focus();
+        await expect(page.getByRole("tooltip")).toHaveText(
+            await client.innerText(),
+        );
+        await page.keyboard.press("Escape");
+        const notes = row.locator("td").nth(3).locator(".record-text");
+        await notes.focus();
+        await expect(page.getByRole("tooltip")).toContainText(
+            "9007199254740994",
+        );
+        await page.keyboard.press("Escape");
+        const warehouse = row.locator("td").nth(1).locator(".record-text");
+        await warehouse.hover();
+        await expect(page.getByRole("tooltip")).toHaveText(
+            await warehouse.innerText(),
+        );
+        await page.keyboard.press("Escape");
+        const dimensions = await table.evaluate((element) => ({
+            scrollWidth: element.scrollWidth,
+            clientWidth: element.clientWidth,
+            rows: Array.from(element.querySelectorAll("tbody tr")).map(
+                (row) => row.getBoundingClientRect().height,
+            ),
+            wraps: Array.from(element.querySelectorAll("th, td")).map(
+                (cell) => getComputedStyle(cell).whiteSpace,
+            ),
+        }));
+        expect(dimensions.scrollWidth).toBeGreaterThan(dimensions.clientWidth);
+        expect(dimensions.wraps.every((value) => value === "nowrap")).toBe(
+            true,
+        );
+        await info.attach("dimensoes-tabela", {
+            body: JSON.stringify(dimensions),
+            contentType: "application/json",
+        });
+        dimensions.rows.forEach((height) =>
+            expect(height).toBeLessThanOrEqual(64),
+        );
+        await table.focus();
+        await table.evaluate((element) => {
+            element.scrollLeft = 0;
+        });
+        await page.keyboard.press("ArrowRight");
+        await expect
+            .poll(() => table.evaluate((element) => element.scrollLeft))
+            .toBeGreaterThan(0);
+        const more = row.getByRole("button", { name: /Mais ações/ });
+        await more.scrollIntoViewIfNeeded();
+        await expect(more.locator(".receiving-more-icon")).toHaveText("⋮");
+        await expect(more).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+        await expect(more).toHaveCSS("border-top-width", "0px");
+        const view = row.getByRole("button", {
+            name: "Ver pedido",
+            exact: true,
+        });
+        await view.hover();
+        await expect(page.getByRole("tooltip")).toHaveText("Ver pedido");
+        await page.keyboard.press("Escape");
+        await more.hover();
+        await expect(page.getByRole("tooltip")).toHaveText("Mais ações");
+        await page.keyboard.press("Escape");
+        const positions = await row
+            .locator(".receiving-row-actions > button")
+            .evaluateAll((buttons) =>
+                buttons.map((button) => {
+                    const rect = button.getBoundingClientRect();
+                    return {
+                        top: rect.top,
+                        left: rect.left,
+                        right: rect.right,
+                        height: rect.height,
+                        overflow: button.scrollWidth > button.clientWidth,
+                    };
+                }),
+            );
+        expect(positions).toHaveLength(3);
+        expect(new Set(positions.map((button) => button.top)).size).toBe(1);
+        const actionsRight = await row
+            .locator(".receiving-row-actions")
+            .evaluate((element) => element.getBoundingClientRect().right);
+        expect(Math.abs(actionsRight - positions[2].right)).toBeLessThanOrEqual(
+            1,
+        );
+        await expect(table.locator("thead th").last()).toHaveCSS(
+            "text-align",
+            "right",
+        );
+        expect(positions.every((button) => !button.overflow)).toBe(true);
+        expect(positions[1].left - positions[0].right).toBeGreaterThanOrEqual(
+            7,
+        );
+        expect(positions[2].left - positions[1].right).toBeGreaterThanOrEqual(
+            7,
+        );
+        if (width < 600)
+            positions.forEach((button) =>
+                expect(button.height).toBeGreaterThanOrEqual(44),
+            );
+        const height = await row.evaluate(
+            (element) => element.getBoundingClientRect().height,
+        );
+        await more.focus();
+        await page.keyboard.press("Enter");
+        const menu = page.getByRole("group", {
+            name: /Ações do pedido 9007199254740993/,
+        });
+        await expect(menu).toBeVisible();
+        expect(
+            await row.evaluate(
+                (element) => element.getBoundingClientRect().height,
+            ),
+        ).toBe(height);
+        const bounds = await menu.boundingBox();
+        expect(bounds!.x).toBeGreaterThanOrEqual(8);
+        expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(width - 8);
+        await page.screenshot({ path: info.outputPath("acoes.png") });
+        await page.keyboard.press("Escape");
+        await expect(menu).not.toBeVisible();
+        await expect(more).toBeFocused();
+        await more.click();
+        await menu
+            .getByRole("button", {
+                name: "Importar XML existente",
+                exact: true,
+            })
+            .click();
+        await expect(page.getByRole("dialog")).toBeVisible();
+        await ready(page);
+        await expect(
+            page.getByLabel("Identificador *", { exact: true }),
+        ).toHaveValue("9007199254740993");
+        expect(
+            await page.evaluate(
+                () => document.documentElement.scrollWidth <= innerWidth,
+            ),
+        ).toBe(true);
+        expect(mock.calls.every((call) => !call.body)).toBe(true);
+        expect(mock.unknown).toEqual([]);
+        expect(mock.errors).toEqual([]);
+    });
+}
+test.describe("PED01 toque na tabela", () => {
+    test.use({ hasTouch: true });
+    test("revela o texto completo e fecha o menu ao tocar fora ou rolar", async ({
+        page,
+    }) => {
+        const mock = await api(page, "SUPERVISOR", true);
+        await open(page, "light", 390);
+        const table = page.getByRole("region", {
+            name: "Pedidos de entrada, tabela com rolagem horizontal",
+        });
+        const row = table.locator("tbody tr").first();
+        const client = row.locator("td").first().locator(".record-text");
+        await client.tap();
+        await expect(page.getByRole("tooltip")).toHaveText(
+            await client.innerText(),
+        );
+        await page.keyboard.press("Escape");
+        const more = row.getByRole("button", { name: /Mais ações/ });
+        await more.scrollIntoViewIfNeeded();
+        await more.tap();
+        const menu = page.getByRole("group", {
+            name: "Ações do pedido 9007199254740993",
+        });
+        await expect(menu).toBeVisible();
+        await row.getByRole("cell", { name: "Quarentena", exact: true }).tap();
+        await expect(menu).not.toBeVisible();
+        await more.tap();
+        await expect(menu).toBeVisible();
+        await table.evaluate((element) => {
+            element.scrollLeft -= 30;
+        });
+        await expect(menu).not.toBeVisible();
+        expect(mock.calls.every((call) => !call.body)).toBe(true);
+        expect(mock.errors).toEqual([]);
+    });
+});
 for (const [width, theme] of [
     [1440, "light"],
     [1440, "dark"],

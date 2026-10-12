@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
-import { StatusBadge } from "../../design-system/StatusBadge";
+import { StatusBadge, statusLabel } from "../../design-system/StatusBadge";
 import { call, type Transport } from "../../api/client";
 import { isObject, type Perfil, type Values } from "../../contracts/runtime";
 import { recordIdentity, recordRoot } from "../../domain/recordContext";
-import {
-    recordActionLabel,
-    visibleRecordActions,
-} from "../../domain/recordPages";
+import { visibleRecordActions } from "../../domain/recordPages";
 import { useReferenceCatalog } from "../../components/context/ReferenceCatalog";
+import { RecordText } from "../../components/records/RecordText";
+import { ReceivingRowActions } from "./ReceivingRowActions";
 import {
     receivingDate,
     receivingNotes,
@@ -251,12 +250,29 @@ export function ReceivingList({
                 </p>
             )}
             {filtered.length > 0 && (
-                <div className="table-scroll record-table">
+                <div
+                    className="table-scroll record-table receiving-table"
+                    role="region"
+                    aria-label="Pedidos de entrada, tabela com rolagem horizontal"
+                    tabIndex={0}
+                >
                     <table>
                         <caption>
                             Pedidos de entrada · {filtered.length} de{" "}
                             {rows.length} registros nesta página
                         </caption>
+                        <colgroup>
+                            <col className="receiving-column-order" />
+                            <col />
+                            <col />
+                            <col className="receiving-column-origin" />
+                            <col className="receiving-column-notes" />
+                            <col className="receiving-column-date" />
+                            <col className="receiving-column-date" />
+                            <col className="receiving-column-conference" />
+                            <col className="receiving-column-situation" />
+                            <col className="receiving-column-actions" />
+                        </colgroup>
                         <thead>
                             <tr>
                                 {[
@@ -295,27 +311,51 @@ export function ReceivingList({
                                         action ===
                                             "PedidoEntradaController.chegada",
                                 );
+                                const conference = detail
+                                    ? receivingState(detail)
+                                    : state?.error
+                                      ? "Não consultado"
+                                      : "Consultando…";
                                 return (
                                     <tr key={id}>
                                         <th scope="row">
-                                            <button
-                                                className="record-link"
-                                                type="button"
-                                                disabled={pending}
-                                                onClick={() => onOpen(root)}
-                                                aria-label={`Ver detalhes de ${String(root.referencia ?? id)} · ${id}`}
-                                            >
-                                                {String(root.referencia ?? id)}
-                                            </button>
-                                            <small className="receiving-order-id">
-                                                Pedido {id}
-                                            </small>
+                                            <div className="receiving-order-identity">
+                                                <button
+                                                    className="record-link"
+                                                    title={String(
+                                                        root.referencia ?? id,
+                                                    )}
+                                                    type="button"
+                                                    disabled={pending}
+                                                    onClick={() => onOpen(root)}
+                                                    aria-label={`Ver detalhes de ${String(root.referencia ?? id)} · ${id}`}
+                                                >
+                                                    {String(
+                                                        root.referencia ?? id,
+                                                    )}
+                                                </button>
+                                                <small className="receiving-order-id">
+                                                    <RecordText
+                                                        text={`Pedido ${id}`}
+                                                    />
+                                                </small>
+                                            </div>
                                         </th>
                                         <td>
-                                            {name("clientes", root.clienteId)}
+                                            <RecordText
+                                                text={name(
+                                                    "clientes",
+                                                    root.clienteId,
+                                                )}
+                                            />
                                         </td>
                                         <td>
-                                            {name("armazens", root.armazemId)}
+                                            <RecordText
+                                                text={name(
+                                                    "armazens",
+                                                    root.armazemId,
+                                                )}
+                                            />
                                         </td>
                                         <td>
                                             {root.origemCriacao === "XML"
@@ -323,32 +363,16 @@ export function ReceivingList({
                                                 : "Manual"}
                                         </td>
                                         <td>
-                                            {detail
-                                                ? receivingNotes(detail)
-                                                      .map(
-                                                          (note) =>
-                                                              `${note.serie}/${note.numero}`,
-                                                      )
-                                                      .join(", ") || "Sem notas"
-                                                : state?.error
-                                                  ? "Não consultado"
-                                                  : "Consultando…"}
-                                        </td>
-                                        <td>
-                                            {detail
-                                                ? receivingDate(
-                                                      firstArrival(detail),
-                                                  )
-                                                : "—"}
-                                        </td>
-                                        <td>
-                                            {receivingDate(root.efetivadoEm)}
-                                        </td>
-                                        <td>
-                                            <StatusBadge
-                                                value={
+                                            <RecordText
+                                                text={
                                                     detail
-                                                        ? receivingState(detail)
+                                                        ? receivingNotes(detail)
+                                                              .map(
+                                                                  (note) =>
+                                                                      `${note.serie}/${note.numero}`,
+                                                              )
+                                                              .join(", ") ||
+                                                          "Sem notas"
                                                         : state?.error
                                                           ? "Não consultado"
                                                           : "Consultando…"
@@ -356,72 +380,59 @@ export function ReceivingList({
                                             />
                                         </td>
                                         <td>
-                                            <StatusBadge
-                                                value={root.situacao}
-                                                label={situationLabel(
-                                                    root.situacao,
+                                            <RecordText
+                                                text={
+                                                    detail
+                                                        ? receivingDate(
+                                                              firstArrival(
+                                                                  detail,
+                                                              ),
+                                                          )
+                                                        : "—"
+                                                }
+                                            />
+                                        </td>
+                                        <td>
+                                            <RecordText
+                                                text={receivingDate(
+                                                    root.efetivadoEm,
                                                 )}
                                             />
                                         </td>
                                         <td>
-                                            <div className="record-row-actions">
-                                                <button
-                                                    type="button"
-                                                    disabled={pending}
-                                                    onClick={() => onOpen(root)}
-                                                >
-                                                    Ver pedido
-                                                </button>
-                                                {primary && (
-                                                    <button
-                                                        className="primary"
-                                                        type="button"
-                                                        disabled={pending}
-                                                        onClick={() =>
-                                                            onOpen(
-                                                                root,
-                                                                primary,
-                                                            )
-                                                        }
-                                                    >
-                                                        {primary.endsWith(
-                                                            ".iniciar",
-                                                        )
-                                                            ? "Iniciar conferência"
-                                                            : "Continuar conferência"}
-                                                    </button>
-                                                )}
-                                                <details className="receiving-row-menu">
-                                                    <summary
-                                                        aria-label={`Mais ações do pedido ${id}`}
-                                                    >
-                                                        Mais ações
-                                                    </summary>
-                                                    <div>
-                                                        {available.map(
-                                                            (action) => (
-                                                                <button
-                                                                    type="button"
-                                                                    key={action}
-                                                                    disabled={
-                                                                        pending
-                                                                    }
-                                                                    onClick={() =>
-                                                                        onOpen(
-                                                                            root,
-                                                                            action,
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    {recordActionLabel(
-                                                                        action,
-                                                                    )}
-                                                                </button>
-                                                            ),
+                                            <StatusBadge
+                                                value={conference}
+                                                label={
+                                                    <RecordText
+                                                        text={statusLabel(
+                                                            conference,
                                                         )}
-                                                    </div>
-                                                </details>
-                                            </div>
+                                                    />
+                                                }
+                                            />
+                                        </td>
+                                        <td>
+                                            <StatusBadge
+                                                value={root.situacao}
+                                                label={
+                                                    <RecordText
+                                                        text={situationLabel(
+                                                            root.situacao,
+                                                        )}
+                                                    />
+                                                }
+                                            />
+                                        </td>
+                                        <td>
+                                            <ReceivingRowActions
+                                                id={id}
+                                                available={available}
+                                                primary={primary}
+                                                pending={pending}
+                                                onOpen={(action) =>
+                                                    onOpen(root, action)
+                                                }
+                                            />
                                         </td>
                                     </tr>
                                 );

@@ -181,6 +181,16 @@
 .record-cell-identity {
     font-weight: var(--og-font-semibold);
 }
+.record-text {
+    display: block;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.record-text[tabindex="0"] {
+    cursor: help;
+}
 .record-cell-code {
     font-variant-numeric: tabular-nums;
     font-size: 13px;
