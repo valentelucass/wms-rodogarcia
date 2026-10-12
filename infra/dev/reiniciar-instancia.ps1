@@ -86,11 +86,74 @@ function Test-WmsDevProcessProof($Receipt, $Process, [string[]]$Arguments, [stri
     } catch { return $false }
 }
 
-function Assert-WmsDevRestartTarget($Target, [string]$Repository, $Listeners) {
+function Read-WmsDevRestartReceipt([string]$Path) {
+    if ((Get-Item -LiteralPath $Path).Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'DEV_RESTART_RECEIPT_CHANGED' }
+    # Parse e hash dos MESMOS bytes: nao combinar duas leituras de um recibo mutavel.
+    $bytes=[IO.File]::ReadAllBytes($Path)
+    $hash=[Security.Cryptography.SHA256]::Create()
+    try {$sha=([BitConverter]::ToString($hash.ComputeHash($bytes))).Replace('-','')}finally{$hash.Dispose()}
+    $body=[Text.Encoding]::UTF8.GetString($bytes).TrimStart([char]0xfeff)|ConvertFrom-Json
+    return @{path=$Path;sha256=$sha;body=$body}
+}
+
+function Write-WmsDevRestartSnapshot([string]$Path,$Body) {
+    $stream=[IO.File]::Open($Path,[IO.FileMode]::CreateNew,[IO.FileAccess]::Write,[IO.FileShare]::None)
+    try {$bytes=[Text.Encoding]::UTF8.GetBytes(($Body|ConvertTo-Json -Depth 32)+[Environment]::NewLine);$stream.Write($bytes,0,$bytes.Length)}finally{$stream.Dispose()}
+    return @{path=$Path;sha256=(Get-FileHash -LiteralPath $Path).Hash}
+}
+
+function New-WmsDevRestartSnapshot($Target,[string]$Repository,[string]$Directory) {
+    Assert-WmsDevRestartTarget $Target $Repository @(Get-WmsDevListeners)
+    $metadata=Get-CimInstance Win32_Process -Filter ('ProcessId='+$Target.Process.Id) -ErrorAction Stop
+    $arguments=@(Split-WmsDevCommandLine $metadata.CommandLine)
+    $hash=[Security.Cryptography.SHA256]::Create()
+    try {$commandSha=([BitConverter]::ToString($hash.ComputeHash([Text.Encoding]::UTF8.GetBytes(($arguments -join [char]0))))).Replace('-','')}finally{$hash.Dispose()}
+    $snapshot=[ordered]@{schema=1;natureza='WMS_DEV_RESTART_PROCESS_SNAPSHOT';projectPath=[IO.Path]::GetFullPath($Repository);previousRun=$Target.PreviousRun
+        pid=$Target.Process.Id;startUtc=$Target.Process.StartTime.ToUniversalTime().ToString('o');port=$Target.Port
+        executable=$metadata.ExecutablePath;commandSha256=$commandSha;capturedUtc=[DateTime]::UtcNow.ToString('o')
+        originalReceipt=@{path=$Target.ReceiptPath;sha256=$Target.ReceiptSha256};receipt=$Target.Receipt}
+    $ref=Write-WmsDevRestartSnapshot (Join-Path $Directory ('posse-'+$Target.Port+'-'+$Target.Process.Id+'.json')) $snapshot
+    $Target|Add-Member NoteProperty Snapshot $ref
+}
+
+function Assert-WmsDevRestartReceipt($Target,$OwnStops) {
+    $current=Read-WmsDevRestartReceipt $Target.ReceiptPath
+    if($current.sha256 -ieq $Target.ReceiptSha256){return}
+    # A unica mutacao admitida e a transicao exata do monitor, depois de uma parada
+    # propria atestada neste mesmo recibo. Nunca absorver o novo recibo como posse.
+    $witness=@($OwnStops|Where-Object {$_.receiptPath -ieq $Target.ReceiptPath -and $_.receiptSha256 -ieq $Target.ReceiptSha256 -and $_.process.HasExited})
+    if(!$witness.Count -or $Target.Receipt.estado -cne 'PROCESSES_READY_ROUNDTRIP_PENDING' -or $current.body.estado -cne 'OWN_PROCESS_EXITED'){throw 'DEV_RESTART_RECEIPT_CHANGED'}
+    $observed=[DateTimeOffset]::Parse($current.body.observadoUtc)
+    if($observed -gt [DateTimeOffset]::UtcNow -or !@($witness|Where-Object {$observed -ge [DateTimeOffset]::Parse($_.stopRequestedUtc)}).Count){throw 'DEV_RESTART_RECEIPT_CHANGED'}
+    $before=$Target.Receipt|Select-Object * -ExcludeProperty estado,observadoUtc|ConvertTo-Json -Depth 32 -Compress
+    $after=$current.body|Select-Object * -ExcludeProperty estado,observadoUtc|ConvertTo-Json -Depth 32 -Compress
+    if($before -cne $after){throw 'DEV_RESTART_RECEIPT_CHANGED'}
+    if($Target.PSObject.Properties.Name -contains 'Snapshot' -and $Target.PSObject.Properties.Name -notcontains 'ReceiptTransition'){
+        $proof=@{natureza='WMS_DEV_OWN_STOP_RECEIPT_TRANSITION';snapshot=$Target.Snapshot;originalReceipt=@{path=$Target.ReceiptPath;sha256=$Target.ReceiptSha256};afterSha256=$current.sha256
+            observedUtc=$current.body.observadoUtc;verifiedUtc=[DateTime]::UtcNow.ToString('o');unchangedFields=$true
+            ownStops=@($witness|ForEach-Object{@{pid=$_.process.Id;startUtc=$_.startUtc;port=$_.port;stopRequestedUtc=$_.stopRequestedUtc}})}
+        $ref=Write-WmsDevRestartSnapshot (Join-Path (Split-Path $Target.Snapshot.path -Parent) ('transicao-posse-'+$Target.Port+'-'+$Target.Process.Id+'.json')) $proof
+        $Target|Add-Member NoteProperty ReceiptTransition $ref
+    }
+}
+
+function Assert-WmsDevRestartTarget($Target, [string]$Repository, $Listeners, $OwnStops=@()) {
+    $receipt=$Target.Receipt
+    $snapshot=$null
+    if($Target.PSObject.Properties.Name -contains 'Snapshot'){
+        $read=Read-WmsDevRestartReceipt $Target.Snapshot.path
+        if($read.sha256 -ine $Target.Snapshot.sha256){throw 'DEV_RESTART_SNAPSHOT_CHANGED'}
+        $snapshot=$read.body
+        if($snapshot.natureza -cne 'WMS_DEV_RESTART_PROCESS_SNAPSHOT' -or $snapshot.projectPath -ine [IO.Path]::GetFullPath($Repository) -or
+            $snapshot.pid -ne $Target.Process.Id -or $snapshot.port -ne $Target.Port -or $snapshot.previousRun -cne $Target.PreviousRun -or
+            $snapshot.originalReceipt.path -ine $Target.ReceiptPath -or $snapshot.originalReceipt.sha256 -ine $Target.ReceiptSha256){throw 'DEV_RESTART_SNAPSHOT_CHANGED'}
+        $receipt=$snapshot.receipt
+        $Target.Receipt=$receipt
+    }
+    if($Target.PSObject.Properties.Name -contains 'ReceiptPath'){Assert-WmsDevRestartReceipt $Target $OwnStops}
     if ($Target.Process.HasExited) { return }
-    if($Target.PSObject.Properties.Name -contains 'ReceiptPath' -and
-        (Get-FileHash -LiteralPath $Target.ReceiptPath).Hash -ine $Target.ReceiptSha256){throw 'DEV_RESTART_RECEIPT_CHANGED'}
     $owned = @($Listeners | Where-Object { $_.OwningProcess -eq $Target.Process.Id })
+    if(!$owned.Count){throw 'DEV_RESTART_OWNER_NOT_CONFIRMED'}
     if (@($owned | Where-Object { $_.LocalPort -ne $Target.Port -or $_.LocalAddress -cne '127.0.0.1' }).Count) {
         throw 'DEV_RESTART_OTHER_LISTENER_REFUSED'
     }
@@ -98,12 +161,18 @@ function Assert-WmsDevRestartTarget($Target, [string]$Repository, $Listeners) {
     if ($Target.Process.HasExited) { return }
     if ($null -eq $metadata -or [string]::IsNullOrWhiteSpace($metadata.CommandLine)) { throw 'DEV_RESTART_PROCESS_UNREADABLE' }
     $arguments = @(Split-WmsDevCommandLine $metadata.CommandLine)
-    if (-not (Test-WmsDevProcessProof $Target.Receipt $Target.Process $arguments $metadata.ExecutablePath $Repository $Target.Port)) {
+    if($null -ne $snapshot){
+        $hash=[Security.Cryptography.SHA256]::Create()
+        try {$commandSha=([BitConverter]::ToString($hash.ComputeHash([Text.Encoding]::UTF8.GetBytes(($arguments -join [char]0))))).Replace('-','')}finally{$hash.Dispose()}
+        if($snapshot.executable -cne $metadata.ExecutablePath -or $snapshot.commandSha256 -cne $commandSha -or
+            [DateTimeOffset]::Parse($snapshot.startUtc).UtcDateTime.Ticks -ne $Target.Process.StartTime.ToUniversalTime().Ticks){throw 'DEV_RESTART_OWNER_NOT_CONFIRMED'}
+    }
+    if (-not (Test-WmsDevProcessProof $receipt $Target.Process $arguments $metadata.ExecutablePath $Repository $Target.Port)) {
         throw 'DEV_RESTART_OWNER_NOT_CONFIRMED'
     }
 }
 
-function Get-WmsDevRestartPlan([string]$Repository, [int]$BackendPort, [int]$FrontendPort) {
+function Get-WmsDevRestartPlan([string]$Repository, [int]$BackendPort, [int]$FrontendPort, [string]$SnapshotDirectory='') {
     Assert-WmsDevRestartPorts $BackendPort $FrontendPort
     $listeners = @(Get-WmsDevListeners)
     $plan = [Collections.Generic.List[object]]::new()
@@ -129,14 +198,15 @@ function Get-WmsDevRestartPlan([string]$Repository, [int]$BackendPort, [int]$Fro
                     if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { continue }
                     if ((Get-Item -LiteralPath $path).Attributes -band [IO.FileAttributes]::ReparsePoint) { continue }
                     try {
-                        $receipt = Get-Content -LiteralPath $path -Raw -Encoding UTF8 | ConvertFrom-Json
-                        $candidate = [pscustomobject]@{Port=$port;Process=$process;Receipt=$receipt;PreviousRun=$directory.Name;ReceiptPath=$path;ReceiptSha256=(Get-FileHash -LiteralPath $path).Hash}
+                        $read=Read-WmsDevRestartReceipt $path
+                        $candidate = [pscustomobject]@{Port=$port;Process=$process;Receipt=$read.body;PreviousRun=$directory.Name;ReceiptPath=$path;ReceiptSha256=$read.sha256}
                         Assert-WmsDevRestartTarget $candidate $Repository $listeners
                         $matched = $candidate
                         break
                     } catch { continue }
                 }
                 if ($null -eq $matched) { throw 'DEV_RESTART_OWNER_NOT_CONFIRMED' }
+                if($SnapshotDirectory){New-WmsDevRestartSnapshot $matched $Repository $SnapshotDirectory}
                 $plan.Add($matched)
             } finally { if ($null -eq $matched) { $process.Dispose() } }
         }
@@ -157,23 +227,29 @@ function Stop-WmsDevRestartPlan($Plan, [string]$Repository, [scriptblock]$OnStop
             }
         }
     }
-    foreach ($target in $Plan) { Assert-WmsDevRestartTarget $target $Repository $listeners }
+    $ownStops=[Collections.Generic.List[object]]::new()
+    foreach($target in $Plan){if($target.PSObject.Properties.Name -contains 'StopWitness'){$ownStops.Add($target.StopWitness)}}
+    foreach ($target in $Plan) { Assert-WmsDevRestartTarget $target $Repository $listeners $ownStops.ToArray() }
     foreach ($target in $Plan) {
+        Assert-WmsDevRestartTarget $target $Repository @(Get-WmsDevListeners) $ownStops.ToArray()
         if ($target.Process.HasExited) {
             & $OnStopped ([ordered]@{pid=$target.Process.Id;port=$target.Port;previousRun=$target.PreviousRun;stoppedUtc=[DateTime]::UtcNow.ToString('o');mechanism='OWN_PROCESS_ALREADY_EXITED'})
             continue
         }
-        Assert-WmsDevRestartTarget $target $Repository @(Get-WmsDevListeners)
-        if ($target.Process.HasExited) { continue }
         $targetStartUtc=$target.Process.StartTime.ToUniversalTime().ToString('o')
+        $stopRequestedUtc=[DateTime]::UtcNow.ToString('o')
         try { $target.Process.Kill() }
         catch {
             # O launcher anterior pode limpar seu backend ao observar o frontend sair.
             if ($target.Process.HasExited) { continue }
             throw 'DEV_RESTART_STOP_FAILED'
         }
+        $witness=@{process=$target.Process;port=$target.Port;startUtc=$targetStartUtc;stopRequestedUtc=$stopRequestedUtc;receiptPath=$target.ReceiptPath;receiptSha256=$target.ReceiptSha256}
+        $ownStops.Add($witness)
+        $target|Add-Member NoteProperty StopWitness $witness
         & $OnStopped ([ordered]@{pid=$target.Process.Id;port=$target.Port;previousRun=$target.PreviousRun;startUtc=$targetStartUtc;stoppedUtc=[DateTime]::UtcNow.ToString('o');mechanism='CURRENT_OWNERSHIP_GATE_KILL'})
         if (-not $target.Process.WaitForExit(5000)) { throw 'DEV_RESTART_STOP_TIMEOUT' }
     }
+    foreach($target in $Plan){Assert-WmsDevRestartTarget $target $Repository @(Get-WmsDevListeners) $ownStops.ToArray()}
     if (@(Get-WmsDevListeners | Where-Object { $_.LocalPort -in @(25580,25581) }).Count) { throw 'DEV_RESTART_PORT_NOT_RELEASED' }
 }

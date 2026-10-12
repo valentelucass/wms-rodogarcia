@@ -116,7 +116,7 @@ try {
     $startupMutex = [Threading.Mutex]::new($false, ('Local\WmsDevStartup_' + $mutexKey))
     try { $startupLock = $startupMutex.WaitOne(0) } catch [Threading.AbandonedMutexException] { $startupLock = $true }
     if (-not $startupLock) { Fail-Startup 50 'DEV_RESTART_IN_PROGRESS' }
-    $restartPlan = @(Get-WmsDevRestartPlan $repository $BackendPort $FrontendPort)
+    $restartPlan = @(Get-WmsDevRestartPlan $repository $BackendPort $FrontendPort $runDirectory)
     # Configuracao publica primeiro: nao abrir SQL quando a autenticacao nem esta configurada.
     $identity = Require-PublicIdentity
     $guardHelper = Join-Path $repository 'infra/dev02/guarda-wmsdev.ps1'
@@ -137,7 +137,7 @@ try {
     if (-not (Test-Path -LiteralPath $vitePath -PathType Leaf)) { Fail-Startup 60 'FRONTEND_DEPENDENCIES_MISSING' }
     Write-WmsDevConsoleStep 1 'Configuracao inicial conferida' -Done
     Write-WmsDevConsoleStep 2 'Verificando conexao e estrutura do WMS_DEV...'
-    Write-Host ('  Abertura SQL: ate '+$connectionWaitPolicy.ConnectTimeoutSeconds+'s. Aguarde a verificacao.') -ForegroundColor DarkGray
+    Write-Host ('  Abertura SQL: ate '+$connectionWaitPolicy.ConnectTimeoutSeconds+'s; consultas: ate '+$connectionWaitPolicy.CommandTimeoutSeconds+'s cada; verificacao total: ate '+$connectionWaitPolicy.GuardTimeoutSeconds+'s.') -ForegroundColor DarkGray
     $receipt['connectionWaitPolicy'] = $connectionWaitPolicy
 
     # Uma guarda ATUAL neste run; nunca reutilizar bool, recibo antigo ou alvo presumido.
@@ -170,15 +170,7 @@ try {
     $guardReceiptHash=(Get-FileHash -LiteralPath $guardReceiptPath -Algorithm SHA256).Hash
     $receipt['guard']=@{ path=$guardReceiptPath; sha256=$guardReceiptHash; helperSha256=$guardHash; processId=$guardProcess.Id; exitCode=$guardProcess.ExitCode }
     if ($guardProcess.ExitCode -ne 0) {
-        if ($guard.erro -and $guard.erro.marcadores.timeout) {
-            Write-Host ('[WMS DEV] O SQL Server nao concluiu a conexao em '+$connectionWaitPolicy.ConnectTimeoutSeconds+'s. O banco nao foi liberado para uso.')
-        } elseif ($guard.erro -and $guard.erro.marcadores.certificado) {
-            Write-Host '[WMS DEV] Nao foi possivel validar o certificado da conexao com o SQL Server.'
-        } elseif ($guard.erro -and $guard.erro.marcadores.autenticacao) {
-            Write-Host '[WMS DEV] O SQL Server recusou o acesso da conta tecnica WMSDEV.'
-        } else {
-            Write-Host '[WMS DEV] A verificacao de seguranca ou estrutura do WMS_DEV nao foi aprovada. Consulte o recibo da guarda.'
-        }
+        Write-Host ('[WMS DEV] '+(Get-WmsDevGuardFailureMessage -Guard $guard -Policy $connectionWaitPolicy))
         Write-Host ('[WMS DEV] Detalhes da verificacao: ' + $guardReceiptPath)
         Fail-Startup 20 'GUARD_CURRENT_BLOCKED'
     }
@@ -189,7 +181,7 @@ try {
     # Build/selecionar/guardas falhos e fonte alterada param ANTES do primeiro encerramento.
     $null=Assert-WmsDevCurrentArtifact $repository $prepared.path $prepared.sha256
     $receipt['preStopCurrentArtifactVerifiedUtc']=[DateTime]::UtcNow.ToString('o')
-    $ownership=@{id='BE02-DEV-FONTE01';runId=$runId;observadoUtc=[DateTime]::UtcNow.ToString('o');scope='ONLY_WMS_DEV_25580_25581';targets=@($restartPlan|ForEach-Object{@{pid=$_.Process.Id;startUtc=$_.Process.StartTime.ToUniversalTime().ToString('o');port=$_.Port;receipt=@{path=$_.ReceiptPath;sha256=$_.ReceiptSha256}}})}
+    $ownership=@{id='BE02-DEV-FONTE01';runId=$runId;observadoUtc=[DateTime]::UtcNow.ToString('o');scope='ONLY_WMS_DEV_25580_25581';targets=@($restartPlan|ForEach-Object{@{pid=$_.Process.Id;startUtc=[DateTimeOffset]::Parse((Read-WmsDevRestartReceipt $_.Snapshot.path).body.startUtc).UtcDateTime.ToString('o');port=$_.Port;receipt=@{path=$_.ReceiptPath;sha256=$_.ReceiptSha256};snapshot=$_.Snapshot}})}
     $ownershipPath=Join-Path $runDirectory 'posse-anterior.json'
     Write-WmsDevCreateOnlyJson $ownershipPath $ownership
     $receipt['ownership']=@{path=$ownershipPath;sha256=(Get-FileHash -LiteralPath $ownershipPath).Hash}

@@ -20,7 +20,8 @@ function Start-WmsWaitFixture([int]$SleepMilliseconds, [int]$ExitCode) {
 try {
     $policy = Get-WmsDevConnectionWaitPolicy
     # A guarda precisa ter margem para preparo/SELECTs e caber no recibo de 5 min.
-    if ($policy.ConnectTimeoutSeconds -le 30 -or $policy.GuardTimeoutSeconds -le $policy.ConnectTimeoutSeconds + 36 -or
+    if ($policy.ConnectTimeoutSeconds -le 30 -or $policy.CommandTimeoutSeconds -le 3 -or
+        $policy.GuardTimeoutSeconds -le $policy.ConnectTimeoutSeconds + $policy.CommandTimeoutSeconds -or
         $policy.GuardTimeoutSeconds -ge 300 -or $policy.ProgressIntervalSeconds -ge $policy.ConnectTimeoutSeconds) { throw 'WAIT_BUDGET_INVALID' }
     $checks++
 

@@ -41,7 +41,9 @@ function Invoke-WmsDev02Guard {
     param()
     $ErrorActionPreference = 'Stop'
     . (Join-Path $script:WmsDev02Root 'infra/dev/espera-conexao.ps1')
-    $connectTimeoutSeconds = (Get-WmsDevConnectionWaitPolicy).ConnectTimeoutSeconds
+    $waitPolicy = Get-WmsDevConnectionWaitPolicy
+    $connectTimeoutSeconds = $waitPolicy.ConnectTimeoutSeconds
+    $commandTimeoutSeconds = $waitPolicy.CommandTimeoutSeconds
     $credential=$null; $connection=$null; $certificate=$null; $builder=$null; $openWatch=$null
     $phase='PREPARO_LOCAL'; $identityConfirmed=$false
     $checks=New-Object 'Collections.Generic.List[object]'
@@ -52,7 +54,7 @@ function Invoke-WmsDev02Guard {
         aberturaTentativas=0;aberturaConcluida=$false;aberturaElapsedMs=$null
         identidadeConfirmada=$false;alvo=$null;tls=$null;direitos=$null;catalogo=$null;historico=$null
         queriesGuarda=0;queriesMetadados=0;queriesNegocio=0;erro=$null
-        politica=[ordered]@{alvo='tcp:127.0.0.1,1433';banco='WMS_DEV';login='WMSDEV';connectTimeout=$connectTimeoutSeconds;commandTimeout=3;pooling=$false;connectRetryCount=0;fallback=$false}
+        politica=[ordered]@{alvo='tcp:127.0.0.1,1433';banco='WMS_DEV';login='WMSDEV';connectTimeout=$connectTimeoutSeconds;commandTimeout=$commandTimeoutSeconds;guardTimeout=$waitPolicy.GuardTimeoutSeconds;pooling=$false;connectRetryCount=0;fallback=$false}
         limites=[ordered]@{API=0;DML=0;DDL=0;PROD=0;admin=0;grants=0;sharedRuntimeAlterado=$false;servidorAlterado=$false;recapturaCertificado=$false;segredoPublicado=$false}
         limpeza=[ordered]@{conexaoDescartada=$true;secureStringDescartada=$true;certificadoDescartado=$true}
     }
@@ -70,8 +72,8 @@ function Invoke-WmsDev02Guard {
         $syntax=[regex]::Replace($Sql,"N?'(?:''|[^'])*'","''")
         if ($syntax.TrimStart() -cnotmatch '^SELECT\b' -or $syntax -match ';\s*\S|\b(INTO|INSERT|UPDATE|DELETE|MERGE|EXEC|ALTER|CREATE|DROP|GRANT|REVOKE|DENY|USE)\b|--|/\*') { throw 'DEV02_SELECT_RECUSADO' }
         $cmd=$connection.CreateCommand();$reader=$null;$watch=[Diagnostics.Stopwatch]::StartNew()
-        $cmd.CommandText=$Sql;$cmd.CommandTimeout=3
-        $entry=[ordered]@{nome=$Name;concluida=$false;linhas=$null;elapsedMs=$null}
+        $cmd.CommandText=$Sql;$cmd.CommandTimeout=$commandTimeoutSeconds
+        $entry=[ordered]@{nome=$Name;commandTimeoutSeconds=$commandTimeoutSeconds;concluida=$false;linhas=$null;elapsedMs=$null}
         $rows=New-Object 'Collections.Generic.List[object]'
         if ($Identity) {$report.queriesGuarda++} else {$report.queriesMetadados++}
         try {
