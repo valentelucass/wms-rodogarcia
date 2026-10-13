@@ -144,7 +144,7 @@ function Build-WmsProductionBackend {
         $info.EnvironmentVariables['JAVA_HOME'] = $javaHome
         $info.EnvironmentVariables['PATH'] = (Join-Path $javaHome 'bin') + ';' + (Join-Path $env:SystemRoot 'System32') + ';' + (Join-Path $env:SystemRoot 'System32/WindowsPowerShell/v1.0')
         $info.EnvironmentVariables['MAVEN_OPTS'] = '-Xmx768m'
-        $info.Arguments = '/d /s /c ""' + (Join-Path $candidate 'mvnw.cmd') + '" -o -B -ntp -Dmaven.test.skip=true -DskipTests=true -Dwms.migrations.skip=true -Dwms.bootstrap.skip=true package"'
+        $info.Arguments = '/d /s /c ""' + (Join-Path $candidate 'mvnw.cmd') + '" -o -B -ntp -Ppure-no-db -Dmaven.test.skip=true -DskipTests=true -Dwms.migrations.skip=true -Dwms.bootstrap.skip=true package"'
         $process = New-Object Diagnostics.Process; $process.StartInfo = $info
         if (-not (Get-Variable WmsProductionBuildHandles -Scope Script -ErrorAction SilentlyContinue)) { $script:WmsProductionBuildHandles = @{} }
         $handle = [pscustomobject]@{ RunId = [Guid]::NewGuid().ToString('N'); Process = $process; Children = @() }

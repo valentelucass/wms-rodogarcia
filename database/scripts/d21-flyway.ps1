@@ -4,6 +4,7 @@ $WmsD21Database=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 . (Join-Path $PSScriptRoot 'd21-guardas.ps1')
 . (Join-Path $PSScriptRoot 'd21-catalogo.ps1')
 . (Join-Path $PSScriptRoot 'd24-runtime.ps1')
+. (Join-Path $PSScriptRoot 'prod-fontes.ps1')
 
 function Assert-WmsD21Ferramentas([string]$DatabaseRoot){
     $backend=[IO.Path]::GetFullPath((Join-Path $DatabaseRoot '../backend'))
@@ -31,7 +32,11 @@ function New-WmsD21StartInfo([string]$DatabaseRoot,[string]$Banco,[string]$Servi
     $ignorar=if($Etapa -eq 'PreValidate'){'*:pending'}else{''}
     $psi=New-Object Diagnostics.ProcessStartInfo
     $psi.FileName=Join-Path $env:SystemRoot 'System32/cmd.exe'
-    $psi.Arguments='/d /s /c ""'+(Join-Path $backend 'mvnw.cmd')+'" -B -ntp -o -s "'+$settings+'" -gs "'+$settings+'" -Pbootstrap-local -Dwms.bootstrap.skip=false "-Dflyway.configFiles='+$flywayConfig+'" -Dflyway.ignoreMigrationPatterns='+$ignorar+' validate flyway:'+$goal+'"'
+    $psi.Arguments='/d /s /c ""'+(Join-Path $backend 'mvnw.cmd')+'" -B -ntp -o -s "'+$settings+'" -gs "'+$settings+'" -Pbootstrap-local,pure-no-db -Dwms.bootstrap.skip=false "-Dflyway.configFiles='+$flywayConfig+'" -Dflyway.ignoreMigrationPatterns='+$ignorar+' validate flyway:'+$goal+'"'
+    if($Banco -ceq 'WMS_PROD'){
+        $location=Get-WmsProdFlywayLocation $DatabaseRoot
+        $psi.Arguments=$psi.Arguments.Replace(' validate flyway:',(' "-Dflyway.locations='+$location+'" validate flyway:'))
+    }
     $psi.WorkingDirectory=$backend;$psi.UseShellExecute=$false;$psi.CreateNoWindow=$true
     $psi.RedirectStandardOutput=$true;$psi.RedirectStandardError=$true
     $psi.EnvironmentVariables.Clear()

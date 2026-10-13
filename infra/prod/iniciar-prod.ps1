@@ -26,6 +26,8 @@ $frontendStarted = $false
 $guardProcess = $null
 $guardStarted = $false
 $backend = $null
+$databaseCredential = $null
+$bootstrapHash = $null
 
 function Save-WmsProductionReceipt {
     $receipt['observadoUtc'] = [DateTime]::UtcNow.ToString('o')
@@ -36,26 +38,34 @@ function Save-WmsProductionReceipt {
 function Fail-WmsProductionLauncher {
     param([int]$Code, [string]$Reason)
     $receipt['estado']='BLOCKED'; $receipt['codigo']=$Reason; $receipt['exitCode']=$Code
+    $guidance = @(Get-WmsProductionFailureGuidance $Reason)
+    $receipt['orientacoes'] = $guidance
     Save-WmsProductionReceipt
     Write-Host ('[WMS PROD] Bloqueado: ' + $Reason) -ForegroundColor Yellow
+    foreach ($message in $guidance) { Write-Host ('[WMS PROD] ' + $message) }
     Write-Host ('[WMS PROD] Recibo: ' + $receiptPath)
     Write-Host '[WMS PROD] Nenhum fallback DEV, migration ou encerramento de processo existente.'
     exit $Code
 }
 
 try {
-    Write-Host '[WMS PROD] Preparacao de versao atual. Publicacao externa nao configurada.'
+    Write-Host '[WMS PROD] Preparacao de versao atual.'
     $configPath = Join-Path $PSScriptRoot 'producao.json'
     $config = [IO.File]::ReadAllText($configPath) | ConvertFrom-Json
     Assert-WmsProductionPublicConfig $config
+    $receipt['cloudflareConfigured'] = $config.cloudflareConfigured
     $receipt['config'] = @{path=$configPath; sha256=(Get-FileHash $configPath -Algorithm SHA256).Hash}
     if (-not $PrepareOnly) {
         Assert-WmsProductionFreePort $config.backendPort
         Assert-WmsProductionFreePort $config.frontendPort
         # Nao recompilar nem abrir SQL quando o canal AUTH PROD nem existe.
-        . (Join-Path $repository 'backend/scripts/prod/identity-prod.ps1')
-        $identity = Get-WmsProductionIdentity
+        . (Join-Path $repository 'backend/scripts/prod/setup-prod.ps1')
+        . (Join-Path $repository 'backend/scripts/prod/credential-prod.ps1')
+        . (Join-Path $repository 'backend/scripts/prod/bootstrap-prod.ps1')
+        $identity = Initialize-WmsProductionIdentity
         Assert-WmsProductionIdentity $identity
+        $credentialMetadata = Get-WmsProductionCredentialMetadata
+        $receipt['credential'] = $credentialMetadata
         $receipt['identity'] = @{mode='native'; origin=$identity.origin; issuer=$identity.issuer; audience=$identity.audience}
     }
     $buildBackend = Join-Path $repository 'backend/scripts/prod/build-backend-prod.ps1'
@@ -128,10 +138,14 @@ try {
     $receipt['guard']=@{path=$guardPath; sha256=$guardReceiptHash; helperSha256=$guardHash; processId=$guardProcess.Id; exitCode=$guardProcess.ExitCode}
     if ($guardProcess.ExitCode -ne 0 -or -not $guard.guardaRealAprovada) { Fail-WmsProductionLauncher 20 'PROD_CURRENT_GUARD_BLOCKED' }
     if ((Get-FileHash $guardHelper -Algorithm SHA256).Hash -ine $guardHash) { throw 'PROD_GUARD_HELPER_CHANGED' }
+    $databaseCredential = Get-WmsProductionApplicationCredential -ExpectedSha256 $guard.canal.sha256
     $backendArguments = @{Port=$config.backendPort; RunDirectory=$runDirectory; GuardReceipt=$guardPath;
         GuardSha256=$guardReceiptHash; GuardProcessId=$guardProcess.Id; GuardHelperSha256=$guardHash;
-        Artifact=$artifact; Identity=$identity}
+        Artifact=$artifact; Identity=$identity; DatabaseCredential=$databaseCredential}
+    $bootstrapHash = Get-WmsProductionBootstrapHash
+    if($bootstrapHash){$backendArguments['BootstrapHash']=$bootstrapHash}
     $backend = Start-WmsProductionBackend @backendArguments
+    $databaseCredential = $null
     $receipt['backendStarted']=($null -ne $backend.Process)
     $receipt['backend']=@{receiptPath=$backend.ReceiptPath; receiptSha256=$backend.ReceiptSha256; pid=$backend.Process.Id}
     $server = Join-Path $repository 'frontend/tools/prod-server.mjs'
@@ -168,8 +182,8 @@ try {
     Save-WmsProductionReceipt
     Write-Host ('[WMS PROD] Frontend estatico: ' + $receipt.frontendUrl) -ForegroundColor Green
     Write-Host ('[WMS PROD] Backend: ' + $receipt.backendUrl)
-    Write-Host '[WMS PROD] Readiness publico aprovado. Login exige a entrada HTTPS futura; localhost nao comprova login seguro.'
-    Write-Host '[WMS PROD] Cloudflare/DNS nao configurados. Mantenha esta janela; Ctrl+C encerra somente processos criados neste run.'
+    Write-Host '[WMS PROD] Readiness local aprovado. Acesse https://wms.rodogarcia.com.br para o login seguro.'
+    Write-Host '[WMS PROD] Mantenha esta janela; Ctrl+C encerra somente processos criados neste run.'
     Write-Host ('[WMS PROD] Recibo: ' + $receiptPath)
     while (-not $frontendProcess.HasExited -and -not $backend.Process.HasExited) { Start-Sleep -Milliseconds 500 }
     Fail-WmsProductionLauncher 30 'PROD_OWN_PROCESS_EXITED'
@@ -178,6 +192,8 @@ try {
     if ($reason -notmatch '^PROD_[A-Z0-9_]+$') { $reason='PROD_LOCAL_STARTUP_FAILED' }
     Fail-WmsProductionLauncher (Get-WmsProductionFailureExitCode $reason) $reason
 } finally {
+    if($bootstrapHash){$bootstrapHash.Dispose()}
+    if ($databaseCredential) { $databaseCredential.Password.Dispose(); $databaseCredential = $null }
     $cleanupArguments = @{Frontend=$frontendProcess; FrontendStarted=$frontendStarted;
         Backend=$backend; Guard=$guardProcess; GuardStarted=$guardStarted}
     Close-WmsProductionHandles @cleanupArguments

@@ -69,7 +69,7 @@ function Assert-WmsProductionGuard {
     }
     if (@($report.direitos.roles | Where-Object { $_.name -in @('db_owner','db_ddladmin','db_securityadmin','db_accessadmin') -or $_.role -in @('db_owner','db_ddladmin','db_securityadmin','db_accessadmin') }).Count -or
         @($report.direitos.serverRoles).Count -or @($report.direitos.ownership).Count -or
-        @($report.catalogo.checksInvalidos).Count -or @($report.catalogo.fksInvalidas).Count -or @($report.catalogo.indicesDesabilitados).Count) {
+        [int]$report.catalogo.checksInvalidos -ne 0 -or [int]$report.catalogo.fksInvalidas -ne 0 -or [int]$report.catalogo.indicesDesabilitados -ne 0) {
         throw 'PROD_GUARD_PRIVILEGES_OR_CATALOG_REFUSED'
     }
     [pscustomobject]@{ profile = $report.perfilProtegido; server = $report.alvo.servidor; tls = $report.tls
@@ -146,7 +146,7 @@ function New-WmsProductionBackendStartInfo {
         ' --server.forward-headers-strategy=none --spring.autoconfigure.exclude= --wms.cadastros.enabled=true ' +
         '--spring.jpa.hibernate.ddl-auto=validate --spring.jpa.generate-ddl=false --spring.sql.init.mode=never ' +
         '--spring.flyway.enabled=false --spring.liquibase.enabled=false --wms.database.name=WMS_PROD --wms.database.user=WMSPROD ' +
-        '--wms.auth.enabled=true --wms.auth.origin=https://wms.rodogarcia.com.br --wms.auth.secure-cookie=true --wms.auth.proxy-origin= --wms.auth.bootstrap-hash='
+        '--wms.auth.enabled=true --wms.auth.origin=https://wms.rodogarcia.com.br --wms.auth.secure-cookie=true --wms.auth.proxy-origin= --wms.auth.bootstrap-hash=${WMS_PROD_BOOTSTRAP_HASH:}'
     $info
 }
 
@@ -160,7 +160,8 @@ function Start-WmsProductionBackend {
         [Parameter(Mandatory = $true)][string]$GuardHelperSha256,
         [Parameter(Mandatory = $true)][object]$Artifact,
         [Parameter(Mandatory = $true)][object]$Identity,
-        [Management.Automation.PSCredential]$DatabaseCredential)
+        [Management.Automation.PSCredential]$DatabaseCredential,
+        [Security.SecureString]$BootstrapHash)
     $ErrorActionPreference = 'Stop'
     $root = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../../..'))
     $base = [IO.Path]::GetFullPath((Join-Path $root 'orchestracao/.runtime/launcher-producao'))
@@ -202,6 +203,15 @@ function Start-WmsProductionBackend {
             $auth.issuer -cne $Identity.issuer -or $auth.audience -cne $Identity.audience -or
             [string]::IsNullOrWhiteSpace([string]$auth.privateKey)) { throw 'PROD_AUTH_PROTECTED_PURPOSE_INVALID' }
         $info = New-WmsProductionBackendStartInfo $Port $Artifact
+        if($BootstrapHash){
+            $bootstrapPointer=[Runtime.InteropServices.Marshal]::SecureStringToBSTR($BootstrapHash)
+            try{
+                $bootstrapPlain=[Runtime.InteropServices.Marshal]::PtrToStringBSTR($bootstrapPointer)
+                if($bootstrapPlain -cnotmatch '^\{pbkdf2-600k\}[0-9a-f]{96}$'){throw 'PROD_BOOTSTRAP_HASH_INVALID'}
+                $info.EnvironmentVariables['WMS_PROD_BOOTSTRAP_HASH']=$bootstrapPlain
+                $receipt.bootstrapHashPassed=$true
+            }finally{[Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bootstrapPointer);$bootstrapPlain=$null}
+        }
         $variables = @{
             WMS_PROD_PORT = [string]$Port; WMS_PROD_DB_HOST = $guard.profile.host; WMS_PROD_DB_PORT = [string]$guard.profile.port
             WMS_PROD_DB_CONFIRMED_TARGET = ('{0}:{1}/WMS_PROD' -f $guard.profile.host,$guard.profile.port); WMS_PROD_DB_CONFIRMED_SERVER = $guard.server

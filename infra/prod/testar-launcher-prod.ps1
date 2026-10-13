@@ -44,6 +44,10 @@ function Stop-WmsProductionBackend {
     $Handle.Process.Dispose()
 }
 Check 'config-prod-exclusivo-controle' { Assert-WmsProductionPublicConfig (Config) }
+Check 'filho-preserva-identidade-local-exigida-pela-guarda' {
+    $info=New-WmsProductionChildInfo 'powershell.exe' '-NoProfile' $repository
+    Need ($info.EnvironmentVariables['COMPUTERNAME'] -ceq $env:COMPUTERNAME -and -not [string]::IsNullOrWhiteSpace($info.EnvironmentVariables['COMPUTERNAME'])) 'MACHINE_IDENTITY_REQUIRED'
+}
 foreach($pair in @(@('database','WMS_DEV'),@('database','master'),@('expectedLogin','WMSDEV'),@('expectedLogin','sa'),@('profile','sqlserver-dev'))){
     $field=$pair[0];$invalid=$pair[1]
     Check ('config-recusa-'+$field+'-'+$invalid) { $c=Config;$c.$field=$invalid;Refuses {Assert-WmsProductionPublicConfig $c} 'PROD_TARGET_OR_IDENTITY_INVALID' }
@@ -84,7 +88,7 @@ Check 'cleanup-be-falha-nao-pula-guarda' {
     Need ($be.stops -eq 1 -and $guard.disposes -eq 1) 'GUARDA_NAO_DISPOSTA'
 }
 Check 'cleanup-apenas-child-proprio-started' {$child=FakeChild;Stop-WmsProductionChild $child $true;Need ($child.kills -eq 1 -and $child.waits -eq 1 -and $child.disposes -eq 1) 'OWN_CHILD_CLEANUP_FAILED'}
-Check 'codigos-falhas-distinguem-auth-porta-guarda-build' {Need ((Get-WmsProductionFailureExitCode 'PROD_AUTH_PUBLIC_METADATA_MISSING') -eq 40 -and (Get-WmsProductionFailureExitCode 'PROD_PORT_OCCUPIED_25590') -eq 50 -and (Get-WmsProductionFailureExitCode 'PROD_CURRENT_GUARD_BLOCKED') -eq 20 -and (Get-WmsProductionFailureExitCode 'PROD_BACKEND_BUILD_FAILED') -eq 30) 'EXIT_CODE_CLASSIFICATION_FAILED'}
+Check 'codigos-falhas-distinguem-auth-porta-guarda-build' {Need ((Get-WmsProductionFailureExitCode 'PROD_AUTH_PUBLIC_METADATA_MISSING') -eq 40 -and (Get-WmsProductionFailureExitCode 'PROD_PROTECTED_APPLICATION_CHANNEL_MISSING') -eq 40 -and (Get-WmsProductionFailureExitCode 'PROD_PORT_OCCUPIED_25590') -eq 50 -and (Get-WmsProductionFailureExitCode 'PROD_CURRENT_GUARD_BLOCKED') -eq 20 -and (Get-WmsProductionFailureExitCode 'PROD_BACKEND_BUILD_FAILED') -eq 30) 'EXIT_CODE_CLASSIFICATION_FAILED'}
 
 # Executa o launcher literal numa estrutura nova com compilador sintetico que falha.
 # Nenhum datasource, identidade real, API ou aplicacao WMS e iniciado neste harness.
@@ -92,7 +96,9 @@ Check 'falha-build-literal-preserva-versao-anterior-e-nao-chega-guarda' {
     $isolated=Join-Path $evidence 'build-failure-repository'
     foreach($dir in @('infra/prod','backend/scripts/prod','frontend/tools')){$null=New-Item -ItemType Directory -Path (Join-Path $isolated $dir) -Force}
     foreach($name in @('iniciar-prod.ps1','launcher-common.ps1','producao.json')){Copy-Item -LiteralPath (Join-Path $PSScriptRoot $name) -Destination (Join-Path $isolated ('infra/prod/'+$name))}
-    [IO.File]::WriteAllText((Join-Path $isolated 'backend/scripts/prod/identity-prod.ps1'),'function Get-WmsProductionIdentity { [pscustomobject]@{origin="https://wms.rodogarcia.com.br";issuer="https://example.invalid";audience="synthetic-prod"} }; function Assert-WmsProductionIdentity { param($Identity) }',[Text.UTF8Encoding]::new($false))
+    [IO.File]::WriteAllText((Join-Path $isolated 'backend/scripts/prod/setup-prod.ps1'),'function Initialize-WmsProductionIdentity { [pscustomobject]@{origin="https://wms.rodogarcia.com.br";issuer="https://example.invalid";audience="synthetic-prod"} }; function Assert-WmsProductionIdentity { param($Identity) }',[Text.UTF8Encoding]::new($false))
+    [IO.File]::WriteAllText((Join-Path $isolated 'backend/scripts/prod/credential-prod.ps1'),'function Get-WmsProductionCredentialMetadata { [pscustomobject]@{database="WMS_PROD";login="WMSPROD";aclValida=$true} }',[Text.UTF8Encoding]::new($false))
+    [IO.File]::WriteAllText((Join-Path $isolated 'backend/scripts/prod/bootstrap-prod.ps1'),'function Get-WmsProductionBootstrapHash { $null }',[Text.UTF8Encoding]::new($false))
     [IO.File]::WriteAllText((Join-Path $isolated 'backend/scripts/prod/build-backend-prod.ps1'),'function Build-WmsProductionBackend { param($CandidateDirectory) throw "PROD_BACKEND_BUILD_FAILED" }',[Text.UTF8Encoding]::new($false))
     [IO.File]::WriteAllText((Join-Path $isolated 'frontend/tools/build-prod.mjs'),'throw new Error("HARNESS_FRONTEND_SHOULD_NOT_RUN");',[Text.UTF8Encoding]::new($false))
     $old=Join-Path $isolated 'previous-production.marker';[IO.File]::WriteAllText($old,'SYNTHETIC_PREVIOUS_VERSION');$oldHash=(Get-FileHash $old).Hash

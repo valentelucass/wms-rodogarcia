@@ -10,5 +10,5 @@
   "apiBrowserBase": "/api",
   "profile": "sqlserver-prod",
   "secureCookie": true,
-  "cloudflareConfigured": false
+  "cloudflareConfigured": true
 }

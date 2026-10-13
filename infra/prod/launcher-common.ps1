@@ -14,7 +14,7 @@ function Assert-WmsProductionPublicConfig {
         $Config.frontendOrigin -cne 'https://wms.rodogarcia.com.br' -or
         $Config.backendPublicOrigin -cne 'https://wms-api.rodogarcia.com.br' -or
         $Config.apiBrowserBase -cne '/api' -or $Config.secureCookie -isnot [bool] -or $Config.secureCookie -ne $true -or
-        $Config.cloudflareConfigured -isnot [bool] -or $Config.cloudflareConfigured -ne $false) { throw 'PROD_PUBLIC_TOPOLOGY_INVALID' }
+        $Config.cloudflareConfigured -isnot [bool]) { throw 'PROD_PUBLIC_TOPOLOGY_INVALID' }
     foreach ($name in @('backendPort','frontendPort')) {
         $port = $Config.$name
         if ($port -isnot [int] -and $port -isnot [long]) { throw 'PROD_PORT_INVALID' }
@@ -32,10 +32,32 @@ function Assert-WmsProductionFreePort {
 function Get-WmsProductionFailureExitCode {
     param([string]$Reason)
     if ($Reason -match '^PROD_PORT') { return 50 }
-    if ($Reason -match '^PROD_AUTH|^PROD_IDENTITY') { return 40 }
+    if ($Reason -match '^PROD_AUTH|^PROD_IDENTITY|^PROD_CREDENTIAL|^PROD_PROTECTED_APPLICATION_CHANNEL') { return 40 }
     if ($Reason -match '^PROD_GUARD|^PROD_CURRENT_GUARD') { return 20 }
     if ($Reason -match '^PROD_FRONTEND_(NOT_STARTED|READINESS)') { return 60 }
     return 30
+}
+
+function Get-WmsProductionFailureGuidance {
+    param([string]$Reason)
+    if ($Reason -eq 'PROD_PROTECTED_APPLICATION_CHANNEL_MISSING') {
+        return @(
+            'Falta a credencial SQL exclusiva WMSPROD no canal protegido api-prod/wmsprod-app.clixml.',
+            'A chave de login PROD e preparada automaticamente. A conta SQL e seus direitos precisam de provisionamento especifico, sem usar WMSDEV ou sa na aplicacao.',
+            'A configuracao local nao cria login SQL, aplica migrations nem cadastra o administrador principal.',
+            'Consulte docs/44-launcher-producao-e-publicacao-futura.md.'
+        )
+    }
+    if ($Reason -eq 'PROD_AUTH_PUBLIC_METADATA_MISSING') {
+        return @(
+            'A autenticacao propria de producao ainda nao foi configurada (auth-prod/identity.json).',
+            'A configuracao de login PROD esta incompleta; os arquivos existentes foram preservados.',
+            'Criar somente identity.json nao libera a subida. Nao copie chaves ou credenciais do DEV.',
+            'O login operacional tambem exige a entrada HTTPS prevista no contrato.',
+            'Consulte docs/44-launcher-producao-e-publicacao-futura.md. --preparar apenas compila; nao ativa producao.'
+        )
+    }
+    return @()
 }
 
 function ConvertTo-WmsProductionArgument {
@@ -80,7 +102,7 @@ function New-WmsProductionChildInfo {
     $info.RedirectStandardError = $true
     $info.EnvironmentVariables.Clear()
     foreach ($name in @('PATH','SystemRoot','WINDIR','TEMP','TMP','COMSPEC','PATHEXT',
-        'LOCALAPPDATA','APPDATA','USERPROFILE','NUMBER_OF_PROCESSORS','PROCESSOR_ARCHITECTURE')) {
+        'LOCALAPPDATA','APPDATA','USERPROFILE','NUMBER_OF_PROCESSORS','PROCESSOR_ARCHITECTURE','COMPUTERNAME')) {
         $value = [Environment]::GetEnvironmentVariable($name,'Process')
         if ($null -ne $value) { $info.EnvironmentVariables[$name] = $value }
     }

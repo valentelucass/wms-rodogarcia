@@ -1,4 +1,49 @@
-# Launcher de produção Windows e publicação futura
+# Launcher de produção Windows
+
+## PROD-LAUNCH03 — produção ativa, 13/10/2026
+
+Lucas autorizou conferir exclusivamente WMS_PROD, criar WMSPROD com permissões mínimas, aplicar migrations pendentes e preparar o administrador inicial. Confirmou que este é o banco desta subida. O tunnel já estava configurado pelo operador; DEV, servidor SQL, demais acessos e configuração externa foram preservados.
+
+**Produção ativa:** run `4364ffe9d1714d65b577775dfd2d4cab`, backend PID 16776/25590 e frontend PID 5016/25591. Frontend e API públicos HTTP 200; login HTTPS no Chrome HTTP 200, identidade Gestor/administrador principal confirmada. Cookies Secure/HttpOnly/SameSite Strict. Primeiro acesso exige que o titular escolha nova senha. Logout da sessão de conferência HTTP 204, sem trocar senha nem executar operações de negócio.
+
+- Frontend: https://wms.rodogarcia.com.br → 127.0.0.1:25591.
+- API: https://wms-api.rodogarcia.com.br → 127.0.0.1:25590.
+- Banco/aplicação: WMS_PROD/WMSPROD, TLS Mandatory, TrustServerCertificate=false.
+- Provisionamento: `orchestracao/.runtime/prod-provisionamento-65d47e09dd944328a1fb7e8231d1dfec.json`.
+- Execução: `orchestracao/.runtime/launcher-producao/runs/4364ffe9d1714d65b577775dfd2d4cab/launcher.json`.
+- Conferência HTTPS posterior: `orchestracao/.runtime/prod-launch03-20261013/https-login.json`.
+
+O launcher registra readiness local e mantém seu estado datado de login pendente; o recibo HTTPS comprova a etapa posterior. Recibos históricos não foram reescritos.
+
+### Banco e histórico
+
+Inspeção administrativa protegida confirmou V1–V9 e ausência de WMSPROD. Aplicadas somente V10 e V11 via Flyway, com PreValidate/Migrate/PostValidate/Info aprovados. As 64 tabelas preexistentes estavam sem registros e permaneceram assim durante o provisionamento; V11 acrescentou quatro tabelas de autenticação. A aplicação criou depois o administrador pelo serviço de login.
+
+A V10 original aceita somente WMS_DEV e permanece imutável. PROD usa `database/migrations-prod/V10__permitir_ajuste_estoque_producao.sql`, com nome/checksum próprios e corpo equivalente, alterando somente a guarda de alvo. V1–V9 e V11 são compartilhadas sem mudanças. `database/scripts/prod-fontes.ps1` monta fontes PROD conferidas por hashes para Flyway; DEV conserva suas fontes. Não usar repair, checksum artificial ou V10 DEV em PROD.
+
+WMSPROD recebeu 333 direitos explícitos por objeto/coluna, sem roles administrativas, DDL ou DELETE. Credencial aleatória exclusiva sob DPAPI/ACL em `%LOCALAPPDATA%/Rodogarcia/WMS/api-prod/wmsprod-app.clixml`. Guarda real aprovada em 26/26 verificações: identidade, TLS atual, permissões, 68 tabelas/716 colunas, integridade e histórico. Administração restrita ao provisionamento autorizado.
+
+### Login e BAT
+
+Chave RSA 3072 exclusiva PROD sob DPAPI/ACL em `auth-prod`, fora do Git. Configuração parcial é recusada; material existente é preservado. Material inicial separado `bootstrap.clixml`, preparado por `infra/prod/configurar-administrador.ps1`, fornece o hash apenas na memória do processo filho. O serviço cria o principal somente se ausente, nunca redefine conta existente. Sem esse material, a subida normal exige principal já provisionado.
+
+`iniciar-prod.bat --preparar` compila a fonte atual sem banco/testes. `iniciar-prod.bat` exige portas livres, canais próprios e guarda atual. Uma segunda execução com portas ocupadas é recusada sem encerrar a instância. A sessão do BAT precisa permanecer aberta; Ctrl+C encerra somente seus processos. Não há serviço/autostart instalado. O BAT não aplica migrations nem grants automaticamente; o provisionamento autorizado foi separado.
+
+**Validação:** 54 testes locais aprovados (24 launcher, 14 canais fictícios/DPAPI, 16 recibos sintéticos), build backend/frontend atual, guarda SQL 26/26 e login HTTPS real. Primeiro acesso em 390 px sem overflow ou erros JavaScript. DEV manteve PIDs 47028/6332. Não foram executados testes de negócio ou fixtures em PROD.
+
+### Histórico PROD-LAUNCH02
+
+Antes da autorização, 49 testes locais e preparo `3b85e81c0ac644a88b949b6ec87bed12` aprovados. Run `9a24fc3f80be4b8ebf420e1c4c15c296` parou por ausência do canal WMSPROD, sem SQL/processos; HTTPS respondia 502. Na ativação, run `64fadc541f8d4249b1540d256dd720d1` parou antes de SQL porque o launcher retirava COMPUTERNAME do processo filho. Correção coberta por teste antes da nova subida.
+
+## Histórico anterior — não representa o estado atual
+
+## Bloqueio confirmado em 13/10/2026
+
+A execução do operador no run `b2b8f99e74034b1aaf6d228addda6436` encerrou com `PROD_AUTH_PUBLIC_METADATA_MISSING`, antes de build, guarda SQL ou processos. A inspeção local confirmou ausência do diretório `auth-prod`; nenhum conteúdo protegido foi lido. O launcher agora explica essa condição no console e no recibo.
+
+A ativação operacional continua pendente: material AUTH PROD próprio, canal SQL WMSPROD restrito, implementação da guarda e passagem da credencial protegida ao helper backend, além da entrada HTTPS para login. A guarda atual sempre recusa; adicionar `identity.json` ou declarar um booleano não completa essa implementação. Não há evidência atual de provisionamento do login SQL: ausência do canal local não prova ausência do login no servidor.
+
+O fluxo Excel/XML/bobinas foi concluído e testado em **DEV**, conforme a etapa 11 do design system; esse aceite não representa ativação de produção. Esta correção melhora o diagnóstico e não configura credenciais, banco, HTTPS ou servidores. A preparação isolada abaixo não remove esses pré-requisitos.
 
 PROD-LAUNCH01 atende ao pedido de Lucas com o nome convencional **iniciar-prod.bat**. A grafia `.bar` recebida permanece no [pedido original](../orchestracao/.runtime/launcher-producao-demanda-lucas.txt); não é outro comando.
 

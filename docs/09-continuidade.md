@@ -1,5 +1,21 @@
 # Continuidade do projeto WMS Rodogarcia
 
+## PROD-LAUNCH03 — produção ativa e login HTTPS conferido, 13/10/2026
+
+Lucas autorizou conferir exclusivamente WMS_PROD, criar WMSPROD com permissões mínimas, aplicar somente migrations pendentes e preparar o administrador inicial. Confirmou expressamente que este é o banco da subida para produção. Preservar DEV, dados e demais acessos; sem testes de negócio em PROD.
+
+Inspeção atual confirmou V1–V9 e ausência de WMSPROD. Aplicadas V10 específica PROD e V11 pelo Flyway, com validação anterior/posterior; fontes e histórico DEV preservados. Criados login/usuário WMSPROD e 333 direitos explícitos restritos por objeto/coluna. Guarda real própria aprovada. Recibo: `prod-provisionamento-65d47e09dd944328a1fb7e8231d1dfec.json`, em `orchestracao/.runtime/`. Aplicação ativa no run `4364ffe9d1714d65b577775dfd2d4cab`: backend 16776/25590, frontend 5016/25591. HTTPS frontend/API/login HTTP 200, logout 204, conta principal Gestor/administrador com troca inicial obrigatória. 54 testes locais aprovados, guarda 26/26 e build atual concluído. Evidência posterior: `orchestracao/.runtime/prod-launch03-20261013/https-login.json`. DEV preservado (PIDs 47028/6332), sem operações de negócio ou fixtures em PROD. O titular deve escolher sua nova senha no primeiro acesso; produção permanece ligada na sessão do BAT.
+
+## PROD-LAUNCH02 — preparação local anterior, 13/10/2026
+
+Lucas confirmou o tunnel HTTPS para 25591/25590. Chave AUTH exclusiva PROD gerada sob DPAPI/ACL; binding WMSPROD e guarda implementados. Foram aprovados 49 testes locais e o preparo real do BAT (run 3b85e81c0ac644a88b949b6ec87bed12). A execução normal parou por ausência do canal SQL (run 9a24fc3f80be4b8ebf420e1c4c15c296), sem SQL/processos. HEAD HTTPS respondeu 502/Cloudflare naquela ocasião.
+
+Esse registro precede a autorização específica e o provisionamento PROD-LAUNCH03. [Contrato e evidências](44-launcher-producao-e-publicacao-futura.md).
+
+## PROD-LAUNCH01 — diagnóstico atual, 13/10/2026
+
+Execução do operador recusada por falta de `auth-prod/identity.json`; diretório `auth-prod` ausente na inspeção de metadados. Produção permanece não ativada: canais AUTH/SQL próprios, guarda/binding operacional e HTTPS pendentes. O aceite FE05 abaixo é DEV. Console e recibo agora explicam os pré-requisitos; 23 testes locais do launcher aprovados, sem SQL/servidores PROD ou alteração de acessos. [Detalhes](44-launcher-producao-e-publicacao-futura.md#bloqueio-confirmado-em-13102026). Preservar DEV e dados; não criar JSON de aprovação ou reutilizar material DEV para contornar o bloqueio.
+
 ## FE05-EXPORTACAO01 — amostras reais e fluxo por bobina concluídos, 13/10/2026
 
 Lucas entregou os XMLs/PDFs das NFs 32332 e 32485 e confirmou a regra do gestor: nesta operação Bracell, cada item é uma bobina e ocupará uma posição. Não há informação adicional a pedir ao gestor para implementar esse fluxo. A confirmação sobre erros do fornecedor não autoriza corrigir valores fiscais por suposição.

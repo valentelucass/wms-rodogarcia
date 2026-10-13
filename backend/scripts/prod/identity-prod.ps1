@@ -49,6 +49,11 @@ function Get-WmsProductionIdentity {
 function Assert-WmsProductionPrivatePath {
     param([Parameter(Mandatory = $true)][string]$Path)
     if (-not (Test-Path -LiteralPath $Path)) { throw 'PROD_PROTECTED_PATH_MISSING' }
+    $cursor = [IO.Path]::GetFullPath($Path)
+    while ($cursor) {
+        if ((Get-Item -LiteralPath $cursor -Force).Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'PROD_PROTECTED_REPARSE_REFUSED' }
+        $cursor = [IO.Path]::GetDirectoryName($cursor)
+    }
     if ((Get-Item -LiteralPath $Path -Force).Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'PROD_PROTECTED_REPARSE_REFUSED' }
     $acl = Get-Acl -LiteralPath $Path
     $sid = [Security.Principal.WindowsIdentity]::GetCurrent().User.Value
