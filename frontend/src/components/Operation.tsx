@@ -41,7 +41,12 @@ export function Operation(props: OperationProps) {
                 perfil e alcance.
             </p>
         );
-    if (missingOperationContext(props.id, props.context))
+    if (
+        missingOperationContext(props.id, props.context) &&
+        !s.pending &&
+        !s.uncertain &&
+        !s.completed
+    )
         return (
             <p role="status">
                 Selecione e consulte o registro na lista antes de continuar. As

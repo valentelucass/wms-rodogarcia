@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -20,13 +21,23 @@ import java.util.UUID;
 public final class RecebimentoDto {
     private RecebimentoDto() {}
 
+    public record Bobinas(@NotNull @Min(0) @Max(100) Integer boas,
+                          @NotNull @Min(0) @Max(100) Integer avariadas) {}
+
     public record Item(
             @NotNull @Positive Long itemNotaId,
             @Size(max = 60) String lote,
             LocalDate validade,
             @NotNull @DecimalMin("0") @Digits(integer = 13, fraction = 6) BigDecimal quantidadeBoa,
             @NotNull @DecimalMin("0") @Digits(integer = 13, fraction = 6)
-                    BigDecimal quantidadeAvariada) {}
+                    BigDecimal quantidadeAvariada,
+            @Valid @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)
+                    Bobinas bobinas) {
+        public Item(Long itemNotaId, String lote, LocalDate validade, BigDecimal quantidadeBoa,
+                    BigDecimal quantidadeAvariada) {
+            this(itemNotaId, lote, validade, quantidadeBoa, quantidadeAvariada, null);
+        }
+    }
 
     public record RegistrarChegada(
             @NotNull @Min(0) Long versao,
@@ -41,15 +52,20 @@ public final class RecebimentoDto {
             String lote,
             LocalDate validade,
             BigDecimal quantidadeBoa,
-            BigDecimal quantidadeAvariada) {
+            BigDecimal quantidadeAvariada,
+            @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)
+                    Bobinas bobinas) {
         public static ItemFisico de(ItemChegada i) {
+            return de(i, null);
+        }
+        public static ItemFisico de(ItemChegada i, Bobinas bobinas) {
             return new ItemFisico(
                     i.getId(),
                     i.getItemNota().getId(),
                     i.getLote(),
                     i.getValidade(),
                     i.getQuantidadeBoa(),
-                    i.getQuantidadeAvariada());
+                    i.getQuantidadeAvariada(), bobinas);
         }
     }
 
@@ -93,8 +109,13 @@ public final class RecebimentoDto {
             BigDecimal quantidadeTriagem,
             BigDecimal quantidadeQuarentena,
             Instant unitizadaEm,
-            boolean disponivelParaSaida) {
+            boolean disponivelParaSaida,
+            @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)
+                    Bobinas bobinas) {
         public static Entrada de(EntradaConferida e) {
+            return de(e, null);
+        }
+        public static Entrada de(EntradaConferida e, Bobinas bobinas) {
             var i = e.getItemChegada();
             return new Entrada(
                     e.getId(),
@@ -110,7 +131,7 @@ public final class RecebimentoDto {
                     e.getQuantidadeTriagem(),
                     e.getQuantidadeQuarentena(),
                     e.getUnitizadaEm(),
-                    false);
+                    false, bobinas);
         }
     }
 }

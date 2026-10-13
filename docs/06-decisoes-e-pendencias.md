@@ -1,5 +1,15 @@
 # Decisões e pendências do WMS Rodogarcia
 
+## FE04-INTEGRACAO01 — acesso e validação das gravações, 13/10/2026
+
+Lucas disponibilizou acesso para concluir os testes já solicitados. Após guarda atual aprovada exclusivamente WMS_DEV/WMSDEV, foram exercitadas APIs autenticadas com fixtures fictícias próprias. Resultado: 35 verificações aprovadas, incluindo oito sequências com criações concorrentes, Excel, fiscal e unitização com consultas de persistência e repetição. [Evidência e limites](../orchestracao/.runtime/fe04-integracao01/resultado.json). A falta de sessão da FE04-REVISAO01 foi superada para este recorte de API; senha/tokens não foram gravados e somente a sessão criada para os testes foi encerrada.
+
+Não confundir a distribuição existente de 12 kg em duas unidades com a experiência de contagem da etapa 3 aprovada pelo gestor. FE05-XML-BOBINAS01 continua pendente de implementação; XML original e diferença de 60 kg da NF 32325 permanecem questões da amostra. Não é necessária nova aprovação do gestor para implementar o fluxo já aprovado. Acesso fornecido não altera o alvo DEV, não autoriza lançar a nota real nem comprova navegador integrado, impressão física ou operação em produção.
+
+## FE04-REVISAO01 — completude verificada, 13/10/2026
+
+Lucas solicitou pente fino de toda a sequência recente. Correções locais de sincronização de revisão e recuperação de resposta incerta aplicadas com regressões reproduzidas; 575 testes frontend, 12 Chrome e 76 backend puros aprovados. [Matriz detalhada](design-system/etapa-09.md#fe04-revisao01--pente-fino-da-sequência-13102026). A aprovação do fluxo XML/bobinas não é entrega implementada: conversão de unidade, contagem independente na etapa 3 e cadastro assistido de produto ainda faltam. A unitização existente é aproveitável, mas pertence a outra etapa. Gravações integradas/concorrentes permanecem pendentes por ausência de sessão autenticada disponível; guarda SQL e igualdade das classes do backend ativo não substituem essa prova. Nenhuma gravação real ou reinício nesta revisão.
+
 ## FE05-XML-BOBINAS01 — peso da nota e quantidade física de bobinas, 13/10/2026
 
 **Fonte: resposta do gestor encaminhada por Lucas nesta conversa**, após a análise da NF 32325 de entrada em Osasco. O gestor aprovou o fluxo proposto de importação do XML: “Perfeito, esse fluxo fica muito bom”. Complementou: “Pensei que a nota deles viria em quantidade, mas vem em peso. Aí na etapa três conseguimos dimensionar as quantidades exatas de bobinas entrando”.

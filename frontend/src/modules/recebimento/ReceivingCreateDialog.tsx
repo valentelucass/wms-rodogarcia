@@ -17,15 +17,19 @@ import { Dialog } from "../../components/layout/Dialog";
 import { ReferenceSelect } from "../../components/context/ReferenceSelect";
 import { registerPageLeave } from "../../domain/pageLeave";
 import { NfeDocument, downloadXml } from "./NfeDocument";
+import { XmlProductForm } from "./XmlProductForm";
+import type { Perfil } from "../../contracts/runtime";
 
 export function ReceivingCreateDialog({
     transport,
+    perfil = "OPERACAO",
     onClose,
     onManual,
     onConfirmed,
     onExisting,
 }: {
     transport: Transport;
+    perfil?: Perfil;
     onClose: () => void;
     onManual: () => void;
     onConfirmed: (
@@ -47,6 +51,8 @@ export function ReceivingCreateDialog({
     const [pending, setPending] = useState(""),
         [error, setError] = useState("");
     const [unknown, setUnknown] = useState(false);
+    const [productItem, setProductItem] = useState<number | null>(null);
+    const [productLocked, setProductLocked] = useState(false);
     const command = useRef<NfeImportacaoDto_Confirmar | undefined>(undefined);
     const lifetime = useRef(new AbortController());
     const lock = useRef(false);
@@ -56,7 +62,11 @@ export function ReceivingCreateDialog({
         return () => lifetime.current.abort();
     }, []);
     const close = () => {
-        if (pending || unknown) return;
+        if (pending || unknown || productLocked) return;
+        if (productItem !== null) {
+            if (window.confirm("Voltar à prévia e descartar os dados do produto não confirmados?")) setProductItem(null);
+            return;
+        }
         if (
             !xml ||
             window.confirm("Descartar a prévia e o arquivo selecionado?")
@@ -66,7 +76,7 @@ export function ReceivingCreateDialog({
     useEffect(
         () =>
             registerPageLeave(() => {
-                if (pending || unknown) return false;
+                if (pending || unknown || productLocked) return false;
                 return (
                     !xml ||
                     window.confirm(
@@ -74,7 +84,7 @@ export function ReceivingCreateDialog({
                     )
                 );
             }),
-        [pending, unknown, xml],
+        [pending, unknown, xml, productLocked],
     );
     useEffect(() => {
         const controller = new AbortController();
@@ -293,7 +303,8 @@ export function ReceivingCreateDialog({
             if (!lifetime.current.signal.aborted) setPending("");
         }
     };
-    const blocked = Boolean(pending) || unknown;
+    const blocked = Boolean(pending) || unknown || productLocked;
+    const productSource = previa?.documento?.itens?.find(i => i.numeroItem === productItem);
     return (
         <Dialog
             title={mode === "choose" ? "Novo pedido" : "Importar XML da NF-e"}
@@ -301,7 +312,14 @@ export function ReceivingCreateDialog({
             locked={blocked}
             wide={mode === "xml"}
         >
-            {mode === "choose" ? (
+            {productSource ? <XmlProductForm item={productSource} clienteId={cliente}
+                transport={transport} perfil={perfil} onLock={setProductLocked}
+                onCreated={(product) => {
+                    setProducts(old => [...old.filter(p => p.id !== product.id), product]);
+                    setAssociacoes(old => ({ ...old, [productSource.numeroItem]: product.id ?? "" }));
+                    invalidate();
+                    setProductItem(null);
+                }} /> : mode === "choose" ? (
                 <div className="nfe-create-choices">
                     <p>Como deseja criar o pedido de entrada?</p>
                     <button
@@ -473,6 +491,13 @@ export function ReceivingCreateDialog({
                                                     ))}
                                                 </select>
                                             </label>
+                                            {perfil === "GESTOR" && !mapped?.produtoId && (
+                                                <button type="button" disabled={blocked || !cliente}
+                                                    onClick={() => setProductItem(i.numeroItem)}>
+                                                    Cadastrar produto do item {i.numeroItem}
+                                                </button>
+                                            )}
+                                            <p className="hint">Na nota: {i.quantidadeComercial} {i.unidadeComercial}. A contagem de bobinas será informada na conferência física.</p>
                                             {mapped?.quantidadeEstoque && (
                                                 <p>
                                                     Previsto no estoque:{" "}

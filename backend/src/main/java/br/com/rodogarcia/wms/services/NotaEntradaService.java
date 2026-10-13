@@ -104,7 +104,9 @@ public class NotaEntradaService {
                                     return new PedidoEntradaDto.ItemNota(
                                             i.numeroItem(),
                                             produtoId,
-                                            i.quantidade(),
+                                            ConversaoUnidadeNfe.converter(i.quantidade(), i.unidade(),
+                                                    produtos.findById(produtoId).orElseThrow(
+                                                            RegraNegocioException::naoEncontrado).getUnidadeMedida()),
                                             i.valorMercadoria());
                                 })
                         .toList();
@@ -119,12 +121,11 @@ public class NotaEntradaService {
         validar(manual);
         var bloqueados = bloquearProdutos(p, itensXml);
         for (int i = 0; i < itensXml.size(); i++) {
-            if (!bloqueados
-                    .get(itensXml.get(i).produtoId())
-                    .getUnidadeMedida()
-                    .equals(nfe.itens().get(i).unidade()))
-                throw CadastroSupport.invalido(
-                        "Unidade comercial do XML difere da unidade do produto. Conversão automática não disponível.");
+            var original = nfe.itens().get(i);
+            var convertido = ConversaoUnidadeNfe.converter(original.quantidade(), original.unidade(),
+                    bloqueados.get(itensXml.get(i).produtoId()).getUnidadeMedida());
+            if (convertido.compareTo(itensXml.get(i).quantidadePrevista()) != 0)
+                throw RegraNegocioException.conflito("PRODUTO_ALTERADO", "Produto mudou; confira o XML novamente.");
         }
         var antes = pedidos.resumo(p);
         NotaEntrada nota;

@@ -175,17 +175,18 @@ public class PedidoEntradaXmlService {
         for (var i : doc.itens()) {
             var p = catalogo.get(ids.get(i.numeroItem()));
             String pendencia = null;
+            BigDecimal quantidade = null;
+            BigDecimal fator = null;
             if (p == null) pendencia = "Associe este item a um produto do cliente proprietário.";
             else if (p.getSituacao() != SituacaoCadastro.ATIVO)
                 pendencia = "O produto associado não está ativo.";
-            else if (!p.getUnidadeMedida().equals(CadastroSupport.codigo(i.unidadeComercial())))
-                pendencia =
-                        "Unidade comercial diferente da unidade de estoque. Conversão não cadastrada; não é possível confirmar.";
             else {
                 try {
-                    CadastroSupport.quantidade(p, i.quantidadeComercial());
+                    fator = ConversaoUnidadeNfe.fator(i.unidadeComercial(), p.getUnidadeMedida());
+                    quantidade = i.quantidadeComercial().multiply(fator);
+                    CadastroSupport.quantidade(p, quantidade);
                 } catch (RegraNegocioException e) {
-                    pendencia = "Quantidade incompatível com a precisão do produto.";
+                    pendencia = e.getMessage();
                 }
             }
             if (pendencia != null) pendencias.add("Item " + i.numeroItem() + ": " + pendencia);
@@ -197,8 +198,8 @@ public class PedidoEntradaXmlService {
                             p == null ? null : p.getSku(),
                             p == null ? null : p.getDescricao(),
                             p == null ? null : p.getUnidadeMedida(),
-                            pendencia == null ? i.quantidadeComercial() : null,
-                            pendencia == null ? BigDecimal.ONE : null,
+                            pendencia == null ? quantidade : null,
+                            pendencia == null ? fator : null,
                             pendencia));
         }
         var duplicada =

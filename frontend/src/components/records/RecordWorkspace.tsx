@@ -545,6 +545,7 @@ function PageRecords(props: Props & { definition: RecordPage }) {
             {creatingEntry && (
                 <ReceivingCreateDialog
                     transport={transport}
+                    perfil={perfil}
                     onClose={() => setCreatingEntry(false)}
                     onManual={() => {
                         setCreatingEntry(false);

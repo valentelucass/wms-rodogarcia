@@ -1,5 +1,15 @@
 # Continuidade do projeto WMS Rodogarcia
 
+## FE04-INTEGRACAO01 — gravações autenticadas conferidas, 13/10/2026
+
+Acesso fornecido por Lucas permitiu fechar a pendência de APIs da revisão: 35 verificações aprovadas após guarda SQL atual 26/26; oito famílias sequenciais com duas criações simultâneas cada, modelo Excel importado, fiscal, recebimento/unitização, endereçamento, etiquetas e consultas posteriores. [Resultado](../orchestracao/.runtime/fe04-integracao01/resultado.json), [detalhamento](design-system/etapa-09.md#fe04-integracao01--validação-autenticada-no-dev-13102026). Sem mudança de código nesta rodada; duas correções no executor de testes foram registradas separadamente de falhas do produto. BE54280 e FE80748 preservados, sessão própria encerrada, credenciais não persistidas.
+
+Preservar fixtures `TESTE-FE04-20261013-D3A412` e IDs do recibo: saldo fictício 12 kg, duas bobinas de 5/7 kg, saídas sem reserva e cargas iniciais apenas pendentes. Não repetir a criação ao retomar. Próximo trabalho: FE05-XML-BOBINAS01, já aprovado; não pedir outra aprovação do fluxo ao gestor. Para validar a NF real, obter XML original compatível e esclarecer a diferença de 60 kg. Navegador autenticado e dispositivos físicos não foram exercitados nesta rodada, e a nota real não foi importada.
+
+## FE04-REVISAO01 — resultado do pente fino, 13/10/2026
+
+Revisão solicitada por Lucas concluída com duas correções no estado de operações, testes finais locais aprovados (575 frontend, 12 Chrome, 76 backend puros), modelo publicado lido pelo parser Java e contratos alinhados. [Matriz, evidências e próximos passos](design-system/etapa-09.md#fe04-revisao01--pente-fino-da-sequência-13102026). Não declarar tudo implementado: complemento XML/bobinas da etapa 3, conversão TO → kg e cadastro assistido de SKU continuam pendentes. Guarda atual passou e as classes Java ativas coincidiram com a compilação; não houve gravação, reinício ou sessão autenticada disponível para teste integrado. Preservar NF 32325 como análise, sem lançar estoque ou resolver a diferença de 60 kg por suposição.
+
 ## FE05-XML-BOBINAS01 — aprovação do fluxo por peso, 13/10/2026
 
 Lucas encaminhou aprovação do gestor ao fluxo da NF 32325: importar produtos/peso previsto e registrar a quantidade física de bobinas na etapa 3 discutida. [Fonte e detalhamento](06-decisoes-e-pendencias.md#fe05-xml-bobinas01--peso-da-nota-e-quantidade-física-de-bobinas-13102026). Não inferir contagem ou peso individual pelo peso fiscal. Apenas documentação nesta rodada; implementação/validação do recorte, XML original compatível e divergência de 60 kg permanecem pendentes. Preservar as validações e pendências FE04 anteriores, sem importar a nota real ou reiniciar ambientes por este registro.

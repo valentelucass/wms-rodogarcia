@@ -77,8 +77,8 @@ export function useOperation({
     const previousContext = useRef(context);
     useEffect(() => {
         const previous = previousContext.current;
-        previousContext.current = context;
         if (pending || uncertain || completed) return;
+        previousContext.current = context;
         const internalFields = operationContextFields(id);
         setParams((old) => {
             let next = old;

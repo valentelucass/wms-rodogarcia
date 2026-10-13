@@ -4,6 +4,7 @@ export default defineConfig({
     plugins: [react()],
     server: { host: "127.0.0.1", port: 5178, strictPort: true },
     test: {
+        maxWorkers: 2,
         environment: "jsdom",
         setupFiles: ["tests/setup.ts"],
         include: ["tests/**/*.test.ts", "tests/**/*.test.tsx"],

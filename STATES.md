@@ -1,5 +1,17 @@
 # Estado e trilha de implementação do WMS Rodogarcia
 
+## FE04-INTEGRACAO01 — confirmação autenticada no DEV, 13/10/2026
+
+Lucas forneceu acesso para concluir a validação integrada. Guarda nova aprovada em 26 verificações, WMS_DEV/WMSDEV/TLS obrigatório; usada a instância existente BE54280/FE80748, sem reinício. **35 verificações aprovadas**: download e importação real do modelo com quatro posições; criação concorrente das oito famílias de códigos; fiscal cliente/armazém; recebimento fictício de 12 kg distribuído em duas bobinas de 5 e 7 kg; repetição sem duplicidade, recusa de soma incorreta/UUID reutilizado/revisão antiga; endereçamento, etiquetas, saldo e consultas posteriores. [Resultado e IDs preservados](orchestracao/.runtime/fe04-integracao01/resultado.json), [escopo e limites](docs/design-system/etapa-09.md#fe04-integracao01--validação-autenticada-no-dev-13102026).
+
+A pendência de acesso/gravações dos recortes FE04 acima foi suprida para essas APIs. Sessão própria encerrada; senha/tokens não gravados. Fixtures fictícias identificadas por `TESTE-FE04-20261013-D3A412` permanecem no DEV com 12 kg de saldo, sem reserva ou expedição. Não houve importação da NF real, emissão fiscal, produção, DDL ou teste H2. Navegador autenticado/dispositivos não exercitados; testes visuais anteriores permanecem locais/interceptados. Próximo: implementar FE05-XML-BOBINAS01 (TO → kg, contagem independente na etapa 3 e cadastro assistido de SKU), preservando a solicitação do XML original e a divergência de 60 kg.
+
+## FE04-REVISAO01 — revisão da sequência Excel, códigos e recebimento, 13/10/2026
+
+Pedido de Lucas: pente fino de funcionamento, alinhamento e completude. Duas falhas corrigidas: revisão oculta recebida durante espera não era aplicada após recusa; ausência de contexto externo escondia recuperação de resposta incerta. Testes reproduziram ambas antes da correção. Resultado: 575 testes frontend, 12 Chrome com HTTP interceptado, tipagem/lint/build e 76 testes puros backend/build. Modelo Excel publicado conferido pelo parser Java com cópias em memória; contratos alinhados. [Matriz e limites](docs/design-system/etapa-09.md#fe04-revisao01--pente-fino-da-sequência-13102026).
+
+Guarda real atual aprovada, somente metadados; 559 classes Java do backend ativo coincidiram com as compiladas. Sem gravação/reinício. Sessão autenticada indisponível na ferramenta, portanto integração das gravações e concorrência permanece pendente. FE05-XML-BOBINAS01 continua parcialmente apoiado pela unitização existente, mas conversão TO → kg, contagem independente na etapa 3 e criação assistida de SKU não foram implementadas. Próximo: implementar esse complemento e validar as jornadas autenticadas, preservando a pendência do XML original e da divergência da amostra. [Recibo](orchestracao/.runtime/fe04-revisao01/resultado.json).
+
 ## FE05-XML-BOBINAS01 — fluxo aprovado pelo gestor, 13/10/2026
 
 Aprovação do fluxo de importação após análise da NF 32325, encaminhada por Lucas: XML preenche produtos/peso previsto; etapa 3 do fluxo discutido registra a quantidade física de bobinas. [Decisão e limites](docs/06-decisoes-e-pendencias.md#fe05-xml-bobinas01--peso-da-nota-e-quantidade-física-de-bobinas-13102026). Atualização somente documental, sem nova implementação ou entrada real.

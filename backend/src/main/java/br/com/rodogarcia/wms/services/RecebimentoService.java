@@ -47,6 +47,7 @@ public class RecebimentoService {
     private final Clock clock;
     private final JsonMapper mapper;
     private final OperacaoAdministrativaService operacoes;
+    private final ConferenciaBobinasService bobinas;
 
     public RecebimentoService(
             PedidoEntradaService pedidos,
@@ -57,7 +58,9 @@ public class RecebimentoService {
             AcessoService acesso,
             Clock clock,
             JsonMapper mapper,
-            OperacaoAdministrativaService operacoes) {
+            OperacaoAdministrativaService operacoes,
+            ConferenciaBobinasService bobinas) {
+        this.bobinas = bobinas;
         this.operacoes = operacoes;
         this.pedidos = pedidos;
         this.chegadas = chegadas;
@@ -107,6 +110,7 @@ public class RecebimentoService {
                                 CadastroSupport.motivo(dados.observacao())));
         int seq = 0;
         for (var item : dados.itens()) {
+            ConferenciaBobinasService.validar(item);
             var origem = porId.get(item.itemNotaId());
             if (origem == null)
                 throw CadastroSupport.invalido("Item não pertence às notas deste pedido.");
@@ -279,6 +283,7 @@ public class RecebimentoService {
         pedidos.obter(id);
         var page = chegadas.findByPedidoId(id, CadastroSupport.pagina(pagina, tamanho));
         var ids = page.getContent().stream().map(ChegadaRecebimento::getId).toList();
+        var contagens = bobinas.consultar(id);
         var porChegada =
                 ids.isEmpty()
                         ? Map.<Long, List<ItemChegada>>of()
@@ -290,17 +295,18 @@ public class RecebimentoService {
                         RecebimentoDto.Chegada.de(
                                 c,
                                 porChegada.getOrDefault(c.getId(), List.of()).stream()
-                                        .map(RecebimentoDto.ItemFisico::de)
+                                        .map(i -> RecebimentoDto.ItemFisico.de(i, ConferenciaBobinasService.obter(contagens, i)))
                                         .toList()));
     }
 
     public PaginaResponse<RecebimentoDto.Entrada> listarEntradas(
             @NotNull @Positive Long id, int pagina, int tamanho) {
         pedidos.obter(id);
+        var contagens = bobinas.consultar(id);
         return PaginaResponse.de(
                 entradas.findByItemChegadaChegadaPedidoId(
                         id, CadastroSupport.pagina(pagina, tamanho)),
-                RecebimentoDto.Entrada::de);
+                e -> RecebimentoDto.Entrada.de(e, ConferenciaBobinasService.obter(contagens, e.getItemChegada())));
     }
 
     private Instant agora() {
