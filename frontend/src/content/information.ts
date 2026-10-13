@@ -10,6 +10,11 @@ export type Information = {
 };
 
 export const information = {
+    receivingPhysicalQuantity: {
+        title: "Quantidade física",
+        description:
+            "Informe a quantidade física na unidade do produto cadastrado. Não use a unidade comercial do XML nem a contagem de bobinas.",
+    },
     receivingBobinas: {
         title: "Peso e contagem de bobinas",
         description:
@@ -23,7 +28,7 @@ export const information = {
     occupied: {
         title: "Posições ocupadas",
         description:
-            "Endereços físicos ocupados no contexto consultado. Observe a área indicada no cartão. Uma posição pode conter mais de uma unidade logística.",
+            "Endereços físicos ocupados no contexto consultado. Observe a área indicada no cartão. Uma posição recebe uma única unidade logística. Uma unidade pode ocupar várias posições conforme a regra de capacidade.",
     },
     free: {
         title: "Posições livres",

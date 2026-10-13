@@ -184,12 +184,32 @@ function FieldControl({
         );
     }
     if (records[f.type]) {
+        const physicalItem =
+            f.type === "RecebimentoDto.Item" && isObject(value)
+                ? refs.records?.["PedidoEntradaDto.ItemConferencia"]?.find(
+                      (item) => item.id === value.itemNotaId,
+                  )
+                : undefined;
+        const productUnit =
+            typeof physicalItem?.unidadeMedida === "string"
+                ? physicalItem.unidadeMedida
+                : null;
         return (
             <fieldset
                 disabled={disabled}
                 className={fiscalData ? "operation-fields" : undefined}
             >
                 <legend>{title}</legend>
+                {f.type === "RecebimentoDto.Item" && (
+                    <p className="hint">
+                        <span>
+                            {productUnit
+                                ? `Unidade do produto: ${productUnit}.`
+                                : "Consulte o item da nota para identificar a unidade do produto."}
+                        </span>{" "}
+                        {information.receivingPhysicalQuantity.description}
+                    </p>
+                )}
                 {f.type === "RecebimentoDto.Bobinas" && (
                     <p className="hint">
                         {information.receivingBobinas.description}

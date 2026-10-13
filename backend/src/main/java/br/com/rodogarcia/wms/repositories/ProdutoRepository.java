@@ -15,6 +15,10 @@ public interface ProdutoRepository extends JpaRepository<Produto, Long> {
     @Query("select p.id from Produto p where p.cliente.id = :clienteId and p.sku = :sku")
     Optional<Long> buscarIdPorSku(Long clienteId, String sku);
 
+    @Query(
+            "select p.id from Produto p where p.cliente.id = :clienteId and p.sku in :skus order by p.id")
+    List<Long> buscarIdsPorSkus(Long clienteId, List<String> skus, Pageable pagina);
+
     Page<Produto> findByClienteId(Long clienteId, Pageable pageable);
 
     Page<Produto> findByClienteIdIn(List<Long> clienteIds, Pageable pageable);

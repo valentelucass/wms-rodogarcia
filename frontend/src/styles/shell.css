@@ -587,6 +587,15 @@ footer,
 .app-footer-credit {
     text-align: right;
 }
+.app-footer-legal {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--og-space-1) var(--og-space-3);
+    align-items: baseline;
+}
+.app-footer-update {
+    font-variant-numeric: tabular-nums;
+}
 .app-footer a {
     text-decoration: none;
 }

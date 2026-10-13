@@ -98,12 +98,17 @@ async function running(handler = (_req, res) => res.end("synthetic upstream")) {
     const fixtureBuild = await fixture();
     const upstream = http.createServer(handler);
     const upstreamPort = await listen(upstream);
+    const activationReceipt = path.join(
+        proofRoot,
+        `activation-${path.basename(fixtureBuild.dist)}.json`,
+    );
     const frontend = await createProductionServer({
         dist: fixtureBuild.dist,
         manifest: fixtureBuild.manifestPath,
         port: 0,
         backend: `http://127.0.0.1:${upstreamPort}`,
         publicOrigin: origin,
+        activationReceipt,
     });
     const address = await frontend.listen();
     return {
@@ -111,6 +116,7 @@ async function running(handler = (_req, res) => res.end("synthetic upstream")) {
         upstream,
         frontend,
         port: address.port,
+        activationReceipt,
         cleanup: async () => {
             await close(frontend.server);
             await close(upstream);
@@ -130,6 +136,8 @@ test("CLI/topologia recusam argumentos ausentes, duplicados, destino externo, DE
         "http://127.0.0.1:25590",
         "--public-origin",
         origin,
+        "--activation-receipt",
+        "run/launcher.json",
     ];
     assert.equal(parseArguments(valid).port, 25591);
     for (const args of [
@@ -165,6 +173,60 @@ test("CLI/topologia recusam argumentos ausentes, duplicados, destino externo, DE
     assert.throws(() =>
         buildArguments(["--release", "relative", "--run-id", "abc"]),
     );
+});
+
+test("data publicada somente após ativação bem-sucedida da mesma versão e processo; sem cache", async () => {
+    const r = await running();
+    try {
+        assert.equal((await request(r.port, "/__wms/release")).status, 503);
+        const receipt = {
+            natureza: "WMS_PRODUCTION_LAUNCHER",
+            runId: r.manifest.runId,
+            operationalReadiness: true,
+            estado: "OPERATIONAL_PUBLIC_READINESS_HTTPS_LOGIN_PENDING",
+            activatedUtc: "2026-10-13T22:08:09.1234567Z",
+            frontend: { pid: process.pid },
+            build: {
+                frontend: { manifestSha256: r.frontend.build.manifestHash },
+            },
+            privatePath: "MUST_NOT_BE_PUBLISHED",
+        };
+        for (const patch of [
+            { estado: "PREPARED_ONLY" },
+            { operationalReadiness: false },
+            { runId: "another-run" },
+            { frontend: { pid: -1 } },
+            { build: { frontend: { manifestSha256: "b".repeat(64) } } },
+            { activatedUtc: "invalid-date" },
+            { activatedUtc: undefined },
+        ]) {
+            await writeFile(
+                r.activationReceipt,
+                JSON.stringify({ ...receipt, ...patch }),
+            );
+            assert.equal((await request(r.port, "/__wms/release")).status, 503);
+        }
+        await writeFile(r.activationReceipt, JSON.stringify(receipt));
+        const response = await request(r.port, "/__wms/release");
+        assert.equal(response.status, 200);
+        assert.equal(response.headers["cache-control"], "no-store");
+        assert.deepEqual(JSON.parse(response.body), {
+            runId: receipt.runId,
+            activatedUtc: receipt.activatedUtc,
+        });
+        assert.equal(
+            (await request(r.port, "/__wms/release", { method: "HEAD" })).body
+                .length,
+            0,
+        );
+        assert.equal(
+            (await request(r.port, "/__wms/release", { method: "POST" }))
+                .status,
+            405,
+        );
+    } finally {
+        await r.cleanup();
+    }
 });
 
 test("HTML/assets verificados, HEAD e CSP fechada; sem Vite server", async () => {

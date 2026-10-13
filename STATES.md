@@ -1,5 +1,43 @@
 # Estado e trilha de implementação do WMS Rodogarcia
 
+## PM2-PROD02 — transferência para PM2 principal autorizada, 13/10/2026
+
+Resultado da tentativa de elevação: Windows retornou “operação cancelada pelo usuário”; job não iniciado, sem transferência nem save principal. O comando pronto `pm2-wms.bat migrar` deve ser executado no terminal administrador do operador. Conferência posterior confirmou ambos WMS isolados online e as quatro portas DEV/PROD com mesmos donos. Helper `pm2-main-check.ps1` identifica o dono real do pipe e corrige somente o resíduo conhecido 42760 antes da transferência; parsing aprovado, execução elevada ainda pendente.
+
+Lucas esclareceu que precisa dos dois WMS no `pm2 ls` principal, sem reiniciar a VM, e pediu `pm2 save`. Controlador alterado para filtrar somente entradas WMS por nome/diretório/script/ID, preservando os demais aplicativos; comando `migrar` retira as entradas isoladas e inicia o pacote selecionado no principal, salvando ambas as listas. Seis testes locais de propriedade/protocolo aprovados. O cliente agora recusa acesso negado antes de tentar criar outro daemon.
+
+Execução principal recebeu `EPERM` no pipe; sessão atual tem integridade média e daemon principal exige administrador. Solicitada elevação UAC para `orchestracao/.runtime/pm2-prod-20261013/migrar-principal.ps1`; ainda sem recibo de execução no momento deste registro. **Transferência e save principal pendentes da confirmação Windows.** Processos WMS isolados 33516/68932 continuam disponíveis. Não repetir a transferência se o job estiver em execução; conferir `migrar-principal-result.json` e `main-migration.json`. Uma chamada genérica `pm2 ls` criou um daemon falho 42760, encerrado após atestar PID/início/pai/comando; ela deixou o metadado `.pm2/pm2.pid` apontando para 42760. Corrigir esse metadado apenas após comprovar o PID real do pipe principal no contexto elevado, sem encerrar outros daemons. Nenhum reinício da VM ou dos serviços alheios.
+
+## PM2-PROD01 — API e UI ativas separadamente, 13/10/2026
+
+Pedido expresso de Lucas: subir produção no PM2, nomes com porta e arquivo na raiz. Criados `ecosystem.config.js` e `pm2-wms.bat`; operação documentada em [produção no PM2](docs/45-producao-pm2.md). A autorização inclui a substituição desta instância PROD. PM2 próprio isolado dos demais projetos, preservando canais protegidos e guarda WMS_PROD/WMSPROD/TLS.
+
+Publicado run `4573ed7613a6431c84839dd473e3d213`: `wms-api-25590` online (supervisor 68112, Java 33516) e `wms-ui-25591` online (supervisor 54624, Node 68932). Ativação `2026-10-13T22:26:34.5950008Z`, rodapé `13/10/2026, 19:26:34 (Brasília)`. Terminal controlador encerrou com sucesso e ambos permaneceram ativos; lista própria salva. HTTPS UI/API/relay/metadados HTTP 200. Guarda nova 26/26; 32 testes locais (2 wrapper, 6 seleção, 24 launcher) e build BE/FE aprovados. Somente antigos PROD 64800/66528 encerrados após atestação; DEV 5904/35416 preservado.
+
+Evidência: `orchestracao/.runtime/pm2-prod-20261013/resultado.json`. Sem DDL/migrations/grants, fixtures ou testes de negócio em PROD; login autenticado não repetido. Fontes concorrentes preservadas, sem converter build em aceite de negócio. **Supera a instrução histórica abaixo de manter o BAT aberto.** Atualizar com `pm2-wms.bat atualizar`; consultar com `pm2-wms.bat status`. Inicialização automática do Windows não instalada: após reiniciar a máquina, `pm2-wms.bat iniciar`.
+
+## QUAL-LEVE01-COR01 — três ajustes e validação local, 13/10/2026
+
+Lucas autorizou corrigir e testar os três achados da revisão leve: unidade do produto nas tabelas/conferência e orientação física; ajuda de ocupação com uma unidade por posição; normalização kg/Kg na sugestão de bobina. Posse BE Cedro/FE Lume confirmada antes do patch, Vigia revisão, Farol canônicos/Graphify e Prumo sem conflito. SKU-ZEROS01, RegraSkuXml e FOOTER-PROD01 preexistentes são preservados.
+
+**Concluído e revisado favoravelmente no recorte local.** ItemConferencia.unidadeMedida obrigatório vem somente do produto cadastrado; tabelas/guia física, ajuda e sugestão de bobina corrigidas, sem inferência pelo XML/peso. Backend: RED 46/11 falhas esperadas → GREEN 46/0; final verify 107/0/0/0 em oito classes (19 novos + 88 atuais), exit 0. Frontend: RED 8 falhas → GREEN 8/0; regressão final 227/227 em seis arquivos, tipagem/lint/build isolado/diff check exit 0. Não somar fases. Três classes/20 casos históricos que criam contexto Spring/Hibernate foram excluídos, sem transportar 108. [Relatório e pacotes locais](orchestracao/.runtime/qualidade-leve-20261013/cor01/resultado.md), [parecer Vigia](orchestracao/.runtime/qualidade-leve-20261013/cor01/vigia/revisao.md).
+
+Limites e próximo: fonte corrigida e pacotes exclusivamente em cor01, nenhuma atualização/ativação da versão em execução por COR01. Sem SQL/HTTP/browser integrado, H2, credenciais, BAT/reinício/kill, publicação/PROD operacional, DDL/migrations/grants, commit/push ou ETL/jobs. Preservação 13/14 hashes iguais; drift externo de infra/prod/iniciar-prod.ps1 preservado e fora do incremento. Graphify update . executado após código, exit 1: guarda recusou 13.919 nós contra 15.220; grafo principal/backup preservados, sem force ou aceite de atualização. Revisão entregue; aguardar outra demanda, sem ativar/reabrir campanha. [Contrato pertinente](docs/18-recebimento-e-conferencia.md#qual-leve01-cor01--unidade-do-produto-no-contrato-de-conferência-13102026).
+
+## FOOTER-PROD01 — horário da atualização publicado, 13/10/2026
+
+Lucas pediu data/hora da última atualização bem-sucedida ao lado dos direitos reservados e autorizou subir produção. Rodapé compartilhado consulta recibo validado da versão ativa, em Brasília; compilar sozinho não altera o horário. Uma aba de versão anterior recebe aviso para atualizar, sem recarga automática. DEV não mostra informação de produção.
+
+Validação: 588 testes frontend, 16 do servidor, 24 do launcher, tipagem/lint/build e Chrome desktop/mobile claro/escuro. Run ativo `e2165b2e2e3a4f8ca7c84aab687d3bef`, backend 64800/25590, frontend 66528/25591. Ativação `2026-10-13T22:10:08.4190579Z`, exibida como `13/10/2026, 19:10:08 (Brasília)`. HTTPS frontend, metadados e relay HTTP 200; data/versão iguais ao recibo. Guarda PROD 26/26. Reiniciados somente os processos PROD anteriores 57608/54916, após atestação; DEV 5904/35416 preservado. Sem DDL/migrations, testes de negócio ou fixtures PROD. Login autenticado não repetido. [Comportamento e limites](docs/design-system/etapa-13.md), recibo `orchestracao/.runtime/footer-prod-20261013/resultado.json`. Sem pendência de publicação; manter sessão do BAT aberta.
+
+## SKU-ZEROS01 — regra parametrizada publicada em produção, 13/10/2026
+
+Pedido do gestor encaminhado por Lucas: reconhecer SKU a partir do primeiro algarismo diferente de zero. Implementado parâmetro por CNPJ/CPF em `.properties`, padrão Bracell 53943098000187. Somente SKU numérico; zeros internos/alfanuméricos/XML/cadastros preservados. Ambiguidades exigem associação manual, inclusive se um SKU for exato. Regra de bobina acompanha a correspondência sem ampliar produtos/unidades.
+
+108 testes puros (17 novos), guarda DEV 26/26, 15 verificações HTTP/SQL reais e Chrome desktop/mobile aprovados. Validação DEV no run `467776d9-683d-4a05-95bc-7bd0b6f985b4` (47272/25580, 54680/25581). Fixtures: produtos 83–85, pedido 89, nota 80; sem estoque.
+
+Lucas autorizou expressamente a atualização de produção. Após atestar PID/início/comando/perfil/recibos/portas, encerrados somente os processos PROD 16776/5016. BAT normal recompilou a fonte atual e ativou o run `8e2ad08966344568a19be1a2158ebdd5`: backend 57608/25590, frontend 54916/25591. JAR idêntico ao candidato preparado `554545971e4a4abb9c08330c245cde7d`; 311 fingerprints atuais, regra e configuração Bracell conferidos. Guarda PROD 26/26; frontend, API pública e relay HTTPS HTTP 200; formulário de login sem erros JavaScript. Login autenticado não repetido nesta atualização. DEV observado no início/fim preservado (39564/25580, 43424/25581). Sem DDL, migrations, testes de negócio PROD ou commit/push. Detalhes em docs/design-system/etapa-12.md; recibos orchestracao/.runtime/sku-zeros/resultado.json e publicacao.json. Sem pendência de ativação deste recorte; manter a sessão do launcher aberta.
+
 ## PROD-LAUNCH03 — produção ativa e login HTTPS conferido, 13/10/2026
 
 Lucas autorizou conferir exclusivamente WMS_PROD, criar WMSPROD com permissões mínimas, aplicar somente migrations pendentes e preparar o administrador inicial. Confirmou expressamente que este é o banco da subida para produção. Preservar DEV, dados e demais acessos; sem testes de negócio em PROD.

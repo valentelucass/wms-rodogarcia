@@ -157,6 +157,11 @@ export async function buildRelease(options) {
         configLoader: "native",
         cacheDir: path.join(options.release, "vite-cache"),
         mode: "production",
+        define: {
+            "import.meta.env.VITE_WMS_PRODUCTION_RUN_ID": JSON.stringify(
+                options.runId,
+            ),
+        },
         build: { outDir: output, emptyOutDir: false },
     });
     assertSourceUnchanged(initial, await inputs(), "BUILD");

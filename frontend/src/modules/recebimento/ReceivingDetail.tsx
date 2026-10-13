@@ -159,6 +159,7 @@ export function ReceivingDetail({
                                             <tr>
                                                 {[
                                                     "Item / SKU",
+                                                    "Unidade do produto",
                                                     "Previsto",
                                                     "Bom físico",
                                                     "Avariado físico",
@@ -195,6 +196,11 @@ export function ReceivingDetail({
                                                                 )}
                                                             </small>
                                                         </th>
+                                                        <td>
+                                                            {display(
+                                                                item.unidadeMedida,
+                                                            )}
+                                                        </td>
                                                         {[
                                                             item.prevista,
                                                             item.recebidaBoa,

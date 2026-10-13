@@ -1,5 +1,23 @@
 # Launcher de produção Windows
 
+## PM2-PROD01 — execução operacional atual, 13/10/2026
+
+Produção passou para PM2 por pedido de Lucas. O launcher continua preparando candidatos e fornecendo guardas; o controlador `pm2-wms.bat` gerencia `wms-api-25590` e `wms-ui-25591`. [Guia atual](45-producao-pm2.md). Run `4573ed7613a6431c84839dd473e3d213`, ativação `2026-10-13T22:26:34.5950008Z`, API/UI online e HTTPS conferido. Evidência: `orchestracao/.runtime/pm2-prod-20261013/resultado.json`.
+
+Pode fechar o terminal após a confirmação. As instruções de manter BAT aberto nos registros abaixo descrevem o modo standalone anterior. Para publicar fonte nova, `pm2-wms.bat atualizar`; para iniciar a versão selecionada após boot, `pm2-wms.bat iniciar`. Serviço de inicialização automática do Windows não instalado.
+
+## FOOTER-PROD01 — horário da atualização publicado, 13/10/2026
+
+Lucas pediu data/hora da última atualização bem-sucedida ao lado dos direitos reservados e autorizou subir produção. Rodapé compartilhado consulta recibo validado da versão ativa, em Brasília; compilar sozinho não altera o horário. Uma aba de versão anterior recebe aviso para atualizar, sem recarga automática. DEV não mostra informação de produção.
+
+Validação: 588 testes frontend, 16 do servidor, 24 do launcher, tipagem/lint/build e Chrome desktop/mobile claro/escuro. Run ativo `e2165b2e2e3a4f8ca7c84aab687d3bef`, backend 64800/25590, frontend 66528/25591. Ativação `2026-10-13T22:10:08.4190579Z`, exibida como `13/10/2026, 19:10:08 (Brasília)`. HTTPS frontend, metadados e relay HTTP 200; data/versão iguais ao recibo. Guarda PROD 26/26. Reiniciados somente os processos PROD anteriores 57608/54916, após atestação; DEV 5904/35416 preservado. Sem DDL/migrations, testes de negócio ou fixtures PROD. Login autenticado não repetido. [Comportamento e limites](design-system/etapa-13.md), recibo `orchestracao/.runtime/footer-prod-20261013/resultado.json`. Sem pendência de publicação; manter sessão do BAT aberta.
+
+## SKU-ZEROS01 — atualização autorizada e publicada, 13/10/2026
+
+Lucas autorizou a breve interrupção para publicar a correspondência de SKU numérico sem zeros à esquerda, parametrizada para Bracell. Após conferir fonte/candidato, guarda atual e propriedade dos processos, encerrados somente os PIDs PROD 16776/5016. O BAT normal gerou e ativou o run `8e2ad08966344568a19be1a2158ebdd5`, backend 57608/25590 e frontend 54916/25591; este substitui a instância do registro PROD-LAUNCH03 abaixo.
+
+Guarda 26/26, 311 fingerprints de fonte e JAR conferidos, frontend/API/relay públicos HTTP 200 e formulário de login sem erros JavaScript no Chrome. Login autenticado não repetido nesta atualização; a prova de login abaixo permanece datada. DEV atual preservado (39564/25580, 43424/25581). Sem migrations/grants, testes de negócio PROD, alteração de contas ou configuração de tunnel. Recibo: `orchestracao/.runtime/sku-zeros/publicacao.json`. Manter a sessão do BAT aberta.
+
 ## PROD-LAUNCH03 — produção ativa, 13/10/2026
 
 Lucas autorizou conferir exclusivamente WMS_PROD, criar WMSPROD com permissões mínimas, aplicar migrations pendentes e preparar o administrador inicial. Confirmou que este é o banco desta subida. O tunnel já estava configurado pelo operador; DEV, servidor SQL, demais acessos e configuração externa foram preservados.

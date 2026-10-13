@@ -43,6 +43,7 @@ public class PedidoEntradaXmlService {
     private final AcessoService acesso;
     private final JsonMapper mapper;
     private final String ambiente;
+    private final RegraSkuXml regraSku;
 
     public PedidoEntradaXmlService(
             NfeDocumentoService documentos,
@@ -56,7 +57,8 @@ public class PedidoEntradaXmlService {
             NotaEntradaService inclusao,
             AcessoService acesso,
             JsonMapper mapper,
-            @Value("${wms.recebimento.xml.ambiente:1}") String ambiente) {
+            @Value("${wms.recebimento.xml.ambiente:1}") String ambiente,
+            RegraSkuXml regraSku) {
         this.documentos = documentos;
         this.clientes = clientes;
         this.armazens = armazens;
@@ -68,6 +70,7 @@ public class PedidoEntradaXmlService {
         this.inclusao = inclusao;
         this.acesso = acesso;
         this.mapper = mapper;
+        this.regraSku = regraSku;
         if (!List.of("1", "2").contains(ambiente))
             throw new IllegalArgumentException("Ambiente NF-e inválido");
         this.ambiente = ambiente;
@@ -152,12 +155,33 @@ public class PedidoEntradaXmlService {
                 throw CadastroSupport.invalido("Associação repetida ou item inexistente no XML.");
         }
         var ids = new HashMap<Integer, Long>();
+        var ambiguos = new java.util.HashSet<Integer>();
+        var correspondencias = new HashMap<String, List<Long>>();
+        if (clienteCompativel && regraSku.habilitada(doc.emitente().documento()))
+            avisos.add(
+                    "Para este cliente, a busca de SKU numérico ignora zeros à esquerda. O código original da nota e o cadastro são preservados; correspondências múltiplas exigem associação manual.");
         for (var i : doc.itens()) {
             Long id = explicitas.get(i.numeroItem());
-            if (id == null && clienteCompativel)
-                id =
-                        produtos.buscarIdPorSku(clienteId, CadastroSupport.codigo(i.codigo()))
-                                .orElse(null);
+            if (id == null && clienteCompativel) {
+                String codigo = CadastroSupport.codigo(i.codigo());
+                var encontrados = correspondencias.get(codigo);
+                if (encontrados == null) {
+                    var variantes = regraSku.variantes(doc.emitente().documento(), codigo);
+                    encontrados =
+                            variantes.size() == 1
+                                    ? produtos
+                                            .buscarIdPorSku(clienteId, variantes.getFirst())
+                                            .stream()
+                                            .toList()
+                                    : produtos.buscarIdsPorSkus(
+                                            clienteId,
+                                            variantes,
+                                            org.springframework.data.domain.PageRequest.of(0, 2));
+                    correspondencias.put(codigo, encontrados);
+                }
+                if (encontrados.size() == 1) id = encontrados.getFirst();
+                else if (encontrados.size() > 1) ambiguos.add(i.numeroItem());
+            }
             if (id != null) ids.put(i.numeroItem(), id);
         }
         var catalogo = new HashMap<Long, br.com.rodogarcia.wms.models.Produto>();
@@ -176,7 +200,11 @@ public class PedidoEntradaXmlService {
             String pendencia = null;
             BigDecimal quantidade = null;
             BigDecimal fator = null;
-            if (p == null) pendencia = "Associe este item a um produto do cliente proprietário.";
+            if (ambiguos.contains(i.numeroItem()))
+                pendencia =
+                        "Mais de um produto corresponde ao SKU sem zeros à esquerda. Selecione manualmente o produto correto.";
+            else if (p == null)
+                pendencia = "Associe este item a um produto do cliente proprietário.";
             else if (p.getSituacao() != SituacaoCadastro.ATIVO)
                 pendencia = "O produto associado não está ativo.";
             else {

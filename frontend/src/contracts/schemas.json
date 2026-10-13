@@ -9242,6 +9242,12 @@
         "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/PedidoEntradaDto.java"
       },
       {
+        "name": "unidadeMedida",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/PedidoEntradaDto.java"
+      },
+      {
         "name": "prevista",
         "type": "BigDecimal",
         "required": false,

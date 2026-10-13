@@ -1669,6 +1669,7 @@ export interface PedidoEntradaDto_ItemConferencia {
   numeroItem: number;
   produtoId: string | null;
   sku: string | null;
+  unidadeMedida: string;
   prevista: string | null;
   recebidaBoa: string | null;
   recebidaAvariada: string | null;

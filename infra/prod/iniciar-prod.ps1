@@ -1,8 +1,9 @@
 [CmdletBinding()]
-param([switch]$PrepareOnly)
+param([switch]$PrepareOnly, [switch]$PrepareForPm2)
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+if ($PrepareForPm2 -and -not $PrepareOnly) { throw 'PROD_PM2_PREPARE_ONLY_REQUIRED' }
 $repository = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 . (Join-Path $PSScriptRoot 'launcher-common.ps1')
 $runId = [guid]::NewGuid().ToString('N')
@@ -108,6 +109,12 @@ try {
     if ($PrepareOnly) {
         $receipt['estado']='PREPARED_ONLY'; $receipt['codigo']='BUILDS_REAL_NO_DATABASE_OR_SERVERS'; $receipt['exitCode']=0
         Save-WmsProductionReceipt
+        if ($PrepareForPm2) {
+            $selectionDirectory=Join-Path $repository 'orchestracao/.runtime/launcher-producao/pm2'
+            $null=New-Item -ItemType Directory -Path $selectionDirectory -Force
+            $selection=@{runId=$runId;releasePath=$releasePath;releaseSha256=(Get-FileHash $releasePath).Hash}
+            [IO.File]::WriteAllText((Join-Path $selectionDirectory 'prepared.json'),($selection|ConvertTo-Json),[Text.UTF8Encoding]::new($false))
+        }
         Write-Host '[WMS PROD] Candidato preparado; nenhum banco ou servidor iniciado.' -ForegroundColor Green
         Write-Host ('[WMS PROD] Versao: ' + $releasePath)
         exit 0
@@ -152,7 +159,8 @@ try {
     $frontArgs=(ConvertTo-WmsProductionArgument $server) + ' --dist ' +
         (ConvertTo-WmsProductionArgument (Join-Path $candidate 'frontend/dist')) + ' --manifest ' +
         (ConvertTo-WmsProductionArgument $frontendManifest) + ' --port ' + $config.frontendPort +
-        ' --backend http://127.0.0.1:' + $config.backendPort + ' --public-origin ' + $config.frontendOrigin
+        ' --backend http://127.0.0.1:' + $config.backendPort + ' --public-origin ' + $config.frontendOrigin +
+        ' --activation-receipt ' + (ConvertTo-WmsProductionArgument $receiptPath)
     $frontendInfo=New-WmsProductionChildInfo $node $frontArgs $repository
     $frontendInfo.EnvironmentVariables['NODE_ENV']='production'
     $frontendProcess=[Diagnostics.Process]::new(); $frontendProcess.StartInfo=$frontendInfo
@@ -179,9 +187,11 @@ try {
     $receipt['frontendUrl']='http://127.0.0.1:'+$config.frontendPort
     $receipt['operationalReadiness']=$true
     $receipt['estado']='OPERATIONAL_PUBLIC_READINESS_HTTPS_LOGIN_PENDING'; $receipt['codigo']='NO_BUSINESS_HOMOLOGATION'; $receipt['exitCode']=0
+    $receipt['activatedUtc']=[DateTime]::UtcNow.ToString('o')
     Save-WmsProductionReceipt
-    Write-Host ('[WMS PROD] Frontend estatico: ' + $receipt.frontendUrl) -ForegroundColor Green
-    Write-Host ('[WMS PROD] Backend: ' + $receipt.backendUrl)
+    Write-Host '[WMS PROD] Acesso seguro: https://wms.rodogarcia.com.br' -ForegroundColor Green
+    Write-Host ('[WMS PROD] Origem interna do tunnel (UI): ' + $receipt.frontendUrl)
+    Write-Host ('[WMS PROD] Origem interna do tunnel (API): ' + $receipt.backendUrl)
     Write-Host '[WMS PROD] Readiness local aprovado. Acesse https://wms.rodogarcia.com.br para o login seguro.'
     Write-Host '[WMS PROD] Mantenha esta janela; Ctrl+C encerra somente processos criados neste run.'
     Write-Host ('[WMS PROD] Recibo: ' + $receiptPath)

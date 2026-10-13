@@ -102,7 +102,8 @@ Check 'falha-build-literal-preserva-versao-anterior-e-nao-chega-guarda' {
     [IO.File]::WriteAllText((Join-Path $isolated 'backend/scripts/prod/build-backend-prod.ps1'),'function Build-WmsProductionBackend { param($CandidateDirectory) throw "PROD_BACKEND_BUILD_FAILED" }',[Text.UTF8Encoding]::new($false))
     [IO.File]::WriteAllText((Join-Path $isolated 'frontend/tools/build-prod.mjs'),'throw new Error("HARNESS_FRONTEND_SHOULD_NOT_RUN");',[Text.UTF8Encoding]::new($false))
     $old=Join-Path $isolated 'previous-production.marker';[IO.File]::WriteAllText($old,'SYNTHETIC_PREVIOUS_VERSION');$oldHash=(Get-FileHash $old).Hash
-    $child=[Diagnostics.Process]::new();$arguments='-NoProfile -File '+(ConvertTo-WmsProductionArgument (Join-Path $isolated 'infra/prod/iniciar-prod.ps1'))
+    # Falha de compilacao pode ser ensaiada com producao ativa, sem consultar suas portas.
+    $child=[Diagnostics.Process]::new();$arguments='-NoProfile -File '+(ConvertTo-WmsProductionArgument (Join-Path $isolated 'infra/prod/iniciar-prod.ps1'))+' -PrepareOnly'
     $child.StartInfo=New-WmsProductionChildInfo (Join-Path $env:SystemRoot 'System32/WindowsPowerShell/v1.0/powershell.exe') $arguments $isolated;$started=$false
     try{$started=$child.Start();$out=$child.StandardOutput.ReadToEndAsync();$err=$child.StandardError.ReadToEndAsync();$child.WaitForExit();[IO.File]::WriteAllText((Join-Path $evidence 'literal-build-failure.log'),$out.Result+$err.Result);Need ($child.ExitCode -eq 30) 'LITERAL_BUILD_FAILURE_EXIT'}finally{Stop-WmsProductionChild $child $started}
     $runs=@(Get-ChildItem -LiteralPath (Join-Path $isolated 'orchestracao/.runtime/launcher-producao/runs') -Directory)

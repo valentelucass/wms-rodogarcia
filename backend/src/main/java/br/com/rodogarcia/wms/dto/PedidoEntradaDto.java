@@ -85,6 +85,7 @@ public final class PedidoEntradaDto {
             int numeroItem,
             Long produtoId,
             String sku,
+            @NotNull String unidadeMedida,
             BigDecimal prevista,
             BigDecimal recebidaBoa,
             BigDecimal recebidaAvariada,

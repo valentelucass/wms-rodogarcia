@@ -42,6 +42,7 @@ export function ReceivingSummary({
                     <thead>
                         <tr>
                             <th scope="col">Nota / item / SKU</th>
+                            <th scope="col">Unidade do produto</th>
                             <th scope="col">Previsto</th>
                             <th scope="col">Bom físico</th>
                             <th scope="col">Avariado físico</th>
@@ -70,6 +71,7 @@ export function ReceivingSummary({
                                                 ? "XML vinculado"
                                                 : "nota manual"}
                                         </th>
+                                        <td>{display(item.unidadeMedida)}</td>
                                         <td>{display(item.prevista)}</td>
                                         <td>{display(item.recebidaBoa)}</td>
                                         <td>

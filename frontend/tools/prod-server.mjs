@@ -48,6 +48,7 @@ export function parseArguments(args) {
         "port",
         "backend",
         "public-origin",
+        "activation-receipt",
     ]);
     for (let i = 0; i < args.length; i += 2) {
         const name = args[i]?.slice(2);
@@ -71,6 +72,7 @@ export function parseArguments(args) {
         port: Number(result.port),
         backend: result.backend,
         publicOrigin: result["public-origin"],
+        activationReceipt: result["activation-receipt"],
     };
 }
 
@@ -296,6 +298,41 @@ export async function createProductionServer(options) {
             return refuse(response, 405, "WMS_PROD_STATIC_METHOD_INVALID");
         response.setHeader("Content-Security-Policy", CSP);
         response.setHeader("X-Content-Type-Options", "nosniff");
+        if (pathname === "/__wms/release") {
+            try {
+                // A compilação sozinha não confirma uma atualização operacional.
+                const receipt = JSON.parse(
+                    await readFile(options.activationReceipt, "utf8"),
+                );
+                if (
+                    receipt.natureza !== "WMS_PRODUCTION_LAUNCHER" ||
+                    receipt.runId !== build.manifest.runId ||
+                    receipt.operationalReadiness !== true ||
+                    receipt.estado !==
+                        "OPERATIONAL_PUBLIC_READINESS_HTTPS_LOGIN_PENDING" ||
+                    receipt.frontend?.pid !== process.pid ||
+                    receipt.build?.frontend?.manifestSha256?.toLowerCase() !==
+                        build.manifestHash ||
+                    typeof receipt.activatedUtc !== "string" ||
+                    !Number.isFinite(Date.parse(receipt.activatedUtc))
+                )
+                    throw new Error("ACTIVATION_UNCONFIRMED");
+                response.writeHead(200, {
+                    "Content-Type": "application/json",
+                    "Cache-Control": "no-store",
+                });
+                return response.end(
+                    request.method === "HEAD"
+                        ? undefined
+                        : JSON.stringify({
+                              runId: build.manifest.runId,
+                              activatedUtc: receipt.activatedUtc,
+                          }),
+                );
+            } catch {
+                return refuse(response, 503, "WMS_PROD_ACTIVATION_UNCONFIRMED");
+            }
+        }
         if (pathname === "/__wms/health") {
             response.writeHead(200, {
                 "Content-Type": "application/json",

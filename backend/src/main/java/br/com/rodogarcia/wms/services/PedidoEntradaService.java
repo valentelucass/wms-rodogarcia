@@ -276,6 +276,8 @@ public class PedidoEntradaService {
                                                                             i.getNumeroItem(),
                                                                             i.getProduto().getId(),
                                                                             i.getProduto().getSku(),
+                                                                            i.getProduto()
+                                                                                    .getUnidadeMedida(),
                                                                             i
                                                                                     .getQuantidadePrevista(),
                                                                             boa,
