@@ -85,6 +85,14 @@ export function useOperation({
             for (const field of internalFields)
                 if (field in old && old[field] !== context[field])
                     next = { ...next, [field]: context[field] ?? "" };
+            if (
+                id === "UnidadeLogisticaController.unitizar" &&
+                previous.entradaId !== context.entradaId &&
+                (old.entradaId == null ||
+                    old.entradaId === "" ||
+                    old.entradaId === previous.entradaId)
+            )
+                next = { ...next, entradaId: context.entradaId ?? "" };
             return next;
         });
         setBody((old) => {
@@ -99,6 +107,7 @@ export function useOperation({
                 "tabelaId",
                 "destinos",
                 "itens",
+                "unidades",
                 "codigoLido",
                 "versaoEtiqueta",
                 "revisaoConteudo",

@@ -10,6 +10,11 @@ export type Information = {
 };
 
 export const information = {
+    receivingBobinas: {
+        title: "Peso e contagem de bobinas",
+        description:
+            "Registre o peso na unidade do produto e, separadamente, conte as bobinas boas e avariadas. A nota não determina essa contagem. Na distribuição, informe o peso real de cada bobina; a soma e a contagem serão conferidas pelo sistema. Corrija uma chegada incorreta por estorno e novo registro.",
+    },
     occupancy: {
         title: "Ocupação",
         description:

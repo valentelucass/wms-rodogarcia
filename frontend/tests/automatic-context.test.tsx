@@ -41,6 +41,32 @@ function confirm() {
         within(preview).getByRole("button", { name: "Confirmar agora" }),
     );
 }
+it("selecionar entrada consultada atualiza o parametro junto das bobinas sugeridas", () => {
+    const { result, rerender } = renderHook(
+        ({ context }: { context: Values }) =>
+            useOperation({
+                id: "UnidadeLogisticaController.unitizar",
+                transport: transport(),
+                perfil: "GESTOR",
+                context,
+            }),
+        {
+            initialProps: {
+                context: { pedidoId: "85", versaoPedido: "4" } as Values,
+            },
+        },
+    );
+    rerender({
+        context: {
+            pedidoId: "85",
+            versaoPedido: "4",
+            entradaId: "102",
+            unidades: [{ tipo: "BOBINA", condicao: "BOA", quantidade: "" }],
+        },
+    });
+    expect(result.current.params.entradaId).toBe("102");
+    expect(result.current.body.unidades).toHaveLength(1);
+});
 it("atualiza o contexto recebido durante uma requisição recusada antes do novo envio", async () => {
     let reject: (reason: Error) => void = () => {};
     const t: Transport = {

@@ -1,5 +1,11 @@
 # Decisões e pendências do WMS Rodogarcia
 
+## FE05-XML-BOBINAS01 — execução do fluxo aprovado concluída, 13/10/2026
+
+Lucas pediu concluir no mesmo padrão e testar. Implementação e validação do fluxo já aprovado concluídas: conversão de massa explícita preserva dados fiscais; Gestor cadastra SKU faltante na prévia; operador informa contagem física de bobinas separada do peso; distribuição exige contagem por condição e soma corretas. Contagem utiliza snapshot imutável transacional existente, sem alteração de schema. [Contrato e limites](design-system/etapa-10.md).
+
+Resultado: 581 testes frontend, 86 backend puros e 33 verificações integradas após guarda WMS_DEV/WMSDEV/TLS, com Chrome autenticado e consultas posteriores. [Recibo](../orchestracao/.runtime/fe05-xml-bobinas01/resultado.json). Corrigidos lote opcional e sincronização da entrada selecionada. Supera a pendência técnica FE05 e a ausência de navegador autenticado registradas abaixo; não aprova importação da NF 32325 real, diferença de 60 KG, impressão física ou produção. Não é necessária nova aprovação do gestor para o fluxo implementado.
+
 ## FE04-INTEGRACAO01 — acesso e validação das gravações, 13/10/2026
 
 Lucas disponibilizou acesso para concluir os testes já solicitados. Após guarda atual aprovada exclusivamente WMS_DEV/WMSDEV, foram exercitadas APIs autenticadas com fixtures fictícias próprias. Resultado: 35 verificações aprovadas, incluindo oito sequências com criações concorrentes, Excel, fiscal e unitização com consultas de persistência e repetição. [Evidência e limites](../orchestracao/.runtime/fe04-integracao01/resultado.json). A falta de sessão da FE04-REVISAO01 foi superada para este recorte de API; senha/tokens não foram gravados e somente a sessão criada para os testes foi encerrada.

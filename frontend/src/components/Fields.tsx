@@ -17,6 +17,7 @@ import { CoverageFields } from "../modules/saida/CoverageFields";
 import { RegroupOrigins } from "../modules/recebimento/RegroupOrigins";
 import { ResolutionReferences } from "../modules/financeiro/ResolutionReferences";
 import { automaticCodes } from "../domain/automaticCodes";
+import { information } from "../content/information";
 interface Props {
     fields: Field[];
     values: Values;
@@ -189,6 +190,11 @@ function FieldControl({
                 className={fiscalData ? "operation-fields" : undefined}
             >
                 <legend>{title}</legend>
+                {f.type === "RecebimentoDto.Bobinas" && (
+                    <p className="hint">
+                        {information.receivingBobinas.description}
+                    </p>
+                )}
                 {f.type === "FechamentoCobrancaDto.Resolucao" &&
                     isObject(value) && (
                         <ResolutionReferences onChange={onChange} />

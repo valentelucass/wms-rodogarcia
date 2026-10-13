@@ -295,7 +295,12 @@ public class RecebimentoService {
                         RecebimentoDto.Chegada.de(
                                 c,
                                 porChegada.getOrDefault(c.getId(), List.of()).stream()
-                                        .map(i -> RecebimentoDto.ItemFisico.de(i, ConferenciaBobinasService.obter(contagens, i)))
+                                        .map(
+                                                i ->
+                                                        RecebimentoDto.ItemFisico.de(
+                                                                i,
+                                                                ConferenciaBobinasService.obter(
+                                                                        contagens, i)))
                                         .toList()));
     }
 
@@ -306,7 +311,9 @@ public class RecebimentoService {
         return PaginaResponse.de(
                 entradas.findByItemChegadaChegadaPedidoId(
                         id, CadastroSupport.pagina(pagina, tamanho)),
-                e -> RecebimentoDto.Entrada.de(e, ConferenciaBobinasService.obter(contagens, e.getItemChegada())));
+                e ->
+                        RecebimentoDto.Entrada.de(
+                                e, ConferenciaBobinasService.obter(contagens, e.getItemChegada())));
     }
 
     private Instant agora() {

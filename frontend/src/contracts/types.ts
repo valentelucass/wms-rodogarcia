@@ -1812,12 +1812,17 @@ export interface ProdutoDto_Resposta {
   controlaValidade: boolean;
   antecedenciaAvisoDias: number | null;
 }
+export interface RecebimentoDto_Bobinas {
+  boas: number;
+  avariadas: number;
+}
 export interface RecebimentoDto_Item {
   itemNotaId: string;
   lote: string | null;
   validade: string | null;
   quantidadeBoa: string;
   quantidadeAvariada: string;
+  bobinas?: RecebimentoDto_Bobinas | null;
 }
 export interface RecebimentoDto_RegistrarChegada {
   versao: string;
@@ -1833,6 +1838,7 @@ export interface RecebimentoDto_ItemFisico {
   validade: string | null;
   quantidadeBoa: string | null;
   quantidadeAvariada: string | null;
+  bobinas?: RecebimentoDto_Bobinas | null;
 }
 export interface RecebimentoDto_Chegada {
   id: string | null;
@@ -1861,6 +1867,7 @@ export interface RecebimentoDto_Entrada {
   quantidadeQuarentena: string | null;
   unitizadaEm: string | null;
   disponivelParaSaida: boolean;
+  bobinas?: RecebimentoDto_Bobinas | null;
 }
 export interface RevisaoCadastroRequest {
   versao: string;

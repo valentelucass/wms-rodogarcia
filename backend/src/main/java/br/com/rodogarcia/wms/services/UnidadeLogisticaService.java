@@ -102,7 +102,9 @@ public class UnidadeLogisticaService {
                     "ENTRADA_JA_UNITIZADA", "Esta entrada já foi unitizada.");
         var produto = entrada.getItemChegada().getItemNota().getProduto();
         ConferenciaBobinasService.conferir(
-                ConferenciaBobinasService.obter(bobinas.consultar(pedidoId), entrada.getItemChegada()), dados.unidades());
+                ConferenciaBobinasService.obter(
+                        bobinas.consultar(pedidoId), entrada.getItemChegada()),
+                dados.unidades());
         BigDecimal boas = BigDecimal.ZERO;
         BigDecimal avariadas = BigDecimal.ZERO;
         for (var nova : dados.unidades()) {

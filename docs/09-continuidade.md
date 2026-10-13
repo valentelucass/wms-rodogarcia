@@ -1,5 +1,11 @@
 # Continuidade do projeto WMS Rodogarcia
 
+## FE05-XML-BOBINAS01 — complemento concluído e testado, 13/10/2026
+
+Conversão TO/KG, cadastro assistido de produto, contagem independente de bobinas e distribuição com validação de peso/contagem implementados. 581 testes frontend, 86 backend puros, tipagem/lint/build e 33 verificações integradas aprovados. Navegador real encontrou e confirmou correções de lote opcional e sincronização da entrada selecionada. [Design e validação](design-system/etapa-10.md), [evidências](../orchestracao/.runtime/fe05-xml-bobinas01/resultado.json).
+
+Uma execução do BAT autorizado após guarda 26/26 atualizou somente WMS DEV; backend 9004 e frontend 22364 mantidos nas portas 25580/25581. Preservar dados fictícios `TESTE-FE05-1791915369920`: pedido 85 efetivado/unitizado em duas bobinas de 5/7 KG sem endereço; pedido 86 em conferência sem chegada, usado para recusas. IDs completos no recibo, sem recriar fixtures. Sessão final própria encerrada. As pendências de implementação/navegador abaixo são históricas e foram superadas para este recorte; NF 32325 real, diferença de 60 KG e equipamento físico permanecem separados.
+
 ## FE04-INTEGRACAO01 — gravações autenticadas conferidas, 13/10/2026
 
 Acesso fornecido por Lucas permitiu fechar a pendência de APIs da revisão: 35 verificações aprovadas após guarda SQL atual 26/26; oito famílias sequenciais com duas criações simultâneas cada, modelo Excel importado, fiscal, recebimento/unitização, endereçamento, etiquetas e consultas posteriores. [Resultado](../orchestracao/.runtime/fe04-integracao01/resultado.json), [detalhamento](design-system/etapa-09.md#fe04-integracao01--validação-autenticada-no-dev-13102026). Sem mudança de código nesta rodada; duas correções no executor de testes foram registradas separadamente de falhas do produto. BE54280 e FE80748 preservados, sessão própria encerrada, credenciais não persistidas.

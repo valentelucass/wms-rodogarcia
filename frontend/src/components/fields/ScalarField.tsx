@@ -6,7 +6,10 @@ import { XmlField } from "./XmlField";
 import { useReferenceCatalog } from "../context/ReferenceCatalog";
 import { ReferenceSelect } from "../context/ReferenceSelect";
 export const scalarInputValue = (field: Field, value: string) =>
-    value === "" && field.type === "String" && field.Pattern && !field.required
+    value === "" &&
+    field.type === "String" &&
+    (field.Pattern || field.name === "lote") &&
+    !field.required
         ? null
         : value;
 export function ScalarField({

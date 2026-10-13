@@ -120,7 +120,10 @@ class D30UnitizacaoLimitesTest {
                             acesso,
                             JsonMapper.builder().build(),
                             Clock.fixed(AGORA, ZoneOffset.UTC),
-                            estoque);
+                            estoque,
+                            org.mockito.Mockito.mock(
+                                    br.com.rodogarcia.wms.services.ConferenciaBobinasService
+                                            .class));
         }
     }
 

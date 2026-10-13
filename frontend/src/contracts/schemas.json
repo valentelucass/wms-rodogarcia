@@ -10007,6 +10007,24 @@
         "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/ProdutoDto.java"
       }
     ],
+    "RecebimentoDto.Bobinas": [
+      {
+        "name": "boas",
+        "type": "Integer",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/RecebimentoDto.java",
+        "Min": "0",
+        "Max": "100"
+      },
+      {
+        "name": "avariadas",
+        "type": "Integer",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/RecebimentoDto.java",
+        "Min": "0",
+        "Max": "100"
+      }
+    ],
     "RecebimentoDto.Item": [
       {
         "name": "itemNotaId",
@@ -10043,6 +10061,13 @@
         "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/RecebimentoDto.java",
         "Digits": "integer = 13, fraction = 6",
         "DecimalMin": "\"0\""
+      },
+      {
+        "name": "bobinas",
+        "type": "RecebimentoDto.Bobinas",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/RecebimentoDto.java",
+        "omitNull": true
       }
     ],
     "RecebimentoDto.RegistrarChegada": [
@@ -10123,6 +10148,13 @@
         "type": "BigDecimal",
         "required": false,
         "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/RecebimentoDto.java"
+      },
+      {
+        "name": "bobinas",
+        "type": "RecebimentoDto.Bobinas",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/RecebimentoDto.java",
+        "omitNull": true
       }
     ],
     "RecebimentoDto.Chegada": [
@@ -10277,6 +10309,13 @@
         "type": "boolean",
         "required": true,
         "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/RecebimentoDto.java"
+      },
+      {
+        "name": "bobinas",
+        "type": "RecebimentoDto.Bobinas",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/RecebimentoDto.java",
+        "omitNull": true
       }
     ],
     "RevisaoCadastroRequest": [

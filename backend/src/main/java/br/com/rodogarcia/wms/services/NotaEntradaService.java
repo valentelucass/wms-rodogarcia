@@ -104,9 +104,14 @@ public class NotaEntradaService {
                                     return new PedidoEntradaDto.ItemNota(
                                             i.numeroItem(),
                                             produtoId,
-                                            ConversaoUnidadeNfe.converter(i.quantidade(), i.unidade(),
-                                                    produtos.findById(produtoId).orElseThrow(
-                                                            RegraNegocioException::naoEncontrado).getUnidadeMedida()),
+                                            ConversaoUnidadeNfe.converter(
+                                                    i.quantidade(),
+                                                    i.unidade(),
+                                                    produtos.findById(produtoId)
+                                                            .orElseThrow(
+                                                                    RegraNegocioException
+                                                                            ::naoEncontrado)
+                                                            .getUnidadeMedida()),
                                             i.valorMercadoria());
                                 })
                         .toList();
@@ -122,10 +127,14 @@ public class NotaEntradaService {
         var bloqueados = bloquearProdutos(p, itensXml);
         for (int i = 0; i < itensXml.size(); i++) {
             var original = nfe.itens().get(i);
-            var convertido = ConversaoUnidadeNfe.converter(original.quantidade(), original.unidade(),
-                    bloqueados.get(itensXml.get(i).produtoId()).getUnidadeMedida());
+            var convertido =
+                    ConversaoUnidadeNfe.converter(
+                            original.quantidade(),
+                            original.unidade(),
+                            bloqueados.get(itensXml.get(i).produtoId()).getUnidadeMedida());
             if (convertido.compareTo(itensXml.get(i).quantidadePrevista()) != 0)
-                throw RegraNegocioException.conflito("PRODUTO_ALTERADO", "Produto mudou; confira o XML novamente.");
+                throw RegraNegocioException.conflito(
+                        "PRODUTO_ALTERADO", "Produto mudou; confira o XML novamente.");
         }
         var antes = pedidos.resumo(p);
         NotaEntrada nota;

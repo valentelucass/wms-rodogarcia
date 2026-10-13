@@ -178,7 +178,9 @@ class D30UnitizacaoVolumeTest {
                         acesso,
                         mapper,
                         Clock.fixed(instante, ZoneOffset.UTC),
-                        estoque);
+                        estoque,
+                        org.mockito.Mockito.mock(
+                                br.com.rodogarcia.wms.services.ConferenciaBobinasService.class));
         var nova =
                 new UnidadeLogisticaDto.NovaUnidade(
                         25L,

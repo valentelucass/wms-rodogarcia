@@ -22,6 +22,7 @@ function harness(
         uncertain?: boolean;
         pending?: boolean;
         previa?: typeof nfePreview;
+        gestor?: boolean;
     } = {},
 ) {
     const requests: Request[] = [],
@@ -51,6 +52,13 @@ function harness(
                         ],
                         totalPaginas: "1",
                     });
+                case "ProdutoController.criar":
+                    return receipt({
+                        ...(request.body as object),
+                        id: "80",
+                        versao: "0",
+                        situacao: "ATIVO",
+                    });
                 case "PedidoEntradaXmlController.confirmar":
                     if (options.uncertain)
                         throw new ApiError(
@@ -78,6 +86,7 @@ function harness(
     render(
         <ReceivingCreateDialog
             transport={transport}
+            perfil={options.gestor ? "GESTOR" : "OPERACAO"}
             onClose={close}
             onManual={manual}
             onConfirmed={confirmed}
@@ -109,6 +118,69 @@ async function preview() {
     await screen.findByText("TIGRE FERRAMENTAS PARA CONSTRUCAO C");
 }
 describe("FE05-XML01", () => {
+    it("cadastra SKU pela nota e exige nova previa sem perder o XML", async () => {
+        const p = structuredClone(nfePreview);
+        p.documento!.itens![0].unidadeComercial = "TO";
+        p.itens![0].produtoId = null;
+        p.podeConfirmar = false;
+        const h = harness({ previa: p, gestor: true });
+        await preview();
+        fireEvent.click(
+            screen.getByRole("button", { name: "Cadastrar produto do item 1" }),
+        );
+        expect(screen.getByDisplayValue("69230424")).toBeInTheDocument();
+        expect(screen.getByDisplayValue("KG")).toBeInTheDocument();
+        fireEvent.click(
+            screen.getByRole("button", { name: "Conferir e confirmar" }),
+        );
+        fireEvent.click(
+            screen.getByRole("button", { name: "Confirmar agora" }),
+        );
+        await screen.findAllByRole("button", { name: "Atualizar prévia" });
+        expect(
+            screen.getByRole("button", { name: "Confirmar pedido de entrada" }),
+        ).toBeDisabled();
+        fireEvent.click(
+            screen.getAllByRole("button", { name: "Atualizar prévia" })[0],
+        );
+        await waitFor(() =>
+            expect(
+                h.requests.filter(
+                    (r) =>
+                        r.endpoint.id === "PedidoEntradaXmlController.previa",
+                ),
+            ).toHaveLength(2),
+        );
+        const last = h.requests
+            .filter(
+                (r) => r.endpoint.id === "PedidoEntradaXmlController.previa",
+            )
+            .at(-1)!;
+        expect(last.body).toMatchObject({
+            xml: "<NFe>fictício</NFe>",
+            associacoes: [{ numeroItem: 1, produtoId: "80" }],
+        });
+        const created = h.requests.find(
+            (r) => r.endpoint.id === "ProdutoController.criar",
+        )!;
+        expect(created.body).toMatchObject({
+            clienteId: "1",
+            unidadeMedida: "KG",
+            tipoQuantidade: "MEDIDA",
+            precisaoQuantidade: 3,
+        });
+    });
+    it("operacao associa produtos existentes sem apresentar cadastro restrito", async () => {
+        const p = structuredClone(nfePreview);
+        p.itens![0].produtoId = null;
+        harness({ previa: p });
+        await preview();
+        expect(
+            screen.queryByRole("button", {
+                name: "Cadastrar produto do item 1",
+            }),
+        ).toBeNull();
+    });
     it("oferece criação manual e XML sem executar comandos na escolha", () => {
         const h = harness();
         fireEvent.click(

@@ -1,4 +1,4 @@
-import type { Values } from "../../contracts/runtime";
+import { isObject, type Values } from "../../contracts/runtime";
 import type { Workflow } from "../../domain/workflow";
 import { ownedSelection } from "../../domain/workflowSelectors";
 export function receivingReferences(
@@ -24,6 +24,31 @@ export function receivingReferences(
     if (incoming) {
         ctx.entradaId = incoming.id;
         ctx.produtoId = incoming.produtoId;
+        if (
+            controller === "UnidadeLogisticaController" &&
+            action === "unitizar" &&
+            isObject(incoming.bobinas)
+        ) {
+            const boas = Number(incoming.bobinas.boas),
+                avariadas = Number(incoming.bobinas.avariadas);
+            if (
+                Number.isInteger(boas) &&
+                Number.isInteger(avariadas) &&
+                boas >= 0 &&
+                avariadas >= 0 &&
+                boas + avariadas <= 100
+            ) {
+                ctx.unidades = Array.from(
+                    { length: boas + avariadas },
+                    (_, i) => ({
+                        embalagemId: "",
+                        tipo: "BOBINA",
+                        condicao: i < boas ? "BOA" : "AVARIADA",
+                        quantidade: "",
+                    }),
+                );
+            }
+        }
     }
     if (controller === "UnidadeLogisticaController") {
         if (["consultar", "dividir", "reagrupar"].includes(action))
@@ -49,7 +74,7 @@ export function receivingReferences(
             ctx.itens = [
                 {
                     itemNotaId: item.id,
-                    lote: "",
+                    lote: null,
                     validade: null,
                     quantidadeBoa: "",
                     quantidadeAvariada: "0",

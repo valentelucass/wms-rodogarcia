@@ -1,5 +1,13 @@
 # Estado e trilha de implementação do WMS Rodogarcia
 
+## FE05-XML-BOBINAS01 — implementação e validação concluídas, 13/10/2026
+
+Pedido vigente de Lucas: concluir tudo no mesmo padrão e testado. Complemento implementado: conversão exata TO/T/TON ↔ KG preservando o XML, cadastro assistido de produto pelo Gestor, contagem física independente na conferência e distribuição por bobina com soma/condição validadas no backend. Contagem persistida no snapshot transacional existente, sem DDL. Duas falhas encontradas no navegador corrigidas: lote opcional vazio e sincronização do parâmetro da entrada selecionada.
+
+**Concluído no DEV:** 581 testes frontend, tipagem/lint/build, 86 testes puros backend/build e 33 verificações integradas autenticadas. Guarda 26/26 WMS_DEV/WMSDEV/TLS antes do BAT; nova instância backend 9004/25580 e frontend 22364/25581 mantida aberta. Fonte backend atual comprovada por 308 fingerprints; frontend Vite consumiu as correções. [Detalhes](docs/design-system/etapa-10.md), [resultado](orchestracao/.runtime/fe05-xml-bobinas01/resultado.json).
+
+Preservar fixtures e histórico do recibo: pedidos 85/86, entrada 102, unidades 1345/1346, saldo fictício 12 KG não endereçado. Este registro supera as pendências de implementação/navegador do recorte nas seções históricas abaixo. Não há nova aprovação a pedir ao gestor para esse fluxo. Para usar a NF 32325 real permanecem XML original compatível e esclarecimento da diferença de 60 KG; não houve lançamento dessa nota, teste de equipamento físico ou produção.
+
 ## FE04-INTEGRACAO01 — confirmação autenticada no DEV, 13/10/2026
 
 Lucas forneceu acesso para concluir a validação integrada. Guarda nova aprovada em 26 verificações, WMS_DEV/WMSDEV/TLS obrigatório; usada a instância existente BE54280/FE80748, sem reinício. **35 verificações aprovadas**: download e importação real do modelo com quatro posições; criação concorrente das oito famílias de códigos; fiscal cliente/armazém; recebimento fictício de 12 kg distribuído em duas bobinas de 5 e 7 kg; repetição sem duplicidade, recusa de soma incorreta/UUID reutilizado/revisão antiga; endereçamento, etiquetas, saldo e consultas posteriores. [Resultado e IDs preservados](orchestracao/.runtime/fe04-integracao01/resultado.json), [escopo e limites](docs/design-system/etapa-09.md#fe04-integracao01--validação-autenticada-no-dev-13102026).

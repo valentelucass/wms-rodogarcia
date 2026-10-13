@@ -15,6 +15,8 @@
 
 **FE05-PED01:** [Pedidos de entrada, notas, conferência e histórico no mesmo contexto](design-system/etapa-07.md).
 
+**FE05-XML-BOBINAS01:** [XML por peso, cadastro assistido, contagem física e distribuição de bobinas — implementado e validado no DEV](design-system/etapa-10.md).
+
 **FE04-EXCEL01:** [modelo Excel, prévia e organização compartilhada dos formulários](design-system/etapa-09.md).
 
 **FE04-AUTO01:** [códigos internos sequenciais e identificador técnico oculto](design-system/etapa-09.md#fe04-auto01--códigos-internos-automáticos).

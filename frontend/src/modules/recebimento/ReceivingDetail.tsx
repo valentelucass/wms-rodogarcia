@@ -14,6 +14,7 @@ import {
     type ReceivingSection,
 } from "./orderPresentation";
 import { ReceivingSummary } from "./ReceivingSummary";
+import { information } from "../../content/information";
 import type { Workflow } from "../../domain/workflow";
 import { useReferenceCatalog } from "../../components/context/ReferenceCatalog";
 
@@ -244,6 +245,9 @@ export function ReceivingDetail({
                         ))}
                     {section === "Conferência" && (
                         <>
+                            <p className="hint">
+                                {information.receivingBobinas.description}
+                            </p>
                             <ReceivingSummary
                                 workflow={workflow}
                                 disabled={locked}

@@ -111,9 +111,11 @@ export function fixture(type: string, depth = 0): unknown {
         const result: Values = {};
         for (const f of records[type]) {
             const v =
-                f.name in baseValues && !records[f.type]
-                    ? baseValues[f.name]
-                    : fixture(f.type, depth + 1);
+                f.name === "bobinas"
+                    ? null
+                    : f.name in baseValues && !records[f.type]
+                      ? baseValues[f.name]
+                      : fixture(f.type, depth + 1);
             result[f.name] =
                 f.type === "String" && typeof v === "number" ? String(v) : v;
         }

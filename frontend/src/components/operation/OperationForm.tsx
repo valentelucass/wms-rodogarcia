@@ -5,6 +5,7 @@ import { Fields } from "../Fields";
 import { AddressImportFields } from "../../modules/cadastros/AddressImportFields";
 import { automaticCodes } from "../../domain/automaticCodes";
 import { operationContextFields } from "../../domain/operationContextFields";
+import { information } from "../../content/information";
 export function OperationForm({
     state: s,
     perfil,
@@ -67,6 +68,11 @@ export function OperationForm({
             }}
             noValidate
         >
+            {s.e.id === "UnidadeLogisticaController.unitizar" && (
+                <p className="hint">
+                    {information.receivingBobinas.description}
+                </p>
+            )}
             {automaticCodes[s.e.request ?? ""] && (
                 <p className="hint">
                     O código será gerado automaticamente ao confirmar.

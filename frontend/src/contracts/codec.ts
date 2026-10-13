@@ -383,7 +383,8 @@ export function initialField(f: Field, ctx: Values, sample = false): unknown {
     if (records[f.type] && !f.required) return null;
     // Um controle opcional com formato obrigatório começa sem informação.
     // String obrigatória vazia continua sendo texto, validado por seus constraints.
-    if (f.type === "String" && f.Pattern && !f.required) return null;
+    if (f.type === "String" && (f.Pattern || f.name === "lote") && !f.required)
+        return null;
     if (sample && f.required && !records[f.type] && !listType(f.type)) {
         if (f.type === "UUID") return "00000000-0000-4000-8000-000000000001";
         if (f.type === "Instant") return "2026-10-08T12:00:00.123456Z";
