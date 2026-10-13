@@ -38,8 +38,7 @@ public final class CapacidadeDto {
 
     public record CriarConjunto(
             @NotNull @Positive Long armazemId,
-            @NotBlank @Size(max = 40) @Pattern(regexp = "[A-Za-z0-9][A-Za-z0-9._/-]*")
-                    String codigo,
+            @Size(max = 40) @Pattern(regexp = "[A-Za-z0-9][A-Za-z0-9._/-]*") String codigo,
             @NotNull @Positive Long enderecoAId,
             @NotNull @Positive Long enderecoBId,
             @NotNull @Valid Limites limites,

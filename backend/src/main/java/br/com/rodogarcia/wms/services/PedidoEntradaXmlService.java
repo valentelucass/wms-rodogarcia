@@ -262,7 +262,7 @@ public class PedidoEntradaXmlService {
                 operacoes.hash(
                         OrigemEntradaService.RECURSO,
                         List.of(dados.clienteId(), dados.armazemId()),
-                        List.of(
+                        java.util.Arrays.asList(
                                 dados.referencia(),
                                 dados.xml(),
                                 dados.revisaoPrevia(),

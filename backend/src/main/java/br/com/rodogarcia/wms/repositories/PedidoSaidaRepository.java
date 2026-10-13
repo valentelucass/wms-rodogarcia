@@ -10,6 +10,18 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 
 public interface PedidoSaidaRepository extends JpaRepository<PedidoSaida, Long> {
+    /** Leitura serializada; chamada somente na transação de criação, antes do INSERT. */
+    @Query(
+            value =
+                    """
+            SELECT COALESCE(MAX(TRY_CONVERT(bigint, SUBSTRING(referencia, 5, 100))), 0)
+            FROM wms.pedido_saida WITH (TABLOCKX, HOLDLOCK)
+            WHERE referencia LIKE 'SAI-%'
+              AND TRY_CONVERT(bigint, SUBSTRING(referencia, 5, 100)) >= 0
+            """,
+            nativeQuery = true)
+    long ultimoCodigoInterno();
+
     interface Escopo {
         Long getClienteId();
 

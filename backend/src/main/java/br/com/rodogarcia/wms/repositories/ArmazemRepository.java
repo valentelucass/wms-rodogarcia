@@ -12,6 +12,18 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface ArmazemRepository extends JpaRepository<Armazem, Long> {
+    /** Leitura serializada; chamada somente na transação de criação, antes do INSERT. */
+    @Query(
+            value =
+                    """
+            SELECT COALESCE(MAX(TRY_CONVERT(bigint, SUBSTRING(codigo, 5, 100))), 0)
+            FROM wms.armazem WITH (TABLOCKX, HOLDLOCK)
+            WHERE codigo LIKE 'ARM-%'
+              AND TRY_CONVERT(bigint, SUBSTRING(codigo, 5, 100)) >= 0
+            """,
+            nativeQuery = true)
+    long ultimoCodigoInterno();
+
     Page<Armazem> findByIdIn(Collection<Long> ids, Pageable pageable);
 
     java.util.List<Armazem> findByDocumentoFiscal(String documentoFiscal);

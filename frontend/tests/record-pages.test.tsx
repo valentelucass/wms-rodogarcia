@@ -306,7 +306,7 @@ describe("REG01 Clientes por registro", () => {
         change("Buscar nos registros desta página", "Alfa");
         click("Novo cliente");
         const dialog = within(screen.getByRole("dialog"));
-        change("Código *", "CLI-C", dialog);
+        expect(dialog.queryByLabelText("Código *")).toBeNull();
         change("Nome *", "Cliente Gama", dialog);
         change("CPF / CNPJ *", "33333333333", dialog);
         await confirm(dialog);

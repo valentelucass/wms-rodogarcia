@@ -116,7 +116,7 @@ public final class ExpedicaoDto {
     public record Devolver(
             @NotNull UUID operacaoId,
             @NotNull @Min(0) Long versao,
-            @NotBlank @Size(max = 40) String referencia,
+            @Size(max = 40) String referencia,
             @NotNull @Valid Nota nota,
             @NotNull Instant chegadaReal,
             @NotNull @Size(min = 1) List<@NotNull @Valid ItemDevolucao> itens,

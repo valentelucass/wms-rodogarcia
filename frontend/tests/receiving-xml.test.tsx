@@ -139,7 +139,7 @@ describe("FE05-XML01", () => {
         ).toMatchObject({
             clienteId: "1",
             armazemId: "1",
-            referencia: "NFE-293729-1",
+            referencia: null,
             revisaoPrevia: nfePreview.revisaoPrevia,
             associacoes: [{ numeroItem: 1, produtoId: "1" }],
         });

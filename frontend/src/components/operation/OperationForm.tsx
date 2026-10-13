@@ -2,6 +2,9 @@ import type { Perfil } from "../../contracts/runtime";
 import { records } from "../../contracts/runtime";
 import type { OperationState } from "../../hooks/useOperation";
 import { Fields } from "../Fields";
+import { AddressImportFields } from "../../modules/cadastros/AddressImportFields";
+import { automaticCodes } from "../../domain/automaticCodes";
+import { operationContextFields } from "../../domain/operationContextFields";
 export function OperationForm({
     state: s,
     perfil,
@@ -13,6 +16,8 @@ export function OperationForm({
     collector?: boolean;
     fixedFields?: string[];
 }) {
+    const addressImport = s.e.id === "ImportacaoEnderecoController.previa";
+    const internalFields = operationContextFields(s.e.id);
     const queryFields = s.e.query.filter(
         (f) => !["pagina", "tamanho"].includes(f.name),
     );
@@ -39,7 +44,15 @@ export function OperationForm({
             onChange: s.updateBody,
             schema: s.e.request ?? "",
         },
-    ];
+    ].map((group) => ({
+        ...group,
+        fields: group.fields.filter(
+            (f) =>
+                !internalFields.includes(f.name) &&
+                f.name !== "operacaoId" &&
+                f.name !== automaticCodes[group.schema],
+        ),
+    }));
     const hasFixedFields = groups.some((group) =>
         group.fields.some((f) => fixedFields.includes(f.name)),
     );
@@ -54,7 +67,13 @@ export function OperationForm({
             }}
             noValidate
         >
-            {hasFixedFields && (
+            {automaticCodes[s.e.request ?? ""] && (
+                <p className="hint">
+                    O código será gerado automaticamente ao confirmar.
+                </p>
+            )}
+            {addressImport && <AddressImportFields state={s} />}
+            {!addressImport && hasFixedFields && (
                 <fieldset className="operation-fixed-fields" disabled>
                     <legend className="sr-only">Registro selecionado</legend>
                     {groups.map((group, index) => (
@@ -70,51 +89,54 @@ export function OperationForm({
                     ))}
                 </fieldset>
             )}
-            {(hasEditableFields ||
-                collectorFields.length > 0 ||
-                s.e.multipart) && (
-                <fieldset
-                    className="operation-fields"
-                    disabled={s.pending || s.uncertain || s.completed}
-                >
-                    <legend className="sr-only">Dados da operação</legend>
-                    {groups.map((group, index) => (
-                        <Fields
-                            key={index}
-                            {...group}
-                            fields={group.fields.filter(
-                                (f) => !fixedFields.includes(f.name),
-                            )}
-                            perfil={perfil}
-                            lockedFields={fixedFields}
-                        />
-                    ))}
-                    {collectorFields.length > 0 && (
-                        <details>
-                            <summary>
-                                Medidas físicas e conjunto de duas posições
-                            </summary>
+            {!addressImport &&
+                (hasEditableFields ||
+                    collectorFields.length > 0 ||
+                    s.e.multipart) && (
+                    <fieldset
+                        className="operation-fields"
+                        disabled={s.pending || s.uncertain || s.completed}
+                    >
+                        <legend className="sr-only">Dados da operação</legend>
+                        {groups.map((group, index) => (
                             <Fields
-                                fields={collectorFields}
-                                values={s.body}
-                                onChange={s.updateBody}
+                                key={index}
+                                {...group}
+                                fields={group.fields.filter(
+                                    (f) => !fixedFields.includes(f.name),
+                                )}
                                 perfil={perfil}
-                                schema={s.e.request ?? undefined}
+                                lockedFields={fixedFields}
                             />
-                        </details>
-                    )}
-                    {s.e.multipart && (
-                        <label>
-                            Planilha de endereços .xlsx *
-                            <input
-                                type="file"
-                                accept=".xlsx"
-                                onChange={(e) => s.setFile(e.target.files?.[0])}
-                            />
-                        </label>
-                    )}
-                </fieldset>
-            )}
+                        ))}
+                        {collectorFields.length > 0 && (
+                            <details>
+                                <summary>
+                                    Medidas físicas e conjunto de duas posições
+                                </summary>
+                                <Fields
+                                    fields={collectorFields}
+                                    values={s.body}
+                                    onChange={s.updateBody}
+                                    perfil={perfil}
+                                    schema={s.e.request ?? undefined}
+                                />
+                            </details>
+                        )}
+                        {s.e.multipart && (
+                            <label>
+                                Planilha de endereços .xlsx *
+                                <input
+                                    type="file"
+                                    accept=".xlsx"
+                                    onChange={(e) =>
+                                        s.setFile(e.target.files?.[0])
+                                    }
+                                />
+                            </label>
+                        )}
+                    </fieldset>
+                )}
             {s.e.query.some((f) => ["pagina", "tamanho"].includes(f.name)) && (
                 <fieldset
                     className="pagination-fields"
@@ -144,7 +166,9 @@ export function OperationForm({
                             : "Aguardando confirmação…"
                         : s.e.method === "GET"
                           ? "Consultar"
-                          : "Conferir e confirmar"}
+                          : addressImport
+                            ? "Conferir prévia"
+                            : "Conferir e confirmar"}
                 </button>
                 {s.pending && (
                     <button type="button" onClick={s.interrupt}>

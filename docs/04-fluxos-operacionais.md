@@ -17,6 +17,8 @@ Proposta: quantidade recebida, quantidade bloqueada e quantidade liberada devem 
 
 Q01 a Q05 e Q12 foram respondidas. Registrar várias chegadas sem duplicar a nota e efetivar a entrada uma vez. Aplicar os tratamentos de AC03 e AC10.
 
+**Complemento aprovado pelo gestor em 13/10/2026 — FE05-XML-BOBINAS01:** para notas de bobinas expressas em peso, o XML preenche o peso previsto e a conferência registra a quantidade física exata de bobinas. A “etapa três” mencionada na resposta refere-se ao fluxo discutido, sem renumerar os passos acima. O detalhamento técnico mantém a contagem separada do peso, sem deduzir o número de bobinas ou seus pesos individuais pelo total fiscal; a distribuição em unidades logísticas preserva a quantidade conferida e a nota de origem. [Resposta, interpretação e pendências](06-decisoes-e-pendencias.md#fe05-xml-bobinas01--peso-da-nota-e-quantidade-física-de-bobinas-13102026).
+
 ## Endereçamento e movimentação
 
 1. Ler a etiqueta da unidade.

@@ -1,4 +1,5 @@
 import { canPresent, type Perfil, type Values } from "../contracts/runtime";
+import { automaticCodes } from "./automaticCodes";
 // Conditional historical resolution gates from current services; presentation only.
 const policies: Record<string, Record<string, Perfil>> = {
     "PedidoSaidaDto.Reservar": {
@@ -95,9 +96,12 @@ export function presentationDefaults(
     context: Values,
     perfil: Perfil,
 ): Values {
-    return Object.fromEntries(
-        Object.entries(context).filter(
-            ([name]) => !isFieldDisabled(schema, name, perfil),
+    return {
+        ...Object.fromEntries(
+            Object.entries(context).filter(
+                ([name]) => !isFieldDisabled(schema, name, perfil),
+            ),
         ),
-    );
+        ...(automaticCodes[schema] ? { [automaticCodes[schema]]: null } : {}),
+    };
 }

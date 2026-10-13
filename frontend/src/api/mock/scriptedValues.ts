@@ -34,7 +34,7 @@ export function reflect(v: unknown, body: Values, op: string): unknown {
                           "descricao",
                           "produtoId",
                           "sku",
-                      ].includes(k) && body[k] !== undefined
+                      ].includes(k) && body[k] != null
                     ? body[k]
                     : reflect(x, body, op),
         ]),

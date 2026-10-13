@@ -289,6 +289,27 @@
 .record-dialog .dialog-body > .operation {
     padding-top: 0;
 }
+.record-dialog .operation-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+}
+.record-dialog .operation-fields > :not(.field):not(label),
+.record-dialog .operation-fields > .field:has(textarea),
+.record-dialog .operation-fields > label:has(input[type="file"]) {
+    grid-column: 1 / -1;
+}
+.record-dialog .operation fieldset > .field:has(textarea) {
+    flex-basis: 100%;
+}
+.record-dialog .operation textarea {
+    min-height: 80px;
+}
+@media (max-width: 700px) {
+    .record-dialog .operation-fields {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
 .record-dialog .record-detail > button {
     margin-top: var(--og-space-3);
 }

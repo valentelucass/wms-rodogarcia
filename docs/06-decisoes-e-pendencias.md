@@ -1,5 +1,31 @@
 # Decisões e pendências do WMS Rodogarcia
 
+## FE05-XML-BOBINAS01 — peso da nota e quantidade física de bobinas, 13/10/2026
+
+**Fonte: resposta do gestor encaminhada por Lucas nesta conversa**, após a análise da NF 32325 de entrada em Osasco. O gestor aprovou o fluxo proposto de importação do XML: “Perfeito, esse fluxo fica muito bom”. Complementou: “Pensei que a nota deles viria em quantidade, mas vem em peso. Aí na etapa três conseguimos dimensionar as quantidades exatas de bobinas entrando”.
+
+**Definição aprovada:** aproveitar os dados do XML para preencher produtos e quantidades previstas em peso; na etapa 3 do fluxo discutido, permitir registrar a quantidade física exata de bobinas recebidas. Peso do produto e número de bobinas são informações distintas. O cadastro/associação do SKU, a prévia e a conferência física continuam compondo o fluxo aprovado.
+
+**Detalhamento técnico para implementação, não fala literal do gestor:** obter a contagem pela conferência e organizar as bobinas em unidades logísticas com identidade própria. Não deduzir a contagem pelo peso total, dividir igualmente o peso para inventar pesos individuais ou tratar uma linha fiscal como uma bobina. Preservar o peso comercial original e apresentar separadamente sua conversão para a unidade do estoque, quando aplicável. Conciliar a soma das quantidades distribuídas com a quantidade conferida, preservando divergências e vínculo com a nota. A numeração citada pelo gestor pertence ao fluxo discutido; não comprova que a terceira tela atual já ofereça essa função.
+
+**Pendências preservadas da análise:** a amostra informa 1,488 TO comerciais (1.488 kg), 1,548 TO tributáveis e pesos líquido/bruto de 1.548 kg; a diferença de 60 kg não foi explicada ou resolvida pela aprovação. A amostra não informa contagem de bobinas. O leitor atual recusou o arquivo por estrutura incompatível; obter o XML original completo para o fluxo existente. Conversão TO → kg, experiência de contagem/distribuição e validação integrada deste caso ainda precisam ser implementadas ou verificadas, sem considerar a aprovação do desenho como prova de funcionamento.
+
+Registro documental; nenhum pedido, estoque ou movimento real criado. [Fluxo de recebimento](04-fluxos-operacionais.md#recebimento).
+
+## FE04-AUTO02 — ID e revisão internos, 13/10/2026
+
+Pedido de Lucas: o operador não preenche nem altera Identificador, Identificador desta operação e Revisão atual em Dados Fiscais Cadastrais; novo pedido mantém referência automática; Distribuir em unidades não apresenta pedido, UUID e versão como campos. A versão permanece tecnicamente necessária à detecção de alterações concorrentes e passa pelo comando automaticamente, a partir do registro consultado. O pedido da unitização é selecionado entre pedidos existentes, não criado novamente. [Contrato](design-system/etapa-09.md#fe04-auto02--referências-técnicas-do-cadastro-e-da-unitização), [evidências](../orchestracao/.runtime/fe04-auto02/resultado.md).
+
+## FE04-AUTO01 — códigos internos automáticos, 13/10/2026
+
+**Decisão expressa de Lucas:** ocultar o identificador técnico da operação e gerar códigos internos automaticamente. Ao consultar o formato, escolheu “Sequenciais por cadastro, como CLI-000001 e ENT-000001”. SKU do cliente, DUN e número fiscal continuam informados; códigos físicos de endereço mantêm sua função operacional. Implementação aplica CLI/ARM/CON/SRV/TAB/ENT/SAI/CAR, sem renumerar cadastros anteriores. UUID continua no comando, gerado automaticamente e conservado em repetições, sem campo de edição ou exibição na conferência. [Contrato](design-system/etapa-09.md#fe04-auto01--códigos-internos-automáticos).
+
+Validação local e oito consultas reais SQL aprovadas; gravação concorrente HTTP/JPA e versão em execução pendentes. Nenhuma migration, escrita de negócio ou reinício nesta demanda. [Evidências](../orchestracao/.runtime/fe04-auto01/resultado.md).
+
+## FE04-EXCEL01 — modelo Excel e formulários, 13/10/2026
+
+Pedido expresso de Lucas: incluir download do modelo de endereços, reorganizar o popup, corrigir a apresentação do download e aplicar a organização aos formulários semelhantes, com testes ao final. Implementação usa o parser e os componentes existentes, CSS externo compatível com CSP e tokens do design system. Armazém por nome, justificativas em linha própria, campos em duas colunas no desktop/uma no celular e títulos sem duplicação quando já constam no cabeçalho. [Contrato e apresentação](design-system/etapa-09.md). Validação local com HTTP interceptado; não equivale a importação real no SQL Server nem mede a sessão ativa do operador.
+
 ## FE03-AUTH-INICIO01 — novo login começa no Início, 12/10/2026
 
 Pedido atual do usuário atendido localmente: novo login confirmado por credenciais define #inicio; restauração/reload/renovação de sessão preservam a rota. Correção de uma linha no callback onLogin, preservando history.state, permissões, rascunhos e senha obrigatória. Não exige dashboard para rotas operacionais (distinto de INIT01). RED/GREEN focal, tipagem/lint/build e revisão Vigia aprovados; integrado/versão servida não medidos. [Resultado](../orchestracao/.runtime/fe03-auth-inicio01/resultado.md). Sem BAT, backend ou banco nesta demanda.

@@ -1,5 +1,44 @@
 # Estado e trilha de implementação do WMS Rodogarcia
 
+## FE05-XML-BOBINAS01 — fluxo aprovado pelo gestor, 13/10/2026
+
+Aprovação do fluxo de importação após análise da NF 32325, encaminhada por Lucas: XML preenche produtos/peso previsto; etapa 3 do fluxo discutido registra a quantidade física de bobinas. [Decisão e limites](docs/06-decisoes-e-pendencias.md#fe05-xml-bobinas01--peso-da-nota-e-quantidade-física-de-bobinas-13102026). Atualização somente documental, sem nova implementação ou entrada real.
+
+Próximo passo deste recorte: detalhar/aplicar contagem e distribuição das bobinas na jornada existente, com conversão explícita TO → kg quando necessária e testes correspondentes. Permanecem pendentes XML original compatível, explicação da diferença de 60 kg da amostra e validação integrada. Não calcular contagem ou pesos individuais apenas pelo total da nota; não transportar o aceite do fluxo para aceite técnico ou de estoque.
+
+## FE04-AUTO02 — contexto automático em fiscal e unitização, 13/10/2026
+
+Pedido de Lucas: retirar ID/UUID/revisão da edição em Dados Fiscais Cadastrais; referência automática no novo pedido; pedido e revisão automáticos em Distribuir em unidades. Dependência FE04-AUTO01 e formulários compartilhados FE02. O ID da unitização é o pedido já existente selecionado, sem gerar outro pedido; sua revisão continua no contrato para proteção contra concorrência.
+
+- [x] Campos técnicos removidos da edição e da conferência nas ações fiscais e de unitização, sem retirar o payload exigido pelo backend.
+- [x] Abrir distribuição por cabeçalho/continuidade usa o pedido selecionado e consulta seu detalhe. Sem contexto válido, orientar seleção e impedir envio; versão zero não substitui dado ausente.
+- [x] Contexto acompanha seleção antes do envio e preserva o comando original durante pendência/resposta incerta/conclusão. Grupos vazios eliminados.
+- [x] Tipagem, lint, build e 573 testes frontend aprovados. Testes de navegador e limites no [recibo](orchestracao/.runtime/fe04-auto02/resultado.md).
+
+Fonte frontend alterada, sem backend/SQL/BAT/reinício nesta rodada. Versão ativa não medida; pendência de gravação integrada da FE04-AUTO01 permanece separada. [Apresentação](docs/design-system/etapa-09.md#fe04-auto02--referências-técnicas-do-cadastro-e-da-unitização).
+
+## FE04-AUTO01 — códigos internos automáticos e UUID oculto, 13/10/2026
+
+**Implementado e validado localmente; consultas SQL reais aprovadas, gravação integrada pendente.** Pedido de Lucas: retirar o identificador técnico dos formulários e gerar códigos internos no sistema. Formato escolhido expressamente: sequências por cadastro, como CLI-000001 e ENT-000001. Dependências FE04-EXCEL01, formulários FE02 e serviços de cadastro/recebimento/saída/cobrança existentes.
+
+- [x] UUID oculto nos formulários, conferências e resultados compartilhados, preservado nos comandos e na repetição segura já existente.
+- [x] Backend gera CLI, ARM, CON, SRV, TAB, ENT, SAI e CAR nas transações de criação; frontend envia código ausente e apresenta o retornado. Entrada manual/XML/devolução/carga inicial e saída/remanescente usam as respectivas sequências. Códigos existentes e externos preservados.
+- [x] Tipagem, lint, build e 568 testes frontend; 67 testes backend na whitelist sem banco; dez casos Chrome em build/DEV com HTTP interceptado. Consultas de sequência das oito tabelas executadas em WMS_DEV/WMSDEV após guarda atual 26/26, TLS válido, somente SELECT e rollback.
+- [ ] Criações/repetições concorrentes via API real e versão ativa com o novo backend. Guarda e SELECT não equivalem à integração HTTP/JPA. Nenhum BAT, reinício, DDL ou escrita de negócio executado nesta demanda.
+
+[Contrato e apresentação](docs/design-system/etapa-09.md#fe04-auto01--códigos-internos-automáticos) e [evidências/limites](orchestracao/.runtime/fe04-auto01/resultado.md). Próximo passo deste recorte: consumir a fonte atual pelo launcher documentado e validar gravação/repetição concorrente autenticada após gates atuais, preservando a instância do operador e sem reutilizar esta guarda como aprovação futura.
+
+## FE04-EXCEL01 — modelo de endereços e organização da prévia, 13/10/2026
+
+**Concluído e conferido localmente, pedido expresso de Lucas e complementos:** disponibilizar a planilha modelo na página Importar endereços Excel, reorganizar o popup, corrigir o botão de download e estender o padrão aos formulários semelhantes. Dependências BE05 → FE04, FE02-REG01 e design system. Modelo corresponde ao parser existente: aba Enderecos, cabeçalhos exatos, identidades textuais e nenhum endereço de exemplo a importar por engano. [Apresentação](docs/design-system/etapa-09.md).
+
+- [x] Download do modelo `.xlsx` na página e na prévia; estrutura e formatos conferidos.
+- [x] Popup com armazém por nome, arquivo e justificativa organizados, preservando UUID, confirmação e bloqueios existentes. CSS externo compatível com CSP no DEV.
+- [x] Padrão compartilhado de colunas, textos longos e títulos aplicado aos formulários de operação em RecordDialog.
+- [x] Conferência estrutural e visual do arquivo; tipagem/lint/build, 566 testes frontend e oito casos Chrome aprovados (seis de importação e dois de formulários semelhantes, em rodadas focais). Desktop/mobile, temas claro/escuro, CSS DEV/build, download byte a byte, multipart, UUID, retorno, erros, teclado e foco.
+
+Resultado local em [recibo](orchestracao/.runtime/fe04-excel01/resultado.md). Nenhum backend/SQL/BAT executado; HTTP interceptado e processos próprios de teste encerrados. Versão atualmente servida e importação real não medidas. Próximo passo permanece na trilha vigente, sem reabrir regressões históricas por esta alteração visual.
+
 ## FE05-PED01-A02 — tabela de entrada com rolagem lateral, 12/10/2026
 
 **Concluído e conferido localmente, pedido expresso de Lucas e complementos:** corrigir altura excessiva, textos e botões comprimidos; manter as colunas em uma linha com rolagem lateral. Dependências FE05-PED01/A01 e componentes FE02 → BE06, sem mudança em contratos ou regras de recebimento. [Apresentação vigente](docs/design-system/etapa-07.md#tabela-de-entrada-com-rolagem-lateral--fe05-ped01-a02).

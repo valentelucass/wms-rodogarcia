@@ -35,7 +35,8 @@ class Sql01MavenPolicyTest {
                         "SqlServerConfigTest",
                         "SqlServerLocalITTest",
                         "SqlServerUpdateMappingTest",
-                        "Sql01MavenPolicyTest");
+                        "Sql01MavenPolicyTest",
+                        "CodigoInternoTest");
         assertThat(
                         text(
                                 pom,

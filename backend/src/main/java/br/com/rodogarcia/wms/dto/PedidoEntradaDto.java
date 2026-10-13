@@ -23,8 +23,7 @@ public final class PedidoEntradaDto {
     public record Criar(
             @NotNull @Positive Long clienteId,
             @NotNull @Positive Long armazemId,
-            @NotBlank @Size(max = 40) @Pattern(regexp = "[A-Za-z0-9][A-Za-z0-9._/-]*")
-                    String referencia) {}
+            @Size(max = 40) @Pattern(regexp = "[A-Za-z0-9][A-Za-z0-9._/-]*") String referencia) {}
 
     public record ItemNota(
             @NotNull @Min(1) @Max(990) Integer numeroItem,

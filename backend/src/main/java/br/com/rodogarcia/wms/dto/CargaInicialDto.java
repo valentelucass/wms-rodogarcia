@@ -44,7 +44,7 @@ public final class CargaInicialDto {
             @NotNull @Positive Long clienteId,
             @NotNull @Positive Long armazemId,
             @NotNull @Positive Long produtoId,
-            @NotBlank @Size(max = 100) String referencia,
+            @Size(max = 100) String referencia,
             @Size(max = 200) String etiquetaFornecida,
             @NotNull @DecimalMin(value = "0", inclusive = false) @Digits(integer = 13, fraction = 6)
                     BigDecimal quantidade,

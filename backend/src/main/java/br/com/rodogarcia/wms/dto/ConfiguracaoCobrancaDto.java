@@ -26,8 +26,7 @@ public final class ConfiguracaoCobrancaDto {
 
     public record CriarServico(
             @NotNull UUID operacaoId,
-            @NotBlank @Size(max = 40) @Pattern(regexp = "[A-Za-z0-9][A-Za-z0-9._/-]*")
-                    String codigo,
+            @Size(max = 40) @Pattern(regexp = "[A-Za-z0-9][A-Za-z0-9._/-]*") String codigo,
             @NotBlank @Size(max = 160) String descricao,
             @NotNull @Pattern(regexp = "ENTRADA|SAIDA|ARMAZENAGEM|ADICIONAL") String tipo,
             @NotNull
@@ -68,8 +67,7 @@ public final class ConfiguracaoCobrancaDto {
             @NotNull UUID operacaoId,
             @NotNull @Positive Long armazemId,
             @Positive Long clienteId,
-            @NotBlank @Size(max = 40) @Pattern(regexp = "[A-Za-z0-9][A-Za-z0-9._/-]*")
-                    String codigo,
+            @Size(max = 40) @Pattern(regexp = "[A-Za-z0-9][A-Za-z0-9._/-]*") String codigo,
             @NotBlank @Size(max = 160) String descricao,
             @NotNull @Pattern(regexp = "PADRAO|ESPECIFICA") String tipo,
             @NotNull LocalDate vigenciaInicio,

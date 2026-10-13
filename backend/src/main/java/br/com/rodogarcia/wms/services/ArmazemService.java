@@ -64,7 +64,8 @@ public class ArmazemService {
         Armazem entidade =
                 repository.saveAndFlush(
                         new Armazem(
-                                CadastroSupport.codigo(dados.codigo()),
+                                CodigoInterno.resolver(
+                                        dados.codigo(), "ARM", repository::ultimoCodigoInterno),
                                 CadastroSupport.texto(dados.nome()),
                                 CadastroSupport.documento(dados.documentoFiscal()),
                                 CadastroSupport.texto(dados.cidade()),

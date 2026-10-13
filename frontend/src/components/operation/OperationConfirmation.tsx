@@ -1,4 +1,6 @@
-import type { Values } from "../../contracts/runtime";
+import { endpoint, type Values } from "../../contracts/runtime";
+import { automaticCodes } from "../../domain/automaticCodes";
+import { operationContextFields } from "../../domain/operationContextFields";
 import { actionLabel } from "../../domain/journeys";
 import { Dialog } from "../layout/Dialog";
 import { Result } from "../Result";
@@ -29,7 +31,19 @@ export function OperationConfirmation({
             </p>
             <details open>
                 <summary>Dados para conferência</summary>
-                <Result data={values} />
+                <Result
+                    data={Object.fromEntries(
+                        Object.entries(values).filter(
+                            ([key, value]) =>
+                                !operationContextFields(id).includes(key) &&
+                                (key !==
+                                    automaticCodes[
+                                        endpoint(id).request ?? ""
+                                    ] ||
+                                    value != null),
+                        ),
+                    )}
+                />
             </details>
             <div className="actions">
                 <button type="button" onClick={onBack}>

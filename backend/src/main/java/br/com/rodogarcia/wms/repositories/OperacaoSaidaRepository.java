@@ -5,5 +5,9 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface OperacaoSaidaRepository extends JpaRepository<OperacaoSaida, Long> {
+    Optional<OperacaoSaida>
+            findFirstByPedidoClienteIdAndPedidoArmazemIdAndOperacaoIdAndTipoOrderByIdDesc(
+                    Long clienteId, Long armazemId, String operacaoId, String tipo);
+
     Optional<OperacaoSaida> findByPedidoIdAndOperacaoId(Long pedidoId, String operacaoId);
 }

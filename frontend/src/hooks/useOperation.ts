@@ -16,6 +16,7 @@ import { prepareCommand } from "../api/prepareCommand";
 import { changeContingencyKind } from "../modules/regularizacao/command";
 import { useRequestScope } from "./useRequestScope";
 import { presentationDefaults } from "../domain/fieldPresentation";
+import { operationContextFields } from "../domain/operationContextFields";
 export interface OperationOptions {
     id: string;
     transport: Transport;
@@ -78,6 +79,14 @@ export function useOperation({
         const previous = previousContext.current;
         previousContext.current = context;
         if (pending || uncertain || completed) return;
+        const internalFields = operationContextFields(id);
+        setParams((old) => {
+            let next = old;
+            for (const field of internalFields)
+                if (field in old && old[field] !== context[field])
+                    next = { ...next, [field]: context[field] ?? "" };
+            return next;
+        });
         setBody((old) => {
             let next = old;
             for (const field of [
@@ -96,6 +105,7 @@ export function useOperation({
                 "destinacao",
                 "coberturas",
                 "versaoUnidade",
+                ...internalFields,
             ]) {
                 if (
                     !(field in old) ||
@@ -108,6 +118,7 @@ export function useOperation({
                     old[field] == null ||
                     (Array.isArray(old[field]) && old[field].length === 0);
                 if (
+                    internalFields.includes(field) ||
                     empty ||
                     JSON.stringify(old[field]) ===
                         JSON.stringify(previous[field])
@@ -122,7 +133,7 @@ export function useOperation({
             }
             return next;
         });
-    }, [context, pending, uncertain, completed]);
+    }, [context, pending, uncertain, completed, id]);
     const updateBody = (v: Values) =>
         setBody(
             id === "ContingenciaController.registrar"

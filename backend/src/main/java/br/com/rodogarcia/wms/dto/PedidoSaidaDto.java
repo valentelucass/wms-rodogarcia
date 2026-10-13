@@ -27,7 +27,7 @@ public final class PedidoSaidaDto {
             @NotNull UUID operacaoId,
             @NotNull @Positive Long clienteId,
             @NotNull @Positive Long armazemId,
-            @NotBlank @Size(max = 40) String referencia,
+            @Size(max = 40) String referencia,
             @NotNull @Size(min = 1, max = 100) List<@NotNull @Valid ItemCriar> itens,
             @NotBlank @Size(min = 5, max = 500) String motivo) {}
 

@@ -7,12 +7,14 @@ import { actionLabel, type NextAction } from "../domain/journeys";
 import { recordActionLabel } from "../domain/recordPages";
 import type { Values } from "../contracts/runtime";
 import { useLayoutEffect } from "react";
+import { missingOperationContext } from "../domain/operationContextFields";
 export interface OperationProps extends OperationOptions {
     onSelect: (v: Values, type: string) => void;
     onContinue?: (next: NextAction) => void;
     onSelectionLockChange?: (locked: boolean) => void;
     collector?: boolean;
     inDialog?: boolean;
+    hideHeading?: boolean;
     onEditingChange?: (
         dirty: boolean,
         locked: boolean,
@@ -39,13 +41,22 @@ export function Operation(props: OperationProps) {
                 perfil e alcance.
             </p>
         );
+    if (missingOperationContext(props.id, props.context))
+        return (
+            <p role="status">
+                Selecione e consulte o registro na lista antes de continuar. As
+                referências serão preenchidas pelo sistema.
+            </p>
+        );
     return (
         <section className="operation">
-            <h3>
-                {props.inDialog
-                    ? recordActionLabel(props.id)
-                    : actionLabel(props.id)}
-            </h3>
+            {!props.hideHeading && (
+                <h3>
+                    {props.inDialog
+                        ? recordActionLabel(props.id)
+                        : actionLabel(props.id)}
+                </h3>
+            )}
             {!(props.inDialog && s.confirm) && (
                 <OperationForm
                     state={s}

@@ -46,7 +46,7 @@ public final class EncerramentoDto {
             @NotNull UUID operacaoId,
             @NotNull @Positive Long clienteId,
             @NotNull @Positive Long armazemId,
-            @NotBlank @Size(max = 40) String referencia,
+            @Size(max = 40) String referencia,
             @NotNull @Size(min = 1, max = 10000) List<@NotNull @Valid Unidade> unidades,
             @Positive Long cargaInicialId,
             @NotNull @Size(max = 10000) List<@NotBlank String> etiquetas,

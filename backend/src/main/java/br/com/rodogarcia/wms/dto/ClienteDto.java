@@ -13,8 +13,7 @@ public final class ClienteDto {
     private ClienteDto() {}
 
     public record Criar(
-            @NotBlank @Size(max = 30) @Pattern(regexp = "[A-Za-z0-9][A-Za-z0-9._/-]*")
-                    String codigo,
+            @Size(max = 30) @Pattern(regexp = "[A-Za-z0-9][A-Za-z0-9._/-]*") String codigo,
             @NotBlank @Size(max = 120) String nome,
             @NotBlank @Size(max = 30) @Pattern(regexp = "[A-Za-z0-9][A-Za-z0-9./ -]*")
                     String documentoFiscal) {}

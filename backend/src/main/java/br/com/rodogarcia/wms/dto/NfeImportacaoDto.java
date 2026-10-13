@@ -28,8 +28,7 @@ public final class NfeImportacaoDto {
             @NotNull UUID operacaoId,
             @NotNull @Positive Long clienteId,
             @NotNull @Positive Long armazemId,
-            @NotBlank @Size(max = 40) @Pattern(regexp = "[A-Za-z0-9][A-Za-z0-9._/-]*")
-                    String referencia,
+            @Size(max = 40) @Pattern(regexp = "[A-Za-z0-9][A-Za-z0-9._/-]*") String referencia,
             @NotBlank @Size(max = 1000000) String xml,
             @NotBlank @Pattern(regexp = "[a-f0-9]{64}") String revisaoPrevia,
             @NotNull @Size(max = 200) List<@NotNull @Valid Associacao> associacoes) {}

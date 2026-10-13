@@ -1,3 +1,4 @@
+import { automaticCodes } from "../domain/automaticCodes";
 import {
     LosslessNumber,
     isLosslessNumber,
@@ -360,7 +361,12 @@ export function initialValue(
     if (list) return [];
     if (records[type])
         return Object.fromEntries(
-            records[type].map((f) => [f.name, initialField(f, ctx, sample)]),
+            records[type].map((f) => [
+                f.name,
+                f.name === automaticCodes[type]
+                    ? null
+                    : initialField(f, ctx, sample),
+            ]),
         );
     if (type.startsWith("Map<")) return {};
     if (type === "boolean" || type === "Boolean") return false;

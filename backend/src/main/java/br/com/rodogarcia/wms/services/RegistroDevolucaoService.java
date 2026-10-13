@@ -107,7 +107,8 @@ public class RegistroDevolucaoService {
                         new PedidoEntrada(
                                 saida.getCliente(),
                                 saida.getArmazem(),
-                                CadastroSupport.codigo(d.referencia()),
+                                CodigoInterno.resolver(
+                                        d.referencia(), "ENT", pedidos::ultimoCodigoInterno),
                                 agora));
         var n = d.nota();
         var nota =

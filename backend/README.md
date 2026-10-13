@@ -4,7 +4,7 @@
 
 `test` e `verify` sem perfil interrompem em `validate`: persistência exige SQL Server real, WMS_DEV/WMSDEV, runner legítimo guardado e prova revisada. Uma flag Maven ou um build não certifica integração SQL. H2 permanece histórico, sem aceite novo.
 
-O perfil explícito `pure-no-db` seleciona somente `Sql01ObservationConfigTest`, `Sql01JdbcObservationTest`, `SqlServerConfigTest`, `SqlServerLocalITTest`, `SqlServerUpdateMappingTest` e `Sql01MavenPolicyTest`. São mocks, leitura XML e preparação estática de SQL sem conexão; o nome SQLServer não significa execução SQL. `-Dtest` aceita somente nomes dessa lista separados por vírgula; persistência, curingas e seletores de métodos são recusados antes do contexto.
+O perfil explícito `pure-no-db` seleciona somente `Sql01ObservationConfigTest`, `Sql01JdbcObservationTest`, `SqlServerConfigTest`, `SqlServerLocalITTest`, `SqlServerUpdateMappingTest`, `Sql01MavenPolicyTest` e `CodigoInternoTest`. São mocks, leitura XML e preparação estática de SQL sem conexão; o nome SQLServer não significa execução SQL. `CodigoInternoTest` usa repositories mockados e flags locais de transação, sem contexto Spring, DataSource ou conexão; não comprova serialização no banco real. `-Dtest` aceita somente nomes dessa lista separados por vírgula; persistência, curingas e seletores de métodos são recusados antes do contexto.
 
 Use uma saída inédita para testes e evidências, na pasta backend:
 

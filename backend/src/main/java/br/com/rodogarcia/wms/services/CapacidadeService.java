@@ -137,7 +137,8 @@ public class CapacidadeService {
                 conjuntos.saveAndFlush(
                         new ConjuntoPosicoes(
                                 armazem,
-                                CadastroSupport.codigo(dados.codigo()),
+                                CodigoInterno.resolver(
+                                        dados.codigo(), "CON", conjuntos::ultimoCodigoInterno),
                                 a,
                                 b,
                                 l.pesoKg(),

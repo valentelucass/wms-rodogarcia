@@ -314,9 +314,10 @@ describe("FE05-PED01 pedido de entrada", () => {
         t.send.mockImplementation(async (request) => {
             if (request.endpoint.id === "PedidoEntradaController.criar") {
                 t.requests.push(request);
+                expect((request.body as Values).referencia).toBeNull();
                 const created = {
                     ...summary("901"),
-                    referencia: (request.body as Values).referencia,
+                    referencia: "ENT-000901",
                     versao: "0",
                 };
                 rows.push(created);
@@ -334,9 +335,7 @@ describe("FE05-PED01 pedido de entrada", () => {
         click("Novo pedido");
         click("Criar manualmente");
         const dialog = within(await screen.findByRole("dialog"));
-        fireEvent.change(dialog.getByLabelText("Referência *"), {
-            target: { value: "PED-NOVO" },
-        });
+        expect(dialog.queryByLabelText("Referência *")).toBeNull();
         click("Conferir e confirmar", dialog);
         click("Confirmar agora", dialog);
         await dialog.findByText(/Resposta FICTÍCIA/);
@@ -360,7 +359,7 @@ describe("FE05-PED01 pedido de entrada", () => {
             t.requests.filter((request) => request.endpoint.method !== "GET"),
         ).toHaveLength(1);
         expect(
-            screen.getByRole("button", { name: /Ver detalhes de PED-NOVO/ }),
+            screen.getByRole("button", { name: /Ver detalhes de ENT-000901/ }),
         ).toBeInTheDocument();
     });
     it("Operação não recebe efetivação e um link antigo continua abrindo a operação autorizada no pedido", async () => {

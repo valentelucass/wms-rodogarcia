@@ -18,6 +18,7 @@ import { useRecordQuery } from "../../hooks/useRecordQuery";
 import { Fields } from "../Fields";
 import { Pagination } from "../layout/Pagination";
 import { OperationResults } from "../operation/OperationResults";
+import { AddressTemplateLink } from "../../modules/cadastros/AddressTemplateLink";
 import { RecordTable } from "./RecordTable";
 import { RecordDialog, type RecordOpening } from "./RecordDialog";
 import type { JourneyPage } from "../JourneyPage";
@@ -112,7 +113,9 @@ function PageRecords(props: Props & { definition: RecordPage }) {
         props.startAction && props.startAction !== definition.source
             ? {
                   action: props.startAction,
-                  ...(journey.id === "entrada" &&
+                  ...((journey.id === "entrada" ||
+                      props.startAction ===
+                          "UnidadeLogisticaController.unitizar") &&
                   props.startAction !== "PedidoEntradaController.criar" &&
                   workflow.selected["PedidoEntradaDto.Resumo"]
                       ? {
@@ -215,6 +218,9 @@ function PageRecords(props: Props & { definition: RecordPage }) {
                     </p>
                 </div>
                 <div className="record-header-actions">
+                    {definition.source ===
+                        "ImportacaoEnderecoController.consultar" &&
+                        query.allowed && <AddressTemplateLink />}
                     {headers.map((id, i) => (
                         <button
                             className={i === 0 ? "primary" : ""}
@@ -223,7 +229,24 @@ function PageRecords(props: Props & { definition: RecordPage }) {
                             onClick={() => {
                                 if (id === "PedidoEntradaController.criar")
                                     setCreatingEntry(true);
-                                else setOpening({ action: id });
+                                else if (
+                                    id === "UnidadeLogisticaController.unitizar"
+                                ) {
+                                    const pedido =
+                                        workflow.selected[
+                                            "PedidoEntradaDto.Resumo"
+                                        ];
+                                    if (pedido)
+                                        setOpening({
+                                            row: pedido,
+                                            type: "PedidoEntradaDto.Resumo",
+                                            action: id,
+                                        });
+                                    else
+                                        setMessage(
+                                            "Selecione um pedido efetivado na lista para distribuir suas entradas em unidades.",
+                                        );
+                                } else setOpening({ action: id });
                             }}
                         >
                             {id === "PedidoEntradaController.criar"

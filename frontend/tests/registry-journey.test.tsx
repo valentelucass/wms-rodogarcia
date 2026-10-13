@@ -76,7 +76,7 @@ it("FE04 prévia Excel consulta e confirmação conservam arquivo warehouse vers
         },
     });
     fill("Motivo / justificativa *", "Prévia Excel fictícia conferida");
-    await confirm();
+    await confirm("Conferir prévia");
     expect(lastMutation(t.requests).params.id).toBe("1");
     expect(lastMutation(t.requests).file?.name).toBe(
         "enderecos-ficticios.xlsx",

@@ -37,14 +37,16 @@ export function Result({
                 data.flatMap((x) => (isObject(x) ? Object.keys(x) : [])),
             ),
         ];
-        const columns = keys.filter((k) =>
-            data.some(
-                (x) =>
-                    isObject(x) &&
-                    x[k] !== null &&
-                    !isObject(x[k]) &&
-                    !Array.isArray(x[k]),
-            ),
+        const columns = keys.filter(
+            (k) =>
+                k !== "operacaoId" &&
+                data.some(
+                    (x) =>
+                        isObject(x) &&
+                        x[k] !== null &&
+                        !isObject(x[k]) &&
+                        !Array.isArray(x[k]),
+                ),
         );
         const child = listType(type) ?? "unknown";
         return (
@@ -127,7 +129,7 @@ export function Result({
             );
         }
         const scalar = Object.entries(data).filter(
-            ([, x]) => !Array.isArray(x) && !isObject(x),
+            ([k, x]) => k !== "operacaoId" && !Array.isArray(x) && !isObject(x),
         );
         const nested = Object.entries(data).filter(
             ([, x]) => Array.isArray(x) || isObject(x),

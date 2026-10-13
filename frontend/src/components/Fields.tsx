@@ -16,6 +16,7 @@ import { FormReferences } from "./FormReferences";
 import { CoverageFields } from "../modules/saida/CoverageFields";
 import { RegroupOrigins } from "../modules/recebimento/RegroupOrigins";
 import { ResolutionReferences } from "../modules/financeiro/ResolutionReferences";
+import { automaticCodes } from "../domain/automaticCodes";
 interface Props {
     fields: Field[];
     values: Values;
@@ -40,22 +41,28 @@ export function Fields({
 }: Props) {
     return (
         <>
-            {fields.map((f) => (
-                <FieldControl
-                    key={f.name}
-                    f={f}
-                    value={values[f.name]}
-                    path={prefix ? prefix + "." + f.name : f.name}
-                    onChange={(v) => onChange({ ...values, [f.name]: v })}
-                    disabled={
-                        disabled ||
-                        lockedFields.includes(f.name) ||
-                        isFieldDisabled(schema, f.name, perfil)
-                    }
-                    perfil={perfil}
-                    root={root}
-                />
-            ))}
+            {fields
+                .filter(
+                    (f) =>
+                        f.name !== "operacaoId" &&
+                        f.name !== automaticCodes[schema],
+                )
+                .map((f) => (
+                    <FieldControl
+                        key={f.name}
+                        f={f}
+                        value={values[f.name]}
+                        path={prefix ? prefix + "." + f.name : f.name}
+                        onChange={(v) => onChange({ ...values, [f.name]: v })}
+                        disabled={
+                            disabled ||
+                            lockedFields.includes(f.name) ||
+                            isFieldDisabled(schema, f.name, perfil)
+                        }
+                        perfil={perfil}
+                        root={root}
+                    />
+                ))}
         </>
     );
 }
@@ -78,7 +85,10 @@ function FieldControl({
 }) {
     const refs = useContext(FormReferences);
     const lt = listType(f.type);
-    const title = label(f.name) + (f.required ? " *" : "");
+    const fiscalData = f.type === "FiscalCadastroDto.Dados";
+    const title =
+        (fiscalData ? "Dados fiscais" : label(f.name)) +
+        (f.required ? " *" : "");
     if (f.type === "List<UnidadeLogisticaDto.RevisaoUnidade>")
         return (
             <RegroupOrigins
@@ -174,7 +184,10 @@ function FieldControl({
     }
     if (records[f.type]) {
         return (
-            <fieldset disabled={disabled}>
+            <fieldset
+                disabled={disabled}
+                className={fiscalData ? "operation-fields" : undefined}
+            >
                 <legend>{title}</legend>
                 {f.type === "FechamentoCobrancaDto.Resolucao" &&
                     isObject(value) && (
@@ -193,7 +206,7 @@ function FieldControl({
                             fields={records[f.type]}
                             values={isObject(value) ? value : {}}
                             onChange={onChange}
-                            prefix={path}
+                            prefix={fiscalData ? "" : path}
                             disabled={disabled}
                             perfil={perfil}
                             root={root}

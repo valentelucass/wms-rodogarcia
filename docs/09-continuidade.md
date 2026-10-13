@@ -1,5 +1,23 @@
 # Continuidade do projeto WMS Rodogarcia
 
+## FE05-XML-BOBINAS01 — aprovação do fluxo por peso, 13/10/2026
+
+Lucas encaminhou aprovação do gestor ao fluxo da NF 32325: importar produtos/peso previsto e registrar a quantidade física de bobinas na etapa 3 discutida. [Fonte e detalhamento](06-decisoes-e-pendencias.md#fe05-xml-bobinas01--peso-da-nota-e-quantidade-física-de-bobinas-13102026). Não inferir contagem ou peso individual pelo peso fiscal. Apenas documentação nesta rodada; implementação/validação do recorte, XML original compatível e divergência de 60 kg permanecem pendentes. Preservar as validações e pendências FE04 anteriores, sem importar a nota real ou reiniciar ambientes por este registro.
+
+## FE04-AUTO02 — campos técnicos fora dos formulários, 13/10/2026
+
+Complemento de Lucas aplicado a Dados Fiscais Cadastrais, novo pedido e Distribuir em unidades. ID/revisão vêm do registro consultado e continuam nos contratos; UUID é automático/oculto; contexto ausente bloqueia apresentação do formulário em vez de assumir revisão zero. Distribuição aberta pelo cabeçalho/continuidade consulta o pedido selecionado. 573 testes frontend, tipagem/lint/build aprovados; navegador e limites no [resultado](../orchestracao/.runtime/fe04-auto02/resultado.md). Não houve backend/SQL/BAT/reinício; não elimina a pendência integrada anterior. [Design](design-system/etapa-09.md#fe04-auto02--referências-técnicas-do-cadastro-e-da-unitização).
+
+## FE04-AUTO01 — códigos internos, 13/10/2026
+
+Lucas escolheu sequências por cadastro (CLI-000001/ENT-000001) e pediu retirar o UUID da interface. Fonte implementada: oito famílias de códigos geradas pelo backend, campos internos ocultos e códigos retornados apresentados após sucesso; códigos externos/físicos e histórico preservados. [Contrato](design-system/etapa-09.md#fe04-auto01--códigos-internos-automáticos).
+
+568 testes frontend, 67 puros backend, dez casos Chrome, tipagem/lint/build e oito SELECTs de sequência no WMS_DEV após guarda 26/26 aprovados. Não confundir com gravação integrada ou versão ativa: não houve BAT/reinício nem DML/DDL. Próximo passo deste recorte é validar criação e repetição concorrente via API autenticada com a fonte atual e guardas atuais. [Resultado e limites](../orchestracao/.runtime/fe04-auto01/resultado.md).
+
+## FE04-EXCEL01 — modelo de endereços e formulários, 13/10/2026
+
+Modelo `.xlsx` vazio disponível na página e no popup de importação, com aba/cabeçalhos do parser, identidades em texto e listas de tipos. Download com aparência de ação secundária; prévia com armazém por nome, arquivo, justificativa e instruções. Padrão estendido aos formulários `RecordDialog`: colunas responsivas, textos longos em largura inteira e título sem repetição. Corrigido carregamento CSS externo para o DEV com CSP vigente. [Apresentação e limites](design-system/etapa-09.md). Testes locais e navegador com APIs interceptadas; sem backend, SQL ou BAT. Não projetar esses resultados na versão servida ao operador.
+
 ## FE05-PED01-A02 — tabela de entrada, 12/10/2026
 
 Correção visual local concluída conforme pedido e complementos de Lucas: rolagem lateral interna, conteúdo em uma linha com reticências/tooltip, referência e ID alinhados, olho para Ver pedido, ⋮ sem fundo/borda, Ações à direita e Conferência/Situação mais próximas. Tipagem/lint/formatação/build, 20 testes pertinentes e 17 casos Chrome aprovados; sete rechecados após o último alinhamento. [Resultado e capturas](../orchestracao/.runtime/receiving-table/resultado.md). HTTP interceptado, sem backend/SQL/BAT/reinício, medição da sessão DEV servida ou dispositivos físicos. Não reabrir os protocolos históricos por esta apresentação.

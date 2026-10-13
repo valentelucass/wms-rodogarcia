@@ -64,7 +64,8 @@ public class ClienteService {
         Cliente entidade =
                 repository.saveAndFlush(
                         new Cliente(
-                                CadastroSupport.codigo(dados.codigo()),
+                                CodigoInterno.resolver(
+                                        dados.codigo(), "CLI", repository::ultimoCodigoInterno),
                                 CadastroSupport.texto(dados.nome()),
                                 CadastroSupport.documento(dados.documentoFiscal()),
                                 Instant.now(clock)));

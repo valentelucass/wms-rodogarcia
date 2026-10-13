@@ -125,7 +125,8 @@ public class CargaInicialService {
         if (!produto.getCliente().getId().equals(cliente.getId()))
             throw RegraNegocioException.naoEncontrado();
         CadastroSupport.quantidade(produto, dados.quantidade());
-        String referencia = CadastroSupport.codigo(dados.referencia());
+        String referencia =
+                CodigoInterno.resolver(dados.referencia(), "CAR", cargas::ultimoCodigoInterno);
         if (cargas.findByClienteIdAndArmazemIdAndReferencia(
                         cliente.getId(), armazem.getId(), referencia)
                 .isPresent())
@@ -418,9 +419,7 @@ public class CargaInicialService {
 
     private EntradaConferida efetivar(
             CargaInicial c, CargaInicialDto.Dados d, UUID operacao, String motivo) {
-        if (d.referenciaPedido() == null
-                || d.referenciaPedido().isBlank()
-                || d.nota() == null
+        if (d.nota() == null
                 || d.chegadaReal() == null
                 || d.dataFifo() == null
                 || !d.chegadaReal().equals(d.dataFifo())

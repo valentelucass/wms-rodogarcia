@@ -3,6 +3,7 @@ import { render, screen } from "@testing-library/react";
 import { FictitiousTransport } from "../src/api/fictitious";
 import {
     Harness,
+    receivingScenario,
     lastMutation,
     click,
     fill,
@@ -14,6 +15,8 @@ import {
 
 it("FE05 condição95boa5avaria efetivada permanece triagem/quarentena sem disponibilidade", async () => {
     const t = new FictitiousTransport("SUPERVISOR");
+    const send = t.send.bind(t);
+    t.send = (request) => send(receivingScenario(request, "FICT-AVARIA-95-5"));
     render(
         <Harness
             transport={t}
@@ -22,7 +25,7 @@ it("FE05 condição95boa5avaria efetivada permanece triagem/quarentena sem dispo
             action="PedidoEntradaController.criar"
         />,
     );
-    fill("Referência *", "FICT-AVARIA-95-5");
+    expect(screen.queryByLabelText("Referência *")).toBeNull();
     await confirm();
     await click("Notas e itens");
     await click("Importar XML existente");

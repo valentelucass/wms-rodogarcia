@@ -14,6 +14,15 @@ export const obj = (type: string, patch: Values = {}) => ({
     ...(fixture(type) as Values),
     ...patch,
 });
+// Seleciona cenários preparados do transporte fictício sem exigir código no formulário.
+export function receivingScenario(
+    request: Request,
+    referencia: string,
+): Request {
+    return request.endpoint.id === "PedidoEntradaController.criar"
+        ? { ...request, body: { ...(request.body as Values), referencia } }
+        : request;
+}
 export function Harness({
     transport,
     page,
@@ -164,8 +173,8 @@ export const fill = (name: string, value: string) =>
     fireEvent.change(activeQueries().getByLabelText(name, { exact: true }), {
         target: { value },
     });
-export async function confirm() {
-    await click("Conferir e confirmar");
+export async function confirm(action = "Conferir e confirmar") {
+    await click(action);
     const validation = activeQueries().queryByRole("alert");
     if (validation) throw Error("Validação visível: " + validation.textContent);
     await screen.findByRole("region", { name: "Confirmação da ação" });

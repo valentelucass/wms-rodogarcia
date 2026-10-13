@@ -604,6 +604,7 @@ export function RecordDialog({
                                 context={derived}
                                 perfil={perfil}
                                 inDialog
+                                hideHeading={!record}
                                 fixedFields={
                                     opening.row ||
                                     (journey.id === "entrada" && record)
@@ -615,6 +616,7 @@ export function RecordDialog({
                                               "unidadeId",
                                               "codigo",
                                               "versao",
+                                              "versaoPedido",
                                               "versaoDestino",
                                               ...(journey.id === "entrada"
                                                   ? ["tipo", "registroId"]

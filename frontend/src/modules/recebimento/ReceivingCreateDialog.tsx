@@ -40,7 +40,6 @@ export function ReceivingCreateDialog({
         [fileName, setFileName] = useState("");
     const [cliente, setCliente] = useState(""),
         [armazem, setArmazem] = useState("");
-    const [referencia, setReferencia] = useState("");
     const [associacoes, setAssociacoes] = useState<Record<number, string>>({});
     const [previa, setPrevia] = useState<NfeImportacaoDto_Previa>();
     const [products, setProducts] = useState<ProdutoDto_Resposta[]>([]),
@@ -119,7 +118,6 @@ export function ReceivingCreateDialog({
         setFileName("");
         setPrevia(undefined);
         setAssociacoes({});
-        setReferencia("");
         setError("");
         setCliente("");
         setArmazem("");
@@ -192,10 +190,6 @@ export function ReceivingCreateDialog({
                         [],
                 ),
             );
-            if (!referencia && data.documento)
-                setReferencia(
-                    `NFE-${data.documento.numero}-${data.documento.serie}`,
-                );
         } catch (e) {
             if (!lifetime.current.signal.aborted) {
                 setError(
@@ -223,7 +217,7 @@ export function ReceivingCreateDialog({
                     operacaoId: crypto.randomUUID(),
                     clienteId: cliente,
                     armazemId: armazem,
-                    referencia,
+                    referencia: null,
                     xml,
                     revisaoPrevia: previa.revisaoPrevia,
                     associacoes: mappings(),
@@ -367,7 +361,6 @@ export function ReceivingCreateDialog({
                     {error && <p role="alert">{error}</p>}
                     {unknown && (
                         <div className="record-feedback record-feedback--unknown">
-                            <p>Identificador: {command.current?.operacaoId}</p>
                             <button
                                 type="button"
                                 disabled={Boolean(pending)}
@@ -423,18 +416,10 @@ export function ReceivingCreateDialog({
                                         invalidate();
                                     }}
                                 />
-                                <label>
-                                    Referência do pedido
-                                    <input
-                                        value={referencia}
-                                        maxLength={40}
-                                        pattern="[A-Za-z0-9][A-Za-z0-9._/\-]*"
-                                        disabled={blocked}
-                                        onChange={(e) =>
-                                            setReferencia(e.target.value)
-                                        }
-                                    />
-                                </label>
+                                <p className="hint">
+                                    O número da entrada será gerado
+                                    automaticamente ao confirmar.
+                                </p>
                             </div>
                             <h3>Produtos do cliente proprietário</h3>
                             {catalogError && <p role="alert">{catalogError}</p>}
@@ -545,14 +530,7 @@ export function ReceivingCreateDialog({
                                 <button
                                     type="button"
                                     className="primary"
-                                    disabled={
-                                        blocked ||
-                                        !previa.podeConfirmar ||
-                                        !referencia ||
-                                        !/^[A-Za-z0-9][A-Za-z0-9._/-]*$/.test(
-                                            referencia,
-                                        )
-                                    }
+                                    disabled={blocked || !previa.podeConfirmar}
                                     onClick={() => void confirm()}
                                 >
                                     Confirmar pedido de entrada

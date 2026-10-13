@@ -25,7 +25,7 @@ it("FE04 FE11 serviço tabela vigência vínculo sugestão fato e cálculo com r
             action="ConfiguracaoCobrancaController.criarServico"
         />,
     );
-    fill("Código *", "FICT-SERVICO");
+    expect(screen.queryByLabelText("Código *")).toBeNull();
     fill("Descricao *", "Serviço fictício configurado");
     fill("Tipo *", "ADICIONAL");
     fill("Unidade *", "QUANTIDADE_PRODUTO");
@@ -35,7 +35,7 @@ it("FE04 FE11 serviço tabela vigência vínculo sugestão fato e cálculo com r
     );
     await confirm();
     await click("Configurar tabela com este serviço fictício");
-    fill("Código *", "FICT-TABELA");
+    expect(screen.queryByLabelText("Código *")).toBeNull();
     fill("Descricao *", "Tabela fictícia de exercício");
     fill("Tipo *", "ESPECIFICA");
     fill("Vigencia Inicio *", "2026-10-01");

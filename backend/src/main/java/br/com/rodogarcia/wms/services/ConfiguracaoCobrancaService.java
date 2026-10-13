@@ -109,7 +109,7 @@ public class ConfiguracaoCobrancaService {
                 && List.of("VEICULO", "CONTEINER", "PERCENTUAL").contains(d.unidade()))
             throw CadastroSupport.invalido(
                     "Unidade adicional incompatível com este tipo de serviço.");
-        String codigo = CadastroSupport.codigo(d.codigo());
+        String codigo = CodigoInterno.resolver(d.codigo(), "SRV", servicos::ultimoCodigoInterno);
         if (servicos.existsByCodigo(codigo)) throw conflito("SERVICO_DUPLICADO");
         Instant agora = Instant.now(clock).truncatedTo(java.time.temporal.ChronoUnit.MICROS);
         var s =
@@ -187,7 +187,7 @@ public class ConfiguracaoCobrancaService {
         if (replay != null) return replay;
 
         periodo(d.vigenciaInicio(), d.vigenciaFim());
-        String codigo = CadastroSupport.codigo(d.codigo());
+        String codigo = CodigoInterno.resolver(d.codigo(), "TAB", tabelas::ultimoCodigoInterno);
         if (tabelas.existsByArmazemIdAndCodigo(a.getId(), codigo))
             throw conflito("TABELA_DUPLICADA");
         var chaves = new HashSet<String>();

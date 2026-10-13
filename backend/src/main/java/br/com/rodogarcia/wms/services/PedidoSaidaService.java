@@ -115,8 +115,25 @@ public class PedidoSaidaService {
         var armazem =
                 armazens.buscarParaAtualizar(dados.armazemId())
                         .orElseThrow(RegraNegocioException::naoEncontrado);
-        String referencia = CadastroSupport.codigo(dados.referencia());
         String hash = hash("CRIACAO_SAIDA", dados);
+        if (dados.referencia() == null || dados.referencia().isBlank()) {
+            var registrada =
+                    operacoes
+                            .findFirstByPedidoClienteIdAndPedidoArmazemIdAndOperacaoIdAndTipoOrderByIdDesc(
+                                    dados.clienteId(),
+                                    dados.armazemId(),
+                                    dados.operacaoId().toString(),
+                                    "CRIACAO_SAIDA");
+            if (registrada.isPresent()) {
+                if (!registrada.get().getConteudoHash().equals(hash))
+                    throw conflito(
+                            "OPERACAO_REUTILIZADA", "Identificador já usado com outro conteúdo.");
+                return mapper.readValue(
+                        registrada.get().getResultado(), PedidoSaidaDto.Confirmacao.class);
+            }
+        }
+        String referencia =
+                CodigoInterno.resolver(dados.referencia(), "SAI", pedidos::ultimoCodigoInterno);
         var anterior =
                 pedidos.findByClienteIdAndArmazemIdAndReferencia(
                         dados.clienteId(), dados.armazemId(), referencia);
@@ -290,7 +307,8 @@ public class PedidoSaidaService {
             throw conflito(
                     "UNIDADE_INDISPONIVEL",
                     "Resolução preserva bloqueios, avaria, contagem, capacidade e reserva.");
-        String referencia = CadastroSupport.codigo(d.referencia());
+        String referencia =
+                CodigoInterno.resolver(d.referencia(), "SAI", pedidos::ultimoCodigoInterno);
         if (pedidos.findByClienteIdAndArmazemIdAndReferencia(
                         d.clienteId(), d.armazemId(), referencia)
                 .isPresent())

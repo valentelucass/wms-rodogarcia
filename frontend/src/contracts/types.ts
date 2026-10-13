@@ -71,7 +71,7 @@ export interface AcessoDtos_PaginaUsuarios {
   totalElements: string;
 }
 export interface ArmazemDto_Criar {
-  codigo: string;
+  codigo: string | null;
   nome: string;
   documentoFiscal: string;
   cidade: string;
@@ -316,7 +316,7 @@ export interface CapacidadeDto_ConfigurarEndereco {
 }
 export interface CapacidadeDto_CriarConjunto {
   armazemId: string;
-  codigo: string;
+  codigo: string | null;
   enderecoAId: string;
   enderecoBId: string;
   limites: CapacidadeDto_Limites;
@@ -352,7 +352,7 @@ export interface CargaInicialDto_Criar {
   clienteId: string;
   armazemId: string;
   produtoId: string;
-  referencia: string;
+  referencia: string | null;
   etiquetaFornecida: string | null;
   quantidade: string;
   dados: CargaInicialDto_Dados;
@@ -406,7 +406,7 @@ export interface CargaInicialDto_Resultado {
   pendencias: Array<string> | null;
 }
 export interface ClienteDto_Criar {
-  codigo: string;
+  codigo: string | null;
   nome: string;
   documentoFiscal: string;
 }
@@ -427,7 +427,7 @@ export interface ClienteDto_Resposta {
 }
 export interface ConfiguracaoCobrancaDto_CriarServico {
   operacaoId: string;
-  codigo: string;
+  codigo: string | null;
   descricao: string;
   tipo: string;
   unidade: string;
@@ -452,7 +452,7 @@ export interface ConfiguracaoCobrancaDto_CriarTabela {
   operacaoId: string;
   armazemId: string;
   clienteId: string | null;
-  codigo: string;
+  codigo: string | null;
   descricao: string;
   tipo: string;
   vigenciaInicio: string;
@@ -724,7 +724,7 @@ export interface EncerramentoDto_Remanescente {
   operacaoId: string;
   clienteId: string;
   armazemId: string;
-  referencia: string;
+  referencia: string | null;
   unidades: Array<EncerramentoDto_Unidade>;
   cargaInicialId: string | null;
   etiquetas: Array<string>;
@@ -943,7 +943,7 @@ export interface ExpedicaoDto_ItemDevolucao {
 export interface ExpedicaoDto_Devolver {
   operacaoId: string;
   versao: string;
-  referencia: string;
+  referencia: string | null;
   nota: ExpedicaoDto_Nota;
   chegadaReal: string;
   itens: Array<ExpedicaoDto_ItemDevolucao>;
@@ -1521,7 +1521,7 @@ export interface NfeImportacaoDto_Confirmar {
   operacaoId: string;
   clienteId: string;
   armazemId: string;
-  referencia: string;
+  referencia: string | null;
   xml: string;
   revisaoPrevia: string;
   associacoes: Array<NfeImportacaoDto_Associacao>;
@@ -1623,7 +1623,7 @@ export interface PaginaResponse<T> {
 export interface PedidoEntradaDto_Criar {
   clienteId: string;
   armazemId: string;
-  referencia: string;
+  referencia: string | null;
 }
 export interface PedidoEntradaDto_ItemNota {
   numeroItem: number;
@@ -1696,7 +1696,7 @@ export interface PedidoSaidaDto_Criar {
   operacaoId: string;
   clienteId: string;
   armazemId: string;
-  referencia: string;
+  referencia: string | null;
   itens: Array<PedidoSaidaDto_ItemCriar>;
   motivo: string;
 }

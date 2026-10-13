@@ -92,7 +92,8 @@ public class PedidoEntradaService {
                         new PedidoEntrada(
                                 cliente,
                                 armazem,
-                                CadastroSupport.codigo(dados.referencia()),
+                                CodigoInterno.resolver(
+                                        dados.referencia(), "ENT", pedidos::ultimoCodigoInterno),
                                 agora()));
         var resposta = resumo(p);
         auditoria.registrar(

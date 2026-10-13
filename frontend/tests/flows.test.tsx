@@ -22,7 +22,7 @@ describe("Jornadas e segurança de apresentação", () => {
                 onSelect={vi.fn()}
             />,
         );
-        await user.type(screen.getByLabelText("Código *"), "DEMO");
+        expect(screen.queryByLabelText("Código *")).toBeNull();
         await user.type(screen.getByLabelText("Nome *"), "Cliente fictício");
         await user.type(
             screen.getByLabelText("CPF / CNPJ *"),

@@ -5,6 +5,7 @@ import { writeFileSync } from "node:fs";
 import type { Request } from "../src/api/client";
 import {
     Harness,
+    receivingScenario,
     lastMutation,
     click,
     fill,
@@ -28,7 +29,9 @@ it("FE05 XML sem chegada partes 50+48 divergência100/98 e efetivação supervis
     const raws: string[] = [];
     const send = t.send.bind(t);
     t.send = async (request) => {
-        const receipt = await send(request);
+        const receipt = await send(
+            receivingScenario(request, "FICT-100-DIVERGENCIA"),
+        );
         raws.push(receipt.raw);
         return receipt;
     };
@@ -40,7 +43,7 @@ it("FE05 XML sem chegada partes 50+48 divergência100/98 e efetivação supervis
             action="PedidoEntradaController.criar"
         />,
     );
-    fill("Referência *", "FICT-100-DIVERGENCIA");
+    expect(screen.queryByLabelText("Referência *")).toBeNull();
     await confirm();
     expect(
         await screen.findByRole("region", {
@@ -112,7 +115,9 @@ it("FE06 múltiplas unidades seleção explícita reimpressão divisão e reagru
     }[] = [];
     const send = t.send.bind(t);
     t.send = async (request) => {
-        const response = await send(request);
+        const response = await send(
+            receivingScenario(request, "FICT-1000-UNIDADES"),
+        );
         if (request.endpoint.id === "UnidadeLogisticaController.progresso")
             progress.push({
                 params: request.params,
@@ -128,7 +133,7 @@ it("FE06 múltiplas unidades seleção explícita reimpressão divisão e reagru
             action="PedidoEntradaController.criar"
         />,
     );
-    fill("Referência *", "FICT-1000-UNIDADES");
+    expect(screen.queryByLabelText("Referência *")).toBeNull();
     await confirm();
     await click("Notas e itens");
     await click("Importar XML existente");
