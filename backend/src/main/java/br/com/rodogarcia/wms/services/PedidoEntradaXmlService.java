@@ -84,8 +84,7 @@ public class PedidoEntradaXmlService {
         var avisos = new ArrayList<String>();
         avisos.add(
                 "O emitente é o proprietário. O destinatário permanece como informado na nota; o armazém apenas guarda a mercadoria.");
-        avisos.add(
-                "O arquivo foi conferido pelo esquema local. Assinatura, autenticidade e situação atual da nota não foram consultadas na SEFAZ.");
+        avisos.addAll(doc.avisos());
         Long clienteId = dados.clienteId();
         if (clienteId == null) {
             var candidatos =

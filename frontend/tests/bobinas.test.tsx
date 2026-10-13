@@ -86,3 +86,68 @@ it("distribuicao sugere o numero contado mas nunca inventa pesos individuais", (
         },
     ]);
 });
+
+it("item com regra confirmada sugere uma bobina e seu peso sem inventar lote", () => {
+    const state = emptyWorkflow();
+    state.selected["PedidoEntradaDto.Resumo"] = { id: "82", versao: "4" };
+    state.selected["PedidoEntradaDto.ItemConferencia"] = {
+        id: "91",
+        prevista: "1848.000000",
+        recebidaBoa: "0",
+        recebidaAvariada: "0",
+        bobinasPrevistas: 1,
+    };
+    state.owners["PedidoEntradaDto.ItemConferencia:91"] = {
+        root: "PedidoEntradaDto.Resumo",
+        id: "82",
+    };
+    const context: Values = {};
+    receivingReferences(context, "PedidoEntradaController", "chegada", state);
+    expect(context.itens).toEqual([
+        {
+            itemNotaId: "91",
+            lote: null,
+            validade: null,
+            quantidadeBoa: "1848.000000",
+            quantidadeAvariada: "0",
+            bobinas: { boas: 1, avariadas: 0 },
+        },
+    ]);
+    state.selected["PedidoEntradaDto.ItemConferencia"].recebidaBoa = "1848";
+    receivingReferences(context, "PedidoEntradaController", "chegada", state);
+    expect((context.itens as Values[])[0]).toMatchObject({
+        quantidadeBoa: "",
+        bobinas: null,
+    });
+});
+
+it("bobina unica recebe exatamente o peso fisico conferido", () => {
+    const state = emptyWorkflow();
+    state.selected["PedidoEntradaDto.Resumo"] = { id: "82", versao: "4" };
+    state.selected["RecebimentoDto.Entrada"] = {
+        id: "101",
+        produtoId: "80",
+        quantidadeTriagem: "0",
+        quantidadeQuarentena: "1826.123456",
+        bobinas: { boas: 0, avariadas: 1 },
+    };
+    state.owners["RecebimentoDto.Entrada:101"] = {
+        root: "PedidoEntradaDto.Resumo",
+        id: "82",
+    };
+    const context: Values = {};
+    receivingReferences(
+        context,
+        "UnidadeLogisticaController",
+        "unitizar",
+        state,
+    );
+    expect(context.unidades).toEqual([
+        {
+            embalagemId: "",
+            tipo: "BOBINA",
+            condicao: "AVARIADA",
+            quantidade: "1826.123456",
+        },
+    ]);
+});

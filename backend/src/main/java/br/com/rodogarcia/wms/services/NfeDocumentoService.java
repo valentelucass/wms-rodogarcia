@@ -32,9 +32,16 @@ public class NfeDocumentoService {
                     "xmldsig-core-schema_v1.01.xsd");
     private final NfeXmlService xml;
     private final Schema schema;
+    private final RegraBobinaPorItem bobinas;
 
     public NfeDocumentoService(NfeXmlService xml) {
+        this(xml, new RegraBobinaPorItem(""));
+    }
+
+    @org.springframework.beans.factory.annotation.Autowired
+    public NfeDocumentoService(NfeXmlService xml, RegraBobinaPorItem bobinas) {
         this.xml = xml;
+        this.bobinas = bobinas;
         try {
             var factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
             factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
@@ -67,10 +74,12 @@ public class NfeDocumentoService {
         var base = xml.ler(original);
         try {
             var root = xml.raiz(original);
+            boolean exportacao = NfeExportacaoOperacional.reconhece(root);
+            if (exportacao) NfeExportacaoOperacional.preparar(root);
             var validator = schema.newValidator();
             validator.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
             validator.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
-            validator.validate(new DOMSource(root));
+            if (!exportacao) validator.validate(new DOMSource(root));
             var nfe = "NFe".equals(root.getLocalName()) ? root : unico(root, "NFe");
             var info = unico(nfe, "infNFe");
             var ide = unico(info, "ide");
@@ -98,7 +107,10 @@ public class NfeDocumentoService {
                                 texto(p, "uTrib"),
                                 decimal(p, "qTrib"),
                                 texto(p, "cEANTrib"),
-                                texto(det, "infAdProd")));
+                                texto(det, "infAdProd"),
+                                bobinas.aplica(base.emitente(), texto(p, "cProd"), texto(p, "uCom"))
+                                        ? 1
+                                        : null));
             }
             var volumes = new ArrayList<NfeImportacaoDto.Volume>();
             for (var vol : filhos(unico(info, "transp"), "vol"))
@@ -121,7 +133,9 @@ public class NfeDocumentoService {
                                 texto(infProt, "cStat"),
                                 texto(infProt, "xMotivo"));
                 if (!chave.equals(protocolo.chave())
-                        || !texto(ide, "tpAmb").equals(protocolo.ambiente())) throw invalido();
+                        || (!(exportacao && protocolo.ambiente() == null)
+                                && !texto(ide, "tpAmb").equals(protocolo.ambiente())))
+                    throw invalido();
             }
             var additional = opcional(info, "infAdic");
             return new NfeImportacaoDto.Documento(
@@ -141,12 +155,70 @@ public class NfeDocumentoService {
                     List.copyOf(volumes),
                     protocolo,
                     texto(additional, "infCpl"),
-                    texto(additional, "infAdFisco"));
+                    texto(additional, "infAdFisco"),
+                    exportacao ? "EXPORTACAO_OPERACIONAL" : "NFE_ESQUEMA_LOCAL",
+                    avisos(itens, volumes, exportacao));
         } catch (RegraNegocioException e) {
             throw e;
         } catch (Exception e) {
             throw invalido();
         }
+    }
+
+    private static List<String> avisos(
+            List<NfeImportacaoDto.Item> itens,
+            List<NfeImportacaoDto.Volume> volumes,
+            boolean exportacao) {
+        var avisos = new ArrayList<String>();
+        avisos.add(
+                exportacao
+                        ? "Arquivo de exportação operacional: campos de recebimento conferidos, sem validação pelo esquema fiscal completo e sem assinatura. O XML original será preservado; autenticidade e situação na SEFAZ não foram consultadas."
+                        : "Arquivo conferido pelo esquema local. Assinatura, autenticidade e situação atual não foram verificadas na SEFAZ.");
+        BigDecimal totalKg = BigDecimal.ZERO;
+        boolean massa = true;
+        for (var i : itens) {
+            if (i.unidadeComercial().equals(i.unidadeTributavel())
+                    && i.quantidadeComercial().compareTo(i.quantidadeTributavel()) != 0)
+                avisos.add(
+                        "Item "
+                                + i.numeroItem()
+                                + ": quantidade comercial "
+                                + i.quantidadeComercial().toPlainString()
+                                + " "
+                                + i.unidadeComercial()
+                                + " difere da tributável "
+                                + i.quantidadeTributavel().toPlainString()
+                                + " "
+                                + i.unidadeTributavel()
+                                + ". A previsão usa a quantidade comercial; confira o peso físico.");
+            try {
+                totalKg =
+                        totalKg.add(
+                                ConversaoUnidadeNfe.converter(
+                                        i.quantidadeComercial(), i.unidadeComercial(), "KG"));
+            } catch (RegraNegocioException e) {
+                massa = false;
+            }
+        }
+        if (massa
+                && !volumes.isEmpty()
+                && volumes.stream().allMatch(v -> v.pesoLiquido() != null)) {
+            var liquido =
+                    volumes.stream()
+                            .map(NfeImportacaoDto.Volume::pesoLiquido)
+                            .reduce(BigDecimal.ZERO, BigDecimal::add);
+            if (liquido.compareTo(totalKg) != 0)
+                avisos.add(
+                        "A soma comercial dos itens é "
+                                + totalKg.stripTrailingZeros().toPlainString()
+                                + " KG; o peso líquido informado é "
+                                + liquido.toPlainString()
+                                + " KG. Valores preservados, sem correção automática de escala. Confira na chegada.");
+        }
+        if (itens.stream().anyMatch(i -> i.bobinasPrevistas() != null))
+            avisos.add(
+                    "Regra deste cliente/produto: cada item indica uma bobina e uma posição prevista. Linhas do mesmo SKU permanecem separadas. A conferência confirma peso, condição e contagem; a posição será escolhida no endereçamento. Lotes em texto livre não são associados automaticamente.");
+        return List.copyOf(avisos);
     }
 
     private static NfeImportacaoDto.Participante participante(Element e) {

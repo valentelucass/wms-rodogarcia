@@ -49,7 +49,8 @@ public final class NfeImportacaoDto {
             String unidadeTributavel,
             BigDecimal quantidadeTributavel,
             String gtinTributavel,
-            String informacoesAdicionais) {}
+            String informacoesAdicionais,
+            Integer bobinasPrevistas) {}
 
     public record Volume(
             BigDecimal quantidade, String especie, BigDecimal pesoLiquido, BigDecimal pesoBruto) {}
@@ -79,7 +80,9 @@ public final class NfeImportacaoDto {
             List<Volume> volumes,
             Protocolo protocolo,
             String informacoesComplementares,
-            String informacoesFisco) {}
+            String informacoesFisco,
+            String formato,
+            List<String> avisos) {}
 
     public record ItemAssociado(
             int numeroItem,

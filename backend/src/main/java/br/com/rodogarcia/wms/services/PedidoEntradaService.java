@@ -47,6 +47,7 @@ public class PedidoEntradaService {
     private final AuditoriaService auditoria;
     private final Clock clock;
     private final OrigemEntradaService origens;
+    private final RegraBobinaPorItem bobinas;
 
     public PedidoEntradaService(
             PedidoEntradaRepository pedidos,
@@ -60,7 +61,8 @@ public class PedidoEntradaService {
             AcessoService acesso,
             AuditoriaService auditoria,
             Clock clock,
-            OrigemEntradaService origens) {
+            OrigemEntradaService origens,
+            RegraBobinaPorItem bobinas) {
         this.pedidos = pedidos;
         this.notas = notas;
         this.itens = itens;
@@ -73,6 +75,7 @@ public class PedidoEntradaService {
         this.auditoria = auditoria;
         this.clock = clock;
         this.origens = origens;
+        this.bobinas = bobinas;
     }
 
     @Transactional
@@ -281,7 +284,18 @@ public class PedidoEntradaService {
                                                                                     .subtract(
                                                                                             i
                                                                                                     .getQuantidadePrevista()),
-                                                                            i.getValorMercadoria());
+                                                                            i.getValorMercadoria(),
+                                                                            n.getXmlHash() != null
+                                                                                            && bobinas
+                                                                                                    .aplica(
+                                                                                                            n
+                                                                                                                    .getEmitente(),
+                                                                                                            i.getProduto()
+                                                                                                                    .getSku(),
+                                                                                                            i.getProduto()
+                                                                                                                    .getUnidadeMedida())
+                                                                                    ? 1
+                                                                                    : null);
                                                                 })
                                                         .toList()))
                         .toList();

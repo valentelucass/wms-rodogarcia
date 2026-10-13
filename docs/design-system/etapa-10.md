@@ -26,3 +26,8 @@ O navegador encontrou duas falhas corrigidas: lote opcional vazio em produto sem
 DEV mantido aberto: backend PID 9004/25580, frontend PID 22364/25581, run `d1277d90-a1dc-4fee-9f7c-c8fc28651972`. Sessão final própria encerrada por logout. Sem segredos nos recibos, H2, DDL, migrations ou produção. Este aceite cobre o recorte; não substitui impressora/coletor físico, SEFAZ ou regressão dos 879 casos históricos.
 
 A NF 32325 continua somente como referência analisada. Sua amostra incompatível e a diferença de 60 kg não são corrigidas por suposição. Testes usam XML e mercadorias fictícios; não há emissão fiscal externa.
+
+
+## Complemento posterior
+
+A [etapa 11](etapa-11.md), de 13/10/2026, implementa a leitura operacional dos XMLs efetivamente entregues e a regra confirmada de uma bobina por item para o cliente/produto configurado. Supera a exigência de outro XML compatível para essas amostras; preserva as divergências de peso e separa confirmação física de importação. As provas acima permanecem históricas.

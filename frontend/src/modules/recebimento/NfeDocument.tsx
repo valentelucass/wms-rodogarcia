@@ -31,6 +31,23 @@ export function NfeDocument({
             <h3>
                 NF-e {d.numero} · série {d.serie}
             </h3>
+            <p className="hint">
+                {d.formato === "EXPORTACAO_OPERACIONAL"
+                    ? "Exportação operacional · dados originais preservados"
+                    : "NF-e · estrutura conferida pelo esquema local"}
+            </p>
+            {Boolean(d.avisos?.length) && (
+                <aside
+                    className="record-feedback"
+                    aria-label="Conferência do arquivo"
+                >
+                    <ul>
+                        {d.avisos?.map((aviso) => (
+                            <li key={aviso}>{aviso}</li>
+                        ))}
+                    </ul>
+                </aside>
+            )}
             <Info
                 fields={{
                     "Chave de acesso": d.chaveAcesso,
@@ -60,6 +77,7 @@ export function NfeDocument({
                                 "Código / descrição",
                                 "Comercial",
                                 "Tributável",
+                                "Bobinas previstas",
                                 "Valores",
                                 "Classificação",
                             ].map((t) => (
@@ -92,6 +110,11 @@ export function NfeDocument({
                                     GTIN: {value(i.gtinTributavel)}
                                 </td>
                                 <td>
+                                    {i.bobinasPrevistas == null
+                                        ? "—"
+                                        : `${i.bobinasPrevistas} bobina · ${i.bobinasPrevistas} posição prevista`}
+                                </td>
+                                <td>
                                     Unitário: {i.valorUnitario}
                                     <br />
                                     Produto: {i.valorProduto}
@@ -114,8 +137,8 @@ export function NfeDocument({
                         fields={{
                             "Quantidade de volumes": v.quantidade,
                             Espécie: v.especie,
-                            "Peso líquido": v.pesoLiquido,
-                            "Peso bruto": v.pesoBruto,
+                            "Peso líquido informado (kg)": v.pesoLiquido,
+                            "Peso bruto informado (kg)": v.pesoBruto,
                         }}
                     />
                 ))

@@ -8574,6 +8574,12 @@
         "type": "String",
         "required": false,
         "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "bobinasPrevistas",
+        "type": "Integer",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
       }
     ],
     "NfeImportacaoDto.Volume": [
@@ -8754,6 +8760,24 @@
         "type": "String",
         "required": false,
         "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "formato",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+      },
+      {
+        "name": "avisos",
+        "type": "List<String>",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java",
+        "element": {
+          "name": "element",
+          "type": "String",
+          "required": false,
+          "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/NfeImportacaoDto.java"
+        }
       }
     ],
     "NfeImportacaoDto.ItemAssociado": [
@@ -9244,6 +9268,12 @@
       {
         "name": "valorMercadoria",
         "type": "BigDecimal",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/PedidoEntradaDto.java"
+      },
+      {
+        "name": "bobinasPrevistas",
+        "type": "Integer",
         "required": false,
         "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/PedidoEntradaDto.java"
       }

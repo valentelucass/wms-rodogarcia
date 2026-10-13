@@ -13,7 +13,7 @@ export const information = {
     receivingBobinas: {
         title: "Peso e contagem de bobinas",
         description:
-            "Registre o peso na unidade do produto e, separadamente, conte as bobinas boas e avariadas. A nota não determina essa contagem. Na distribuição, informe o peso real de cada bobina; a soma e a contagem serão conferidas pelo sistema. Corrija uma chegada incorreta por estorno e novo registro.",
+            "Confira o peso na unidade do produto e conte as bobinas boas e avariadas. Para o cliente/produto com regra de uma bobina por item, o sistema sugere o peso da linha e uma bobina; confirme ou corrija conforme a chegada física. Uma única bobina usa o peso conferido na distribuição. Para várias bobinas no mesmo item, informe cada peso individual. A soma e a contagem são validadas pelo sistema. Cada bobina desta operação terá sua posição, escolhida no endereçamento. Corrija uma chegada incorreta por estorno e novo registro.",
     },
     occupancy: {
         title: "Ocupação",

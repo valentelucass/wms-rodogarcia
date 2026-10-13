@@ -89,7 +89,8 @@ public final class PedidoEntradaDto {
             BigDecimal recebidaBoa,
             BigDecimal recebidaAvariada,
             BigDecimal diferenca,
-            BigDecimal valorMercadoria) {}
+            BigDecimal valorMercadoria,
+            Integer bobinasPrevistas) {}
 
     public record Nota(
             Long id,

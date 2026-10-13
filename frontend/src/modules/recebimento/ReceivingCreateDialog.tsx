@@ -550,9 +550,14 @@ export function ReceivingCreateDialog({
                                     );
                                 })}
                             </div>
-                            {previa.avisos?.map((m, i) => (
-                                <p key={i}>{m}</p>
-                            ))}
+                            {previa.avisos
+                                ?.filter(
+                                    (m) =>
+                                        !previa.documento?.avisos?.includes(m),
+                                )
+                                .map((m, i) => (
+                                    <p key={i}>{m}</p>
+                                ))}
                             {!!previa.pendencias?.length && (
                                 <div role="status">
                                     <strong>Resolva antes de confirmar</strong>

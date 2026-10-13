@@ -4,6 +4,8 @@ import type { NfeImportacaoDto_Previa } from "../src/contracts/types";
 export const nfePreview: NfeImportacaoDto_Previa = {
     documento: {
         versao: "4.00",
+        formato: "NFE_ESQUEMA_LOCAL",
+        avisos: [],
         modelo: "55",
         chaveAcesso: "41260933064262000250550010002937291595471168",
         serie: 1,
@@ -37,6 +39,7 @@ export const nfePreview: NfeImportacaoDto_Previa = {
                 quantidadeTributavel: "32000.0000",
                 gtinTributavel: "SEM GTIN",
                 informacoesAdicionais: "Item de teste",
+                bobinasPrevistas: null,
             },
         ],
         volumes: [

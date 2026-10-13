@@ -55,6 +55,7 @@ const baseValues: Values = {
     uf: "SP",
     cidade: "Cidade fictícia",
     lote: null,
+    bobinasPrevistas: null,
     validade: null,
     retiradaEm: null,
     encerradaEm: null,

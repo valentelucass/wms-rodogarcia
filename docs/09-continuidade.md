@@ -1,5 +1,15 @@
 # Continuidade do projeto WMS Rodogarcia
 
+## FE05-EXPORTACAO01 — amostras reais e fluxo por bobina concluídos, 13/10/2026
+
+Lucas entregou os XMLs/PDFs das NFs 32332 e 32485 e confirmou a regra do gestor: nesta operação Bracell, cada item é uma bobina e ocupará uma posição. Não há informação adicional a pedir ao gestor para implementar esse fluxo. A confirmação sobre erros do fornecedor não autoriza corrigir valores fiscais por suposição.
+
+Implementado adaptador restrito ao formato de exportação recebido, com validação operacional e preservação integral do XML; NF-e convencional mantém o esquema local. Prévia identifica o formato e expõe divergências. Regra configurada por emitente/SKU sugere uma bobina por item sem agrupar SKU repetido. Conferência sugere peso comercial convertido e contagem, exige confirmação física; distribuição de uma bobina usa o peso conferido. Lotes em texto livre não são associados automaticamente.
+
+**Validado:** 584 testes frontend, 91 testes backend puros, tipagem/lint/build e 31 verificações da jornada/ambiente integrado. Guarda nova 26/26 WMS_DEV/WMSDEV/TLS; Chrome autenticado com API real. XMLs reais somente lidos; gravações fictícias: pedidos 87/88, unidades 1347–1355, nove posições e 15.759 kg disponíveis. Repetição, peso divergente, duplicidade e posição ocupada conferidos. DEV atualizado pelo BAT: backend 47028/25580, frontend 6332/25581; 323 fingerprints e JAR atestados. Preservar fixtures e histórico.
+
+[Contrato e evidências](design-system/etapa-11.md), [recibo](../orchestracao/.runtime/fe05-exportacao/resultado.json). Este resultado supera a exigência técnica de outro XML/original e a pendência de implementação para as amostras entregues. Nenhuma nota real foi lançada no estoque; impressão física, consulta SEFAZ e produção não integram esta validação.
+
 ## FE05-XML-BOBINAS01 — complemento concluído e testado, 13/10/2026
 
 Conversão TO/KG, cadastro assistido de produto, contagem independente de bobinas e distribuição com validação de peso/contagem implementados. 581 testes frontend, 86 backend puros, tipagem/lint/build e 33 verificações integradas aprovados. Navegador real encontrou e confirmou correções de lote opcional e sincronização da entrada selecionada. [Design e validação](design-system/etapa-10.md), [evidências](../orchestracao/.runtime/fe05-xml-bobinas01/resultado.json).

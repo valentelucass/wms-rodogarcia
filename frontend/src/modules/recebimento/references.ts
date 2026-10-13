@@ -44,7 +44,12 @@ export function receivingReferences(
                         embalagemId: "",
                         tipo: "BOBINA",
                         condicao: i < boas ? "BOA" : "AVARIADA",
-                        quantidade: "",
+                        quantidade:
+                            boas + avariadas === 1
+                                ? ((i < boas
+                                      ? incoming.quantidadeTriagem
+                                      : incoming.quantidadeQuarentena) ?? "")
+                                : "",
                     }),
                 );
             }
@@ -76,8 +81,19 @@ export function receivingReferences(
                     itemNotaId: item.id,
                     lote: null,
                     validade: null,
-                    quantidadeBoa: "",
+                    quantidadeBoa:
+                        item.bobinasPrevistas === 1 &&
+                        Number(item.recebidaBoa) === 0 &&
+                        Number(item.recebidaAvariada) === 0
+                            ? item.prevista
+                            : "",
                     quantidadeAvariada: "0",
+                    bobinas:
+                        item.bobinasPrevistas === 1 &&
+                        Number(item.recebidaBoa) === 0 &&
+                        Number(item.recebidaAvariada) === 0
+                            ? { boas: 1, avariadas: 0 }
+                            : null,
                 },
             ];
     }

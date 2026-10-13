@@ -34,6 +34,7 @@ public class NfeXmlService {
         if (xml.getBytes(StandardCharsets.UTF_8).length > 1000000) throw invalido();
         try {
             Element root = raiz(xml);
+            if (NfeExportacaoOperacional.reconhece(root)) NfeExportacaoOperacional.preparar(root);
             Element nfe = nome(root, "nfeProc") ? unico(root, "NFe") : root;
             if (!nome(nfe, "NFe")) throw invalido();
             Element info = unico(nfe, "infNFe");

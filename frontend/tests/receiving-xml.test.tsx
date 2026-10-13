@@ -10,6 +10,50 @@ import {
 import { fixture } from "../src/api/mock/fixtures";
 import { nfePreview } from "./nfe-example";
 import { canLeavePage } from "../src/domain/pageLeave";
+import { NfeDocument } from "../src/modules/recebimento/NfeDocument";
+
+it("exportacao mostra oito bobinas do mesmo SKU e o aviso sem corrigir peso", () => {
+    const doc = structuredClone(nfePreview.documento!);
+    doc.formato = "EXPORTACAO_OPERACIONAL";
+    doc.avisos = [
+        "Peso líquido informado 14.172 KG difere da soma 14172 KG. Valores preservados.",
+    ];
+    doc.itens = [
+        "1.8480",
+        "1.8260",
+        "1.8370",
+        "1.7820",
+        "1.7830",
+        "2.0260",
+        "1.5500",
+        "1.5200",
+    ].map((peso, i) => ({
+        ...doc.itens![0],
+        numeroItem: i + 1,
+        quantidadeComercial: peso,
+        quantidadeTributavel: peso,
+        unidadeComercial: "TO",
+        unidadeTributavel: "TO",
+        bobinasPrevistas: 1,
+    }));
+    doc.volumes = [
+        {
+            quantidade: "8",
+            especie: "Tonelada",
+            pesoLiquido: "14.172",
+            pesoBruto: "14.172",
+        },
+    ];
+    render(<NfeDocument documento={doc} />);
+    expect(screen.getAllByText("1 bobina · 1 posição prevista")).toHaveLength(
+        8,
+    );
+    expect(screen.getAllByText("14.172")).toHaveLength(2);
+    expect(screen.getByLabelText("Conferência do arquivo")).toHaveTextContent(
+        "Valores preservados",
+    );
+    expect(screen.getByText(/Exportação operacional/)).toBeVisible();
+});
 const receipt = (data: unknown) => ({
     data,
     raw: "",

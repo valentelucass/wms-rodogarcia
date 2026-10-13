@@ -1545,6 +1545,7 @@ export interface NfeImportacaoDto_Item {
   quantidadeTributavel: string | null;
   gtinTributavel: string | null;
   informacoesAdicionais: string | null;
+  bobinasPrevistas: number | null;
 }
 export interface NfeImportacaoDto_Volume {
   quantidade: string | null;
@@ -1578,6 +1579,8 @@ export interface NfeImportacaoDto_Documento {
   protocolo: NfeImportacaoDto_Protocolo | null;
   informacoesComplementares: string | null;
   informacoesFisco: string | null;
+  formato: string | null;
+  avisos: Array<string> | null;
 }
 export interface NfeImportacaoDto_ItemAssociado {
   numeroItem: number;
@@ -1671,6 +1674,7 @@ export interface PedidoEntradaDto_ItemConferencia {
   recebidaAvariada: string | null;
   diferenca: string | null;
   valorMercadoria: string | null;
+  bobinasPrevistas: number | null;
 }
 export interface PedidoEntradaDto_Nota {
   id: string | null;
