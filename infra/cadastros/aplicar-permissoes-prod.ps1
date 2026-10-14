@@ -41,9 +41,13 @@ try {
     $baselinePath=Join-Path $root 'infra/prod/contrato-aplicacao.json'
     $baseline=Get-Content -LiteralPath $baselinePath -Raw -Encoding UTF8|ConvertFrom-Json
     $migrations=@(Get-WmsProdMigrations)
-    Assert-Cad ($migrations.Count -eq 11) 'MIGRATIONS_INESPERADAS'
+    Assert-Cad ($migrations.Count -in @(11,12)) 'MIGRATIONS_INESPERADAS'
     Assert-Cad ($baseline.schema -eq 1 -and $baseline.database -ceq 'WMS_PROD' -and $baseline.login -ceq 'WMSPROD') 'BASELINE_DIVERGENTE'
     $before=$baseline
+    if ($migrations.Count -eq 12) {
+        . (Join-Path $root 'infra/tipos-unidade/contrato-banco.ps1')
+        $before=Add-WmsUnitTypesExpectedContract $before ($migrations | Where-Object {$_.version -ceq '12'})
+    }
     $expected=Add-WmsCadastroEditExpectedContract $before
     Assert-Cad (Same-CadRows @($expected.historico|Where-Object {$_.type -ceq 'SQL'}) $migrations @('version','script','checksum')) 'MIGRATIONS_DIVERGENTES'
     $delta=Get-WmsCadastroEditableColumns

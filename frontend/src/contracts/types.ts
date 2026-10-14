@@ -15,6 +15,7 @@ export type SituacaoRevisaoContagem = "PENDENTE" | "PENDENTE_RESERVA" | "RECONCI
 export type TipoContingencia = "CHEGADA" | "RESERVA" | "SEPARACAO" | "RETIRADA" | "RETORNO" | "ENTRADA" | "AVARIA" | "FATO_SERVICO" | "CONTAGEM" | "AJUSTE" | "REMANEJAMENTO";
 export type TipoEndereco = "ARMAZENAGEM" | "TRIAGEM" | "QUARENTENA" | "SEPARACAO";
 export type TipoQuantidade = "CONTAGEM" | "MEDIDA";
+export type TiposUnidadePermitidos = "PALLET" | "BOBINA" | "VOLUME" | "PALLET_BOBINA" | "PALLET_VOLUME" | "BOBINA_VOLUME" | "TODAS";
 export type TipoUnidadeLogistica = "PALLET" | "BOBINA" | "VOLUME";
 export interface AcessoDtos_Login {
   email: string;
@@ -313,7 +314,7 @@ export interface CapacidadeDto_Limites {
 }
 export interface CapacidadeDto_ConfigurarEndereco {
   versao: string;
-  tipoUnidadePermitido: TipoUnidadeLogistica;
+  tipoUnidadePermitido: TiposUnidadePermitidos;
   limites: CapacidadeDto_Limites;
   motivo: string;
 }
@@ -334,7 +335,7 @@ export interface CapacidadeDto_Conjunto {
   enderecoAId: string | null;
   enderecoBId: string | null;
   tipoEndereco: TipoEndereco | null;
-  tipoUnidadePermitido: TipoUnidadeLogistica | null;
+  tipoUnidadePermitido: TiposUnidadePermitidos | null;
   limites: CapacidadeDto_Limites | null;
 }
 export interface CargaInicialDto_Dados {
@@ -765,7 +766,7 @@ export interface EnderecoDto_Criar {
   profundidadeMetros: string | null;
   empilhamentoMaximo: number | null;
   sequenciaColeta: number;
-  tipoUnidadePermitido: TipoUnidadeLogistica | null;
+  tipoUnidadePermitido: TiposUnidadePermitidos | null;
 }
 export interface EnderecoDto_Alterar {
   versao: string;
@@ -782,7 +783,7 @@ export interface EnderecoDto_Alterar {
   profundidadeMetros: string | null;
   empilhamentoMaximo: number | null;
   sequenciaColeta: number | null;
-  tipoUnidadePermitido: TipoUnidadeLogistica | null;
+  tipoUnidadePermitido: TiposUnidadePermitidos | null;
 }
 export interface EnderecoDto_Resposta {
   id: string | null;
@@ -803,7 +804,7 @@ export interface EnderecoDto_Resposta {
   profundidadeMetros: string | null;
   empilhamentoMaximo: number | null;
   sequenciaColeta: number;
-  tipoUnidadePermitido: TipoUnidadeLogistica | null;
+  tipoUnidadePermitido: TiposUnidadePermitidos | null;
 }
 export interface ErroCampoResponse {
   campo: string | null;
@@ -1443,7 +1444,7 @@ export interface ImportacaoEnderecoDto_Confirmar {
 export interface ImportacaoEnderecoDto_Linha {
   linha: number;
   endereco: EnderecoDto_Criar;
-  tipoUnidadePermitido: TipoUnidadeLogistica | null;
+  tipoUnidadePermitido: TiposUnidadePermitidos | null;
 }
 export interface ImportacaoEnderecoDto_Erro {
   linha: number;
@@ -2084,7 +2085,7 @@ export interface VisaoOperacaoDto_Detalhe {
   larguraMetros: string | null;
   profundidadeMetros: string | null;
   empilhamentoMaximo: number | null;
-  tipoUnidadePermitido: TipoUnidadeLogistica | null;
+  tipoUnidadePermitido: TiposUnidadePermitidos | null;
 }
 export interface ApiContracts {
   "AjusteFechamentoController.ajustar": { request: FechamentoCobrancaDto_Ajustar; response: FechamentoCobrancaDto_Ajuste };

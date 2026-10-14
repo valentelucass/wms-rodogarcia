@@ -22,6 +22,8 @@ pm2 save
 
 `iniciar` consome a versão já selecionada, útil após `parar` ou reinício da máquina. Para incluir código alterado, usar `atualizar`. `status` lista somente os aplicativos deste WMS; `logs` mostra as últimas linhas dos logs próprios. Operações simultâneas são recusadas por `operation.lock`; após interrupção forçada do controlador, conferir o PID registrado antes de remover esse arquivo residual.
 
+**END-TIPOS01 / LAUNCH01, 14/10/2026:** a seleção múltipla exige V12 no banco antes de publicar. O PM2 não executa essa migration. Os contratos agora reconhecem somente a V12 revisada, por SHA/checksum, e a guarda confirma sua aplicação no histórico real. A recusa anterior `CAD_MIGRATIONS_INESPERADAS` veio da contagem fixa de 11 fontes, antes de SQL; o console passa a mostrar o código controlado e o caminho do recibo. Lucas informou estar executando `database/iniciar-bancos.bat`: após conclusão bem-sucedida de DEV e PROD, executar `pm2-wms.bat atualizar` em uma linha separada. Resultado de migration/publicação ainda exige recibos reais; preparação local não comprova atualização do ambiente.
+
 | Aplicativo | Origem interna | Processo |
 | --- | --- | --- |
 | `wms-api-25590` | `http://127.0.0.1:25590` | Supervisor próprio → PowerShell → Java 21/Spring |

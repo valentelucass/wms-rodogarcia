@@ -1272,7 +1272,7 @@ class PedidoSaidaIntegrationTest {
                                             sequencia,
                                             agora);
                             endereco.configurarFisico(
-                                    TipoUnidadeLogistica.PALLET,
+                                    br.com.rodogarcia.wms.models.TiposUnidadePermitidos.PALLET,
                                     new BigDecimal("1000"),
                                     new BigDecimal("2"),
                                     new BigDecimal("2"),

@@ -102,6 +102,11 @@ function Invoke-WmsDev02Guard {
             . (Join-Path $script:WmsDev02Root 'infra/auth/contrato-banco.ps1')
             $baseline = Add-WmsAuthExpectedContract $baseline ($migrations | Where-Object { $_.version -ceq '11' })
         }
+        if (@($migrations | Where-Object {$_.version -ceq '12'}).Count -eq 1) {
+            . (Join-Path $script:WmsDev02Root 'infra/tipos-unidade/contrato-banco.ps1')
+            $baseline=Add-WmsUnitTypesExpectedContract $baseline ($migrations | Where-Object {$_.version -ceq '12'})
+            $report.oraculo['tiposUnidadeSha256']=(Get-FileHash -LiteralPath (Join-Path $script:WmsDev02Root 'infra/tipos-unidade/contrato-banco.ps1') -Algorithm SHA256).Hash
+        }
         Assert-Dev02 'inventario local completo conforme contrato versionado' (Compare-Dev02Rows $migrations @($baseline.historico|Where-Object {$_.type -ceq 'SQL'}) @('version','script'))
         . (Join-Path $script:WmsDev02Root 'infra/cadastros/contrato-edicao.ps1')
         $cadastroBefore=$baseline

@@ -6,8 +6,9 @@ const vm = require('node:vm');
 const path = require('node:path');
 
 // Executa o controlador com fronteiras de processo/PM2/FS substituidas, sem SQL ou daemon.
-async function scenario(command, grantResult) {
+async function scenario(command, grantResult, failure = {}) {
   const calls = [];
+  const errors = [];
   let finish;
   const finished = new Promise(resolve => { finish = resolve; });
   const process = { argv: ['node', 'pm2-control.cjs', command], env: {
@@ -32,7 +33,7 @@ async function scenario(command, grantResult) {
       const child = new EventEmitter(); child.stdout = new EventEmitter(); child.stderr = { resume() {} };
       setImmediate(() => {
         if (name === 'aplicar-permissoes-prod.ps1') {
-          child.stdout.emit('data', Buffer.from(JSON.stringify({ estado: grantResult ? 'DIREITOS_PROD_APLICADOS_E_CONFERIDOS' : 'INTERROMPIDO' })));
+          child.stdout.emit('data', Buffer.from(JSON.stringify({ estado: grantResult ? 'DIREITOS_PROD_APLICADOS_E_CONFERIDOS' : 'INTERROMPIDO', ...failure })));
           child.emit('exit', grantResult ? 0 : 20);
         } else if (name === 'iniciar-prod.ps1') child.emit('exit', 20);
         else throw Error('UNEXPECTED_HELPER');
@@ -47,10 +48,10 @@ async function scenario(command, grantResult) {
   };
   vm.runInNewContext(readFileSync(path.join(__dirname, 'pm2-control.cjs'), 'utf8'), {
     require: mockRequire, __dirname, __filename: path.join(__dirname, 'pm2-control.cjs'), process,
-    console: { log() {}, error() {}, table() {} }, setTimeout, clearTimeout,
+    console: { log() {}, error(value) { errors.push(String(value)); }, table() {} }, setTimeout, clearTimeout,
   });
   await finished;
-  return { calls, exitCode: process.exitCode };
+  return { calls, errors, exitCode: process.exitCode };
 }
 
 test('permissoes recusadas impedem preparo e parada da producao', async () => {
@@ -67,4 +68,21 @@ test('consulta de status nao aplica permissoes nem altera processos', async () =
   const result = await scenario('status', true);
   assert.deepEqual(result.calls, []);
   assert.equal(result.exitCode, 0);
+});
+
+test('recusa de migrations informa causa controlada e recibo do projeto sem parar producao', async () => {
+  const receipt = path.resolve(__dirname, '../../orchestracao/.runtime/cadastros-etiqueta-20261014/ativacao-prod-ficticia');
+  const result = await scenario('atualizar', false, { recibo: receipt, erro: { codigo: 'CAD_MIGRATIONS_INESPERADAS', mensagem: 'NAO_PUBLICAR_DADO_BRUTO' } });
+  assert.deepEqual(result.calls, ['aplicar-permissoes-prod.ps1']);
+  assert.equal(result.exitCode, 20);
+  assert.ok(result.errors.some(line => line.includes('CAD_MIGRATIONS_INESPERADAS')));
+  assert.ok(result.errors.some(line => line.includes(path.join(receipt, 'resultado.json'))));
+  assert.ok(result.errors.some(line => line.includes('contrato de migrations')));
+  assert.ok(!result.errors.join('\n').includes('NAO_PUBLICAR_DADO_BRUTO'));
+});
+
+test('recibo fora da area propria e erro bruto nao sao publicados', async () => {
+  const result = await scenario('atualizar', false, { recibo: path.resolve(__dirname, '../../outro-projeto'), erro: { codigo: 'SENHA_FICTICIA_NAO_PUBLICAR' } });
+  assert.equal(result.errors.length, 1);
+  assert.equal(result.errors[0], 'PROD_PM2_APLICAR_PERMISSOES_PROD_REFUSED_20');
 });

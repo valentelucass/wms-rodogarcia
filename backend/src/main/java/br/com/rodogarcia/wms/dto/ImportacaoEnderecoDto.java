@@ -1,6 +1,6 @@
 package br.com.rodogarcia.wms.dto;
 
-import br.com.rodogarcia.wms.models.TipoUnidadeLogistica;
+import br.com.rodogarcia.wms.models.TiposUnidadePermitidos;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -25,7 +25,7 @@ public final class ImportacaoEnderecoDto {
     public record Linha(
             int linha,
             @NotNull @Valid EnderecoDto.Criar endereco,
-            TipoUnidadeLogistica tipoUnidadePermitido) {}
+            TiposUnidadePermitidos tipoUnidadePermitido) {}
 
     public record Erro(int linha, String coluna, String codigo, String mensagem) {}
 

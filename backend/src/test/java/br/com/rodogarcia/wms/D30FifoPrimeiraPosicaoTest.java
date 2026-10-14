@@ -15,7 +15,6 @@ import br.com.rodogarcia.wms.models.MedidasUnidade;
 import br.com.rodogarcia.wms.models.OcupacaoEndereco;
 import br.com.rodogarcia.wms.models.PedidoSaida;
 import br.com.rodogarcia.wms.models.TipoEndereco;
-import br.com.rodogarcia.wms.models.TipoUnidadeLogistica;
 import br.com.rodogarcia.wms.models.UnidadeLogistica;
 import br.com.rodogarcia.wms.repositories.ConteudoUnidadeRepository;
 import br.com.rodogarcia.wms.repositories.ItemPedidoSaidaRepository;
@@ -166,7 +165,7 @@ class D30FifoPrimeiraPosicaoTest {
                         D30MarcosTest.FIFO);
         ReflectionTestUtils.setField(e, "id", id);
         e.configurarFisico(
-                TipoUnidadeLogistica.PALLET,
+                br.com.rodogarcia.wms.models.TiposUnidadePermitidos.PALLET,
                 new BigDecimal("1000"),
                 new BigDecimal("2"),
                 BigDecimal.ONE,

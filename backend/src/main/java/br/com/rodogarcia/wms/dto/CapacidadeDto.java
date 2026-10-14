@@ -3,7 +3,7 @@ package br.com.rodogarcia.wms.dto;
 import br.com.rodogarcia.wms.models.ConjuntoPosicoes;
 import br.com.rodogarcia.wms.models.SituacaoCadastro;
 import br.com.rodogarcia.wms.models.TipoEndereco;
-import br.com.rodogarcia.wms.models.TipoUnidadeLogistica;
+import br.com.rodogarcia.wms.models.TiposUnidadePermitidos;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
@@ -32,7 +32,7 @@ public final class CapacidadeDto {
 
     public record ConfigurarEndereco(
             @NotNull @Min(0) Long versao,
-            @NotNull TipoUnidadeLogistica tipoUnidadePermitido,
+            @NotNull TiposUnidadePermitidos tipoUnidadePermitido,
             @NotNull @Valid Limites limites,
             @NotBlank @Size(min = 5, max = 500) String motivo) {}
 
@@ -53,7 +53,7 @@ public final class CapacidadeDto {
             Long enderecoAId,
             Long enderecoBId,
             TipoEndereco tipoEndereco,
-            TipoUnidadeLogistica tipoUnidadePermitido,
+            TiposUnidadePermitidos tipoUnidadePermitido,
             Limites limites) {
         public static Conjunto de(ConjuntoPosicoes c) {
             return new Conjunto(
@@ -65,7 +65,9 @@ public final class CapacidadeDto {
                     c.getEnderecoA().getId(),
                     c.getEnderecoB().getId(),
                     c.getEnderecoA().getTipo(),
-                    c.getEnderecoA().getTipoUnidadePermitido(),
+                    c.getEnderecoA()
+                            .getTipoUnidadePermitido()
+                            .intersecao(c.getEnderecoB().getTipoUnidadePermitido()),
                     new Limites(
                             c.getCapacidadePesoKg(),
                             c.getAlturaMetros(),

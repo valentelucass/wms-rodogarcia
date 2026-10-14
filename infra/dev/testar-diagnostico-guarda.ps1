@@ -60,6 +60,7 @@ $fixtures=@(
     @{name='certificate_refusal';value=@{erro=@{marcadores=@{certificado=$true}}};expected='validar o certificado';limit='';reject='conexao em 120s'},
     @{name='login_refusal';value=@{erro=@{marcadores=@{autenticacao=$true}}};expected='recusou o acesso';limit='';reject='conexao em 120s'},
     @{name='auxiliary_error_shape_without_markers';value=@{erro=@{codigo='DEV02_AUXILIAR_OU_SAIDA_RECUSADA'}};expected='seguranca ou estrutura';limit='';reject='conexao em 120s'}
+    @{name='migration_inventory_refusal_before_sql';value=@{aberturaTentativas=0;checks=@(@{criterio='inventario local completo conforme contrato versionado';passou=$false});erro=@{codigo='DEV02_GUARDA_RECUSADA';fase='PREPARO_LOCAL'}};expected='migrations locais divergem do contrato';limit='';reject='timeout'}
 )
 foreach($fixture in $fixtures){
     if($fixture.value -is [hashtable] -and $fixture.value.erro.ContainsKey('marcadores')){

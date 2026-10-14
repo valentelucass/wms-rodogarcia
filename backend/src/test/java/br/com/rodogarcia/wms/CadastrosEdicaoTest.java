@@ -25,7 +25,7 @@ import br.com.rodogarcia.wms.models.Endereco;
 import br.com.rodogarcia.wms.models.Produto;
 import br.com.rodogarcia.wms.models.TipoEndereco;
 import br.com.rodogarcia.wms.models.TipoQuantidade;
-import br.com.rodogarcia.wms.models.TipoUnidadeLogistica;
+import br.com.rodogarcia.wms.models.TiposUnidadePermitidos;
 import br.com.rodogarcia.wms.repositories.ArmazemRepository;
 import br.com.rodogarcia.wms.repositories.ClienteRepository;
 import br.com.rodogarcia.wms.repositories.EmbalagemRepository;
@@ -45,6 +45,7 @@ import java.time.ZoneOffset;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -386,8 +387,8 @@ class CadastrosEdicaoTest {
                                         new BigDecimal("2"),
                                         1,
                                         1,
-                                        TipoUnidadeLogistica.BOBINA));
-        assertThat(resposta.tipoUnidadePermitido()).isEqualTo(TipoUnidadeLogistica.BOBINA);
+                                        TiposUnidadePermitidos.BOBINA));
+        assertThat(resposta.tipoUnidadePermitido()).isEqualTo(TiposUnidadePermitidos.BOBINA);
         assertThat(resposta.capacidadePesoKg()).isEqualByComparingTo("2000");
         verify(auditoria)
                 .registrar(
@@ -412,8 +413,9 @@ class CadastrosEdicaoTest {
                 BigDecimal.TEN,
                 1,
                 agora);
-        var resposta = enderecoService().alterar(5L, tipoPosicao(TipoUnidadeLogistica.BOBINA, 0L));
-        assertThat(resposta.tipoUnidadePermitido()).isEqualTo(TipoUnidadeLogistica.BOBINA);
+        var resposta =
+                enderecoService().alterar(5L, tipoPosicao(TiposUnidadePermitidos.BOBINA, 0L));
+        assertThat(resposta.tipoUnidadePermitido()).isEqualTo(TiposUnidadePermitidos.BOBINA);
         assertThat(resposta.capacidadePesoKg()).isEqualByComparingTo("2000");
         var legado =
                 enderecoService()
@@ -421,7 +423,7 @@ class CadastrosEdicaoTest {
                                 5L,
                                 new EnderecoDto.Alterar(
                                         0L, "Descrição corrigida", "Correção cadastral"));
-        assertThat(legado.tipoUnidadePermitido()).isEqualTo(TipoUnidadeLogistica.BOBINA);
+        assertThat(legado.tipoUnidadePermitido()).isEqualTo(TiposUnidadePermitidos.BOBINA);
         assertThat(legado.alturaMetros()).isEqualByComparingTo(BigDecimal.TEN);
     }
 
@@ -430,23 +432,70 @@ class CadastrosEdicaoTest {
         when(enderecos.buscarArmazemId(5L)).thenReturn(Optional.of(2L));
         when(armazens.buscarParaAtualizar(2L)).thenReturn(Optional.of(armazem));
         when(enderecos.buscarParaAtualizar(5L)).thenReturn(Optional.of(endereco));
-        endereco.alterarTipoUnidadePermitido(TipoUnidadeLogistica.BOBINA, agora);
+        endereco.alterarTipoUnidadePermitido(TiposUnidadePermitidos.BOBINA, agora);
         when(enderecos.contarUsoAtual(5L)).thenReturn(1L);
         assertThatThrownBy(
                         () ->
                                 enderecoService()
-                                        .alterar(5L, tipoPosicao(TipoUnidadeLogistica.PALLET, 0L)))
+                                        .alterar(
+                                                5L, tipoPosicao(TiposUnidadePermitidos.PALLET, 0L)))
                 .hasMessageContaining("Desocupe");
         assertThatThrownBy(
                         () ->
                                 enderecoService()
-                                        .alterar(5L, tipoPosicao(TipoUnidadeLogistica.PALLET, 9L)))
+                                        .alterar(
+                                                5L, tipoPosicao(TiposUnidadePermitidos.PALLET, 9L)))
                 .isInstanceOf(br.com.rodogarcia.wms.exceptions.RegraNegocioException.class);
-        assertThat(endereco.getTipoUnidadePermitido()).isEqualTo(TipoUnidadeLogistica.BOBINA);
+        assertThat(endereco.getTipoUnidadePermitido()).isEqualTo(TiposUnidadePermitidos.BOBINA);
         verifyNoInteractions(auditoria);
     }
 
-    private EnderecoDto.Alterar tipoPosicao(TipoUnidadeLogistica tipo, Long versao) {
+    @ParameterizedTest
+    @EnumSource(
+            value = TiposUnidadePermitidos.class,
+            names = {"PALLET_BOBINA", "PALLET_VOLUME", "BOBINA_VOLUME", "TODAS"})
+    void salvaPerfilMultiploEPreservaEmComandoLegado(TiposUnidadePermitidos perfil) {
+        when(enderecos.buscarArmazemId(5L)).thenReturn(Optional.of(2L));
+        when(armazens.buscarParaAtualizar(2L)).thenReturn(Optional.of(armazem));
+        when(enderecos.buscarParaAtualizar(5L)).thenReturn(Optional.of(endereco));
+        endereco.configurarFisico(
+                null, BigDecimal.TEN, BigDecimal.TEN, BigDecimal.TEN, BigDecimal.TEN, 1, agora);
+        var resposta = enderecoService().alterar(5L, tipoPosicao(perfil, 0L));
+        assertThat(resposta.tipoUnidadePermitido()).isEqualTo(perfil);
+        verify(auditoria)
+                .registrar(
+                        eq("ENDERECO"),
+                        eq(5L),
+                        eq("ALTERACAO"),
+                        eq("Correção cadastral"),
+                        org.mockito.ArgumentMatchers.any(),
+                        eq(resposta));
+        var legado =
+                enderecoService()
+                        .alterar(
+                                5L,
+                                new EnderecoDto.Alterar(
+                                        0L, "Descrição corrigida", "Correção cadastral"));
+        assertThat(legado.tipoUnidadePermitido()).isEqualTo(perfil);
+    }
+
+    @ParameterizedTest
+    @EnumSource(
+            value = TiposUnidadePermitidos.class,
+            names = {"PALLET_BOBINA", "TODAS"})
+    void naoLiberaMultiplosTiposEmPosicaoOcupadaOuConjuntoAtivo(TiposUnidadePermitidos perfil) {
+        when(enderecos.buscarArmazemId(5L)).thenReturn(Optional.of(2L));
+        when(armazens.buscarParaAtualizar(2L)).thenReturn(Optional.of(armazem));
+        when(enderecos.buscarParaAtualizar(5L)).thenReturn(Optional.of(endereco));
+        when(enderecos.contarUsoAtual(5L)).thenReturn(1L);
+        endereco.alterarTipoUnidadePermitido(TiposUnidadePermitidos.BOBINA, agora);
+        assertThatThrownBy(() -> enderecoService().alterar(5L, tipoPosicao(perfil, 0L)))
+                .hasMessageContaining("Desocupe");
+        assertThat(endereco.getTipoUnidadePermitido()).isEqualTo(TiposUnidadePermitidos.BOBINA);
+        verifyNoInteractions(auditoria);
+    }
+
+    private EnderecoDto.Alterar tipoPosicao(TiposUnidadePermitidos tipo, Long versao) {
         return new EnderecoDto.Alterar(
                 versao,
                 "Posição",

@@ -2126,7 +2126,7 @@ class CobrancaIntegrationTest {
                                             1,
                                             BASE);
                             e.configurarFisico(
-                                    TipoUnidadeLogistica.PALLET,
+                                    br.com.rodogarcia.wms.models.TiposUnidadePermitidos.PALLET,
                                     new BigDecimal("1000"),
                                     BigDecimal.TEN,
                                     BigDecimal.TEN,

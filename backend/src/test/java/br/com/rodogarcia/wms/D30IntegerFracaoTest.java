@@ -19,7 +19,6 @@ import br.com.rodogarcia.wms.exceptions.ProblemasApi;
 import br.com.rodogarcia.wms.models.SituacaoCadastro;
 import br.com.rodogarcia.wms.models.TipoEndereco;
 import br.com.rodogarcia.wms.models.TipoQuantidade;
-import br.com.rodogarcia.wms.models.TipoUnidadeLogistica;
 import br.com.rodogarcia.wms.services.EnderecoService;
 import br.com.rodogarcia.wms.services.ProdutoService;
 import java.math.BigDecimal;
@@ -90,7 +89,7 @@ class D30IntegerFracaoTest {
                                 BigDecimal.ONE,
                                 1,
                                 0,
-                                TipoUnidadeLogistica.PALLET));
+                                br.com.rodogarcia.wms.models.TiposUnidadePermitidos.PALLET));
         var mvc =
                 MockMvcBuilders.standaloneSetup(
                                 new ProdutoController(produtos), new EnderecoController(enderecos))

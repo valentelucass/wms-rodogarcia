@@ -119,7 +119,7 @@ public class CapacidadeService {
         if (!a.getArmazem().getId().equals(armazem.getId())
                 || !b.getArmazem().getId().equals(armazem.getId())
                 || a.getTipo() != b.getTipo()
-                || a.getTipoUnidadePermitido() != b.getTipoUnidadePermitido())
+                || a.getTipoUnidadePermitido().intersecao(b.getTipoUnidadePermitido()) == null)
             throw CadastroSupport.invalido(
                     "As posições devem ter mesmo armazém, área e tipo de unidade compatível.");
         var l = dados.limites();

@@ -70,7 +70,7 @@ public class Endereco extends CadastroBase {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "tipo_unidade_permitido", length = 16)
-    private TipoUnidadeLogistica tipoUnidadePermitido;
+    private TiposUnidadePermitidos tipoUnidadePermitido;
 
     protected Endereco() {}
 
@@ -162,17 +162,17 @@ public class Endereco extends CadastroBase {
         registrarAlteracao(instante);
     }
 
-    public TipoUnidadeLogistica getTipoUnidadePermitido() {
+    public TiposUnidadePermitidos getTipoUnidadePermitido() {
         return tipoUnidadePermitido;
     }
 
-    public void alterarTipoUnidadePermitido(TipoUnidadeLogistica tipo, Instant instante) {
+    public void alterarTipoUnidadePermitido(TiposUnidadePermitidos tipo, Instant instante) {
         tipoUnidadePermitido = tipo;
         registrarAlteracao(instante);
     }
 
     public void configurarFisico(
-            TipoUnidadeLogistica tipo,
+            TiposUnidadePermitidos tipo,
             BigDecimal peso,
             BigDecimal altura,
             BigDecimal largura,

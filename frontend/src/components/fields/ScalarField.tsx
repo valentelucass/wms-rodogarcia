@@ -12,6 +12,7 @@ import { XmlField } from "./XmlField";
 import { useReferenceCatalog } from "../context/ReferenceCatalog";
 import { ReferenceSelect } from "../context/ReferenceSelect";
 import { DateTimeField } from "./DateTimeField";
+import { UnitTypesField } from "./UnitTypesField";
 export const scalarInputValue = (field: Field, value: string) =>
     value === "" &&
     field.type === "String" &&
@@ -45,6 +46,16 @@ export function ScalarField({
         enums[f.type] ??
         f.Pattern?.match(/regexp = "([A-Z_|]+)"/)?.[1].split("|");
     const name = prefixLabel(path, title);
+    if (f.type === "TiposUnidadePermitidos")
+        return (
+            <UnitTypesField
+                name={name}
+                value={value}
+                disabled={disabled}
+                required={f.required}
+                onChange={onChange}
+            />
+        );
     if (f.type === "Instant")
         return (
             <DateTimeField

@@ -77,9 +77,7 @@ public class MovimentoSaidaEstoqueService {
                     || !e.getCodigo().equals(CadastroSupport.codigo(d.codigoLido()))
                     || e.getTipo() != area)
                 throw CadastroSupport.invalido("Destino/código/área não corresponde à operação.");
-            if (e.getTipoUnidadePermitido() != unidade.getTipo())
-                throw RegraNegocioException.conflito(
-                        "TIPO_INCOMPATIVEL", "Destino incompatível com a unidade.");
+            CapacidadeSupport.compativel(e, unidade.getTipo());
         }
         ConjuntoPosicoes conjunto = null;
         if (medidas.getPosicoesNecessarias() == 2) {

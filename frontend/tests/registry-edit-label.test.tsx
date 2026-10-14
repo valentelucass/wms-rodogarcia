@@ -42,12 +42,8 @@ describe("Correção completa de cadastros", () => {
                 /Uma unidade em uma posição não precisa de conjunto/,
             ),
         ).toBeInTheDocument();
-        fireEvent.change(
-            screen.getByRole("combobox", { name: "Tipo de unidade permitido" }),
-            {
-                target: { value: "BOBINA" },
-            },
-        );
+        fireEvent.click(screen.getByRole("checkbox", { name: "Pallet" }));
+        fireEvent.click(screen.getByRole("checkbox", { name: "Bobina" }));
         fill("Motivo / justificativa *", "Completar tipo permitido na posição");
         await confirm();
         expect(body(lastMutation(transport.requests))).toMatchObject({

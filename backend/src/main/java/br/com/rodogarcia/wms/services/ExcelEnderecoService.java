@@ -3,7 +3,7 @@ package br.com.rodogarcia.wms.services;
 import br.com.rodogarcia.wms.dto.EnderecoDto;
 import br.com.rodogarcia.wms.dto.ImportacaoEnderecoDto;
 import br.com.rodogarcia.wms.models.TipoEndereco;
-import br.com.rodogarcia.wms.models.TipoUnidadeLogistica;
+import br.com.rodogarcia.wms.models.TiposUnidadePermitidos;
 import jakarta.validation.Validator;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -133,7 +133,7 @@ public class ExcelEnderecoService {
                                     inteiro(row, colunas, "sequenciaColeta", false));
                     var tipo =
                             enumerado(
-                                    TipoUnidadeLogistica.class,
+                                    TiposUnidadePermitidos.class,
                                     valor(row, colunas, "tipoUnidadePermitido"),
                                     true);
                     var violacoes = validator.validate(e);

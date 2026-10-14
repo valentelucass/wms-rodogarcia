@@ -3,7 +3,7 @@ package br.com.rodogarcia.wms.dto;
 import br.com.rodogarcia.wms.models.Endereco;
 import br.com.rodogarcia.wms.models.SituacaoCadastro;
 import br.com.rodogarcia.wms.models.TipoEndereco;
-import br.com.rodogarcia.wms.models.TipoUnidadeLogistica;
+import br.com.rodogarcia.wms.models.TiposUnidadePermitidos;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Max;
@@ -39,7 +39,7 @@ public final class EnderecoDto {
                     BigDecimal profundidadeMetros,
             @Min(1) @Max(999) Integer empilhamentoMaximo,
             @NotNull @Min(0) Integer sequenciaColeta,
-            TipoUnidadeLogistica tipoUnidadePermitido) {
+            TiposUnidadePermitidos tipoUnidadePermitido) {
         public Criar(
                 Long armazemId,
                 String codigo,
@@ -91,7 +91,7 @@ public final class EnderecoDto {
                     BigDecimal profundidadeMetros,
             @Min(1) @Max(999) Integer empilhamentoMaximo,
             @Min(0) Integer sequenciaColeta,
-            TipoUnidadeLogistica tipoUnidadePermitido) {
+            TiposUnidadePermitidos tipoUnidadePermitido) {
         public Alterar(
                 Long versao,
                 String descricao,
@@ -151,7 +151,7 @@ public final class EnderecoDto {
             BigDecimal profundidadeMetros,
             Integer empilhamentoMaximo,
             int sequenciaColeta,
-            TipoUnidadeLogistica tipoUnidadePermitido) {
+            TiposUnidadePermitidos tipoUnidadePermitido) {
         public static Resposta de(Endereco e) {
             return new Resposta(
                     e.getId(),

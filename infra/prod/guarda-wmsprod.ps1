@@ -99,6 +99,11 @@ function Invoke-WmsProdGuard {
         Assert-Prod 'contrato esperado exclusivo PROD; nao e prova de ambiente' ($baseline.schema -eq 1 -and $baseline.database -ceq 'WMS_PROD' -and $baseline.login -ceq 'WMSPROD')
         $report.oraculo=[ordered]@{arquivo='infra/prod/contrato-aplicacao.json';sha256=(Get-FileHash -LiteralPath $baselinePath -Algorithm SHA256).Hash;uso='contrato esperado comparado com metadados atuais; nao transporta aceite DEV'}
         $migrations=@(Get-WmsProdMigrations)
+        if (@($migrations | Where-Object {$_.version -ceq '12'}).Count -eq 1) {
+            . (Join-Path $script:WmsProdRoot 'infra/tipos-unidade/contrato-banco.ps1')
+            $baseline=Add-WmsUnitTypesExpectedContract $baseline ($migrations | Where-Object {$_.version -ceq '12'})
+            $report.oraculo['tiposUnidadeSha256']=(Get-FileHash -LiteralPath (Join-Path $script:WmsProdRoot 'infra/tipos-unidade/contrato-banco.ps1') -Algorithm SHA256).Hash
+        }
         Assert-Prod 'inventario local completo conforme contrato versionado' (Compare-ProdRows $migrations @($baseline.historico|Where-Object {$_.type -ceq 'SQL'}) @('version','script'))
         . (Join-Path $script:WmsProdRoot 'infra/cadastros/contrato-edicao.ps1')
         $cadastroBefore=$baseline

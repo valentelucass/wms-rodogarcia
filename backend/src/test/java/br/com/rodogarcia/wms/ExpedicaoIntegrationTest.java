@@ -2151,7 +2151,7 @@ class ExpedicaoIntegrationTest {
                                             numero,
                                             clock.instant());
                             e.configurarFisico(
-                                    TipoUnidadeLogistica.PALLET,
+                                    br.com.rodogarcia.wms.models.TiposUnidadePermitidos.PALLET,
                                     new BigDecimal("1000"),
                                     new BigDecimal("2"),
                                     new BigDecimal("2"),
@@ -2452,7 +2452,7 @@ class ExpedicaoIntegrationTest {
                                                 sequencia,
                                                 agora);
                                 endereco.configurarFisico(
-                                        TipoUnidadeLogistica.PALLET,
+                                        br.com.rodogarcia.wms.models.TiposUnidadePermitidos.PALLET,
                                         new BigDecimal("1000"),
                                         new BigDecimal("2"),
                                         new BigDecimal("2"),

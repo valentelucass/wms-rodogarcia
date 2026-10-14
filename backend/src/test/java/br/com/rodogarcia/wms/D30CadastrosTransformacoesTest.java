@@ -17,7 +17,6 @@ import br.com.rodogarcia.wms.models.Endereco;
 import br.com.rodogarcia.wms.models.Produto;
 import br.com.rodogarcia.wms.models.TipoEndereco;
 import br.com.rodogarcia.wms.models.TipoQuantidade;
-import br.com.rodogarcia.wms.models.TipoUnidadeLogistica;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
@@ -138,7 +137,7 @@ class D30CadastrosTransformacoesTest {
         }
         f.endereco()
                 .configurarFisico(
-                        TipoUnidadeLogistica.PALLET,
+                        br.com.rodogarcia.wms.models.TiposUnidadePermitidos.PALLET,
                         new BigDecimal("150"),
                         new BigDecimal("2"),
                         new BigDecimal("3"),

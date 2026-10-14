@@ -2,7 +2,7 @@ package br.com.rodogarcia.wms.dto;
 
 import br.com.rodogarcia.wms.models.SituacaoCadastro;
 import br.com.rodogarcia.wms.models.TipoEndereco;
-import br.com.rodogarcia.wms.models.TipoUnidadeLogistica;
+import br.com.rodogarcia.wms.models.TiposUnidadePermitidos;
 import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -75,5 +75,5 @@ public final class VisaoOperacaoDto {
             BigDecimal larguraMetros,
             BigDecimal profundidadeMetros,
             Integer empilhamentoMaximo,
-            TipoUnidadeLogistica tipoUnidadePermitido) {}
+            TiposUnidadePermitidos tipoUnidadePermitido) {}
 }

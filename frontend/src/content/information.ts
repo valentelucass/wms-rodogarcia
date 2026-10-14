@@ -18,7 +18,7 @@ export const information = {
     addressCapacity: {
         title: "Capacidade da posição",
         description:
-            "Para endereçar, complete o tipo de unidade permitido (bobina, pallet ou volume), peso máximo, altura, largura, profundidade e empilhamento máximo da posição. Esses limites pertencem ao endereço; as medidas informadas no coletor pertencem à mercadoria. Uma unidade em uma posição não precisa de conjunto. Campos ausentes deixam a capacidade pendente.",
+            "Selecione os tipos de unidade permitidos (pallet, bobina e volume) ou marque Todas as opções. Para endereçar, complete também peso máximo, altura, largura, profundidade e empilhamento máximo da posição. Esses limites pertencem ao endereço; as medidas informadas no coletor pertencem à mercadoria. Uma unidade em uma posição não precisa de conjunto. Campos ausentes deixam a capacidade pendente.",
     },
     positionSets: {
         title: "Conjuntos de duas posições",

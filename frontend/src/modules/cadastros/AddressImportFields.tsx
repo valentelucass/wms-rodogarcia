@@ -76,9 +76,9 @@ export function AddressImportFields({ state: s }: { state: OperationState }) {
                         Tipo: ARMAZENAGEM, TRIAGEM, QUARENTENA ou SEPARACAO.
                     </li>
                     <li>
-                        Ao informar PALLET, BOBINA ou VOLUME em
-                        tipoUnidadePermitido, preencha também peso, dimensões e
-                        empilhamento.
+                        Em tipoUnidadePermitido, use PALLET, BOBINA, VOLUME,
+                        PALLET_BOBINA, PALLET_VOLUME, BOBINA_VOLUME ou TODAS.
+                        Preencha também peso, dimensões e empilhamento.
                     </li>
                 </ul>
                 <p>

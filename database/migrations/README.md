@@ -1,4 +1,14 @@
-﻿# Migrações — vigente D27
+# Migrações — END-TIPOS01, 14/10/2026
+
+**V12 preparada, não aplicada.** [V12__tipos_unidade_permitidos_endereco.sql](V12__tipos_unidade_permitidos_endereco.sql) amplia o CHECK da posição para aceitar combinações de PALLET/BOBINA/VOLUME e TODAS. Preserva coluna, registros, limites e V1–V11. Não cria estoque, concessões ou capacidade real.
+
+Aplicação e integração SQL permanecem pendentes de autorização específica, guardas atuais de alvo/identidade/TLS/direitos/histórico e executor administrativo WMS. DEV primeiro. Nenhuma conexão ou migration nesta entrega. Não publicar a nova fonte com o CHECK antigo: o banco recusará os novos perfis. [Contrato](../../docs/22-enderecamento-movimentacao-e-estoque.md#end-tipos01--tipos-permitidos-na-posição-14102026).
+
+Os registros abaixo permanecem históricos; não representam o estado atual dos bancos nem autorizam execução adicional.
+
+---
+
+# Migrações — vigente D27
 
 V10 aplicada exclusivamente em WMS_DEV pelo [executor DEV protegido](../docs/d27-migration-dev.md), após revisão e inspeção real. Checksum -562012523; CHECK habilitado/confiável, cinco tipos antigos mais AJUSTE_ESTOQUE. V1–V9 e checksums preservados. [Resultado real](../evidencias/d27-aplicacao-20261007T005201425.json).
 

@@ -1,5 +1,17 @@
 # Continuidade do projeto WMS Rodogarcia
 
+## END-TIPOS01 — seleção múltipla e Todas as opções, 14/10/2026
+
+**Correção LAUNCH01 após os consoles:** DEV e PM2 recusaram V12 fora dos contratos locais, antes de SQL/parada de processos. Contratos das guardas e preparo de permissões atualizados para a V12 exata (SHA7EE5D7/checksum1229599714), sem alterar baselines, direitos ou catálogo. Mensagens agora identificam divergência e apontam recibo próprio. 18 testes de contrato, 12 de diagnóstico e12 PM2, planos sem banco e parser8 arquivos aprovados. Resultado em `orchestracao/.runtime/tipos-unidades-20261014/resultado-guardas.json`.
+
+Lucas está executando `database/iniciar-bancos.bat` para atualizar a estrutura; resultado dessa operação ainda não recebido. Preserve a execução do operador. Depois de confirmar conclusão de DEV e PROD, usar `iniciar-dev.bat`/`pm2-wms.bat atualizar` com guardas atuais. Nenhuma migration ou conexão adicional executada pelo agente; preparar contrato esperado não comprova aplicação real da V12.
+
+Fonte concluída no cadastro/edição/configuração da posição: caixas de seleção para pallet, bobina e volume, além de Todas as opções. Perfis individuais anteriores preservados; backend confere compatibilidade e limites, e conjunto aceita apenas tipos comuns. Regras de ocupação, permissões, revisão, motivo e auditoria continuam. [Contrato e migration](22-enderecamento-movimentacao-e-estoque.md#end-tipos01--tipos-permitidos-na-posição-14102026).
+
+667 frontend e178 backend puros aprovados, tipagem/lint/builds/Spotless/diff check e Chrome fictício desktop/mobile/claro/escuro conferidos. Capturas antes/depois e recibo em `orchestracao/.runtime/tipos-unidades-20261014/`. Fonte anterior capturada nesta sessão antes do patch; não é foto de produção. Processo próprio do exercício visual encerrado ao fim.
+
+**Pendente:** aplicação autorizada da nova V12, integração SQL real no DEV e publicação. Nenhum banco conectado, migration/grant aplicado, estoque alterado ou processo operacional reiniciado. Não executar apenas `pm2-wms.bat atualizar` antes de adequar o CHECK; a V12 muda somente os valores permitidos, preservando registros e limites. Guardas, identidades próprias, TLS e histórico continuam exigidos.
+
 ## END-VIS01 — revisão visual dos prints, 14/10/2026
 
 Revisão posterior a pedido de Lucas: 652 frontend e 144 backend puros reexecutados com sucesso, tipagem/lint/builds aprovados. Entregue comparação navegável de medidas, confirmação, detalhes, conjuntos e configuração em `orchestracao/.runtime/enderecamento-revisao-20261014/comparativo.html`. Antes é reconstrução local dos arquivos visuais anteriores do Git, com dados fictícios iguais; depois é a fonte atual. Não confundir com prova de produção. Fontes de aplicação preservadas, sem SQL/estoque/publicação; recibos e capturas no mesmo diretório.

@@ -1682,7 +1682,7 @@
       },
       {
         "name": "tipoUnidadePermitido",
-        "type": "TipoUnidadeLogistica",
+        "type": "TiposUnidadePermitidos",
         "required": true,
         "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/CapacidadeDto.java"
       },
@@ -1797,7 +1797,7 @@
       },
       {
         "name": "tipoUnidadePermitido",
-        "type": "TipoUnidadeLogistica",
+        "type": "TiposUnidadePermitidos",
         "required": false,
         "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/CapacidadeDto.java"
       },
@@ -4237,7 +4237,7 @@
       },
       {
         "name": "tipoUnidadePermitido",
-        "type": "TipoUnidadeLogistica",
+        "type": "TiposUnidadePermitidos",
         "required": false,
         "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/EnderecoDto.java"
       }
@@ -4353,7 +4353,7 @@
       },
       {
         "name": "tipoUnidadePermitido",
-        "type": "TipoUnidadeLogistica",
+        "type": "TiposUnidadePermitidos",
         "required": false,
         "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/EnderecoDto.java"
       }
@@ -4469,7 +4469,7 @@
       },
       {
         "name": "tipoUnidadePermitido",
-        "type": "TipoUnidadeLogistica",
+        "type": "TiposUnidadePermitidos",
         "required": false,
         "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/EnderecoDto.java"
       }
@@ -8051,7 +8051,7 @@
       },
       {
         "name": "tipoUnidadePermitido",
-        "type": "TipoUnidadeLogistica",
+        "type": "TiposUnidadePermitidos",
         "required": false,
         "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/ImportacaoEnderecoDto.java"
       }
@@ -11535,7 +11535,7 @@
       },
       {
         "name": "tipoUnidadePermitido",
-        "type": "TipoUnidadeLogistica",
+        "type": "TiposUnidadePermitidos",
         "required": false,
         "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
       }
@@ -11650,6 +11650,15 @@
     "TipoQuantidade": [
       "CONTAGEM",
       "MEDIDA"
+    ],
+    "TiposUnidadePermitidos": [
+      "PALLET",
+      "BOBINA",
+      "VOLUME",
+      "PALLET_BOBINA",
+      "PALLET_VOLUME",
+      "BOBINA_VOLUME",
+      "TODAS"
     ],
     "TipoUnidadeLogistica": [
       "PALLET",

@@ -82,6 +82,7 @@ public class EnderecoService {
                         dados.sequenciaColeta(),
                         Instant.now(clock));
         entidade.alterarTipoUnidadePermitido(dados.tipoUnidadePermitido(), Instant.now(clock));
+        if (entidade.getTipoUnidadePermitido() != null) CapacidadeSupport.configurado(entidade);
         entidade = repository.saveAndFlush(entidade);
         var resposta = EnderecoDto.Resposta.de(entidade);
         auditoria.registrar(
@@ -168,6 +169,7 @@ public class EnderecoService {
                 sequenciaColeta,
                 Instant.now(clock));
         entidade.alterarTipoUnidadePermitido(tipoUnidadePermitido, Instant.now(clock));
+        if (entidade.getTipoUnidadePermitido() != null) CapacidadeSupport.configurado(entidade);
         repository.flush();
         var depois = EnderecoDto.Resposta.de(entidade);
         auditoria.registrar("ENDERECO", id, "ALTERACAO", motivo, antes, depois);

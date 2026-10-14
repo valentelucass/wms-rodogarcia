@@ -30,6 +30,7 @@ import { formatQuantity } from "./OperationDashboard";
 import { expandedDecimal } from "../../contracts/codec";
 import { MapStreetLayout } from "./MapStreetLayout";
 import { MapPosition } from "./MapPosition";
+import { permittedUnitTypesLabel } from "../../domain/unitTypes";
 
 export const positionState = (p: VisaoOperacaoDto_Posicao) =>
     p.ocupada
@@ -853,9 +854,12 @@ function PositionDetail({
                                     : String(result.data.empilhamentoMaximo),
                             ],
                             [
-                                "Tipo de unidade permitido",
-                                result.data?.tipoUnidadePermitido ??
-                                    "Não configurado",
+                                "Tipos de unidade permitidos",
+                                result.data?.tipoUnidadePermitido == null
+                                    ? "Não configurado"
+                                    : permittedUnitTypesLabel(
+                                          result.data.tipoUnidadePermitido,
+                                      ),
                             ],
                         ].map(([label, value]) => (
                             <div key={label}>

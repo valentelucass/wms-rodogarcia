@@ -161,9 +161,7 @@ public class MovimentacaoEstoqueService {
             if (!e.getCodigo().equals(CadastroSupport.codigo(d.codigoLido())))
                 throw CadastroSupport.invalido(
                         "Código lido não corresponde ao endereço confirmado.");
-            if (e.getTipoUnidadePermitido() != u.getTipo())
-                throw RegraNegocioException.conflito(
-                        "TIPO_INCOMPATIVEL", "Tipo de unidade incompatível com o endereço.");
+            CapacidadeSupport.compativel(e, u.getTipo());
             if (tipo != null && tipo != e.getTipo())
                 throw CadastroSupport.invalido("As posições devem pertencer à mesma área.");
             tipo = e.getTipo();

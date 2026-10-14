@@ -10,6 +10,12 @@ function Get-WmsDevConnectionWaitPolicy {
 
 function Get-WmsDevGuardFailureMessage($Guard, $Policy) {
     $refused='A verificacao de seguranca ou estrutura do WMS_DEV nao foi aprovada. Consulte o recibo da guarda.'
+    if ($Guard -and $Guard.PSObject.Properties['aberturaTentativas'] -and $Guard.aberturaTentativas -eq 0 -and
+        $Guard.PSObject.Properties['checks'] -and @($Guard.checks | Where-Object {
+            $_.criterio -ceq 'inventario local completo conforme contrato versionado' -and $_.passou -eq $false
+        }).Count -eq 1) {
+        return 'As migrations locais divergem do contrato de banco aprovado. A partida foi bloqueada antes da conexao SQL. Conclua a ativacao da migration pendente e a atualizacao do contrato/guardas antes de iniciar.'
+    }
     if (!$Guard -or !$Guard.PSObject.Properties['erro'] -or !$Guard.erro -or
         !$Guard.erro.PSObject.Properties['marcadores'] -or !$Guard.erro.marcadores) { return $refused }
     $markers=$Guard.erro.marcadores

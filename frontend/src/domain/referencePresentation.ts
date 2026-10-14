@@ -2,6 +2,7 @@ import { isObject, records, listType, type Values } from "../contracts/runtime";
 import { display, label } from "./labels";
 import { formatProductQuantity } from "./quantityPresentation";
 import { auditTargets } from "../modules/relatorios/auditTargets";
+import { permittedUnitTypesLabel } from "./unitTypes";
 
 export type ReferenceRecords = Record<string, Values[]>;
 export const referenceTypes: Record<string, string[]> = {
@@ -258,6 +259,8 @@ export function scalarText(
     type: string,
 ): string {
     const field = records[type]?.find((f) => f.name === key);
+    if (field?.type === "TiposUnidadePermitidos")
+        return permittedUnitTypesLabel(value);
     if (
         field?.type === "Instant" ||
         field?.type === "LocalDate" ||

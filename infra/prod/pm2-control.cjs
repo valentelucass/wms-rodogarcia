@@ -50,7 +50,22 @@ async function ps(file, args = [], quiet = false) {
     child.on("exit", code => {
       const reason = output.split(/\r?\n/).findLast(line => /^PROD_[A-Z0-9_]+$/.test(line));
       if (code === 0) resolve(output);
-      else reject(new Error(reason || 'PROD_PM2_'+path.basename(file,'.ps1').replace(/-/g,'_').toUpperCase()+'_REFUSED_'+code));
+      else {
+        const error = new Error(reason || 'PROD_PM2_'+path.basename(file,'.ps1').replace(/-/g,'_').toUpperCase()+'_REFUSED_'+code);
+        if (path.basename(file) === 'aplicar-permissoes-prod.ps1') {
+          try {
+            const receipt = JSON.parse(output.replace(/^\uFEFF/, ''));
+            const receiptPath = typeof receipt.recibo === 'string' ? path.resolve(receipt.recibo) : '';
+            const relative = path.relative(path.join(root, 'orchestracao/.runtime/cadastros-etiqueta-20261014'), receiptPath);
+            if (receipt.estado === 'INTERROMPIDO' && /^(CAD|SQL|PROD)_[A-Z0-9_]+$/.test(receipt.erro?.codigo) &&
+                receiptPath && !/[\r\n\0]/.test(receiptPath) && relative && !relative.startsWith('..') && !path.isAbsolute(relative)) {
+              error.controlledCode = receipt.erro.codigo;
+              error.receiptPath = path.join(receiptPath, 'resultado.json');
+            }
+          } catch { /* Mensagem bruta do helper continua privada. */ }
+        }
+        reject(error);
+      }
     });
   });
 }
@@ -184,6 +199,12 @@ async function main() {
 }
 main().catch(err => {
   console.error(/^PROD_[A-Z0-9_]+$/.test(err.message) ? err.message : "PROD_PM2_CONTROL_FAILED");
+  if (err.controlledCode && err.receiptPath) {
+    console.error('[WMS PM2] Motivo: '+err.controlledCode);
+    if (err.controlledCode === 'CAD_MIGRATIONS_INESPERADAS' || err.controlledCode === 'CAD_MIGRATIONS_DIVERGENTES')
+      console.error('[WMS PM2] O contrato de migrations nao corresponde a fonte atual. Conclua a ativacao da migration pendente (V12) e a atualizacao das guardas antes de publicar. Nenhum processo WMS foi parado.');
+    console.error('[WMS PM2] Recibo: '+err.receiptPath);
+  }
   if (err.message === 'PROD_PM2_MAIN_ACCESS_REQUIRED')
     console.error('[WMS PM2] Execute este BAT no terminal administrador onde pm2 ls funciona. Nenhum processo foi parado.');
   process.exitCode = 20;

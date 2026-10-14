@@ -3,11 +3,19 @@ package br.com.rodogarcia.wms.services;
 import br.com.rodogarcia.wms.exceptions.RegraNegocioException;
 import br.com.rodogarcia.wms.models.Endereco;
 import br.com.rodogarcia.wms.models.MedidasUnidade;
+import br.com.rodogarcia.wms.models.TipoUnidadeLogistica;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 
 final class CapacidadeSupport {
     private CapacidadeSupport() {}
+
+    static void compativel(Endereco endereco, TipoUnidadeLogistica tipo) {
+        configurado(endereco);
+        if (!endereco.getTipoUnidadePermitido().permite(tipo))
+            throw RegraNegocioException.conflito(
+                    "TIPO_INCOMPATIVEL", "Tipo de unidade incompatível com o endereço.");
+    }
 
     static void configurado(Endereco e) {
         var faltantes = new ArrayList<String>();

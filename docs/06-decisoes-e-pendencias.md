@@ -1,5 +1,15 @@
 # Decisões e pendências do WMS Rodogarcia
 
+## END-TIPOS01 — seleção de vários tipos por posição, 14/10/2026
+
+**LAUNCH01, informação posterior de Lucas:** após enviar as recusas de DEV/PM2, informou que está executando `database/iniciar-bancos.bat` para atualizar a estrutura. Essa é a execução do operador, cujo resultado permanece não confirmado; não autoriza presumir sucesso nem abrir uma execução concorrente. Contratos/mensagens locais foram corrigidos para reconhecer a V12 exata e manter a exigência de histórico SQL atual antes da partida/publicação.
+
+Pedido expresso de Lucas: oferecer “Todas as opções” ou selecionar mais de um tipo no cadastro de endereços, com fotos antes/depois. Escolha técnica: oferecer ambas, no cadastro, edição e configuração de capacidade. Os tipos físicos continuam PALLET/BOBINA/VOLUME; o perfil da posição admite sete combinações explícitas, incluindo TODAS. Não aumenta a quantidade de unidades que cabe na posição nem dispensa limites físicos.
+
+Permissões, revisão, motivo, auditoria e bloqueios de posição ocupada/conjunto ativo permanecem. Conjuntos aceitam apenas tipos comuns às duas posições. Contrato antigo de tipo individual continua válido; omissão do tipo no PUT preserva o perfil anterior. [Contrato e ativação pendente](22-enderecamento-movimentacao-e-estoque.md#end-tipos01--tipos-permitidos-na-posição-14102026).
+
+Fonte e migration V12 preparadas; este pedido de implementação não autoriza novo DDL nem publicação. Integração real dos novos perfis depende da aplicação da V12. V1–V11 e dados existentes preservados. A nova V12 deve ser aplicada em escopo específico, com as guardas atuais, antes de disponibilizar os novos perfis no ambiente ativo.
+
 ## END-CAP01 — endereçamento e explicação de conjuntos, 14/10/2026
 
 Lucas relatou erro de capacidade mesmo com dimensões cadastradas e sugeriu avaliar retirar a tela de conjuntos. Interpretação implementada: resolver a omissão do tipo permitido no cadastro da posição e esclarecer a finalidade de conjuntos, sem converter a sugestão em autorização para remover a regra de capacidade ou o suporte de AC05 a duas posições. Uma bobina que ocupa uma posição dispensa conjunto. Valores físicos reais permanecem a cargo da operação.
