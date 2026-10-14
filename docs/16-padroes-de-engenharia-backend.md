@@ -29,11 +29,15 @@ O perfil local continua sem banco. A lista de exclusões de autoconfiguração �
 | Verificação | Escolha técnica | Aplicação |
 | --- | --- | --- |
 | Ferramentas | Maven Enforcer 3.6.3 | Fase `validate`: JDK 21 e Maven de 3.9.16 até antes de 4; usar o wrapper fixado em 3.9.16 com SHA-256 |
-| Formatação | Spotless 3.10.3 + google-java-format 1.28.0, estilo AOSP | Java principal e testes; quatro espaços, UTF-8, LF, imports explícitos/sem sobras; `validate` confere e falha sem editar arquivos |
+| Formatação | Spotless 3.10.3 + google-java-format 1.30.0, estilo AOSP | Java principal e testes; quatro espaços, UTF-8, LF, imports explícitos/sem sobras; `validate` confere e falha sem editar arquivos |
 | Editor | `.editorconfig` e `.gitattributes` | Consistência de codificação, espaços e finais de linha; scripts `.cmd` usam CRLF |
 | Arquitetura | ArchUnit 1.5.1, somente em testes | Fronteiras entre controllers, services, repositories, models e DTOs; proibição de injeção por campo com `@Autowired` no código principal |
 
 Versões de bibliotecas de aplicação continuam geridas pelo BOM do Spring Boot. Versões adicionais estão fixadas no `pom.xml`. H2 e ArchUnit têm escopo de teste e não integram o JAR operacional. Ferramentas de formatação não reescrevem regras de negócio.
+
+Em 14/10/2026, o google-java-format foi atualizado para 1.30.0 para permitir a conferência Spotless pelo servidor Java do editor em JVM 25. A compilação e o runtime da aplicação continuam em JDK 21, conforme a guarda do Maven Enforcer.
+
+A manutenção reproduziu a incompatibilidade de 1.28.0 na JVM 25 do editor. Após o ajuste, `spotless:check` nessa JVM e `validate -Ppure-no-db` em JDK 21 passaram, conferindo 380 arquivos Java em cada execução, sem reformatar fontes, iniciar aplicação ou acessar banco. Saídas de trabalho isoladas em `orchestracao/.runtime/spotless-jvm25-20261014/`.
 
 Na pasta `backend`, com `JAVA_HOME` apontando para JDK 21:
 
@@ -50,4 +54,4 @@ A execução inicial de BE16 está no [registro de validação D13](15-validacao
 
 O padrão precisa acompanhar cada entrega: testar os riscos reais alterados, atualizar contratos e estados e corrigir qualquer falha do build. SQL Server, identidade real, integrações fiscais, impressão, recuperação e desempenho no ambiente real continuam com validações próprias; estas ferramentas não os comprovam.
 
-Referências técnicas consultadas: [Spotless para Maven](https://github.com/diffplug/spotless/blob/main/plugin-maven/README.md), [Enforcer](https://maven.apache.org/enforcer/maven-enforcer-plugin/usage.html), [ArchUnit](https://www.archunit.org/userguide/html/000_Index.html), [validação de métodos no Spring](https://docs.spring.io/spring-framework/reference/core/validation/beanvalidation.html) e [google-java-format 1.28.0](https://github.com/google/google-java-format/releases/tag/v1.28.0).
+Referências técnicas consultadas: [Spotless para Maven](https://github.com/diffplug/spotless/blob/main/plugin-maven/README.md), [Enforcer](https://maven.apache.org/enforcer/maven-enforcer-plugin/usage.html), [ArchUnit](https://www.archunit.org/userguide/html/000_Index.html), [validação de métodos no Spring](https://docs.spring.io/spring-framework/reference/core/validation/beanvalidation.html) e [google-java-format 1.30.0](https://github.com/google/google-java-format/releases/tag/v1.30.0).
