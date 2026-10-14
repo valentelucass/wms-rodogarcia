@@ -16,7 +16,7 @@ import {
     saveProof,
 } from "./support/operationalHarness";
 async function arrival(qty: string) {
-    selected("Itens / Item 1 / Item da nota (ID) *", "401");
+    selected("Itens / Item 1 / Item da nota *", "401");
     fill("Chegada física real *", "2026-10-08T09:00:00.123");
     fill("Observacao *", "Conferência física fictícia");
     fill("Itens / Item 1 / Quantidade boa recebida *", qty);
@@ -49,7 +49,7 @@ it("FE05 XML sem chegada partes 50+48 divergência100/98 e efetivação supervis
         await screen.findByRole("region", {
             name: "Pedido de entrada selecionado",
         }),
-    ).toHaveTextContent("Pedido 101");
+    ).toHaveTextContent("FICT-100-");
     await click("Notas e itens");
     await click("Importar XML existente");
     selected("Identificador *", "101");
@@ -88,11 +88,8 @@ it("FE05 XML sem chegada partes 50+48 divergência100/98 e efetivação supervis
     await click("Consultar entradas efetivadas para unitização");
     await consult();
     expect(
-        screen.getAllByRole("cell", { name: "98.000000" })[0],
-    ).toBeInTheDocument();
-    expect(screen.getAllByText("Não", { exact: true }).length).toBeGreaterThan(
-        0,
-    );
+        screen.getByRole("region", { name: "Entradas conferidas" }),
+    ).toHaveTextContent("98");
     expect(raws.at(-1)).toContain('"id":201');
     expect(raws.at(-1)).toContain('"quantidadeTriagem":98.000000');
     expect(raws.at(-1)).toContain('"quantidadeQuarentena":0.000000');
@@ -150,7 +147,7 @@ it("FE06 múltiplas unidades seleção explícita reimpressão divisão e reagru
     await click("Selecionar registro 1");
     await click("Unitizar a entrada conferida selecionada");
     await click("Consultar progresso");
-    selected("Pedido (ID) *", "101");
+    selected("Pedido *", "101");
     await consult();
     expect(progress.at(-1)?.params).toEqual({ pedidoId: "101" });
     expect(progress.at(-1)?.query).toEqual({});
@@ -177,10 +174,13 @@ it("FE06 múltiplas unidades seleção explícita reimpressão divisão e reagru
         fill(`Unidades / Item ${i} / Condicao *`, "BOA");
         fill(`Unidades / Item ${i} / Quantidade *`, "500.000000");
     }
-    selected("Entrada conferida (ID) *", "201");
-    selected("Pedido (ID) *", "101");
+    selected("Entrada conferida *", "201");
     fill("Motivo / justificativa *", "Duas unidades fictícias500 cada");
     await confirm();
+    expect(lastMutation(t.requests).params).toMatchObject({
+        pedidoId: "101",
+        entradaId: "201",
+    });
     expect(
         screen.getByRole("region", {
             name: "Referências confirmadas da jornada",
@@ -188,7 +188,7 @@ it("FE06 múltiplas unidades seleção explícita reimpressão divisão e reagru
     ).not.toHaveTextContent("Unidade logística: 501");
     await click("1. Distribuir quantidades");
     await click("Consultar progresso");
-    selected("Pedido (ID) *", "101");
+    selected("Pedido *", "101");
     await consult();
     expect(progress.at(-1)?.params).toEqual({ pedidoId: "101" });
     expect(progress.at(-1)?.query).toEqual({});
@@ -239,8 +239,8 @@ it("FE06 múltiplas unidades seleção explícita reimpressão divisão e reagru
     await click("2. Corrigir organização física");
     await click("Selecionar registro 2");
     await click("Dividir unidade");
-    selected("Unidade logística (ID) *", "502");
-    selected("Pedido (ID) *", "101");
+    selected("Unidade logística *", "502");
+    selected("Pedido *", "101");
     selected("Revisão atual *", "7");
     fill("Quantidade Nova Unidade *", "200.000000");
     fill("Motivo / justificativa *", "Divisão física fictícia identificada");
@@ -255,9 +255,11 @@ it("FE06 múltiplas unidades seleção explícita reimpressão divisão e reagru
     await click("2. Corrigir organização física");
     await click("Selecionar registro 2");
     await click("Reagrupar unidades");
-    selected("Unidade logística (ID) *", "502");
+    selected("Unidade logística *", "502");
     selected("Versao Destino *", "8");
-    await click("Adicionar origem unidade 503 · revisão 0");
+    await click(
+        "Adicionar origem unidade 00000000-0000-4000-8000-000000000004",
+    );
     fill(
         "Motivo / justificativa *",
         "Reagrupamento físico fictício identificado",

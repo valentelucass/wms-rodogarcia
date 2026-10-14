@@ -109,7 +109,7 @@ it("FE11 Gestor escolhe compromisso consultado na resolução explícita do fato
         "Regularização histórica fictícia pelo Gestor",
     );
     await click("Informar Resolução financeira histórica (Gestor)");
-    await click("Usar fechamento 901 como compromisso");
+    await click("Usar fechamento 07/10/2026 · 07/10/2026 como compromisso");
     selected("Resolução financeira histórica (Gestor) / Tipo *", "FECHAMENTO");
     selected(
         "Resolução financeira histórica (Gestor) / Compromisso Id *",

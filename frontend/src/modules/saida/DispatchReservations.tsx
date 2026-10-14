@@ -1,5 +1,7 @@
 import type { Values } from "../../contracts/runtime";
 import { referenceCatalog, type Workflow } from "../../domain/workflow";
+import { ReferenceValue } from "../../components/context/ReferencePresentation";
+import { formatProductQuantity } from "../../domain/quantityPresentation";
 export function DispatchReservations({
     workflow,
     onSelect,
@@ -15,8 +17,7 @@ export function DispatchReservations({
     return (
         <section aria-label="Reservas atuais do pedido">
             <h2>
-                Reservas do pedido {String(order.id)} · revisão{" "}
-                {String(order.versao)}
+                Reservas do pedido {String(order.referencia ?? "selecionado")}
             </h2>
             <p>
                 Selecione a reserva antes de ler a etiqueta ou registrar o
@@ -25,10 +26,15 @@ export function DispatchReservations({
             <ul>
                 {reserves.map((r) => (
                     <li key={String(r.id)}>
-                        Reserva {String(r.id)} · nota de origem{" "}
-                        {String(r.notaOrigemId)} · quantidade{" "}
-                        {String(r.quantidade)} · {String(r.situacao)} · UUID{" "}
-                        {String(r.codigoUnidade)}{" "}
+                        Nota de origem{" "}
+                        <ReferenceValue
+                            field="notaOrigemId"
+                            value={r.notaOrigemId}
+                            row={r}
+                        />{" "}
+                        · quantidade{" "}
+                        {formatProductQuantity(r.quantidade, r.unidadeMedida)} ·{" "}
+                        {String(r.situacao)} · unidade {String(r.codigoUnidade)}{" "}
                         <button
                             type="button"
                             disabled={disabled}
@@ -40,8 +46,8 @@ export function DispatchReservations({
                                 onSelect(r, "PedidoSaidaDto.Reserva")
                             }
                         >
-                            Selecionar reserva {String(r.id)} · unidade{" "}
-                            {String(r.unidadeId)}
+                            Selecionar reserva da unidade{" "}
+                            {String(r.codigoUnidade)}
                         </button>
                     </li>
                 ))}

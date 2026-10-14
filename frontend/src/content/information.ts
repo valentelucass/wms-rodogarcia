@@ -10,6 +10,11 @@ export type Information = {
 };
 
 export const information = {
+    confirmedEntries: {
+        title: "Distribuição das entradas conferidas",
+        description:
+            "Identifique a mercadoria pela nota, item e SKU. Selecione a entrada para distribuir em unidades; as datas de chegada, FIFO e efetivação continuam separadas.",
+    },
     receivingFinalizationMatched: {
         title: "Conferência sem divergência",
         description:

@@ -114,7 +114,7 @@ it("FE08 saldo filtro unidade selecionada origem localização histórico e pagi
     await screen.findByRole("button", { name: "Selecionar registro 1" });
     await click("Selecionar registro 1");
     await click("Consultar saldo do SKU");
-    selected("Produto / SKU (ID) *", "11");
+    selected("Produto / SKU *", "11");
     await consult();
     expect(screen.getByText("500.000000", { exact: true })).toBeInTheDocument();
     expect(screen.getByText("400.000000", { exact: true })).toBeInTheDocument();
@@ -127,12 +127,12 @@ it("FE08 saldo filtro unidade selecionada origem localização histórico e pagi
         }),
     );
     await screen.findByRole("dialog");
-    await screen.findByText("502", { selector: "dd" });
+    await screen.findByText(code, { selector: "dd" });
     await click("Consultar origem da unidade selecionada");
     await screen.findByRole("heading", { name: "Origens" });
     expect(calls.at(-1)?.params.unidadeId).toBe("502");
     expect(calls.at(-1)?.params.pedidoId).toBe("101");
-    expect(screen.getByRole("cell", { name: "202" })).toBeInTheDocument();
+    expect(screen.queryByRole("cell", { name: "202" })).toBeNull();
     await click("Consultar movimentos");
     selected("Código *", code);
     fill("Página (início 0)", "1");
@@ -222,7 +222,7 @@ it("FE12-04 relatório auditoria Gestor consulta filtros e Operação não tem a
     await click("Consultar clientes para auditoria");
     await screen.findByRole("button", { name: "Selecionar registro 1" });
     await click("Selecionar registro 1");
-    await click("Auditar Cliente 1");
+    await click("Auditar Cliente Cliente fictício 1 · DEMO-1");
     selected("Tipo *", "CLIENTE");
     selected("Registro Id *", "1");
     await consult();

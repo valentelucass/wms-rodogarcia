@@ -26,9 +26,9 @@ export function CollectorReceipt({
             <h3>Confirmação recebida</h3>
             {unit && (
                 <p>
-                    Unidade {String(unit.id)} · UUID {String(unit.codigo)} ·
-                    revisão {String(unit.versao)}. Destino confirmado na
-                    resposta abaixo.
+                    Unidade {String(unit.codigo)} · revisão{" "}
+                    {String(unit.versao)}. Destino confirmado na resposta
+                    abaixo.
                 </p>
             )}
             {stock && Array.isArray(stock.posicoes) && (

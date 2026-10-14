@@ -23,12 +23,14 @@ const obj = (type: string, patch: Values) => ({
 const reserve = obj("PedidoSaidaDto.Reserva", { id: "701" });
 const first = obj("PedidoSaidaDto.Detalhe", {
     id: "601",
+    referencia: "SAI-000601",
     versao: "3",
     situacao: "RASCUNHO",
     reservas: [reserve],
 });
 const second = obj("PedidoSaidaDto.Detalhe", {
     id: "602",
+    referencia: "SAI-000602",
     versao: "1",
     situacao: "RASCUNHO",
     reservas: [],
@@ -116,8 +118,8 @@ it("UI troca pedido601/reserva701 por pedido602 sem conservar ID, revisão ou op
     const refs = screen.getByRole("region", {
         name: "Referências confirmadas da jornada",
     });
-    expect(refs).toHaveTextContent("Pedido de saída: 601");
-    expect(refs).toHaveTextContent("Reserva: 701");
+    expect(refs).toHaveTextContent("Pedido de saída: SAI-000601");
+    expect(refs).toHaveTextContent(String(reserve.codigoUnidade));
     fireEvent.click(
         screen.getByRole("button", { name: "3. Leitura e separação" }),
     );
@@ -126,16 +128,16 @@ it("UI troca pedido601/reserva701 por pedido602 sem conservar ID, revisão ou op
     expect(
         screen.getByLabelText("Identificador *", { exact: true }),
     ).toHaveValue("601");
-    expect(
-        screen.getByLabelText("Reserva (ID) *", { exact: true }),
-    ).toHaveValue("701");
+    expect(screen.getByLabelText("Reserva *", { exact: true })).toHaveValue(
+        "701",
+    );
     expect(
         screen.getByLabelText("Revisão atual *", { exact: true }),
     ).toHaveValue("3");
     fireEvent.click(screen.getByRole("button", { name: "1. Pedido integral" }));
     await selectOrder(2);
-    expect(refs).toHaveTextContent("Pedido de saída: 602");
-    expect(refs).not.toHaveTextContent("Reserva: 701");
+    expect(refs).toHaveTextContent("Pedido de saída: SAI-000602");
+    expect(refs).not.toHaveTextContent(String(reserve.codigoUnidade));
     fireEvent.click(
         screen.getByRole("button", { name: "3. Leitura e separação" }),
     );
@@ -145,8 +147,10 @@ it("UI troca pedido601/reserva701 por pedido602 sem conservar ID, revisão ou op
             name: "Conferir leitura da reserva",
         }),
     ).toBeNull();
-    expect(screen.getByRole("dialog")).toHaveTextContent("602");
-    expect(screen.queryByRole("option", { name: /^701/ })).toBeNull();
+    expect(screen.getByRole("dialog")).toHaveTextContent("SAI-000602");
+    expect(
+        screen.queryByRole("option", { name: String(reserve.codigoUnidade) }),
+    ).toBeNull();
 });
 it("UI consulta FIFO mantém ID imutável do pai selecionado", async () => {
     render(<Harness transport={transportWith()} />);
@@ -168,7 +172,7 @@ it("UI consulta FIFO mantém ID imutável do pai selecionado", async () => {
         screen.getByRole("region", {
             name: "Referências confirmadas da jornada",
         }),
-    ).toHaveTextContent("Pedido de saída: 601");
+    ).toHaveTextContent("Pedido de saída: SAI-000601");
 });
 it("UI com escrita incerta conserva formulário e impede trocar referências para liberar outro payload", async () => {
     const sent: Request[] = [];

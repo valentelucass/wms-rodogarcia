@@ -66,14 +66,14 @@ it("FE05 condição95boa5avaria efetivada permanece triagem/quarentena sem dispo
     await confirm();
     await click("Consultar entradas efetivadas para unitização");
     await consult();
-    const entries = screen.getByRole("table", {
-        name: /^Entradas conferidas ·/,
+    const entries = screen.getByRole("region", {
+        name: "Entradas conferidas",
     });
-    expect(entries).toHaveTextContent("201");
-    expect(entries).toHaveTextContent("95.000000");
-    expect(entries).toHaveTextContent("5.000000");
-    expect(screen.getAllByText("Não", { exact: true }).length).toBeGreaterThan(
-        0,
+    expect(entries).toHaveTextContent("DEMO-CAIXA");
+    expect(entries).toHaveTextContent("95");
+    expect(entries).toHaveTextContent("5");
+    expect(t.requests.at(-1)?.endpoint.id).toBe(
+        "PedidoEntradaController.entradas",
     );
     saveProof("FE05-condicao95-5", t.requests);
 }, 16000);

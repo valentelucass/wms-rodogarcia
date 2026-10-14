@@ -1,5 +1,7 @@
 import { isObject } from "../../contracts/runtime";
 import type { Workflow } from "../../domain/workflow";
+import { ReferenceValue } from "../../components/context/ReferencePresentation";
+import { formatDate } from "../../domain/referencePresentation";
 export function ExpeditionStatus({ workflow }: { workflow: Workflow }) {
     const detail = workflow.selected["ExpedicaoDto.Detalhe"];
     const order = workflow.selected["PedidoSaidaDto.Detalhe"];
@@ -20,13 +22,11 @@ export function ExpeditionStatus({ workflow }: { workflow: Workflow }) {
         : [];
     return (
         <section aria-label="Fiscal e físico do pedido selecionado">
-            <h2>
-                Pedido {String(order.id)} · revisão {String(order.versao)}
-            </h2>
+            <h2>Pedido {String(order.referencia ?? "selecionado")}</h2>
             <p>
                 Retirada física:{" "}
                 {detail.retiradaEm
-                    ? String(detail.retiradaEm)
+                    ? formatDate(detail.retiradaEm)
                     : "não registrada"}
                 . Documentos registrados ou cancelados são fatos distintos do
                 movimento físico.
@@ -34,7 +34,7 @@ export function ExpeditionStatus({ workflow }: { workflow: Workflow }) {
             <ul>
                 {docs.map((doc) => (
                     <li key={String(doc.id)}>
-                        Documento {String(doc.id)} · {String(doc.natureza)} ·{" "}
+                        Documento {String(doc.natureza)} ·{" "}
                         {String(doc.situacao)} · Protocolo{" "}
                         {String(doc.protocolo)}
                     </li>
@@ -43,10 +43,14 @@ export function ExpeditionStatus({ workflow }: { workflow: Workflow }) {
             {workflow.followUps["PedidoEntradaController.consultar"] && (
                 <p>
                     Entrada de devolução confirmada:{" "}
-                    {String(
-                        workflow.followUps["PedidoEntradaController.consultar"]
-                            .id,
-                    )}
+                    <ReferenceValue
+                        field="pedidoEntradaId"
+                        value={
+                            workflow.followUps[
+                                "PedidoEntradaController.consultar"
+                            ].id
+                        }
+                    />
                     . Consulte sua condição e as entradas conferidas antes de
                     continuar a organização física.
                 </p>

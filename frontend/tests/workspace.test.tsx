@@ -44,7 +44,7 @@ it("paginação remota preserva filtros recebidos, Long exato e bloqueia envio d
     expect(
         screen.getByRole("navigation", { name: "Paginação dos resultados" }),
     ).toHaveTextContent("9223372036854775807 registros");
-    fireEvent.change(screen.getByLabelText("Cliente (ID) *"), {
+    fireEvent.change(screen.getByLabelText("Cliente *"), {
         target: { value: "2" },
     });
     const next = screen.getByRole("button", { name: "Próxima" });
@@ -60,7 +60,7 @@ it("paginação remota preserva filtros recebidos, Long exato e bloqueia envio d
     expect(screen.getByRole("button", { name: "Consultando…" })).toBeDisabled();
     await act(async () => finish(pageReceipt(1)));
     expect(screen.getByText("Página 2 de 3")).toBeInTheDocument();
-    expect(screen.getByLabelText("Cliente (ID) *")).toHaveValue(
+    expect(screen.getByLabelText("Cliente *")).toHaveValue(
         "9223372036854775807",
     );
     expect(screen.getByRole("button", { name: "Anterior" })).toBeEnabled();

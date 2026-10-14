@@ -3,7 +3,31 @@ import { isObject, records, listType, type Values } from "../contracts/runtime";
 import { label, display } from "../domain/labels";
 import { resultName } from "../domain/resultNames";
 import { Pagination } from "./layout/Pagination";
-export function Result({
+import { useContext } from "react";
+import { FormReferences } from "./FormReferences";
+import { ReferenceValue } from "./context/ReferencePresentation";
+import {
+    indexRecords,
+    presentationLabel,
+    technicalField,
+} from "../domain/referencePresentation";
+import { ConfirmedEntries } from "../modules/recebimento/ConfirmedEntries";
+export function Result(props: Parameters<typeof ResultContent>[0]) {
+    const parent = useContext(FormReferences);
+    const indexed = indexRecords(
+        props.data,
+        props.type ?? "unknown",
+        Object.fromEntries(
+            Object.entries(parent.records ?? {}).map(([k, v]) => [k, [...v]]),
+        ),
+    );
+    return (
+        <FormReferences.Provider value={{ ...parent, records: indexed }}>
+            <ResultContent {...props} />
+        </FormReferences.Provider>
+    );
+}
+function ResultContent({
     data,
     onSelect,
     depth = 0,
@@ -39,7 +63,8 @@ export function Result({
         ];
         const columns = keys.filter(
             (k) =>
-                k !== "operacaoId" &&
+                k !== "id" &&
+                !technicalField(k) &&
                 data.some(
                     (x) =>
                         isObject(x) &&
@@ -49,8 +74,15 @@ export function Result({
                 ),
         );
         const child = listType(type) ?? "unknown";
+        if (child === "RecebimentoDto.Entrada")
+            return (
+                <ConfirmedEntries
+                    rows={data.filter(isObject)}
+                    onSelect={onSelect}
+                />
+            );
         return (
-            <div className="table-scroll">
+            <div className="table-scroll readable-results">
                 <table>
                     <caption>
                         {resultName(child)} · {data.length} registros nesta
@@ -60,7 +92,7 @@ export function Result({
                         <tr>
                             {columns.map((k) => (
                                 <th key={k} scope="col">
-                                    {label(k)}
+                                    {presentationLabel(k)}
                                 </th>
                             ))}
                             <th scope="col">Detalhe</th>
@@ -68,10 +100,22 @@ export function Result({
                     </thead>
                     <tbody>
                         {data.map((x, i) => (
-                            <tr key={i}>
+                            <tr
+                                key={i}
+                                data-record-id={
+                                    isObject(x) && x.id != null
+                                        ? String(x.id)
+                                        : undefined
+                                }
+                            >
                                 {columns.map((k) => (
                                     <td key={k}>
-                                        {display(isObject(x) ? x[k] : null)}
+                                        <ReferenceValue
+                                            field={k}
+                                            value={isObject(x) ? x[k] : null}
+                                            row={isObject(x) ? x : {}}
+                                            type={child}
+                                        />
                                     </td>
                                 ))}
                                 <td>
@@ -129,7 +173,11 @@ export function Result({
             );
         }
         const scalar = Object.entries(data).filter(
-            ([k, x]) => k !== "operacaoId" && !Array.isArray(x) && !isObject(x),
+            ([k, x]) =>
+                k !== "id" &&
+                !technicalField(k) &&
+                !Array.isArray(x) &&
+                !isObject(x),
         );
         const nested = Object.entries(data).filter(
             ([, x]) => Array.isArray(x) || isObject(x),
@@ -143,8 +191,15 @@ export function Result({
                     <dl className="record">
                         {scalar.map(([k, x]) => (
                             <div key={k}>
-                                <dt>{label(k)}</dt>
-                                <dd>{display(x)}</dd>
+                                <dt>{presentationLabel(k)}</dt>
+                                <dd>
+                                    <ReferenceValue
+                                        field={k}
+                                        value={x}
+                                        row={data}
+                                        type={type}
+                                    />
+                                </dd>
                             </div>
                         ))}
                         {emptyNested.map(([k]) => (

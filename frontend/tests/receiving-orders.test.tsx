@@ -202,10 +202,10 @@ describe("FE05-PED01 pedido de entrada", () => {
         click("Consultar lista", dialog);
         expect(dialog.getByLabelText("Tipo *")).toHaveValue("PEDIDO_ENTRADA");
         expect(dialog.getByLabelText("Tipo *")).toBeDisabled();
-        expect(dialog.getByLabelText("Registro Id *")).toHaveValue(
+        expect(dialog.getByLabelText("Registro *")).toHaveValue(
             "9007199254740993",
         );
-        expect(dialog.getByLabelText("Registro Id *")).toBeDisabled();
+        expect(dialog.getByLabelText("Registro *")).toBeDisabled();
         click("Consultar", dialog);
         await waitFor(() =>
             expect(
@@ -282,7 +282,7 @@ describe("FE05-PED01 pedido de entrada", () => {
         click("Conferência", dialog);
         click("Registrar chegada física", dialog);
         expect(
-            dialog.getByLabelText("Itens / Item 1 / Item da nota (ID) *"),
+            dialog.getByLabelText("Itens / Item 1 / Item da nota *"),
         ).toHaveValue("402");
         expect(
             t.requests.every((request) => request.endpoint.method === "GET"),
@@ -422,10 +422,10 @@ describe("FE05-PED01 pedido de entrada", () => {
             "Contagem preservada",
         );
         expect(window.confirm).toHaveBeenCalled();
-        click("Selecionar item 401 da nota 301", dialog);
+        click("Selecionar item 1 da nota 301", dialog);
         await waitFor(() =>
             expect(
-                dialog.getByLabelText("Itens / Item 1 / Item da nota (ID) *"),
+                dialog.getByLabelText("Itens / Item 1 / Item da nota *"),
             ).toHaveValue("401"),
         );
         fireEvent.change(dialog.getByLabelText("Chegada física real *"), {
@@ -563,12 +563,10 @@ describe("FE05-PED01 pedido de entrada", () => {
         });
         for (let arrival = 0; arrival < 2; arrival++) {
             if (arrival) click("Registrar chegada física", dialog);
-            click("Selecionar item 401 da nota 301", dialog);
+            click("Selecionar item 1 da nota 301", dialog);
             await waitFor(() =>
                 expect(
-                    dialog.getByLabelText(
-                        "Itens / Item 1 / Item da nota (ID) *",
-                    ),
+                    dialog.getByLabelText("Itens / Item 1 / Item da nota *"),
                 ).toHaveValue("401"),
             );
             fireEvent.change(dialog.getByLabelText("Chegada física real *"), {

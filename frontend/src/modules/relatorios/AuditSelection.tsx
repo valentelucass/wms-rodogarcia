@@ -1,6 +1,7 @@
 import type { Workflow } from "../../domain/workflow";
 import type { Values } from "../../contracts/runtime";
 import { auditTargets } from "./auditTargets";
+import { businessTitle } from "../../domain/referencePresentation";
 export function AuditSelection({
     workflow,
     onSelect,
@@ -53,7 +54,11 @@ export function AuditSelection({
                                 }
                             >
                                 Auditar {t.label}{" "}
-                                {String(workflow.selected[t.dto].id)}
+                                {businessTitle(
+                                    workflow.selected[t.dto],
+                                    t.dto,
+                                    workflow.catalogs,
+                                )}
                             </button>
                             {t.tipo === "VINCULO_COBRANCA" && (
                                 <>
@@ -82,7 +87,11 @@ export function AuditSelection({
                                     >
                                         Consultar legado não atribuído do
                                         vínculo{" "}
-                                        {String(workflow.selected[t.dto].id)}
+                                        {businessTitle(
+                                            workflow.selected[t.dto],
+                                            t.dto,
+                                            workflow.catalogs,
+                                        )}
                                     </button>
                                 </>
                             )}

@@ -101,7 +101,7 @@ export function ReceivingList({
     const current = details.rows === rows ? details.values : {};
     const name = (kind: "clientes" | "armazens", id: unknown) =>
         catalog?.[kind].find((item) => String(item.id) === String(id))?.nome ??
-        `ID ${String(id)}`;
+        "Referência indisponível";
     const filtered = rows.filter((row) => {
         const detail = current[recordIdentity(row)]?.data,
             root = detail ? recordRoot(detail) : row;
@@ -328,17 +328,12 @@ export function ReceivingList({
                                                     type="button"
                                                     disabled={pending}
                                                     onClick={() => onOpen(root)}
-                                                    aria-label={`Ver detalhes de ${String(root.referencia ?? id)} · ${id}`}
+                                                    aria-label={`Ver detalhes de ${String(root.referencia ?? "pedido")}`}
                                                 >
                                                     {String(
                                                         root.referencia ?? id,
                                                     )}
                                                 </button>
-                                                <small className="receiving-order-id">
-                                                    <RecordText
-                                                        text={`Pedido ${id}`}
-                                                    />
-                                                </small>
                                             </div>
                                         </th>
                                         <td>

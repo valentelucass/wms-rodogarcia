@@ -21,8 +21,8 @@ export function ReceivingSummary({
     return (
         <section aria-label="Conferência física e notas do pedido">
             <h2>
-                Conferência do pedido {String(current.id)} · consulta da revisão{" "}
-                {String(detail.pedido.versao)}
+                Conferência do pedido{" "}
+                {String(current.referencia ?? "selecionado")}
             </h2>
             {detail.pedido.versao !== current.versao && (
                 <p role="status">
@@ -74,7 +74,7 @@ export function ReceivingSummary({
                                         <th scope="row">
                                             Nota {String(note.serie)}/
                                             {String(note.numero)} · item{" "}
-                                            {String(item.id)} ·{" "}
+                                            {String(item.numeroItem)} ·{" "}
                                             {String(item.sku)} ·{" "}
                                             {note.xmlVinculado
                                                 ? "XML vinculado"
@@ -107,8 +107,8 @@ export function ReceivingSummary({
                                                     }
                                                 >
                                                     Selecionar item{" "}
-                                                    {String(item.id)} da nota{" "}
-                                                    {String(note.numero)}
+                                                    {String(item.numeroItem)} da
+                                                    nota {String(note.numero)}
                                                 </button>
                                             </td>
                                         )}

@@ -1,5 +1,5 @@
 import { it, expect, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import {
     Harness,
     lastMutation,
@@ -164,7 +164,7 @@ it("FE09 exceção FIFO integral duas reservas leitura UUID/revisões próprias 
     const justification = body(lastMutation(calls)).operacaoId;
     expect(body(lastMutation(calls)).selecoes as unknown[]).toHaveLength(2);
     await click("Conferir reserva com esta justificativa FIFO");
-    selected("Justificativa Id", String(justification));
+    selected("Justificativa", String(justification));
     fill(
         "Motivo / justificativa *",
         "Reserva integral fictícia conferida pelo Supervisor",
@@ -172,12 +172,10 @@ it("FE09 exceção FIFO integral duas reservas leitura UUID/revisões próprias 
     await confirm();
     expect(body(lastMutation(calls)).justificativaId).toBe(justification);
     await click("Ler a etiqueta da reserva confirmada");
-    expect(screen.getByLabelText("Reserva (ID) *")).toHaveValue("");
+    expect(screen.getByLabelText("Reserva *")).toHaveValue("");
     for (let index = 0; index < 2; index++) {
-        await click(
-            `Selecionar reserva ${701 + index} · unidade ${501 + index}`,
-        );
-        selected("Reserva (ID) *", String(701 + index));
+        await click(`Selecionar reserva da unidade ${codes[index]}`);
+        selected("Reserva *", String(701 + index));
         selected("Código lido *", codes[index]);
         await click("Consultar etiqueta da unidade");
         await screen.findByText(index === 0 ? "11" : "12", { exact: true });
@@ -199,7 +197,7 @@ it("FE09 exceção FIFO integral duas reservas leitura UUID/revisões próprias 
         await screen.findByRole("button", { name: "Selecionar registro 1" });
         await click("Selecionar registro 1");
 
-        selected("Destinacao / Reserva (ID) *", String(701 + index));
+        selected("Destinacao / Reserva *", String(701 + index));
         fill(
             "Motivo / justificativa *",
             "Destino fictício conferido para esta reserva",
@@ -329,10 +327,10 @@ it("FE09 bobinas4/6 pedido6 usa sugestão e justificativa recebidas sem fraciona
             action="UnidadeLogisticaController.listar"
         />,
     );
-    fill("Pedido (ID) *", "101");
+    fill("Pedido *", "101");
     await consult();
-    expect(screen.getByRole("cell", { name: "4.000000" })).toBeInTheDocument();
-    expect(screen.getByRole("cell", { name: "6.000000" })).toBeInTheDocument();
+    expect(screen.getByRole("cell", { name: "4" })).toBeInTheDocument();
+    expect(screen.getByRole("cell", { name: "6" })).toBeInTheDocument();
     await selectResultRow("Unidades logísticas", "502");
     await click("Saída, FIFO e reserva");
     await consult();
@@ -351,7 +349,7 @@ it("FE09 bobinas4/6 pedido6 usa sugestão e justificativa recebidas sem fraciona
     ]);
     const justification = body(lastMutation(calls)).operacaoId;
     await click("Conferir reserva com esta justificativa FIFO");
-    selected("Justificativa Id", String(justification));
+    selected("Justificativa", String(justification));
     fill(
         "Motivo / justificativa *",
         "Reserva fictícia inteira6 conferida pelo Supervisor",
@@ -363,10 +361,12 @@ it("FE09 bobinas4/6 pedido6 usa sugestão e justificativa recebidas sem fraciona
     expect(body(lastMutation(calls))).not.toHaveProperty("selecoes");
     expect(
         screen.getByRole("table", { name: /^Reservas do pedido ·/ }),
-    ).toHaveTextContent("702");
+    ).toHaveTextContent(codes[1]);
     expect(
-        screen.getByRole("table", { name: /^Reservas do pedido ·/ }),
-    ).toHaveTextContent("6.000000");
+        within(
+            screen.getByRole("table", { name: /^Reservas do pedido ·/ }),
+        ).getByRole("cell", { name: "6" }),
+    ).toBeInTheDocument();
     expect(
         screen.getByRole("region", {
             name: "Referências confirmadas da jornada",
@@ -467,8 +467,9 @@ it("FE09 avaria/conflito não libera reserva; reversão recebe revisão própria
     await confirm();
     await click("1. Pedido integral");
     await click("Consultar detalhe");
-    selected("Identificador *", "601");
     await consult();
+    expect(calls.at(-1)?.params.id).toBe("601");
+    expect(screen.getByRole("dialog")).toHaveTextContent("DEMO-01");
     expect(
         screen.queryByRole("region", { name: "Reservas atuais do pedido" }),
     ).toBeNull();
@@ -494,7 +495,7 @@ it("FE09 Operação pode registrar justificativa, mas não envia autorização d
             onSelect={vi.fn()}
         />,
     );
-    expect(screen.getByLabelText("Justificativa Id")).toBeDisabled();
-    expect(screen.getByLabelText("Justificativa Id")).toHaveValue("");
+    expect(screen.getByLabelText("Justificativa")).toBeDisabled();
+    expect(screen.getByLabelText("Justificativa")).toHaveValue("");
     expect(send).not.toHaveBeenCalled();
 });

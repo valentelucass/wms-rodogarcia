@@ -170,7 +170,7 @@ describe("Jornadas e segurança de apresentação", () => {
                 onSelect={vi.fn()}
             />,
         );
-        screen.getByLabelText("Cliente (ID) *").focus();
+        screen.getByLabelText("Cliente *").focus();
         await user.keyboard("{Enter}");
         await screen.findByText("Nenhum registro encontrado.");
         expect(screen.queryByRole("alert")).not.toBeInTheDocument();

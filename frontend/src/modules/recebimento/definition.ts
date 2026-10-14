@@ -8,7 +8,7 @@ export const journeys: Journey[] = [
         steps: [
             s(
                 "1. Pedido de entrada",
-                "Crie o pedido no cliente e armazém corretos. Selecione uma linha para continuar com o seu ID e revisão.",
+                "Crie o pedido no cliente e armazém corretos. Selecione sua referência na lista para continuar.",
                 "PedidoEntradaController",
                 ["listar", "consultar", "criar"],
             ),
@@ -129,8 +129,16 @@ export const nextActions: Record<string, NextAction> = {
         action: "UnidadeLogisticaController.etiqueta",
         title: "Consultar etiqueta da unidade criada",
     },
-    "UnidadeLogisticaController.dividir": {page:"unidades",action:"UnidadeLogisticaController.listar",title:"Consultar identidades após divisão"},
-    "UnidadeLogisticaController.reagrupar": {page:"unidades",action:"UnidadeLogisticaController.etiqueta",title:"Reimprimir conteúdo após reagrupamento"},
+    "UnidadeLogisticaController.dividir": {
+        page: "unidades",
+        action: "UnidadeLogisticaController.listar",
+        title: "Consultar identidades após divisão",
+    },
+    "UnidadeLogisticaController.reagrupar": {
+        page: "unidades",
+        action: "UnidadeLogisticaController.etiqueta",
+        title: "Reimprimir conteúdo após reagrupamento",
+    },
     "UnidadeLogisticaController.etiqueta": {
         page: "coletor",
         action: "",

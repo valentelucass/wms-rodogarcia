@@ -73,11 +73,8 @@ it("FE04 prévia válida consultada recusa hash/revisão sem confirmar nem criar
 
 it.each([
     ["ProdutoController.alterar", ["SKU *", "Unidade Medida *"]],
-    [
-        "EmbalagemController.alterar",
-        ["DUN da embalagem *", "Produto / SKU (ID) *"],
-    ],
-    ["EnderecoController.alterar", ["Código *", "Armazém (ID) *"]],
+    ["EmbalagemController.alterar", ["DUN da embalagem *", "Produto / SKU *"]],
+    ["EnderecoController.alterar", ["Código *", "Armazém *"]],
 ])("FE04 formato mutável %s não expõe identidades imutáveis", (id, absent) => {
     const t: Transport = { send: vi.fn() };
     render(

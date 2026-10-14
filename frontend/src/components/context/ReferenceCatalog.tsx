@@ -6,6 +6,7 @@ import {
     type ReactNode,
 } from "react";
 import { call, type Transport } from "../../api/client";
+import { ReferencePresentationProvider } from "./ReferencePresentation";
 
 export type ReferenceOption = {
     id: string;
@@ -214,7 +215,12 @@ export function ReferenceCatalogProvider({
                 refresh: () => setRevision((v) => v + 1),
             }}
         >
-            {children}
+            <ReferencePresentationProvider
+                transport={transport}
+                scope={`${version}:${revision}`}
+            >
+                {children}
+            </ReferencePresentationProvider>
         </ReferenceCatalog.Provider>
     );
 }

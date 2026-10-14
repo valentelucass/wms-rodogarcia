@@ -19,6 +19,8 @@
 
 **FE05-ACEITE01:** [Efetivação sem pergunta de aceite quando a conferência não tem divergência](design-system/etapa-15.md).
 
+**FE06-REFERENCIAS01:** [Nomes/códigos nas referências e organização da unitização](design-system/etapa-16.md).
+
 **FE05-XML-BOBINAS01:** [XML por peso, cadastro assistido, contagem física e distribuição de bobinas — implementado e validado no DEV](design-system/etapa-10.md).
 
 **FE04-EXCEL01:** [modelo Excel, prévia e organização compartilhada dos formulários](design-system/etapa-09.md).

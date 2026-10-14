@@ -45,9 +45,7 @@ export function ReceivingDetail({
             aria-label="Pedido de entrada selecionado"
         >
             <div className="receiving-summary">
-                <strong>
-                    Pedido {String(root.id)} · {String(root.referencia)}
-                </strong>
+                <strong>Pedido {String(root.referencia)}</strong>
                 <StatusBadge
                     value={root.situacao}
                     label={situationLabel(root.situacao)}
@@ -76,12 +74,12 @@ export function ReceivingDetail({
                                 catalog?.clientes.find(
                                     (item) =>
                                         item.id === String(root.clienteId),
-                                )?.nome ?? `ID ${String(root.clienteId)}`,
+                                )?.nome ?? "Cliente indisponível",
                             Armazém:
                                 catalog?.armazens.find(
                                     (item) =>
                                         item.id === String(root.armazemId),
-                                )?.nome ?? `ID ${String(root.armazemId)}`,
+                                )?.nome ?? "Armazém indisponível",
                             "Origem da criação":
                                 root.origemCriacao === "XML" ? "XML" : "Manual",
                             "Criado em": receivingDate(root.criadoEm),

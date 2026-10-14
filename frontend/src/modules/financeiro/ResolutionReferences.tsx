@@ -1,6 +1,7 @@
 import { useContext } from "react";
 import { FormReferences } from "../../components/FormReferences";
 import type { Values } from "../../contracts/runtime";
+import { businessTitle } from "../../domain/referencePresentation";
 
 const targets = [
     ["PedidoEntradaDto.Resumo", "PEDIDO_ENTRADA", "pedido de entrada"],
@@ -28,7 +29,8 @@ export function ResolutionReferences({
                             onChange({ tipo, compromissoId: row.id })
                         }
                     >
-                        Usar {title} {String(row.id)} como compromisso
+                        Usar {title} {businessTitle(row, dto, records)} como
+                        compromisso
                     </button>
                 )),
             )}

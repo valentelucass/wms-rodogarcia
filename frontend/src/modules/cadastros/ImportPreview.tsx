@@ -4,10 +4,7 @@ export function ImportPreview({ data }: { data: unknown }) {
     const errors = Array.isArray(data.erros) ? data.erros.filter(isObject) : [];
     return (
         <section aria-label="Situação da prévia Excel">
-            <h4>
-                Prévia {String(data.id)} · revisão {String(data.versao)} ·{" "}
-                {String(data.situacao)}
-            </h4>
+            <h4>Prévia da planilha · {String(data.situacao)}</h4>
             <p>
                 {data.confirmadaEm
                     ? "Importação confirmada pelo retorno fictício."

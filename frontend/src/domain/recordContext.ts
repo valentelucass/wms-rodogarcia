@@ -30,7 +30,6 @@ export function recordTitle(row: Values) {
             root.descricao ??
             root.referencia ??
             root.codigo ??
-            root.id ??
             "Registro consultado",
     );
 }

@@ -21,6 +21,7 @@ const reserve = (id: string, note: string, unit: string) =>
         itemId: "611",
         notaOrigemId: note,
         unidadeId: unit,
+        codigoUnidade: `00000000-0000-4000-8000-${unit.padStart(12, "0")}`,
         quantidade: "5.000000",
     });
 it("FE10 cobertura de duas notas no documento simbólico conserva reserva origem SKU e nenhum movimento físico", async () => {
@@ -96,8 +97,12 @@ it("FE10 cobertura de duas notas no documento simbólico conserva reserva origem
     await click("Fiscal e retirada");
     await consult();
     await click("Registrar documento existente");
-    await click("Adicionar cobertura da reserva 701 · nota 301");
-    await click("Adicionar cobertura da reserva 702 · nota 302");
+    await click(
+        "Adicionar cobertura da unidade 00000000-0000-4000-8000-000000000501 · Referência indisponível",
+    );
+    await click(
+        "Adicionar cobertura da unidade 00000000-0000-4000-8000-000000000502 · Referência indisponível",
+    );
     fill("Origem *", "NOTAZZ");
     fill("Natureza *", "RETORNO_SIMBOLICO");
     fill("Protocolo existente NOTAZZ *", "SIMBOLICO-FICTICIO");

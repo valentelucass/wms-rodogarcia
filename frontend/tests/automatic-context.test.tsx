@@ -204,7 +204,7 @@ it.each([false, true])(
                 context={{ ...context, pedidoId: "19", versaoPedido: "12" }}
             />,
         );
-        expect(screen.queryByLabelText("Pedido (ID) *")).toBeNull();
+        expect(screen.queryByLabelText("Pedido *")).toBeNull();
         expect(screen.queryByLabelText("Versao Pedido *")).toBeNull();
         expect(
             screen.queryByLabelText("Identificador desta operação *"),

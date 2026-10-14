@@ -30,6 +30,7 @@ import { AdjustmentOrigin } from "../../modules/financeiro/AdjustmentOrigin";
 import { AuditSelection } from "../../modules/relatorios/AuditSelection";
 import { useRecordQuery } from "../../hooks/useRecordQuery";
 import { ReceivingDetail } from "../../modules/recebimento/ReceivingDetail";
+import { WorkflowReferences } from "../context/WorkflowReferences";
 import {
     receivingSection,
     type ReceivingSection,
@@ -459,315 +460,325 @@ export function RecordDialog({
         }
     };
     return (
-        <Dialog
-            className="record-dialog"
-            title={
-                record
-                    ? `${recordTitle(record)} · ${recordIdentity(record)}`
-                    : recordActionLabel(action)
-            }
-            wide
-            icon={journey.id === "entrada" ? "entrada" : "cadastros"}
-            locked={locked}
-            onClose={() => {
-                if (canClose()) onClose();
-            }}
+        <WorkflowReferences
+            workflow={workingWorkflow.current}
+            journey={journey}
+            defaults={derived}
         >
-            {loading ? (
-                <p role="status">Carregando os dados atuais do registro…</p>
-            ) : error ? (
-                <div role="alert">
-                    <p>{error}</p>
-                    <button
-                        type="button"
-                        onClick={() => setReload((x) => x + 1)}
-                    >
-                        Tentar novamente
-                    </button>
-                </div>
-            ) : (
-                <>
-                    {refreshing && (
-                        <p role="status">
-                            Atualizando notas, itens e conferência deste pedido…
-                        </p>
-                    )}
-                    {refreshError && (
-                        <div role="alert">
-                            <p>{refreshError}</p>
-                            <button
-                                type="button"
-                                onClick={() =>
-                                    setDetailRevision((value) => value + 1)
-                                }
-                            >
-                                Consultar pedido atualizado novamente
-                            </button>
-                        </div>
-                    )}
-                    {action && (
-                        <>
-                            <ReferenceLookup
-                                inline
-                                journey={journey}
-                                context={derived}
-                                transport={transport}
-                                onRecord={selectRecord}
-                                selectionLocked={locked}
-                                onReceipt={commandReceipt}
-                            />
-                            {["saida", "fiscal"].includes(journey.id) && (
-                                <DispatchReservations
-                                    workflow={workingWorkflow.current}
-                                    onSelect={selectRecord}
-                                    disabled={locked}
+            <Dialog
+                className="record-dialog"
+                title={record ? recordTitle(record) : recordActionLabel(action)}
+                wide
+                icon={journey.id === "entrada" ? "entrada" : "cadastros"}
+                locked={locked}
+                onClose={() => {
+                    if (canClose()) onClose();
+                }}
+            >
+                {loading ? (
+                    <p role="status">Carregando os dados atuais do registro…</p>
+                ) : error ? (
+                    <div role="alert">
+                        <p>{error}</p>
+                        <button
+                            type="button"
+                            onClick={() => setReload((x) => x + 1)}
+                        >
+                            Tentar novamente
+                        </button>
+                    </div>
+                ) : (
+                    <>
+                        {refreshing && (
+                            <p role="status">
+                                Atualizando notas, itens e conferência deste
+                                pedido…
+                            </p>
+                        )}
+                        {refreshError && (
+                            <div role="alert">
+                                <p>{refreshError}</p>
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        setDetailRevision((value) => value + 1)
+                                    }
+                                >
+                                    Consultar pedido atualizado novamente
+                                </button>
+                            </div>
+                        )}
+                        {action && (
+                            <>
+                                <ReferenceLookup
+                                    inline
+                                    journey={journey}
+                                    context={derived}
+                                    transport={transport}
+                                    onRecord={selectRecord}
+                                    selectionLocked={locked}
+                                    onReceipt={commandReceipt}
                                 />
-                            )}
-                            {journey.id === "fechamento" && (
-                                <AdjustmentOrigin
-                                    workflow={workingWorkflow.current}
-                                    onPin={selectRecord}
-                                    disabled={locked}
-                                />
-                            )}
-                            {["precos", "relatorios"].includes(journey.id) &&
-                                action === "AuditoriaController.listar" &&
-                                perfil === "GESTOR" && (
-                                    <AuditSelection
+                                {["saida", "fiscal"].includes(journey.id) && (
+                                    <DispatchReservations
                                         workflow={workingWorkflow.current}
                                         onSelect={selectRecord}
                                         disabled={locked}
                                     />
                                 )}
-                        </>
-                    )}
-                    {record && journey.id === "entrada" && (
-                        <ReceivingDetail
-                            transport={transport}
-                            record={record}
-                            section={section}
-                            onSection={(next) => {
-                                if (canClose()) {
-                                    setSection(next);
-                                    setAction("");
-                                    edit.current.dirty = false;
-                                }
-                            }}
-                            onSelect={selectRecord}
-                            locked={locked || refreshing}
-                            workflow={workingWorkflow.current}
-                        />
-                    )}
-                    {record && !action && journey.id !== "entrada" && (
-                        <section
-                            className="record-detail"
-                            aria-label="Dados do registro"
-                        >
-                            <Result
-                                data={record}
-                                type={recordType}
-                                onSelect={selectRecord}
-                            />
-                        </section>
-                    )}
-                    {record &&
-                        page.related?.map((id) => (
-                            <RelatedRecords
-                                key={id}
-                                id={id}
-                                transport={transport}
-                                perfil={perfil}
-                                context={rowContext(
-                                    id,
-                                    snapshot.current.context,
-                                    workingWorkflow.current,
-                                    record,
-                                    recordType,
-                                    false,
+                                {journey.id === "fechamento" && (
+                                    <AdjustmentOrigin
+                                        workflow={workingWorkflow.current}
+                                        onPin={selectRecord}
+                                        disabled={locked}
+                                    />
                                 )}
-                                locked={locked}
-                                onReceipt={commandReceipt}
-                                onRecord={selectRecord}
-                            />
-                        ))}
-                    {action &&
-                        (!opening.row ||
-                            available.includes(action) ||
-                            completedAction === action ||
-                            endpoint(action).method === "GET") && (
-                            <Operation
-                                key={
-                                    action + ":" + reload + ":" + actionRevision
-                                }
-                                id={action}
+                                {["precos", "relatorios"].includes(
+                                    journey.id,
+                                ) &&
+                                    action === "AuditoriaController.listar" &&
+                                    perfil === "GESTOR" && (
+                                        <AuditSelection
+                                            workflow={workingWorkflow.current}
+                                            onSelect={selectRecord}
+                                            disabled={locked}
+                                        />
+                                    )}
+                            </>
+                        )}
+                        {record && journey.id === "entrada" && (
+                            <ReceivingDetail
                                 transport={transport}
-                                context={derived}
-                                perfil={perfil}
-                                inDialog
-                                hideHeading={!record}
-                                fixedFields={
-                                    opening.row ||
-                                    (journey.id === "entrada" && record)
-                                        ? [
-                                              "id",
-                                              "clienteId",
-                                              "armazemId",
-                                              "pedidoId",
-                                              "unidadeId",
-                                              "codigo",
-                                              "versao",
-                                              "versaoPedido",
-                                              "versaoDestino",
-                                              ...(journey.id === "entrada"
-                                                  ? ["tipo", "registroId"]
-                                                  : []),
-                                          ].filter(
-                                              (key) =>
-                                                  derived[key] !== undefined &&
-                                                  derived[key] !== "",
-                                          )
-                                        : []
-                                }
-                                onEditingChange={editingChange}
-                                onReceipt={commandReceipt}
-                                onReplayReceipt={commandReceipt}
-                                onSelect={selectRecord}
-                                onContinue={(next) => {
+                                record={record}
+                                section={section}
+                                onSection={(next) => {
                                     if (canClose()) {
-                                        if (
-                                            journey.id === "entrada" &&
-                                            next.page === "entrada"
-                                        )
-                                            chooseAction(next.action);
-                                        else onNavigate(next);
+                                        setSection(next);
+                                        setAction("");
+                                        edit.current.dirty = false;
                                     }
                                 }}
+                                onSelect={selectRecord}
+                                locked={locked || refreshing}
+                                workflow={workingWorkflow.current}
                             />
                         )}
-                    {uncertain && (
-                        <section aria-label="Recuperação da operação">
-                            <p>
-                                A resposta da operação é desconhecida. Consulte
-                                o estado atual; a consulta não confirma o
-                                resultado nem repete a alteração. A repetição
-                                mantém o mesmo conteúdo e identificador de
-                                operação.
-                            </p>
-                            <button
-                                type="button"
-                                disabled={verifying}
-                                onClick={() => void verify()}
+                        {record && !action && journey.id !== "entrada" && (
+                            <section
+                                className="record-detail"
+                                aria-label="Dados do registro"
                             >
-                                Consultar estado atual sem repetir
-                            </button>
-                            {verificationError && (
-                                <p role="alert">{verificationError}</p>
-                            )}
-                            {verification && (
                                 <Result
-                                    data={verification.data}
-                                    type={
-                                        endpoint(
-                                            record && page.detail
-                                                ? page.detail
-                                                : page.source,
-                                        ).response
+                                    data={record}
+                                    type={recordType}
+                                    onSelect={selectRecord}
+                                />
+                            </section>
+                        )}
+                        {record &&
+                            page.related?.map((id) => (
+                                <RelatedRecords
+                                    key={id}
+                                    id={id}
+                                    transport={transport}
+                                    perfil={perfil}
+                                    context={rowContext(
+                                        id,
+                                        snapshot.current.context,
+                                        workingWorkflow.current,
+                                        record,
+                                        recordType,
+                                        false,
+                                    )}
+                                    locked={locked}
+                                    onReceipt={commandReceipt}
+                                    onRecord={selectRecord}
+                                />
+                            ))}
+                        {action &&
+                            (!opening.row ||
+                                available.includes(action) ||
+                                completedAction === action ||
+                                endpoint(action).method === "GET") && (
+                                <Operation
+                                    key={
+                                        action +
+                                        ":" +
+                                        reload +
+                                        ":" +
+                                        actionRevision
                                     }
+                                    id={action}
+                                    transport={transport}
+                                    context={derived}
+                                    perfil={perfil}
+                                    inDialog
+                                    hideHeading={!record}
+                                    fixedFields={
+                                        opening.row ||
+                                        (journey.id === "entrada" && record)
+                                            ? [
+                                                  "id",
+                                                  "clienteId",
+                                                  "armazemId",
+                                                  "pedidoId",
+                                                  "unidadeId",
+                                                  "codigo",
+                                                  "versao",
+                                                  "versaoPedido",
+                                                  "versaoDestino",
+                                                  ...(journey.id === "entrada"
+                                                      ? ["tipo", "registroId"]
+                                                      : []),
+                                              ].filter(
+                                                  (key) =>
+                                                      derived[key] !==
+                                                          undefined &&
+                                                      derived[key] !== "",
+                                              )
+                                            : []
+                                    }
+                                    onEditingChange={editingChange}
+                                    onReceipt={commandReceipt}
+                                    onReplayReceipt={commandReceipt}
+                                    onSelect={selectRecord}
+                                    onContinue={(next) => {
+                                        if (canClose()) {
+                                            if (
+                                                journey.id === "entrada" &&
+                                                next.page === "entrada"
+                                            )
+                                                chooseAction(next.action);
+                                            else onNavigate(next);
+                                        }
+                                    }}
                                 />
                             )}
-                            {verification && (
+                        {uncertain && (
+                            <section aria-label="Recuperação da operação">
+                                <p>
+                                    A resposta da operação é desconhecida.
+                                    Consulte o estado atual; a consulta não
+                                    confirma o resultado nem repete a alteração.
+                                    A repetição mantém o mesmo conteúdo e
+                                    identificador de operação.
+                                </p>
                                 <button
                                     type="button"
-                                    onClick={() => {
-                                        if (
-                                            window.confirm(
-                                                "Encerrar o acompanhamento sem declarar sucesso? O resultado da alteração permanece desconhecido; consulte o registro antes de iniciar outra ação.",
+                                    disabled={verifying}
+                                    onClick={() => void verify()}
+                                >
+                                    Consultar estado atual sem repetir
+                                </button>
+                                {verificationError && (
+                                    <p role="alert">{verificationError}</p>
+                                )}
+                                {verification && (
+                                    <Result
+                                        data={verification.data}
+                                        type={
+                                            endpoint(
+                                                record && page.detail
+                                                    ? page.detail
+                                                    : page.source,
+                                            ).response
+                                        }
+                                    />
+                                )}
+                                {verification && (
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            if (
+                                                window.confirm(
+                                                    "Encerrar o acompanhamento sem declarar sucesso? O resultado da alteração permanece desconhecido; consulte o registro antes de iniciar outra ação.",
+                                                )
                                             )
-                                        )
-                                            onUnknownClose();
+                                                onUnknownClose();
+                                        }}
+                                    >
+                                        Voltar à lista mantendo resultado
+                                        desconhecido
+                                    </button>
+                                )}
+                            </section>
+                        )}
+                        {action &&
+                            opening.row &&
+                            !available.includes(action) &&
+                            completedAction !== action &&
+                            endpoint(action).method !== "GET" && (
+                                <p role="status">
+                                    Esta ação não está disponível para a
+                                    situação ou permissão atual do registro.
+                                    Recarregue os dados para conferir.
+                                </p>
+                            )}
+                        <div className="actions record-dialog-footer">
+                            {record && contextActions.length > 0 && (
+                                <div
+                                    className="record-context-actions"
+                                    role="group"
+                                    aria-label="Operações deste registro"
+                                >
+                                    {contextActions.map((id) => (
+                                        <button
+                                            key={id}
+                                            type="button"
+                                            disabled={
+                                                locked ||
+                                                (journey.id === "entrada" &&
+                                                    (refreshing ||
+                                                        Boolean(refreshError)))
+                                            }
+                                            onClick={() => chooseAction(id)}
+                                        >
+                                            {recordActionLabel(id)}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                            {record && action && (
+                                <button
+                                    type="button"
+                                    disabled={locked}
+                                    onClick={() => {
+                                        if (canClose()) {
+                                            setAction("");
+                                            edit.current.dirty = false;
+                                        }
                                     }}
                                 >
-                                    Voltar à lista mantendo resultado
-                                    desconhecido
+                                    Ver detalhes do registro
                                 </button>
                             )}
-                        </section>
-                    )}
-                    {action &&
-                        opening.row &&
-                        !available.includes(action) &&
-                        completedAction !== action &&
-                        endpoint(action).method !== "GET" && (
-                            <p role="status">
-                                Esta ação não está disponível para a situação ou
-                                permissão atual do registro. Recarregue os dados
-                                para conferir.
-                            </p>
-                        )}
-                    <div className="actions record-dialog-footer">
-                        {record && contextActions.length > 0 && (
-                            <div
-                                className="record-context-actions"
-                                role="group"
-                                aria-label="Operações deste registro"
-                            >
-                                {contextActions.map((id) => (
-                                    <button
-                                        key={id}
-                                        type="button"
-                                        disabled={
-                                            locked ||
-                                            (journey.id === "entrada" &&
-                                                (refreshing ||
-                                                    Boolean(refreshError)))
-                                        }
-                                        onClick={() => chooseAction(id)}
-                                    >
-                                        {recordActionLabel(id)}
-                                    </button>
-                                ))}
-                            </div>
-                        )}
-                        {record && action && (
                             <button
                                 type="button"
                                 disabled={locked}
                                 onClick={() => {
-                                    if (canClose()) {
-                                        setAction("");
-                                        edit.current.dirty = false;
-                                    }
+                                    if (canClose()) onClose();
                                 }}
                             >
-                                Ver detalhes do registro
+                                {action ? "Voltar à lista" : "Fechar detalhes"}
                             </button>
-                        )}
-                        <button
-                            type="button"
-                            disabled={locked}
-                            onClick={() => {
-                                if (canClose()) onClose();
-                            }}
-                        >
-                            {action ? "Voltar à lista" : "Fechar detalhes"}
-                        </button>
-                        {record && page.detail && !locked && (
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    if (canClose()) {
-                                        setAction("");
-                                        edit.current.dirty = false;
-                                        setReload((x) => x + 1);
-                                    }
-                                }}
-                            >
-                                Recarregar dados atuais
-                            </button>
-                        )}
-                    </div>
-                </>
-            )}
-        </Dialog>
+                            {record && page.detail && !locked && (
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        if (canClose()) {
+                                            setAction("");
+                                            edit.current.dirty = false;
+                                            setReload((x) => x + 1);
+                                        }
+                                    }}
+                                >
+                                    Recarregar dados atuais
+                                </button>
+                            )}
+                        </div>
+                    </>
+                )}
+            </Dialog>
+        </WorkflowReferences>
     );
 }

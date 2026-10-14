@@ -1,5 +1,13 @@
 # Estado e trilha de implementação do WMS Rodogarcia
 
+## FE06-REFERENCIAS01 — nomes/códigos e organização da unitização, 14/10/2026
+
+Pedido de Lucas/gestor: substituir IDs visíveis por referências reais em telas semelhantes e entregar antes/depois. Componentes compartilhados de listas, detalhes, formulários e confirmações agora apresentam nomes, SKU, pedido, NF e código da etiqueta. Unitização organizada em cartões de nota/item com quantidades e rastreabilidade; vínculos de usuários selecionados por nome. Identidades, revisões e valores exatos dos comandos preservados. Consultas de nomes respeitam tipo, escopo e concorrência limitada; referência não disponível permanece explicitamente indisponível.
+
+Validação local concluída: **637/637 testes em 63 arquivos**, incluindo 12 novos; tipagem, lint, build isolado e diff check aprovados. Chrome fictício desktop/mobile 390 px, temas claro/escuro, teclado, seleção e descarte protegido, sem overflow horizontal nem erros JavaScript. [Contrato](docs/design-system/etapa-16.md); imagens e recibo `orchestracao/.runtime/reference-names-20261014/resultado.json`.
+
+Fonte pronta para a atualização operacional pelo fluxo documentado. Este incremento não executou SQL/HTTP autenticado real, reinício DEV/PROD ou publicação; o build isolado não comprova atualização da instância em execução. Preservados PM2, dados e processos operacionais.
+
 ## FE05-ACEITE01 — escolha de aceite dispensada na conferência sem divergência, 13/10/2026
 
 Lucas relatou que Efetivar carga integral exigia Sim/Não mesmo sem divergência. Implementada apresentação condicional com consulta do mesmo pedido/revisão: false oculta campo/linha de confirmação e envia false; divergência/avaria/consulta não comprovada mantém escolha explícita, sem Sim automático. Dados de outro pedido/revisão antiga não dispensam o campo. Regra transacional backend/DTO Boolean obrigatório preservados. Cenário fictício de avaria alinhado; orientações no catálogo único.

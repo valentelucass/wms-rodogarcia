@@ -1,5 +1,9 @@
 # Decisões e pendências do WMS Rodogarcia
 
+## FE06-REFERENCIAS01 — referências de negócio na interface, 14/10/2026
+
+Pedido expresso de Lucas, encaminhando relato do gestor: todas as telas semelhantes devem mostrar nome ou código real em vez de exigir consulta de IDs; organizar a unitização e apresentar fotos de antes/depois. Implementação usa referências autorizadas já consultadas e GETs individuais suportados, mantendo IDs no contrato interno. Não altera SKU, gera código artificial, muda regra operacional ou concede permissão. [Contrato e limites da validação local](design-system/etapa-16.md). Fonte validada; integração autenticada e publicação desta alteração permanecem distintas da entrega local.
+
 ## FE05-ACEITE01 — correção de apresentação pedida por Lucas, 13/10/2026
 
 Relato direto: o formulário pede resposta de Aceitar divergências mesmo sem diferença ou avaria. A correção omite a pergunta com conferência atual sem divergência e envia false, preservando o contrato/validação do backend. Com divergência ou consulta não comprovada mantém escolha explícita; nunca assume aceite positivo. Motivo/confirmação/perfil/revisão permanecem exigidos. [Implementação e provas locais](design-system/etapa-15.md). Não representa nova aprovação de regra operacional ou publicação: fonte testada aguarda atualização no PM2 principal.

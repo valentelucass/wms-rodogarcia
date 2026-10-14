@@ -6,7 +6,7 @@ it("compacta coleções vazias sem omitir zero, falso ou dados de coleções pre
     const { container } = render(
         <Result
             data={{
-                versao: 0,
+                quantidade: 0,
                 ativo: false,
                 reservas: [],
                 documentos: {},

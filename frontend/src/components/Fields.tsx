@@ -61,7 +61,8 @@ export function Fields({
                             isFieldDisabled(schema, f.name, perfil)
                         }
                         perfil={perfil}
-                        root={root}
+                        root={{ ...root, ...values }}
+                        schema={schema}
                     />
                 ))}
         </>
@@ -75,6 +76,7 @@ function FieldControl({
     disabled,
     perfil,
     root,
+    schema = "unknown",
 }: {
     f: Field;
     value: unknown;
@@ -83,6 +85,7 @@ function FieldControl({
     disabled: boolean;
     perfil: Perfil;
     root: Values;
+    schema?: string;
 }) {
     const refs = useContext(FormReferences);
     const lt = listType(f.type);
@@ -269,6 +272,8 @@ function FieldControl({
             path={path}
             onChange={onChange}
             disabled={disabled}
+            schema={schema}
+            row={root}
         />
     );
 }

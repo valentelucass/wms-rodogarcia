@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import QRCode from "qrcode";
 import { isObject } from "../contracts/runtime";
 import { display } from "../domain/labels";
+import { ReferenceValue } from "./context/ReferencePresentation";
+import { formatDate } from "../domain/referencePresentation";
+import { formatProductQuantity } from "../domain/quantityPresentation";
 export function LabelPreview({ data }: { data: unknown }) {
     const [qr, setQr] = useState("");
     const code = isObject(data) ? String(data.codigoLeitura ?? "") : "";
@@ -27,15 +30,21 @@ export function LabelPreview({ data }: { data: unknown }) {
         >
             <h3>ETIQUETA DE EXERCÍCIO FICTÍCIO</h3>
             <p>
-                SKU: {display(data.sku)} · ID: {code}
+                SKU: {display(data.sku)} · Código da unidade: {code}
             </p>
             <p>
-                Entrada / FIFO: {display(data.dataEntrada)} · Chegada:{" "}
-                {display(data.chegadaReal)}
+                Entrada / FIFO: {formatDate(data.dataEntrada)} · Chegada:{" "}
+                {formatDate(data.chegadaReal)}
             </p>
             <p>
-                Nota: {display(data.numeroNota ?? data.notaId)} · Quantidade:{" "}
-                {display(data.quantidadeProduto)} {display(data.unidadeMedida)}
+                Nota:{" "}
+                <ReferenceValue field="notaId" value={data.notaId} row={data} />{" "}
+                · Quantidade:{" "}
+                {formatProductQuantity(
+                    data.quantidadeProduto,
+                    data.unidadeMedida,
+                )}{" "}
+                {display(data.unidadeMedida)}
             </p>
             {qr && (
                 <img

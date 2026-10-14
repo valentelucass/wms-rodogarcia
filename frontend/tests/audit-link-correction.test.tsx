@@ -92,7 +92,7 @@ describe("005 vínculo lógico e legado separado", () => {
         ]) {
             fireEvent.click(
                 screen.getByRole("button", {
-                    name: `Auditar ${label} 9007199254740993`,
+                    name: `Auditar ${label}`,
                 }),
             );
             fireEvent.click(screen.getByRole("button", { name: "Consultar" }));
@@ -111,7 +111,7 @@ describe("005 vínculo lógico e legado separado", () => {
         }
         fireEvent.click(
             screen.getByRole("button", {
-                name: "Consultar legado não atribuído do vínculo 9007199254740993",
+                name: "Consultar legado não atribuído do vínculo",
             }),
         );
         fireEvent.click(screen.getByRole("button", { name: "Consultar" }));

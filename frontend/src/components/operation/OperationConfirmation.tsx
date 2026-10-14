@@ -5,6 +5,7 @@ import { actionLabel } from "../../domain/journeys";
 import { Dialog } from "../layout/Dialog";
 import { Result } from "../Result";
 import { confirmedWithoutDivergence } from "../../modules/recebimento/finalization";
+import { ReferenceValue } from "../context/ReferencePresentation";
 export function OperationConfirmation({
     id,
     context,
@@ -23,9 +24,20 @@ export function OperationConfirmation({
     const content = (
         <section className="confirmation" aria-label="Confirmação da ação">
             <p>
-                {context.clienteId && context.armazemId
-                    ? `Cliente ${String(context.clienteId)} · Armazém ${String(context.armazemId)}. `
-                    : ""}
+                {Boolean(context.clienteId && context.armazemId) && (
+                    <>
+                        <ReferenceValue
+                            field="clienteId"
+                            value={context.clienteId}
+                        />{" "}
+                        ·{" "}
+                        <ReferenceValue
+                            field="armazemId"
+                            value={context.armazemId}
+                        />
+                        .{" "}
+                    </>
+                )}
                 Confira os dados do formulário antes de confirmar. O resultado
                 depende da confirmação do servidor ou da resposta fictícia
                 identificada.
@@ -33,6 +45,7 @@ export function OperationConfirmation({
             <details open>
                 <summary>Dados para conferência</summary>
                 <Result
+                    type={endpoint(id).request ?? id}
                     data={Object.fromEntries(
                         Object.entries(values).filter(
                             ([key, value]) =>

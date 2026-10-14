@@ -1,6 +1,12 @@
 import { useId, useContext } from "react";
-import { enums, type Field } from "../../contracts/runtime";
+import { enums, type Field, type Values } from "../../contracts/runtime";
 import { label } from "../../domain/labels";
+import {
+    presentationLabel,
+    referenceField,
+} from "../../domain/referencePresentation";
+import { useReferenceTransport } from "../context/ReferencePresentation";
+import { EntityReferenceField } from "./EntityReferenceField";
 import { FormReferences } from "../FormReferences";
 import { XmlField } from "./XmlField";
 import { useReferenceCatalog } from "../context/ReferenceCatalog";
@@ -19,17 +25,22 @@ export function ScalarField({
     path,
     onChange,
     disabled,
+    schema = "unknown",
+    row = {},
 }: {
     f: Field;
     value: unknown;
     path: string;
     onChange: (v: unknown) => void;
     disabled: boolean;
+    schema?: string;
+    row?: Values;
 }) {
     const id = useId(),
         refs = useContext(FormReferences);
     const catalog = useReferenceCatalog();
-    const title = label(f.name) + (f.required ? " *" : "");
+    const referenceTransport = useReferenceTransport();
+    const title = presentationLabel(f.name) + (f.required ? " *" : "");
     const choices =
         enums[f.type] ??
         f.Pattern?.match(/regexp = "([A-Z_|]+)"/)?.[1].split("|");
@@ -64,6 +75,24 @@ export function ScalarField({
                     disabled={disabled}
                 />
             </div>
+        );
+    if (
+        referenceField(f.name) &&
+        ["Long", "long"].includes(f.type) &&
+        (referenceTransport || refs.options[f.name]?.length)
+    )
+        return (
+            <EntityReferenceField
+                id={id}
+                name={name}
+                field={f.name}
+                value={value}
+                type={schema}
+                row={row}
+                disabled={disabled}
+                required={f.required}
+                onChange={onChange}
+            />
         );
     if (refs.options[f.name]?.length && ["Long", "long"].includes(f.type))
         return (

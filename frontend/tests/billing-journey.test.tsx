@@ -40,7 +40,7 @@ it("FE04 FE11 serviço tabela vigência vínculo sugestão fato e cálculo com r
     fill("Tipo *", "ESPECIFICA");
     fill("Vigencia Inicio *", "2026-10-01");
     await click("Adicionar Itens");
-    selected("Itens / Item 1 / Serviço (ID) *", "2501");
+    selected("Itens / Item 1 / Serviço *", "2501");
     fill("Itens / Item 1 / Categoria *", "");
     fill("Itens / Item 1 / Preco", "2.500000");
     selected("Itens / Item 1 / Percentual", "");
@@ -70,15 +70,16 @@ it("FE04 FE11 serviço tabela vigência vínculo sugestão fato e cálculo com r
     await confirm();
     await click("Consultar vínculo de tabela confirmado");
     await consult();
-    expect(screen.getByRole("cell", { name: "2601" })).toBeInTheDocument();
+    expect(screen.queryByRole("cell", { name: "2601" })).toBeNull();
+    expect(body(lastMutation(t.requests)).tabelaId).toBe("2601");
     await click("Serviços e cálculo");
     await click("Consultar sugestões de serviço");
     await consult();
     await click("Selecionar registro 1");
     await click("Registrar fato");
-    selected("Serviço (ID) *", "2501");
-    selected("Unidade logística (ID)", "501");
-    selected("Pedido de saída (ID)", "601");
+    selected("Serviço *", "2501");
+    selected("Unidade logística", "501");
+    selected("Pedido de saída", "601");
     selected("Quantidade", "2.123456");
     fill(
         "Criterio Rateio *",
@@ -180,7 +181,7 @@ it("FE11 reabertura nova versão ajuste conserva origem histórica e consulta id
         screen
             .getAllByRole("region", { name: "Origem histórica do ajuste" })
             .at(-1),
-    ).toHaveTextContent("identificador 1001");
+    ).toHaveTextContent("versão 1");
     await click("Ajustes de ciclo");
     await click("Registrar ajuste");
     selected("Origem Versao Id *", "1001");
@@ -199,6 +200,11 @@ it("FE11 reabertura nova versão ajuste conserva origem histórica e consulta id
     expect(cmd).not.toHaveProperty("delta");
     await click("Consultar ajustes identificados do fechamento");
     await consult();
-    expect(screen.getByRole("cell", { name: "2901" })).toBeInTheDocument();
+    expect(
+        document.querySelector('tr[data-record-id="2901"]'),
+    ).toBeInTheDocument();
+    expect(
+        screen.queryByRole("cell", { name: "2901" }),
+    ).not.toBeInTheDocument();
     saveProof("FE11-02-03", t.requests);
 }, 20000);

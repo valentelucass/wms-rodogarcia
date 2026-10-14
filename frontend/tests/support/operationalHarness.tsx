@@ -109,6 +109,18 @@ export async function click(name: string) {
         screen.queryAllByRole("button", { name }).at(0);
     if (!button && /^Selecionar registro \d+$/.test(name)) {
         const index = Number(name.split(" ").at(-1)) - 1;
+        const entries = activeQueries().queryByRole("region", {
+            name: "Entradas conferidas",
+        });
+        const entry =
+            entries &&
+            within(entries).queryAllByRole("button", { name: /^Selecionar / })[
+                index
+            ];
+        if (entry) {
+            fireEvent.click(entry);
+            return;
+        }
         const links = await screen.findAllByRole("button", {
             name: /^Ver detalhes de /,
         });
@@ -160,7 +172,7 @@ export async function selectResultRow(entity: string, id: string) {
     const table = screen.getByRole("table", {
         name: new RegExp("^" + entity + " ·"),
     });
-    const row = within(table).getByRole("cell", { name: id }).closest("tr");
+    const row = table.querySelector(`tr[data-record-id="${id}"]`);
     const button = row?.querySelector("td:last-child button");
     if (!button)
         throw Error(
@@ -170,9 +182,15 @@ export async function selectResultRow(entity: string, id: string) {
     await loadedRecord();
 }
 export const fill = (name: string, value: string) =>
-    fireEvent.change(activeQueries().getByLabelText(name, { exact: true }), {
-        target: { value },
-    });
+    fireEvent.change(
+        activeQueries().getByLabelText(
+            name.replace(/ \(ID\)/g, "").replace(/ Id(?= \*|$)/, ""),
+            { exact: true },
+        ),
+        {
+            target: { value },
+        },
+    );
 export async function confirm(action = "Conferir e confirmar") {
     await click(action);
     const validation = activeQueries().queryByRole("alert");
@@ -216,7 +234,12 @@ export async function consult() {
     await activeQueries().findByText(/Resposta FICTÍCIA de exercício recebida/);
 }
 export function selected(name: string, value: string) {
-    const input = activeQueries().queryByLabelText(name, { exact: true });
+    const input =
+        activeQueries().queryByLabelText(name, { exact: true }) ??
+        activeQueries().queryByLabelText(
+            name.replace(/ \(ID\)/g, "").replace(/ Id(?= \*|$)/, ""),
+            { exact: true },
+        );
     if (input) expect(input).toHaveValue(value);
     else
         expect(

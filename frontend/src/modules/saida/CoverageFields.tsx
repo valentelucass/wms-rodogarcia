@@ -1,6 +1,7 @@
 import { useContext, type ReactNode } from "react";
 import { FormReferences } from "../../components/FormReferences";
 import { isObject, type Values } from "../../contracts/runtime";
+import { ReferenceValue } from "../../components/context/ReferencePresentation";
 export function CoverageFields({
     value,
     onChange,
@@ -56,8 +57,12 @@ export function CoverageFields({
                         ])
                     }
                 >
-                    Adicionar cobertura da reserva {String(r.id)} · nota{" "}
-                    {String(r.notaOrigemId)}
+                    Adicionar cobertura da unidade {String(r.codigoUnidade)} ·{" "}
+                    <ReferenceValue
+                        field="notaOrigemId"
+                        value={r.notaOrigemId}
+                        row={r}
+                    />
                 </button>
             ))}
             {reserves.length === 0 && (

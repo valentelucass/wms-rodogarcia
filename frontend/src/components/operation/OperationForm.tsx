@@ -6,6 +6,8 @@ import { AddressImportFields } from "../../modules/cadastros/AddressImportFields
 import { automaticCodes } from "../../domain/automaticCodes";
 import { operationContextFields } from "../../domain/operationContextFields";
 import { information } from "../../content/information";
+import { Result } from "../Result";
+import { presentationLabel } from "../../domain/referencePresentation";
 export function OperationForm({
     state: s,
     perfil,
@@ -34,7 +36,7 @@ export function OperationForm({
             fields: s.e.params,
             values: s.params,
             onChange: s.setParams,
-            schema: "",
+            schema: s.e.id + ".params",
         },
         {
             fields: queryFields,
@@ -93,15 +95,31 @@ export function OperationForm({
             {!addressImport && hasFixedFields && (
                 <fieldset className="operation-fixed-fields" disabled>
                     <legend className="sr-only">Registro selecionado</legend>
+                    {groups.flatMap((group) =>
+                        group.fields
+                            .filter((f) => fixedFields.includes(f.name))
+                            .map((f) => (
+                                <input
+                                    key={group.schema + f.name}
+                                    type="hidden"
+                                    aria-label={
+                                        presentationLabel(f.name) +
+                                        (f.required ? " *" : "")
+                                    }
+                                    value={String(group.values[f.name] ?? "")}
+                                    readOnly
+                                />
+                            )),
+                    )}
                     {groups.map((group, index) => (
-                        <Fields
+                        <Result
                             key={index}
-                            {...group}
-                            fields={group.fields.filter((f) =>
-                                fixedFields.includes(f.name),
+                            type={s.e.id}
+                            data={Object.fromEntries(
+                                group.fields
+                                    .filter((f) => fixedFields.includes(f.name))
+                                    .map((f) => [f.name, group.values[f.name]]),
                             )}
-                            perfil={perfil}
-                            lockedFields={fixedFields}
                         />
                     ))}
                 </fieldset>

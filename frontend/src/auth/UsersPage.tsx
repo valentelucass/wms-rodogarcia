@@ -4,6 +4,7 @@ import { AuthError } from "./client";
 import { PageHeader } from "../components/layout/PageHeader";
 import { Dialog } from "../components/layout/Dialog";
 import { Pagination } from "../components/layout/Pagination";
+import { ScopeChoices } from "./ScopeChoices";
 
 export function UsersPage({
     auth,
@@ -314,28 +315,14 @@ export function UsersPage({
                                             </p>
                                         </div>
                                         <div className="account-fields">
-                                            <label>
-                                                Clientes permitidos (IDs
-                                                separados por vírgulas)
-                                                <input
-                                                    name="clientes"
-                                                    defaultValue={selected?.clientes.join(
-                                                        ", ",
-                                                    )}
-                                                    placeholder="Ex.: 1, 2"
-                                                />
-                                            </label>
-                                            <label>
-                                                Armazéns permitidos (IDs
-                                                separados por vírgulas)
-                                                <input
-                                                    name="armazens"
-                                                    defaultValue={selected?.armazens.join(
-                                                        ", ",
-                                                    )}
-                                                    placeholder="Ex.: 1"
-                                                />
-                                            </label>
+                                            <ScopeChoices
+                                                kind="clientes"
+                                                selected={selected?.clientes}
+                                            />
+                                            <ScopeChoices
+                                                kind="armazens"
+                                                selected={selected?.armazens}
+                                            />
                                         </div>
                                         <p>
                                             Para Operação e Supervisor, deixar

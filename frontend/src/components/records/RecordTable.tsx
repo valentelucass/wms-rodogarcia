@@ -1,5 +1,4 @@
 import { isObject, type Values } from "../../contracts/runtime";
-import { label, display } from "../../domain/labels";
 import {
     recordIdentity,
     recordRoot,
@@ -10,6 +9,11 @@ import { recordActionLabel } from "../../domain/recordPages";
 import { StatusBadge } from "../../design-system/StatusBadge";
 import { Icon } from "../../design-system/Icon";
 import type { CSSProperties } from "react";
+import { ReferenceValue } from "../context/ReferencePresentation";
+import {
+    presentationLabel,
+    technicalField,
+} from "../../domain/referencePresentation";
 
 const columns: Record<string, string[]> = {
     "ClienteDto.Resposta": ["nome", "codigo", "documentoFiscal", "situacao"],
@@ -199,7 +203,7 @@ export function RecordTable({
     title?: string;
 }) {
     const view = (row: Values) => ({ ...row, ...recordRoot(row) });
-    const keys =
+    const candidateKeys =
         columns[type] ??
         [
             ...new Set(
@@ -213,6 +217,9 @@ export function RecordTable({
                 ),
             ),
         ].slice(0, 7);
+    const keys = candidateKeys.filter(
+        (key) => !technicalField(key) && key !== "id",
+    );
     return (
         <div
             className="table-scroll record-table"
@@ -249,7 +256,10 @@ export function RecordTable({
                                         tipoLocalizacao: "Localização",
                                         situacao: "Situação",
                                     } as Record<string, string>
-                                )[key] ?? label(key)}
+                                )[key] ??
+                                    (key === "id"
+                                        ? "Registro"
+                                        : presentationLabel(key))}
                             </th>
                         ))}
                         <th scope="col">Ações</th>
@@ -262,7 +272,7 @@ export function RecordTable({
                         const identity = recordIdentity(row);
                         const operation = canOperate?.(row);
                         return (
-                            <tr key={identity}>
+                            <tr key={identity} data-record-id={identity}>
                                 {keys.map((key, i) => (
                                     <td
                                         key={key}
@@ -285,16 +295,26 @@ export function RecordTable({
                                                 type="button"
                                                 disabled={pending}
                                                 onClick={() => onOpen(row)}
-                                                aria-label={`Ver detalhes de ${recordTitle(row)} · ${identity}`}
+                                                aria-label={`Ver detalhes de ${recordTitle(row)}`}
                                             >
-                                                {display(values[key])}
+                                                <ReferenceValue
+                                                    field={key}
+                                                    value={values[key]}
+                                                    row={values}
+                                                    type={type}
+                                                />
                                             </button>
                                         ) : ["situacao", "condicao"].includes(
                                               key,
                                           ) ? (
                                             <StatusBadge value={values[key]} />
                                         ) : (
-                                            display(values[key])
+                                            <ReferenceValue
+                                                field={key}
+                                                value={values[key]}
+                                                row={values}
+                                                type={type}
+                                            />
                                         )}
                                     </td>
                                 ))}

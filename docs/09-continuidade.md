@@ -1,5 +1,11 @@
 # Continuidade do projeto WMS Rodogarcia
 
+## FE06-REFERENCIAS01 — apresentação concluída e testada localmente, 14/10/2026
+
+Nomes/códigos substituem a exibição de IDs nos componentes compartilhados; cartões de nota/item/SKU organizam entradas conferidas. Seletores consultam o contexto correto, preservam as referências internas e reiniciam a paginação ao trocar de contexto. Usuários escolhem vínculos por nome. Consulta negada/ausente informa indisponibilidade, sem nome inventado ou exposição do ID como alternativa.
+
+**637 testes passaram em 63 arquivos**, tipagem/lint/build isolado/diff check aprovados. Chrome fictício desktop e celular 390 px, temas claro/escuro e teclado conferidos. Antes/depois e relatório em `orchestracao/.runtime/reference-names-20261014/`; [contrato](design-system/etapa-16.md). Sem integração SQL/API autenticada real nem publicação/reinício operacional nesta etapa. Para atualizar a versão ativa, usar o fluxo DEV/PM2 documentado com as respectivas guardas; não confundir o pacote local com a instância ativa.
+
 ## FE05-ACEITE01 — formulário de efetivação corrigido e testado, 13/10/2026
 
 Conferência atual sem divergência omite Aceitar divergências e envia false. Só usa detalhe do mesmo pedido e revisão; demais casos mantêm escolha explícita, sem Sim automático. Backend continua revalidando perfil/revisão/divergência e bloqueando divergência nova sem aceite. Seis testes novos, **625/625 na regressão frontend**, tipagem/lint/build/diff check e Chrome fictício desktop/mobile aprovados. [Contrato](design-system/etapa-15.md), recibo `orchestracao/.runtime/receiving-finalization-20261013/resultado.json`.

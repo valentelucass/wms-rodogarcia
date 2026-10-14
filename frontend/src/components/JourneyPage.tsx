@@ -20,6 +20,7 @@ import { AdjustmentOrigin } from "../modules/financeiro/AdjustmentOrigin";
 import { ReceivingSummary } from "../modules/recebimento/ReceivingSummary";
 import { AuditSelection } from "../modules/relatorios/AuditSelection";
 import { DispatchReservations } from "../modules/saida/DispatchReservations";
+import { businessTitle } from "../domain/referencePresentation";
 export function JourneyPage({
     journey,
     transport,
@@ -64,16 +65,8 @@ export function JourneyPage({
         options[field] = referenceCatalog(workflow, type).map((v) => ({
             value: String(v.id),
             title:
-                String(v.id) +
-                " · " +
-                String(
-                    v.sku ??
-                        v.codigo ??
-                        v.referencia ??
-                        v.descricao ??
-                        v.situacao ??
-                        type.split(".")[0],
-                ),
+                businessTitle(v, type, workflow.catalogs) ??
+                "Referência indisponível",
         }));
     const references = journey.references;
     if (journey.id === "entrada")
@@ -258,14 +251,11 @@ export function JourneyPage({
                                     return (
                                         <li key={t}>
                                             {name}:{" "}
-                                            {String(
-                                                v.id ??
-                                                    v.chaveFato ??
-                                                    "referência consultada",
-                                            )}{" "}
-                                            {v.referencia
-                                                ? String(v.referencia)
-                                                : ""}{" "}
+                                            {businessTitle(
+                                                v,
+                                                t,
+                                                workflow.catalogs,
+                                            ) ?? "Referência consultada"}{" "}
                                             {v.versao !== undefined
                                                 ? "· Revisão " +
                                                   String(v.versao)
@@ -283,8 +273,8 @@ export function JourneyPage({
                         <div className="journey-references-footer">
                             <p>
                                 Uma lista com vários registros exige seleção
-                                explícita. IDs de pedido, entrada, unidade,
-                                reserva e fechamento permanecem separados.
+                                explícita. Confira o pedido, a mercadoria e a
+                                unidade antes de continuar.
                             </p>
                             <div className="button-row">
                                 {selectionLocked && (
