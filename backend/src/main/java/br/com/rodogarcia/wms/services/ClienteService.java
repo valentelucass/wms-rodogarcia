@@ -87,6 +87,12 @@ public class ClienteService {
         CadastroSupport.versao(entidade, dados.versao());
         var antes = ClienteDto.Resposta.de(entidade);
         entidade.alterarDescricao(CadastroSupport.texto(dados.nome()), Instant.now(clock));
+
+        entidade.corrigirCadastro(
+                dados.documentoFiscal() == null
+                        ? entidade.getDocumentoFiscal()
+                        : CadastroSupport.documento(dados.documentoFiscal()),
+                Instant.now(clock));
         repository.flush();
         var depois = ClienteDto.Resposta.de(entidade);
         auditoria.registrar("CLIENTE", id, "ALTERACAO", motivo, antes, depois);

@@ -81,6 +81,8 @@ public class ArmazemService {
     public ArmazemDto.Resposta alterar(
             @NotNull @Positive Long id, @NotNull @Valid ArmazemDto.Alterar dados) {
         acesso.exigirGestor();
+        if (dados.cidade() != null && dados.cidade().isBlank())
+            throw CadastroSupport.invalido("Informe a cidade do armazém.");
         String motivo = CadastroSupport.motivo(dados.motivo());
         Armazem entidade =
                 repository
@@ -89,6 +91,16 @@ public class ArmazemService {
         CadastroSupport.versao(entidade, dados.versao());
         var antes = ArmazemDto.Resposta.de(entidade);
         entidade.alterarDescricao(CadastroSupport.texto(dados.nome()), Instant.now(clock));
+
+        entidade.corrigirCadastro(
+                dados.documentoFiscal() == null
+                        ? entidade.getDocumentoFiscal()
+                        : CadastroSupport.documento(dados.documentoFiscal()),
+                dados.cidade() == null
+                        ? entidade.getCidade()
+                        : CadastroSupport.texto(dados.cidade()),
+                dados.uf() == null ? entidade.getUf() : CadastroSupport.codigo(dados.uf()),
+                Instant.now(clock));
         repository.flush();
         var depois = ArmazemDto.Resposta.de(entidade);
         auditoria.registrar("ARMAZEM", id, "ALTERACAO", motivo, antes, depois);

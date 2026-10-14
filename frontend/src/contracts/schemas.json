@@ -382,6 +382,29 @@
         "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/ArmazemDto.java",
         "notBlank": true,
         "Size": "min = 5, max = 500"
+      },
+      {
+        "name": "documentoFiscal",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/ArmazemDto.java",
+        "Size": "max = 30",
+        "Pattern": "regexp = \"[A-Za-z0-9][A-Za-z0-9./ -]*\""
+      },
+      {
+        "name": "cidade",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/ArmazemDto.java",
+        "Size": "max = 100",
+        "Pattern": "regexp = \".*[^ ].*\""
+      },
+      {
+        "name": "uf",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/ArmazemDto.java",
+        "Pattern": "regexp = \"[A-Za-z]{2}\""
       }
     ],
     "ArmazemDto.Resposta": [
@@ -2251,6 +2274,14 @@
         "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/ClienteDto.java",
         "notBlank": true,
         "Size": "min = 5, max = 500"
+      },
+      {
+        "name": "documentoFiscal",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/ClienteDto.java",
+        "Size": "max = 30",
+        "Pattern": "regexp = \"[A-Za-z0-9][A-Za-z0-9./ -]*\""
       }
     ],
     "ClienteDto.Resposta": [
@@ -3770,6 +3801,22 @@
         "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/EmbalagemDto.java",
         "notBlank": true,
         "Size": "min = 5, max = 500"
+      },
+      {
+        "name": "codigoDun",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/EmbalagemDto.java",
+        "Size": "max = 40",
+        "Pattern": "regexp = \"[A-Za-z0-9][A-Za-z0-9._/-]*\""
+      },
+      {
+        "name": "quantidadeProduto",
+        "type": "BigDecimal",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/EmbalagemDto.java",
+        "Digits": "integer = 13, fraction = 6",
+        "DecimalMin": "value = \"0\", inclusive = false"
       }
     ],
     "EmbalagemDto.Resposta": [
@@ -4187,6 +4234,12 @@
         "required": true,
         "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/EnderecoDto.java",
         "Min": "0"
+      },
+      {
+        "name": "tipoUnidadePermitido",
+        "type": "TipoUnidadeLogistica",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/EnderecoDto.java"
       }
     ],
     "EnderecoDto.Alterar": [
@@ -4212,6 +4265,97 @@
         "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/EnderecoDto.java",
         "notBlank": true,
         "Size": "min = 5, max = 500"
+      },
+      {
+        "name": "codigo",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/EnderecoDto.java",
+        "Size": "max = 40",
+        "Pattern": "regexp = \"[A-Za-z0-9][A-Za-z0-9._/-]*\""
+      },
+      {
+        "name": "rua",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/EnderecoDto.java",
+        "Size": "max = 20",
+        "Pattern": "regexp = \"[A-Za-z0-9][A-Za-z0-9._/-]*\""
+      },
+      {
+        "name": "nivel",
+        "type": "Integer",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/EnderecoDto.java",
+        "Min": "0",
+        "Max": "999"
+      },
+      {
+        "name": "posicao",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/EnderecoDto.java",
+        "Size": "max = 20",
+        "Pattern": "regexp = \"[A-Za-z0-9][A-Za-z0-9._/-]*\""
+      },
+      {
+        "name": "tipo",
+        "type": "TipoEndereco",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/EnderecoDto.java"
+      },
+      {
+        "name": "capacidadePesoKg",
+        "type": "BigDecimal",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/EnderecoDto.java",
+        "Digits": "integer = 16, fraction = 3",
+        "DecimalMin": "value = \"0\", inclusive = false"
+      },
+      {
+        "name": "alturaMetros",
+        "type": "BigDecimal",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/EnderecoDto.java",
+        "Digits": "integer = 7, fraction = 3",
+        "DecimalMin": "value = \"0\", inclusive = false"
+      },
+      {
+        "name": "larguraMetros",
+        "type": "BigDecimal",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/EnderecoDto.java",
+        "Digits": "integer = 7, fraction = 3",
+        "DecimalMin": "value = \"0\", inclusive = false"
+      },
+      {
+        "name": "profundidadeMetros",
+        "type": "BigDecimal",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/EnderecoDto.java",
+        "Digits": "integer = 7, fraction = 3",
+        "DecimalMin": "value = \"0\", inclusive = false"
+      },
+      {
+        "name": "empilhamentoMaximo",
+        "type": "Integer",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/EnderecoDto.java",
+        "Min": "1",
+        "Max": "999"
+      },
+      {
+        "name": "sequenciaColeta",
+        "type": "Integer",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/EnderecoDto.java",
+        "Min": "0"
+      },
+      {
+        "name": "tipoUnidadePermitido",
+        "type": "TipoUnidadeLogistica",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/EnderecoDto.java"
       }
     ],
     "EnderecoDto.Resposta": [
@@ -9955,6 +10099,55 @@
         "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/ProdutoDto.java",
         "notBlank": true,
         "Size": "min = 5, max = 500"
+      },
+      {
+        "name": "sku",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/ProdutoDto.java",
+        "Size": "max = 40",
+        "Pattern": "regexp = \"[A-Za-z0-9][A-Za-z0-9._/-]*\""
+      },
+      {
+        "name": "unidadeMedida",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/ProdutoDto.java",
+        "Pattern": "regexp = \"[A-Za-z]{1,8}\""
+      },
+      {
+        "name": "tipoQuantidade",
+        "type": "TipoQuantidade",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/ProdutoDto.java"
+      },
+      {
+        "name": "precisaoQuantidade",
+        "type": "Integer",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/ProdutoDto.java",
+        "Min": "0",
+        "Max": "6"
+      },
+      {
+        "name": "controlaLote",
+        "type": "Boolean",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/ProdutoDto.java"
+      },
+      {
+        "name": "controlaValidade",
+        "type": "Boolean",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/ProdutoDto.java"
+      },
+      {
+        "name": "antecedenciaAvisoDias",
+        "type": "Integer",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/ProdutoDto.java",
+        "Min": "0",
+        "Max": "3650"
       }
     ],
     "ProdutoDto.Resposta": [
@@ -10807,6 +11000,20 @@
         "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/UnidadeLogisticaDto.java"
       }
     ],
+    "UnidadeLogisticaDto.NotaEtiqueta": [
+      {
+        "name": "serie",
+        "type": "int",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/UnidadeLogisticaDto.java"
+      },
+      {
+        "name": "numero",
+        "type": "long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/UnidadeLogisticaDto.java"
+      }
+    ],
     "UnidadeLogisticaDto.Etiqueta": [
       {
         "name": "codigoLeitura",
@@ -10919,6 +11126,54 @@
       {
         "name": "quantidadeProdutoPorDun",
         "type": "BigDecimal",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/UnidadeLogisticaDto.java"
+      },
+      {
+        "name": "descricaoProduto",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/UnidadeLogisticaDto.java"
+      },
+      {
+        "name": "nomeCliente",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/UnidadeLogisticaDto.java"
+      },
+      {
+        "name": "nomeConferente",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/UnidadeLogisticaDto.java"
+      },
+      {
+        "name": "quantidadeProdutoNasNotas",
+        "type": "BigDecimal",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/UnidadeLogisticaDto.java"
+      },
+      {
+        "name": "notas",
+        "type": "List<UnidadeLogisticaDto.NotaEtiqueta>",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/UnidadeLogisticaDto.java",
+        "element": {
+          "name": "element",
+          "type": "UnidadeLogisticaDto.NotaEtiqueta",
+          "required": false,
+          "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/UnidadeLogisticaDto.java"
+        }
+      },
+      {
+        "name": "numeroUnidade",
+        "type": "Long",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/UnidadeLogisticaDto.java"
+      },
+      {
+        "name": "totalUnidadesPedido",
+        "type": "Long",
         "required": false,
         "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/UnidadeLogisticaDto.java"
       }

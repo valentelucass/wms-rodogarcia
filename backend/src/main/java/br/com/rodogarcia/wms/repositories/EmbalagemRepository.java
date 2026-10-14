@@ -11,6 +11,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface EmbalagemRepository extends JpaRepository<Embalagem, Long> {
+    @Query("select count(u) from UnidadeLogistica u where u.embalagem.id=:id")
+    long contarUnidades(Long id);
+
     Page<Embalagem> findByProdutoId(Long produtoId, Pageable pageable);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)

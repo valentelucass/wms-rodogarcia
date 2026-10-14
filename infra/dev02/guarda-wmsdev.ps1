@@ -38,7 +38,7 @@ public static class WmsDev02Checksum {
 
 function Invoke-WmsDev02Guard {
     [CmdletBinding()]
-    param()
+    param([switch]$CadastroPreGrant)
     $ErrorActionPreference = 'Stop'
     . (Join-Path $script:WmsDev02Root 'infra/dev/espera-conexao.ps1')
     $waitPolicy = Get-WmsDevConnectionWaitPolicy
@@ -103,6 +103,10 @@ function Invoke-WmsDev02Guard {
             $baseline = Add-WmsAuthExpectedContract $baseline ($migrations | Where-Object { $_.version -ceq '11' })
         }
         Assert-Dev02 'inventario local completo conforme contrato versionado' (Compare-Dev02Rows $migrations @($baseline.historico|Where-Object {$_.type -ceq 'SQL'}) @('version','script'))
+        . (Join-Path $script:WmsDev02Root 'infra/cadastros/contrato-edicao.ps1')
+        $cadastroBefore=$baseline
+        $baseline=Add-WmsCadastroEditExpectedContract $baseline
+        $report.oraculo['edicaoCadastrosSha256']=(Get-FileHash -LiteralPath (Join-Path $script:WmsDev02Root 'infra/cadastros/contrato-edicao.ps1') -Algorithm SHA256).Hash
         $report.migrationsLocais=$migrations
         $metadata=Get-WmsDevCredentialMetadata
         Assert-Dev02 'canal exclusivo WMSDEV existente, ACL e caminho protegidos' ($metadata.existe -and $metadata.aclValida)
@@ -169,6 +173,12 @@ function Invoke-WmsDev02Guard {
         $rights.objects=@(Select-Dev02 'objetos_wms_efetivo' "SELECT t.name tabela,p.permissao,HAS_PERMS_BY_NAME(N'wms.'+t.name,N'OBJECT',p.permissao) permitido FROM sys.tables t CROSS JOIN (VALUES(N'SELECT'),(N'INSERT'),(N'DELETE'),(N'ALTER'),(N'CONTROL'),(N'TAKE OWNERSHIP'),(N'VIEW CHANGE TRACKING'))p(permissao) WHERE t.schema_id=SCHEMA_ID(N'wms') ORDER BY t.name,p.permissao")
         $rights.columns=@(Select-Dev02 'colunas_wms_update_efetivo' "SELECT t.name tabela,c.name coluna,HAS_PERMS_BY_NAME(N'wms.'+t.name,N'OBJECT',N'UPDATE',c.name,N'COLUMN') permitido FROM sys.tables t JOIN sys.columns c ON c.object_id=t.object_id WHERE t.schema_id=SCHEMA_ID(N'wms') ORDER BY t.name,c.column_id")
         $report.direitos=$rights
+        if ($CadastroPreGrant) {
+            # Este modo somente atesta a transicao autorizada; nunca libera backend.
+            $alreadyCurrent=Compare-Dev02Rows $rights.explicit $baseline.rights.explicit @('class_desc','esquema','objeto','minor_id','coluna','permission_name','state_desc')
+            $report.cadastroEdicao=[ordered]@{modo='PRE_GRANT';direitosAtuais=if($alreadyCurrent){'NOVOS'}else{'ANTERIORES'};liberaBackend=$false}
+            if (-not $alreadyCurrent) {$baseline=$cadastroBefore}
+        }
         Assert-Dev02 'nenhuma role/ownership/schema amplo; server somente CONNECT SQL/VIEW ANY DATABASE; database CONNECT' ($rights.roles.Count -eq 0 -and $rights.serverRoles.Count -eq 0 -and $rights.ownership.Count -eq 0 -and $rights.schema.Count -eq 0 -and (Compare-Dev02Rows $rights.server @([pscustomobject]@{permission_name='CONNECT SQL'},[pscustomobject]@{permission_name='VIEW ANY DATABASE'}) @('permission_name')) -and (Compare-Dev02Rows $rights.database @([pscustomobject]@{permission_name='CONNECT'}) @('permission_name')))
         foreach ($kind in @('server','database','roles','serverRoles','ownership','schema','explicit','objects','columns')) {
             $fields=@($baseline.rights.$kind|Select-Object -First 1|ForEach-Object {$_.PSObject.Properties.Name})
@@ -184,7 +194,11 @@ function Invoke-WmsDev02Guard {
         Assert-Dev02 'historico atual preserva V1-V10 e extensoes versionadas sem divergencia' (Compare-Dev02Rows $history $baseline.historico @('installed_rank','version','type','script','checksum','success'))
         Assert-Dev02 'historico SQL atual corresponde a todas fontes locais' (Compare-Dev02Rows @($history|Where-Object {$_.type -ceq 'SQL'}) $migrations @('version','script','checksum'))
         $report.perfilProtegido=[ordered]@{host='127.0.0.1';port=1433;database='WMS_DEV';login='WMSDEV';certificate=$tls.certificate;truststore=$tls.truststore;certificateHost=$tls.certificateHost;encrypt=$true;trustServerCertificate=$false}
-        $report.estado='GUARDA_ATUAL_APROVADA';$report.guardaRealAprovada=$true
+        if ($CadastroPreGrant) {
+            $report.estado='GUARDA_PRE_GRANT_CADASTRO_APROVADA';$report.guardaPermissoesCadastroAprovada=$true
+        } else {
+            $report.estado='GUARDA_ATUAL_APROVADA';$report.guardaRealAprovada=$true
+        }
     } catch {
         $ex=$_.Exception;$code='DEV02_FALHA';$types=New-Object 'Collections.Generic.List[string]'
         $number=$null;$native=$null;$markers=[ordered]@{prelogin=$false;handshake=$false;timeout=$false;autenticacao=$false;certificado=$false}
@@ -211,8 +225,10 @@ function Invoke-WmsDev02Guard {
         $credential=$null;$connection=$null;$sqlCredential=$null;$builder=$null
     }
     if (-not $report.limpeza.conexaoDescartada -or -not $report.limpeza.secureStringDescartada -or -not $report.limpeza.certificadoDescartado) {$report.guardaRealAprovada=$false;$report.estado='GUARDA_ATUAL_BLOQUEADA'}
+    if ($CadastroPreGrant -and $report.estado -ne 'GUARDA_PRE_GRANT_CADASTRO_APROVADA') {$report.guardaPermissoesCadastroAprovada=$false}
     $report.observadoEm=[DateTime]::UtcNow.ToString('o');$report.faseUltima=$phase
     $report.motivo=if($report.guardaRealAprovada){'Identidade/TLS/permissoes/catalogo/historico atuais e fontes V1-V10 conferidos.'}elseif($report.erro){$report.erro.codigo+' na fase '+$report.erro.fase+'; BE/FE real nao podem iniciar. Sem nova tentativa automatica.'}else{'Descarte seguro nao confirmado; BE/FE real nao podem iniciar.'}
+    if ($CadastroPreGrant -and $report.estado -eq 'GUARDA_PRE_GRANT_CADASTRO_APROVADA') {$report.motivo='Pre-condicoes atuais para ajuste cadastral conferidas. Nao libera backend; exige guarda normal apos o ajuste.'}
     $report.checks=$checks.ToArray();$report.queries=$queries.ToArray()
     $report.auxiliar=[ordered]@{arquivo='infra/dev02/guarda-wmsdev.ps1';sha256=(Get-FileHash -LiteralPath $script:WmsDev02Source -Algorithm SHA256).Hash}
     [pscustomobject]$report

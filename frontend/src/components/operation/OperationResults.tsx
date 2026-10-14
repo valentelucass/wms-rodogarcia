@@ -55,7 +55,7 @@ export function OperationResults({
                 />
             )}
             {id === "UnidadeLogisticaController.etiqueta" && (
-                <LabelPreview data={receipt.data} />
+                <LabelPreview data={receipt.data} ficticio={receipt.ficticio} />
             )}
             {id === "FechamentoCobrancaController.demonstrativo" && (
                 <button type="button" onClick={() => downloadReceipt(receipt)}>

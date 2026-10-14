@@ -11,6 +11,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 public interface UnidadeLogisticaRepository extends JpaRepository<UnidadeLogistica, Long> {
+    long countByPedidoIdAndAtivaTrue(Long pedidoId);
+
+    long countByPedidoIdAndAtivaTrueAndIdLessThanEqual(Long pedidoId, Long id);
+
     @Query(
             """
         select u from UnidadeLogistica u where u.pedido.cliente.id=:clienteId and u.pedido.armazem.id=:armazemId and u.produto.id in :produtosIds

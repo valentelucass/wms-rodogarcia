@@ -11,6 +11,15 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface EnderecoRepository extends JpaRepository<Endereco, Long> {
+    @Query(
+            """
+        select count(e) from Endereco e where e.id=:id and (
+          exists(select o.id from OcupacaoEndereco o where o.endereco.id=e.id and o.unidade is not null) or
+          exists(select c.id from ConjuntoPosicoes c where (c.enderecoA.id=e.id or c.enderecoB.id=e.id)
+            and c.situacao=br.com.rodogarcia.wms.models.SituacaoCadastro.ATIVO))
+        """)
+    long contarUsoAtual(Long id);
+
     java.util.List<Endereco> findByArmazemIdOrderByIdAsc(Long armazemId);
 
     Page<Endereco> findByArmazemId(Long armazemId, Pageable pageable);

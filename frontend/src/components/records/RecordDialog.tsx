@@ -623,7 +623,10 @@ export function RecordDialog({
                                                   "armazemId",
                                                   "pedidoId",
                                                   "unidadeId",
-                                                  "codigo",
+                                                  ...(action ===
+                                                  "EnderecoController.alterar"
+                                                      ? []
+                                                      : ["codigo"]),
                                                   "versao",
                                                   "versaoPedido",
                                                   "versaoDestino",

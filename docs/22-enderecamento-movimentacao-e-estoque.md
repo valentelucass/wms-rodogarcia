@@ -24,6 +24,10 @@ V4 acrescenta os campos e tabelas, índices, FKs e restrições; amplia auditori
 
 ## Capacidade e duas posições
 
+**END-CAP01, 14/10/2026:** tipo de unidade permitido incluído também em criar/editar endereço, junto dos limites físicos. Antes, dimensões podiam ser cadastradas enquanto o tipo só era informado pelo comando separado de capacidade, causando bloqueio mesmo com medidas preenchidas. Campos opcionais permitem manter cadastro incompleto, mas não autorizam endereçamento. PUT legado sem tipo mantém o atual; troca de tipo é estrutural e recusa ocupação/conjunto ativo. A mensagem `CAPACIDADE_NAO_CONFIGURADA` lista exatamente os campos ausentes e a posição.
+
+Na interface nova, preencher em **Cadastros > Endereços > Editar**. Na versão anterior, **Capacidade e conjuntos > Configurar** já permite completar tipo e limites. As medidas do coletor são da unidade; não configuram os limites do endereço. A lista de conjuntos vazia não indica falta de capacidade das posições: ela lista pares cadastrados. Para uma unidade em uma posição, nenhum conjunto é necessário. A tela nova chama-se **Conjuntos de duas posições**, mantendo a operação específica de configurar capacidade por compatibilidade. Capacidade e conjuntos não foram removidos.
+
 Gestor configura peso em kg, altura/largura/profundidade em metros, empilhamento máximo e tipo de unidade permitido (PALLET, BOBINA ou VOLUME). Endereço antigo sem perfil completo não pode receber unidade. Capacidade só muda em endereço ativo, livre e sem conjunto ativo que use sua configuração. Revisão e motivo são obrigatórios; antes/depois ficam auditados.
 
 Conjunto identifica **exatamente duas posições**, do mesmo armazém, área e tipo permitido. A compatibilidade física deve ser conferida no cadastro operacional. Limites efetivos são explícitos: peso e largura não ultrapassam a soma das posições; altura, profundidade e empilhamento não ultrapassam o menor limite. Essa validação é um teto técnico; não calcula apoio, resistência ou distribuição de carga. Os limites reais precisam ser aferidos, sem assumir que duas posições vizinhas sempre comportam uma carga.

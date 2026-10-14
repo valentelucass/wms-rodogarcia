@@ -123,6 +123,8 @@ public final class UnidadeLogisticaDto {
             boolean concluida) {}
 
     /** Contrato dos dados da etiqueta. Não envia comandos à impressora. */
+    public record NotaEtiqueta(int serie, long numero) {}
+
     public record Etiqueta(
             String codigoLeitura,
             long versaoConteudo,
@@ -142,8 +144,31 @@ public final class UnidadeLogisticaDto {
             BigDecimal quantidadeProduto,
             String unidadeMedida,
             String codigoDun,
-            BigDecimal quantidadeProdutoPorDun) {
+            BigDecimal quantidadeProdutoPorDun,
+            String descricaoProduto,
+            String nomeCliente,
+            String nomeConferente,
+            BigDecimal quantidadeProdutoNasNotas,
+            List<NotaEtiqueta> notas,
+            Long numeroUnidade,
+            Long totalUnidadesPedido) {
         public static Etiqueta de(UnidadeLogistica u) {
+            return de(
+                    u,
+                    null,
+                    null,
+                    List.of(new NotaEtiqueta(u.getNota().getSerie(), u.getNota().getNumero())),
+                    null,
+                    null);
+        }
+
+        public static Etiqueta de(
+                UnidadeLogistica u,
+                String conferente,
+                BigDecimal quantidadeNotas,
+                List<NotaEtiqueta> notas,
+                Long numeroUnidade,
+                Long totalUnidades) {
             return new Etiqueta(
                     u.getCodigo(),
                     u.getRevisaoConteudo(),
@@ -163,7 +188,14 @@ public final class UnidadeLogisticaDto {
                     u.getQuantidade(),
                     u.getProduto().getUnidadeMedida(),
                     u.getEmbalagem().getCodigoDun(),
-                    u.getEmbalagem().getQuantidadeProduto());
+                    u.getEmbalagem().getQuantidadeProduto(),
+                    u.getProduto().getDescricao(),
+                    u.getPedido().getCliente().getNome(),
+                    conferente,
+                    quantidadeNotas,
+                    notas,
+                    numeroUnidade,
+                    totalUnidades);
         }
     }
 }

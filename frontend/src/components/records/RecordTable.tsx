@@ -39,6 +39,7 @@ const columns: Record<string, string[]> = {
         "rua",
         "nivel",
         "tipo",
+        "tipoUnidadePermitido",
         "situacao",
     ],
     "PedidoEntradaDto.Resumo": ["id", "referencia", "situacao", "versao"],

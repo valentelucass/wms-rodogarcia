@@ -364,6 +364,56 @@
 .record-filter-actions > .record-refresh {
     margin-left: auto;
 }
+.record-workspace[data-record-source="CapacidadeController.listar"]
+    .record-page-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+}
+.record-workspace[data-record-source="CapacidadeController.listar"]
+    .record-page-header
+    p {
+    max-width: 78ch;
+    margin-bottom: 0;
+    line-height: 1.6;
+}
+.record-workspace[data-record-source="CapacidadeController.listar"]
+    .record-filters
+    > fieldset {
+    display: grid;
+    grid-template-columns: minmax(220px, 480px) auto;
+    justify-content: start;
+}
+.record-workspace[data-record-source="CapacidadeController.listar"]
+    .record-filter-actions {
+    margin: 0;
+}
+.record-dialog .structured-fields--measures {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+}
+.record-dialog .structured-fields--measures > .field > label {
+    min-height: 3em;
+    justify-content: flex-end;
+}
+.record-dialog .structured-fields--measures > button {
+    grid-column: 1 / -1;
+    justify-self: start;
+}
+@media (max-width: 800px) {
+    .record-workspace[data-record-source="CapacidadeController.listar"]
+        .record-page-header,
+    .record-workspace[data-record-source="CapacidadeController.listar"]
+        .record-filters
+        > fieldset,
+    .record-dialog .structured-fields--measures {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .record-dialog .structured-fields--measures > .field > label {
+        min-height: auto;
+    }
+}
 .record-feedback {
     padding: var(--og-space-3);
     background: var(--og-success-bg);

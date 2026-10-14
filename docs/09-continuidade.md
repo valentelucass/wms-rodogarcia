@@ -1,5 +1,25 @@
 # Continuidade do projeto WMS Rodogarcia
 
+## END-VIS01 — revisão visual dos prints, 14/10/2026
+
+Revisão posterior a pedido de Lucas: 652 frontend e 144 backend puros reexecutados com sucesso, tipagem/lint/builds aprovados. Entregue comparação navegável de medidas, confirmação, detalhes, conjuntos e configuração em `orchestracao/.runtime/enderecamento-revisao-20261014/comparativo.html`. Antes é reconstrução local dos arquivos visuais anteriores do Git, com dados fictícios iguais; depois é a fonte atual. Não confundir com prova de produção. Fontes de aplicação preservadas, sem SQL/estoque/publicação; recibos e capturas no mesmo diretório.
+
+Lucas pediu corrigir desalinhamentos no coletor e em capacidade/conjuntos. Layout ajustado com grade de medidas responsiva, ações em linhas próprias, destino agrupado à confirmação, detalhes legíveis e filtros de conjuntos alinhados. Mantidos campos/contratos e comportamento; sem alteração de backend. 652 testes frontend aprovados, tipagem/lint/build, navegador fictício desktop/tablet/mobile/claro/escuro e confirmação do comando sem mudar valores. Evidências em `orchestracao/.runtime/enderecamento-visual-20261014/`. Fonte ainda não publicada; o próximo `pm2-wms.bat atualizar` do operador inclui END-VIS01 e END-CAP01. Nenhum SQL/estoque real ou processo operacional alterado pelo agente neste recorte.
+
+## END-CAP01 — corrigida configuração incompleta de posição, 14/10/2026
+
+Relato de endereçamento bloqueado por capacidade: o cadastro/edição tinha dimensões, mas não oferecia tipo de unidade permitido. Campo incluído no POST/PUT e formulários, preservando compatibilidade de comandos antigos e bloqueios por ocupação/conjunto. Erro passa a enumerar os campos realmente ausentes. Conjuntos continuam opcionais para uma posição, com título/ajuda esclarecidos. [Regra e operação](22-enderecamento-movimentacao-e-estoque.md#capacidade-e-duas-posições).
+
+Fonte validada localmente: backend 144 puros; frontend 651/652 na regressão inicial, fixture decimal do único teste falho corrigida e 15/15 no arquivo direcionado; tipagem/lint/build, Chrome fictício desktop/mobile/claro/escuro. Recibos em `orchestracao/.runtime/enderecamento-capacidade-20261014/`. Nenhuma consulta/mutação SQL/estoque ou publicação neste recorte. Para resolver na versão ativa, Gestor usa Capacidade e conjuntos > Configurar, escolhendo a posição, BOBINA e limites reais. Para publicar o novo formulário, comando PM2 habitual. O run PROD anterior `85bfb2d6abd043ee9163a06689249693` foi confirmado pelo log enviado pelo operador; não confundir com a fonte END-CAP01 posterior.
+
+## CAD-EDIT01 / FE06-ETIQUETA01 — DEV concluído; produção pronta para comando do operador, 14/10/2026
+
+Lucas autorizou “pode aplicar” em 14/10/2026. Executado: 17 permissões por coluna somente WMS_DEV/WMSDEV, guardas atuais, ativação pelo BAT no run `c2dcbb1c-b3b1-4f25-8e88-b2468ebf615e` e 73 verificações integradas aprovadas. Não repetir grants/jornadas já concluídos. Pacote ativo e evidências no recibo `orchestracao/.runtime/cadastros-etiqueta-20261014/resultado-ativacao.json`.
+
+Edição de CPF/CNPJ, cidade/UF, SKU, DUN, código/coordenadas e configurações implementada nos cinco cadastros, com Gestor/motivo/revisão/auditoria. Etiqueta acompanha a referência visual de Lucas, com dados enriquecidos no backend e UUID preservado. [Escopo, proteções e delta mínimo](design-system/etapa-17.md); recibos e imagens em `orchestracao/.runtime/cadastros-etiqueta-20261014/`.
+
+Lucas pediu também deixar produção preparada para ele atualizar. O operador executa **`pm2-wms.bat atualizar`**, em seu terminal administrador: o comando adequa os direitos WMSPROD por coluna com guarda antes/depois, prepara a fonte e só então troca os processos WMS. Fluxo local validado; PROD não foi conectado nem alterado nesta entrega. Preserve a instância DEV ativa, as fixtures81/82/45/87/59/152 e todos os recibos. Houve uma expectativa incorreta no primeiro teste de documento (pontuação é normalizada), corrigida sem recriar o cliente81; a guarda de partida expirada foi mantida como histórica e substituída por guarda suplementar atual com vínculo ao mesmo pacote/PIDs, sem reinício adicional. Impressão/leitura física ainda pendentes.
+
 ## FE06-REFERENCIAS01 — apresentação concluída e testada localmente, 14/10/2026
 
 Nomes/códigos substituem a exibição de IDs nos componentes compartilhados; cartões de nota/item/SKU organizam entradas conferidas. Seletores consultam o contexto correto, preservam as referências internas e reiniciam a paginação ao trocar de contexto. Usuários escolhem vínculos por nome. Consulta negada/ausente informa indisponibilidade, sem nome inventado ou exposição do ID como alternativa.

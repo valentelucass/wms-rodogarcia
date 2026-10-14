@@ -85,7 +85,34 @@ export class ExampleRegistry {
             if (!row) throw new Error("Exercício: cadastro não encontrado.");
             if (command === "consultar") return row;
             if (command === "alterar")
-                for (const field of ["nome", "descricao"])
+                for (const field of [
+                    "nome",
+                    "descricao",
+                    "documentoFiscal",
+                    "cidade",
+                    "uf",
+                    "sku",
+                    "unidadeMedida",
+                    "tipoQuantidade",
+                    "precisaoQuantidade",
+                    "controlaLote",
+                    "controlaValidade",
+                    "antecedenciaAvisoDias",
+                    "codigoDun",
+                    "quantidadeProduto",
+                    "codigo",
+                    "rua",
+                    "nivel",
+                    "posicao",
+                    "tipo",
+                    "capacidadePesoKg",
+                    "alturaMetros",
+                    "larguraMetros",
+                    "profundidadeMetros",
+                    "empilhamentoMaximo",
+                    "tipoUnidadePermitido",
+                    "sequenciaColeta",
+                ])
                     if (body[field] !== undefined) row[field] = body[field];
             if (command === "encerrar") row.situacao = "ENCERRAMENTO_PENDENTE";
             if (command === "reativar") row.situacao = "ATIVO";

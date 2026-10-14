@@ -20,6 +20,7 @@ const labels: Record<string, string> = {
     tipoFisico: "Origem física da auditoria",
     codigoUnidade: "UUID da unidade",
     codigoLido: "Código lido",
+    tipoUnidadePermitido: "Tipo de unidade permitido",
     versao: "Revisão atual",
     versaoUnidade: "Revisão atual da unidade",
     revisaoConteudo: "Revisão do conteúdo da etiqueta",

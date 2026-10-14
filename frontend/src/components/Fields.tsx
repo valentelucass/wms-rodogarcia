@@ -136,7 +136,7 @@ function FieldControl({
     if (lt) {
         const list = Array.isArray(value) ? value : [];
         return (
-            <fieldset disabled={disabled}>
+            <fieldset disabled={disabled} className="structured-list">
                 <legend>{title}</legend>
                 {list.length === 0 && (
                     <p className="hint">Nenhum item informado.</p>
@@ -200,7 +200,16 @@ function FieldControl({
         return (
             <fieldset
                 disabled={disabled}
-                className={fiscalData ? "operation-fields" : undefined}
+                className={
+                    fiscalData
+                        ? "operation-fields"
+                        : [
+                                "EstoqueDto.Medidas",
+                                "CapacidadeDto.Limites",
+                            ].includes(f.type)
+                          ? "structured-fields structured-fields--measures"
+                          : "structured-fields"
+                }
             >
                 <legend>{title}</legend>
                 {f.type === "RecebimentoDto.Item" && (

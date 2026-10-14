@@ -26,30 +26,30 @@ public class Produto extends CadastroBase {
     @JoinColumn(name = "cliente_id", nullable = false, updatable = false)
     private Cliente cliente;
 
-    @Column(nullable = false, length = 40, updatable = false)
+    @Column(nullable = false, length = 40)
     private String sku;
 
     @Nationalized
     @Column(nullable = false, length = 160)
     private String descricao;
 
-    @Column(name = "unidade_medida", nullable = false, length = 8, updatable = false)
+    @Column(name = "unidade_medida", nullable = false, length = 8)
     private String unidadeMedida;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "tipo_quantidade", nullable = false, length = 10, updatable = false)
+    @Column(name = "tipo_quantidade", nullable = false, length = 10)
     private TipoQuantidade tipoQuantidade;
 
-    @Column(name = "precisao_quantidade", nullable = false, updatable = false)
+    @Column(name = "precisao_quantidade", nullable = false)
     private int precisaoQuantidade;
 
-    @Column(name = "controla_lote", nullable = false, updatable = false)
+    @Column(name = "controla_lote", nullable = false)
     private boolean controlaLote;
 
-    @Column(name = "controla_validade", nullable = false, updatable = false)
+    @Column(name = "controla_validade", nullable = false)
     private boolean controlaValidade;
 
-    @Column(name = "antecedencia_aviso_dias", updatable = false)
+    @Column(name = "antecedencia_aviso_dias")
     private Integer antecedenciaAvisoDias;
 
     protected Produto() {}
@@ -115,6 +115,25 @@ public class Produto extends CadastroBase {
 
     public void alterarDescricao(String descricao, Instant instante) {
         this.descricao = descricao;
+        registrarAlteracao(instante);
+    }
+
+    public void corrigirCadastro(
+            String sku,
+            String unidadeMedida,
+            TipoQuantidade tipoQuantidade,
+            int precisaoQuantidade,
+            boolean controlaLote,
+            boolean controlaValidade,
+            Integer antecedenciaAvisoDias,
+            Instant instante) {
+        this.sku = sku;
+        this.unidadeMedida = unidadeMedida;
+        this.tipoQuantidade = tipoQuantidade;
+        this.precisaoQuantidade = precisaoQuantidade;
+        this.controlaLote = controlaLote;
+        this.controlaValidade = controlaValidade;
+        this.antecedenciaAvisoDias = antecedenciaAvisoDias;
         registrarAlteracao(instante);
     }
 }

@@ -28,7 +28,7 @@ public class Cliente extends CadastroBase {
     @Column(nullable = false, length = 120)
     private String nome;
 
-    @Column(name = "documento_fiscal", nullable = false, length = 30, updatable = false)
+    @Column(name = "documento_fiscal", nullable = false, length = 30)
     private String documentoFiscal;
 
     @Embedded private ComplementoFiscal complementoFiscal;
@@ -105,6 +105,11 @@ public class Cliente extends CadastroBase {
 
     public void alterarDescricao(String descricao, Instant instante) {
         this.nome = descricao;
+        registrarAlteracao(instante);
+    }
+
+    public void corrigirCadastro(String documentoFiscal, Instant instante) {
+        this.documentoFiscal = documentoFiscal;
         registrarAlteracao(instante);
     }
 }

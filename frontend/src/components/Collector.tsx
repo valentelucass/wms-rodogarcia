@@ -181,54 +181,52 @@ export function Collector({
                                         />
                                     </label>
                                     <button>Conferir destino</button>
+                                    <p className="collector-position-list hint">
+                                        Posições na página:{" "}
+                                        {addresses
+                                            .map((a) => String(a.codigo))
+                                            .join(", ")}
+                                        . A capacidade e a ocupação serão
+                                        conferidas ao confirmar.
+                                    </p>
                                 </form>
-                                <p>
-                                    Posições na página:{" "}
-                                    {addresses
-                                        .map((a) => String(a.codigo))
-                                        .join(", ")}
-                                    . Capacidades e ocupação serão revalidadas
-                                    no backend.
-                                </p>
                                 {target && (
-                                    <>
-                                        <p>
-                                            Destino lido:{" "}
-                                            {String(target.codigo)} ·{" "}
-                                            {String(target.tipo)}. Para duas
-                                            posições, informe também o conjunto
-                                            e o segundo destino no comando.
-                                        </p>
-                                        <div className="workspace-panel collector-command">
-                                            <Operation
-                                                key={code + position}
-                                                id="EstoqueController.posicionar"
-                                                collector
-                                                transport={transport}
-                                                context={{
-                                                    ...context,
-                                                    ...selected,
-                                                    codigo: code,
-                                                    destinos: [
-                                                        {
-                                                            enderecoId:
-                                                                target.id,
-                                                            codigoLido:
-                                                                position,
-                                                        },
-                                                    ],
-                                                    medidas: unit.medidas,
-                                                }}
-                                                perfil={perfil}
-                                                onSelect={() => {
-                                                    invalidate();
-                                                    setCode("");
-                                                    setPosition("");
-                                                }}
-                                                onReceipt={onReceipt}
-                                            />
-                                        </div>
-                                    </>
+                                    <div className="workspace-panel collector-command">
+                                        <header className="collector-command-header">
+                                            <h2>3. Confirmar endereçamento</h2>
+                                            <p className="collector-target">
+                                                Destino lido:{" "}
+                                                {String(target.codigo)} ·{" "}
+                                                {String(target.tipo)}.
+                                            </p>
+                                        </header>
+                                        <Operation
+                                            key={code + position}
+                                            id="EstoqueController.posicionar"
+                                            collector
+                                            hideHeading
+                                            transport={transport}
+                                            context={{
+                                                ...context,
+                                                ...selected,
+                                                codigo: code,
+                                                destinos: [
+                                                    {
+                                                        enderecoId: target.id,
+                                                        codigoLido: position,
+                                                    },
+                                                ],
+                                                medidas: unit.medidas,
+                                            }}
+                                            perfil={perfil}
+                                            onSelect={() => {
+                                                invalidate();
+                                                setCode("");
+                                                setPosition("");
+                                            }}
+                                            onReceipt={onReceipt}
+                                        />
+                                    </div>
                                 )}
                             </>
                         ) : (

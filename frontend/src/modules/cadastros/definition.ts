@@ -4,6 +4,7 @@ import {
     type Journey,
     type NextAction,
 } from "../../domain/journeyTypes";
+import { information } from "../../content/information";
 export const journeys: Journey[] = [
     {
         id: "cadastros",
@@ -17,8 +18,8 @@ export const journeys: Journey[] = [
             cadastro("Embalagens / DUN", "EmbalagemController"),
             cadastro("Endereços", "EnderecoController"),
             s(
-                "Capacidade e conjuntos",
-                "Limites ausentes significam não configurados. O backend confere as duas posições juntas.",
+                "Conjuntos de duas posições",
+                information.positionSets.description,
                 "CapacidadeController",
                 ["listar", "configurar", "criar", "encerrar"],
             ),

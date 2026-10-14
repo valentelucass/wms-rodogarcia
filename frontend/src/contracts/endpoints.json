@@ -4450,7 +4450,7 @@
     "handler": "etiqueta",
     "permission": "OPERACAO",
     "permissionSource": [
-      "backend/src/main/java/br/com/rodogarcia/wms/services/UnidadeLogisticaService.java#etiqueta"
+      "backend/src/main/java/br/com/rodogarcia/wms/services/EtiquetaService.java#consultar"
     ]
   },
   {

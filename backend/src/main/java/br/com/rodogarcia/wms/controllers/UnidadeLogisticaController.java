@@ -2,6 +2,7 @@ package br.com.rodogarcia.wms.controllers;
 
 import br.com.rodogarcia.wms.dto.PaginaResponse;
 import br.com.rodogarcia.wms.dto.UnidadeLogisticaDto;
+import br.com.rodogarcia.wms.services.EtiquetaService;
 import br.com.rodogarcia.wms.services.UnidadeLogisticaService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
@@ -18,9 +19,11 @@ import org.springframework.web.bind.annotation.RestController;
 @ConditionalOnProperty(name = "wms.cadastros.enabled", havingValue = "true")
 public class UnidadeLogisticaController {
     private final UnidadeLogisticaService unidades;
+    private final EtiquetaService etiquetas;
 
-    public UnidadeLogisticaController(UnidadeLogisticaService unidades) {
+    public UnidadeLogisticaController(UnidadeLogisticaService unidades, EtiquetaService etiquetas) {
         this.unidades = unidades;
+        this.etiquetas = etiquetas;
     }
 
     @PostMapping("/api/v1/pedidos-entrada/{pedidoId}/entradas/{entradaId}/unitizacao")
@@ -73,6 +76,6 @@ public class UnidadeLogisticaController {
 
     @GetMapping("/api/v1/unidades-logisticas/{codigo}/etiqueta")
     public UnidadeLogisticaDto.Etiqueta etiqueta(@PathVariable UUID codigo) {
-        return unidades.etiqueta(codigo);
+        return etiquetas.consultar(codigo);
     }
 }

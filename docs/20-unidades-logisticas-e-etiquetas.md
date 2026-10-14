@@ -1,5 +1,7 @@
 # Unidades logísticas, origem e dados das etiquetas
 
+**Atualização FE06-ETIQUETA01, 14/10/2026:** layout solicitado por Lucas e enriquecimento de produto/cliente/notas/quantidade/conferente/sequência descritos na [etapa 17](design-system/etapa-17.md). Consulta/reimpressão preservam UUID e não escrevem estoque. A data destacada é chegada física; numeração representa unidades ativas do pedido na consulta. Validação local não equivale à impressão/leitura física ou integração SQL.
+
 Entrega D16 de 05/10/2026: implementação de BE07 e ampliação dos contratos BE01 para FE06. Mantém as camadas MVC, validação nos serviços, properties e transações. Consome as entradas conferidas de [BE06](18-recebimento-e-conferencia.md); não cria novo recebimento nem disponibiliza estoque para saída.
 
 ## Fontes e escolhas deste recorte

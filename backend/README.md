@@ -2,6 +2,8 @@
 
 ## Política de testes vigente — QUAL-CONF01-SQL01
 
+CAD-EDIT01 (14/10): a whitelist inclui também `NfeSkuTest`, `CadastrosEdicaoTest` e `EtiquetaLayoutTest`. Os dois últimos verificam serviços/DTOs em memória com repositories mockados, sem contexto Spring ou conexão. A edição ampliada depende das permissões por coluna listadas na [etapa 17](../docs/design-system/etapa-17.md), ainda sem ativação real.
+
 `test` e `verify` sem perfil interrompem em `validate`: persistência exige SQL Server real, WMS_DEV/WMSDEV, runner legítimo guardado e prova revisada. Uma flag Maven ou um build não certifica integração SQL. H2 permanece histórico, sem aceite novo.
 
 O perfil explícito `pure-no-db` seleciona somente `Sql01ObservationConfigTest`, `Sql01JdbcObservationTest`, `SqlServerConfigTest`, `SqlServerLocalITTest`, `SqlServerUpdateMappingTest`, `Sql01MavenPolicyTest`, `CodigoInternoTest`, `ModeloEnderecosTest`, `NfeDocumentoServiceTest` e `NfeBobinasTest`. São mocks, leitura XML/XLSX e preparação estática de SQL sem conexão; o nome SQLServer não significa execução SQL. `CodigoInternoTest` usa repositories mockados e flags locais de transação, sem contexto Spring, DataSource ou conexão; não comprova serialização no banco real. `ModeloEnderecosTest` lê o arquivo publicado em `../frontend/public/modelos/enderecos.xlsx` e preenche cópias somente em memória; `NfeDocumentoServiceTest` usa parser e esquema locais sem contexto ou consulta externa. `NfeBobinasTest` confere conversão exata de massa, contagem física, compatibilidade de comandos e leitura de snapshots em memória, com repository mockado e sem contexto/conexão. `-Dtest` aceita somente nomes dessa lista separados por vírgula; persistência, curingas e seletores de métodos são recusados antes do contexto.

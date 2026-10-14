@@ -1,5 +1,7 @@
 # Cadastros, acesso e persistência do backend
 
+**Atualização CAD-EDIT01, 14/10/2026:** o pedido de Lucas amplia o PUT dos cinco cadastros para correção dos campos descritos na [etapa 17](design-system/etapa-17.md). A limitação a nome/descrição abaixo é histórica. Permanecem Gestor, motivo, revisão, auditoria e proteções de dependências. Ativação depende de direitos SQL por coluna, ainda não concedidos por esta entrega.
+
 Entrega de 05/10/2026, após D12: ampliar o backend em um bloco maior. Abrange recortes de **BE01, BE03, BE04 e BE05**, mantendo Spring MVC por camadas. Nenhuma dessas etapas completas é encerrada apenas por esta entrega.
 
 D13/BE16 acrescentou configuração em `.properties`, validação das entradas dos serviços e verificações automáticas de engenharia, descritas no [documento 16](16-padroes-de-engenharia-backend.md). Os contratos cadastrais abaixo são preservados.

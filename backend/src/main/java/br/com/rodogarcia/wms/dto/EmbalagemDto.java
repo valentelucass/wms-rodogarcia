@@ -27,7 +27,14 @@ public final class EmbalagemDto {
     public record Alterar(
             @NotNull @Min(0) Long versao,
             @NotBlank @Size(max = 160) String descricao,
-            @NotBlank @Size(min = 5, max = 500) String motivo) {}
+            @NotBlank @Size(min = 5, max = 500) String motivo,
+            @Size(max = 40) @Pattern(regexp = "[A-Za-z0-9][A-Za-z0-9._/-]*") String codigoDun,
+            @DecimalMin(value = "0", inclusive = false) @Digits(integer = 13, fraction = 6)
+                    BigDecimal quantidadeProduto) {
+        public Alterar(Long versao, String descricao, String motivo) {
+            this(versao, descricao, motivo, null, null);
+        }
+    }
 
     public record Resposta(
             Long id,

@@ -1,5 +1,21 @@
 # Decisões e pendências do WMS Rodogarcia
 
+## END-CAP01 — endereçamento e explicação de conjuntos, 14/10/2026
+
+Lucas relatou erro de capacidade mesmo com dimensões cadastradas e sugeriu avaliar retirar a tela de conjuntos. Interpretação implementada: resolver a omissão do tipo permitido no cadastro da posição e esclarecer a finalidade de conjuntos, sem converter a sugestão em autorização para remover a regra de capacidade ou o suporte de AC05 a duas posições. Uma bobina que ocupa uma posição dispensa conjunto. Valores físicos reais permanecem a cargo da operação.
+
+POST/PUT de endereço agora expõem o tipo permitido; mensagens enumeram campos ausentes e apontam a edição. Gestor, revisão, auditoria e bloqueios de ocupação/conjunto permanecem. Não há migration ou novo direito SQL. Validação local e limites em states.md e documento 22. A execução anterior de produção foi confirmada pelo console fornecido por Lucas (run `85bfb2d6abd043ee9163a06689249693`); a correção END-CAP01 ainda requer atualização pelo operador.
+
+## CAD-EDIT01 / FE06-ETIQUETA01 — correções cadastrais e layout solicitado, 14/10/2026
+
+**Autorização posterior expressa, 14/10/2026:** Lucas respondeu “pode aplicar” à proposta das 17 permissões de UPDATE em WMS_DEV/WMSDEV e validação integrada. Autoriza esse delta por coluna, canal administrativo protegido, ativação DEV pelo BAT documentado e provas autenticadas com dados fictícios. Exige guarda atual de identidade/TLS/direitos/catálogo/histórico e preservação dos dados; não inclui PROD, novas migrations ou direitos adicionais. Resultado de execução ainda deve ser comprovado.
+
+**Pedido expresso de Lucas:** os dados informados no cadastro devem poder ser corrigidos, incluindo SKU, DUN, documentos fiscais, cidade/UF e código/rua/nível/posição; somente perfis autorizados. Etiqueta conforme imagem enviada. Fonte implementada mantendo Gestor como administrador cadastral, justificativa, concorrência e auditoria. Proteções de dependências e vínculos, definições dos dados da etiqueta e evidências no [contrato da etapa 17](design-system/etapa-17.md).
+
+Após a autorização específica, o delta foi aplicado em DEV e a fonte ativada pelo BAT, com 73 verificações integradas aprovadas. Baseline histórica preservada; concessões novas limitadas às 17 colunas do contrato. Recibo `orchestracao/.runtime/cadastros-etiqueta-20261014/resultado-ativacao.json`.
+
+**Pedido posterior de Lucas:** “mas ja deixe producao preparado para eu subir ele atualizar tambem”. Preparado o comando habitual `pm2-wms.bat atualizar` para adequação idempotente dos direitos WMSPROD e atualização protegida. Isso autoriza o preparo do fluxo para execução pelo operador, não sua execução imediata pelo agente. Nenhuma conexão/alteração PROD nesta etapa; os testes novos de PM2 são locais com fronteiras simuladas e não comprovam produção real. Impressora/leitor físicos continuam separados.
+
 ## FE06-REFERENCIAS01 — referências de negócio na interface, 14/10/2026
 
 Pedido expresso de Lucas, encaminhando relato do gestor: todas as telas semelhantes devem mostrar nome ou código real em vez de exigir consulta de IDs; organizar a unitização e apresentar fotos de antes/depois. Implementação usa referências autorizadas já consultadas e GETs individuais suportados, mantendo IDs no contrato interno. Não altera SKU, gera código artificial, muda regra operacional ou concede permissão. [Contrato e limites da validação local](design-system/etapa-16.md). Fonte validada; integração autenticada e publicação desta alteração permanecem distintas da entrega local.

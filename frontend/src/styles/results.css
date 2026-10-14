@@ -60,9 +60,99 @@ caption {
     background: var(--wms-print-background);
     color: var(--wms-print-text);
     border: 2px solid var(--wms-print-text);
-    padding: var(--og-space-4);
-    max-width: 600px;
+    padding: 0;
+    width: 100%;
+    max-width: 440px;
+    font-family: Arial, sans-serif;
+    font-size: 15px;
+    text-align: center;
+    line-height: 1.25;
     overflow-wrap: anywhere;
+}
+.label-product,
+.label-entry,
+.label-codes {
+    padding: 8px;
+}
+.label-entry,
+.label-codes,
+.label-bottom {
+    border-top: 1px solid black;
+}
+.label-sku {
+    display: block;
+    font-size: clamp(32px, 7vw, 68px);
+    line-height: 1.1;
+}
+.label-description {
+    display: block;
+    font-size: 17px;
+    margin-block: 4px;
+}
+.label-client {
+    font-size: 19px;
+    margin-block: 5px;
+}
+.label-date {
+    display: block;
+    font-size: clamp(26px, 6vw, 48px);
+    margin-bottom: 8px;
+    white-space: nowrap;
+}
+.label-barcode {
+    display: block;
+    width: 100%;
+    height: 78px;
+    shape-rendering: crispEdges;
+}
+.label-uuid {
+    font-size: 10px;
+    margin-bottom: 8px;
+}
+.label-dun {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 4px 10px;
+    font-size: 12px;
+}
+.label-bottom {
+    display: grid;
+    grid-template-columns: minmax(80px, 30%) minmax(0, 1fr) 34px;
+    align-items: stretch;
+}
+.label-qr {
+    display: block;
+    width: 100%;
+    height: auto;
+    align-self: center;
+}
+.label-sequence {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: black;
+    color: white;
+    font-size: clamp(30px, 7vw, 64px);
+    line-height: 1.1;
+    padding: 6px;
+    overflow-wrap: anywhere;
+}
+.label-kind {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    margin: auto;
+    font-size: 17px;
+}
+.label-exercise {
+    border-bottom: 1px solid black;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 4px;
+}
+.label-print-actions {
+    max-width: 600px;
+    margin-top: 16px;
 }
 @media (max-width: 480px) {
     .record {
@@ -70,17 +160,45 @@ caption {
     }
 }
 @media print {
-    body * {
-        visibility: hidden;
+    html:has(.label-preview) {
+        background: white !important;
+        color-scheme: light;
     }
-    .label-preview,
-    .label-preview * {
-        visibility: visible;
+    body:has(.label-preview) {
+        background: white !important;
+        margin: 0;
+    }
+    body:has(.label-preview)
+        *:not(:has(.label-preview)):not(.label-preview):not(.label-preview *) {
+        display: none !important;
+    }
+    body:has(.label-preview) *:has(.label-preview) {
+        display: block !important;
+        position: static !important;
+        overflow: visible !important;
+        height: auto !important;
+        max-height: none !important;
+        width: auto !important;
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: 0 !important;
+        background: white !important;
+        box-shadow: none !important;
+        transform: none !important;
+    }
+    body:has(.label-preview) dialog::backdrop {
+        display: none;
     }
     .label-preview {
         position: absolute;
         left: 0;
         top: 0;
+        width: 150mm;
+        max-width: 100%;
+        break-inside: avoid;
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
     }
     .no-print,
     .no-print * {

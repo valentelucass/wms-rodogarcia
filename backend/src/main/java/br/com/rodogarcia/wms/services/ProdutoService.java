@@ -102,8 +102,55 @@ public class ProdutoService {
                         .buscarParaAtualizar(id)
                         .orElseThrow(RegraNegocioException::naoEncontrado);
         CadastroSupport.versao(entidade, dados.versao());
+        String unidade =
+                dados.unidadeMedida() == null
+                        ? entidade.getUnidadeMedida()
+                        : CadastroSupport.codigo(dados.unidadeMedida());
+        var tipo =
+                dados.tipoQuantidade() == null
+                        ? entidade.getTipoQuantidade()
+                        : dados.tipoQuantidade();
+        int precisao =
+                dados.precisaoQuantidade() == null
+                        ? entidade.getPrecisaoQuantidade()
+                        : dados.precisaoQuantidade();
+        boolean lote =
+                dados.controlaLote() == null ? entidade.getControlaLote() : dados.controlaLote();
+        boolean validade =
+                dados.controlaValidade() == null
+                        ? entidade.getControlaValidade()
+                        : dados.controlaValidade();
+        Integer aviso =
+                dados.controlaValidade() == null && dados.antecedenciaAvisoDias() == null
+                        ? entidade.getAntecedenciaAvisoDias()
+                        : dados.antecedenciaAvisoDias();
+        if (tipo == TipoQuantidade.CONTAGEM && precisao != 0)
+            throw CadastroSupport.invalido("Produto contado exige precisão zero.");
+        if (validade != (aviso != null))
+            throw CadastroSupport.invalido(
+                    "Informe antecedência somente quando houver controle de validade.");
+        boolean estrutura =
+                !unidade.equals(entidade.getUnidadeMedida())
+                        || tipo != entidade.getTipoQuantidade()
+                        || precisao != entidade.getPrecisaoQuantidade()
+                        || lote != entidade.getControlaLote()
+                        || validade != entidade.getControlaValidade();
+        if (estrutura && repository.contarDependencias(id) > 0)
+            throw RegraNegocioException.conflito(
+                    "PRODUTO_EM_USO",
+                    "Unidade, precisão e controles não podem reinterpretar embalagens ou operações existentes. SKU, descrição e antecedência continuam editáveis.");
         var antes = ProdutoDto.Resposta.de(entidade);
         entidade.alterarDescricao(CadastroSupport.texto(dados.descricao()), Instant.now(clock));
+
+        entidade.corrigirCadastro(
+                dados.sku() == null ? entidade.getSku() : CadastroSupport.codigo(dados.sku()),
+                unidade,
+                tipo,
+                precisao,
+                lote,
+                validade,
+                aviso,
+                Instant.now(clock));
         repository.flush();
         var depois = ProdutoDto.Resposta.de(entidade);
         auditoria.registrar("PRODUTO", id, "ALTERACAO", motivo, antes, depois);

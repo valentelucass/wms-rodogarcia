@@ -30,16 +30,16 @@ public class Endereco extends CadastroBase {
     @JoinColumn(name = "armazem_id", nullable = false, updatable = false)
     private Armazem armazem;
 
-    @Column(nullable = false, length = 40, updatable = false)
+    @Column(nullable = false, length = 40)
     private String codigo;
 
-    @Column(nullable = false, length = 20, updatable = false)
+    @Column(nullable = false, length = 20)
     private String rua;
 
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false)
     private int nivel;
 
-    @Column(nullable = false, length = 20, updatable = false)
+    @Column(nullable = false, length = 20)
     private String posicao;
 
     @Nationalized
@@ -47,7 +47,7 @@ public class Endereco extends CadastroBase {
     private String descricao;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 16, updatable = false)
+    @Column(nullable = false, length = 16)
     private TipoEndereco tipo;
 
     @Column(name = "capacidade_peso_kg", precision = 19, scale = 3)
@@ -65,7 +65,7 @@ public class Endereco extends CadastroBase {
     @Column(name = "empilhamento_maximo")
     private Integer empilhamentoMaximo;
 
-    @Column(name = "sequencia_coleta", nullable = false, updatable = false)
+    @Column(name = "sequencia_coleta", nullable = false)
     private int sequenciaColeta;
 
     @Enumerated(EnumType.STRING)
@@ -166,6 +166,11 @@ public class Endereco extends CadastroBase {
         return tipoUnidadePermitido;
     }
 
+    public void alterarTipoUnidadePermitido(TipoUnidadeLogistica tipo, Instant instante) {
+        tipoUnidadePermitido = tipo;
+        registrarAlteracao(instante);
+    }
+
     public void configurarFisico(
             TipoUnidadeLogistica tipo,
             BigDecimal peso,
@@ -182,5 +187,32 @@ public class Endereco extends CadastroBase {
         empilhamentoMaximo = empilhamento;
         registrarAlteracao(
                 instante.isAfter(getAlteradoEm()) ? instante : getAlteradoEm().plusNanos(1000));
+    }
+
+    public void corrigirCadastro(
+            String codigo,
+            String rua,
+            int nivel,
+            String posicao,
+            TipoEndereco tipo,
+            BigDecimal capacidadePesoKg,
+            BigDecimal alturaMetros,
+            BigDecimal larguraMetros,
+            BigDecimal profundidadeMetros,
+            Integer empilhamentoMaximo,
+            int sequenciaColeta,
+            Instant instante) {
+        this.codigo = codigo;
+        this.rua = rua;
+        this.nivel = nivel;
+        this.posicao = posicao;
+        this.tipo = tipo;
+        this.capacidadePesoKg = capacidadePesoKg;
+        this.alturaMetros = alturaMetros;
+        this.larguraMetros = larguraMetros;
+        this.profundidadeMetros = profundidadeMetros;
+        this.empilhamentoMaximo = empilhamentoMaximo;
+        this.sequenciaColeta = sequenciaColeta;
+        registrarAlteracao(instante);
     }
 }

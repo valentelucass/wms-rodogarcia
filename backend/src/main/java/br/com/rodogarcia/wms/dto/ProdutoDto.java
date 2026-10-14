@@ -29,7 +29,18 @@ public final class ProdutoDto {
     public record Alterar(
             @NotNull @Min(0) Long versao,
             @NotBlank @Size(max = 160) String descricao,
-            @NotBlank @Size(min = 5, max = 500) String motivo) {}
+            @NotBlank @Size(min = 5, max = 500) String motivo,
+            @Size(max = 40) @Pattern(regexp = "[A-Za-z0-9][A-Za-z0-9._/-]*") String sku,
+            @Pattern(regexp = "[A-Za-z]{1,8}") String unidadeMedida,
+            TipoQuantidade tipoQuantidade,
+            @Min(0) @Max(6) Integer precisaoQuantidade,
+            Boolean controlaLote,
+            Boolean controlaValidade,
+            @Min(0) @Max(3650) Integer antecedenciaAvisoDias) {
+        public Alterar(Long versao, String descricao, String motivo) {
+            this(versao, descricao, motivo, null, null, null, null, null, null, null);
+        }
+    }
 
     public record Resposta(
             Long id,

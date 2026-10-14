@@ -124,7 +124,112 @@
     }
 }
 .collector-destination > label {
-    margin-bottom: var(--og-space-3);
+    margin: 0;
+}
+.collector form.collector-destination {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: var(--og-space-3);
+    margin: 0;
+}
+.collector-position-list {
+    grid-column: 1 / -1;
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+.collector-command-header {
+    padding-bottom: var(--og-space-4);
+    border-bottom: 1px solid var(--og-border);
+}
+.collector-command-header h2 {
+    margin: 0 0 var(--og-space-2);
+    font-size: var(--og-type-section);
+}
+.collector-target {
+    margin: 0;
+    overflow-wrap: anywhere;
+    color: var(--og-text-muted);
+}
+.collector-unit > summary {
+    padding-bottom: var(--og-space-3);
+}
+.collector-unit .record {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--og-space-4);
+}
+.collector-unit .record > div {
+    padding-bottom: var(--og-space-2);
+    border-bottom: 1px solid var(--og-border);
+}
+.collector-unit .record dt {
+    margin-bottom: var(--og-space-1);
+}
+.collector .operation .operation-fields,
+.collector .structured-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: var(--og-space-4);
+}
+.collector .operation-fields > :not(.field):not(label),
+.collector .operation-fields > .field:has(textarea) {
+    grid-column: 1 / -1;
+}
+.collector .structured-fields--measures {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.collector .structured-fields > .field {
+    margin: 0;
+}
+.collector .structured-fields > .field > label {
+    min-height: 3em;
+    justify-content: flex-end;
+}
+.collector .structured-fields > button,
+.collector .structured-fields > .hint {
+    grid-column: 1 / -1;
+    justify-self: start;
+}
+.collector .structured-list {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+}
+.collector .structured-list > button {
+    justify-self: start;
+}
+.collector .list-item {
+    padding: var(--og-space-3);
+    background: var(--og-surface-raised);
+    border-radius: var(--og-radius-control);
+}
+.collector .list-item h4 {
+    margin: 0 0 var(--og-space-3);
+}
+.collector .list-item > .structured-fields {
+    border: 0;
+    padding: 0;
+    margin-top: 0;
+}
+.collector .list-item > .structured-fields > legend {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+}
+.collector-measures {
+    min-width: 0;
+    padding: var(--og-space-4);
+    border: 1px solid var(--og-border);
+    border-radius: var(--og-radius-control);
+}
+.collector-measures > summary {
+    font-weight: var(--og-font-semibold);
+}
+.collector-measures > .structured-fields {
+    border: 0;
+    padding: 0;
 }
 @media (max-width: 800px) {
     .collector-workspace > .collector-task {
@@ -145,5 +250,25 @@
     }
     .collector button {
         width: 100%;
+    }
+    .collector-unit .record,
+    .collector .structured-fields--measures {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .collector form.collector-destination {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+@media (max-width: 540px) {
+    .collector-unit .record,
+    .collector .operation .operation-fields,
+    .collector .structured-fields {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .collector .structured-fields > .field > label {
+        min-height: auto;
+    }
+    .collector-measures {
+        padding: var(--og-space-3);
     }
 }

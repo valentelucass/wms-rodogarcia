@@ -25,19 +25,14 @@ public class Embalagem extends CadastroBase {
     @JoinColumn(name = "produto_id", nullable = false, updatable = false)
     private Produto produto;
 
-    @Column(name = "codigo_dun", nullable = false, length = 40, updatable = false)
+    @Column(name = "codigo_dun", nullable = false, length = 40)
     private String codigoDun;
 
     @Nationalized
     @Column(nullable = false, length = 160)
     private String descricao;
 
-    @Column(
-            name = "quantidade_produto",
-            nullable = false,
-            precision = 19,
-            scale = 6,
-            updatable = false)
+    @Column(name = "quantidade_produto", nullable = false, precision = 19, scale = 6)
     private BigDecimal quantidadeProduto;
 
     protected Embalagem() {}
@@ -73,6 +68,12 @@ public class Embalagem extends CadastroBase {
 
     public void alterarDescricao(String descricao, Instant instante) {
         this.descricao = descricao;
+        registrarAlteracao(instante);
+    }
+
+    public void corrigirCadastro(String codigoDun, BigDecimal quantidadeProduto, Instant instante) {
+        this.codigoDun = codigoDun;
+        this.quantidadeProduto = quantidadeProduto;
         registrarAlteracao(instante);
     }
 }

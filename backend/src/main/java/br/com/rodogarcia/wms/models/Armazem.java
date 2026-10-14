@@ -25,7 +25,7 @@ public class Armazem extends CadastroBase {
     @Column(nullable = false, length = 120)
     private String nome;
 
-    @Column(name = "documento_fiscal", nullable = false, length = 30, updatable = false)
+    @Column(name = "documento_fiscal", nullable = false, length = 30)
     private String documentoFiscal;
 
     @Nationalized
@@ -93,6 +93,14 @@ public class Armazem extends CadastroBase {
 
     public void alterarDescricao(String descricao, Instant instante) {
         this.nome = descricao;
+        registrarAlteracao(instante);
+    }
+
+    public void corrigirCadastro(
+            String documentoFiscal, String cidade, String uf, Instant instante) {
+        this.documentoFiscal = documentoFiscal;
+        this.cidade = cidade;
+        this.uf = uf;
         registrarAlteracao(instante);
     }
 }

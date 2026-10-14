@@ -7,6 +7,10 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface ItemNotaEntradaRepository extends JpaRepository<ItemNotaEntrada, Long> {
     @Query(
+            "select sum(i.quantidadePrevista) from ItemNotaEntrada i where i.nota.id in :notas and i.produto.id=:produtoId")
+    java.math.BigDecimal quantidadeNasNotas(List<Long> notas, Long produtoId);
+
+    @Query(
             "select distinct i.produto.id from ItemNotaEntrada i where i.nota.pedido.id = :pedidoId order by i.produto.id")
     List<Long> buscarProdutosIds(Long pedidoId);
 

@@ -9,6 +9,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface UsuarioAcessoRepository extends JpaRepository<UsuarioAcesso, String> {
+    @Query("select u.nome from UsuarioAcesso u where u.id=:id")
+    Optional<String> buscarNome(String id);
+
     Optional<UsuarioAcesso> findByEmail(String email);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)

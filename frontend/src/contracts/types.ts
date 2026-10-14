@@ -81,6 +81,9 @@ export interface ArmazemDto_Alterar {
   versao: string;
   nome: string;
   motivo: string;
+  documentoFiscal: string | null;
+  cidade: string | null;
+  uf: string | null;
 }
 export interface ArmazemDto_Resposta {
   id: string | null;
@@ -414,6 +417,7 @@ export interface ClienteDto_Alterar {
   versao: string;
   nome: string;
   motivo: string;
+  documentoFiscal: string | null;
 }
 export interface ClienteDto_Resposta {
   id: string | null;
@@ -685,6 +689,8 @@ export interface EmbalagemDto_Alterar {
   versao: string;
   descricao: string;
   motivo: string;
+  codigoDun: string | null;
+  quantidadeProduto: string | null;
 }
 export interface EmbalagemDto_Resposta {
   id: string | null;
@@ -759,11 +765,24 @@ export interface EnderecoDto_Criar {
   profundidadeMetros: string | null;
   empilhamentoMaximo: number | null;
   sequenciaColeta: number;
+  tipoUnidadePermitido: TipoUnidadeLogistica | null;
 }
 export interface EnderecoDto_Alterar {
   versao: string;
   descricao: string;
   motivo: string;
+  codigo: string | null;
+  rua: string | null;
+  nivel: number | null;
+  posicao: string | null;
+  tipo: TipoEndereco | null;
+  capacidadePesoKg: string | null;
+  alturaMetros: string | null;
+  larguraMetros: string | null;
+  profundidadeMetros: string | null;
+  empilhamentoMaximo: number | null;
+  sequenciaColeta: number | null;
+  tipoUnidadePermitido: TipoUnidadeLogistica | null;
 }
 export interface EnderecoDto_Resposta {
   id: string | null;
@@ -1800,6 +1819,13 @@ export interface ProdutoDto_Alterar {
   versao: string;
   descricao: string;
   motivo: string;
+  sku: string | null;
+  unidadeMedida: string | null;
+  tipoQuantidade: TipoQuantidade | null;
+  precisaoQuantidade: number | null;
+  controlaLote: boolean | null;
+  controlaValidade: boolean | null;
+  antecedenciaAvisoDias: number | null;
 }
 export interface ProdutoDto_Resposta {
   id: string | null;
@@ -1962,6 +1988,10 @@ export interface UnidadeLogisticaDto_Progresso {
   entradasPendentes: string;
   concluida: boolean;
 }
+export interface UnidadeLogisticaDto_NotaEtiqueta {
+  serie: number;
+  numero: string;
+}
 export interface UnidadeLogisticaDto_Etiqueta {
   codigoLeitura: string | null;
   versaoConteudo: string;
@@ -1982,6 +2012,13 @@ export interface UnidadeLogisticaDto_Etiqueta {
   unidadeMedida: string | null;
   codigoDun: string | null;
   quantidadeProdutoPorDun: string | null;
+  descricaoProduto: string | null;
+  nomeCliente: string | null;
+  nomeConferente: string | null;
+  quantidadeProdutoNasNotas: string | null;
+  notas: Array<UnidadeLogisticaDto_NotaEtiqueta> | null;
+  numeroUnidade: string | null;
+  totalUnidadesPedido: string | null;
 }
 export interface VisaoOperacaoDto_Resumo {
   clienteId: string | null;

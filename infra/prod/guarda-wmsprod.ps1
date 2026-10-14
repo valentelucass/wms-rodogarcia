@@ -40,7 +40,7 @@ public static class WmsProdChecksum {
 
 function Invoke-WmsProdGuard {
     [CmdletBinding()]
-    param()
+    param([switch]$CadastroPreGrant)
     $ErrorActionPreference = 'Stop'
     $waitPolicy = [pscustomobject]@{ConnectTimeoutSeconds=120;CommandTimeoutSeconds=30;GuardTimeoutSeconds=240;ProgressIntervalSeconds=10}
     $connectTimeoutSeconds = $waitPolicy.ConnectTimeoutSeconds
@@ -100,6 +100,10 @@ function Invoke-WmsProdGuard {
         $report.oraculo=[ordered]@{arquivo='infra/prod/contrato-aplicacao.json';sha256=(Get-FileHash -LiteralPath $baselinePath -Algorithm SHA256).Hash;uso='contrato esperado comparado com metadados atuais; nao transporta aceite DEV'}
         $migrations=@(Get-WmsProdMigrations)
         Assert-Prod 'inventario local completo conforme contrato versionado' (Compare-ProdRows $migrations @($baseline.historico|Where-Object {$_.type -ceq 'SQL'}) @('version','script'))
+        . (Join-Path $script:WmsProdRoot 'infra/cadastros/contrato-edicao.ps1')
+        $cadastroBefore=$baseline
+        $baseline=Add-WmsCadastroEditExpectedContract $baseline
+        $report.oraculo['edicaoCadastrosSha256']=(Get-FileHash -LiteralPath (Join-Path $script:WmsProdRoot 'infra/cadastros/contrato-edicao.ps1') -Algorithm SHA256).Hash
         $report.migrationsLocais=$migrations
         $metadata=Get-WmsProductionCredentialMetadata
         Assert-Prod 'canal exclusivo WMSPROD existente, ACL e caminho protegidos' ($metadata.aclValida)
@@ -166,6 +170,11 @@ function Invoke-WmsProdGuard {
         $rights.objects=@(Select-Prod 'objetos_wms_efetivo' "SELECT t.name tabela,p.permissao,HAS_PERMS_BY_NAME(N'wms.'+t.name,N'OBJECT',p.permissao) permitido FROM sys.tables t CROSS JOIN (VALUES(N'SELECT'),(N'INSERT'),(N'DELETE'),(N'ALTER'),(N'CONTROL'),(N'TAKE OWNERSHIP'),(N'VIEW CHANGE TRACKING'))p(permissao) WHERE t.schema_id=SCHEMA_ID(N'wms') ORDER BY t.name,p.permissao")
         $rights.columns=@(Select-Prod 'colunas_wms_update_efetivo' "SELECT t.name tabela,c.name coluna,HAS_PERMS_BY_NAME(N'wms.'+t.name,N'OBJECT',N'UPDATE',c.name,N'COLUMN') permitido FROM sys.tables t JOIN sys.columns c ON c.object_id=t.object_id WHERE t.schema_id=SCHEMA_ID(N'wms') ORDER BY t.name,c.column_id")
         $report.direitos=$rights
+        if ($CadastroPreGrant) {
+            $alreadyCurrent=Compare-ProdRows $rights.explicit $baseline.rights.explicit @('class_desc','esquema','objeto','minor_id','coluna','permission_name','state_desc')
+            $report.cadastroEdicao=[ordered]@{modo='PRE_GRANT';direitosAtuais=if($alreadyCurrent){'NOVOS'}else{'ANTERIORES'};liberaBackend=$false}
+            if (-not $alreadyCurrent) {$baseline=$cadastroBefore}
+        }
         Assert-Prod 'nenhuma role/ownership/schema amplo; server somente CONNECT SQL/VIEW ANY DATABASE; database CONNECT' ($rights.roles.Count -eq 0 -and $rights.serverRoles.Count -eq 0 -and $rights.ownership.Count -eq 0 -and $rights.schema.Count -eq 0 -and (Compare-ProdRows $rights.server @([pscustomobject]@{permission_name='CONNECT SQL'},[pscustomobject]@{permission_name='VIEW ANY DATABASE'}) @('permission_name')) -and (Compare-ProdRows $rights.database @([pscustomobject]@{permission_name='CONNECT'}) @('permission_name')))
         foreach ($kind in @('server','database','roles','serverRoles','ownership','schema','explicit','objects','columns')) {
             $fields=@($baseline.rights.$kind|Select-Object -First 1|ForEach-Object {$_.PSObject.Properties.Name})
@@ -181,7 +190,11 @@ function Invoke-WmsProdGuard {
         Assert-Prod 'historico atual preserva V1-V10 e extensoes versionadas sem divergencia' (Compare-ProdRows $history $baseline.historico @('installed_rank','version','type','script','checksum','success'))
         Assert-Prod 'historico SQL atual corresponde a todas fontes locais' (Compare-ProdRows @($history|Where-Object {$_.type -ceq 'SQL'}) $migrations @('version','script','checksum'))
         $report.perfilProtegido=[ordered]@{host='127.0.0.1';port=1433;database='WMS_PROD';login='WMSPROD';certificate=$tls.certificate;truststore=$tls.truststore;certificateHost=$tls.certificateHost;encrypt=$true;trustServerCertificate=$false}
-        $report.estado='GUARDA_ATUAL_APROVADA';$report.guardaRealAprovada=$true
+        if ($CadastroPreGrant) {
+            $report.estado='GUARDA_PRE_GRANT_CADASTRO_APROVADA';$report.guardaPermissoesCadastroAprovada=$true
+        } else {
+            $report.estado='GUARDA_ATUAL_APROVADA';$report.guardaRealAprovada=$true
+        }
     } catch {
         $ex=$_.Exception;$code='PROD_FALHA';$types=New-Object 'Collections.Generic.List[string]'
         $number=$null;$native=$null;$markers=[ordered]@{prelogin=$false;handshake=$false;timeout=$false;autenticacao=$false;certificado=$false}
@@ -208,9 +221,11 @@ function Invoke-WmsProdGuard {
         $credential=$null;$connection=$null;$sqlCredential=$null;$builder=$null
     }
     if (-not $report.limpeza.conexaoDescartada -or -not $report.limpeza.secureStringDescartada -or -not $report.limpeza.certificadoDescartado) {$report.guardaRealAprovada=$false;$report.estado='GUARDA_ATUAL_BLOQUEADA'}
+    if ($CadastroPreGrant -and $report.estado -ne 'GUARDA_PRE_GRANT_CADASTRO_APROVADA') {$report.guardaPermissoesCadastroAprovada=$false}
     $report.observadoEm=[DateTime]::UtcNow.ToString('o');$report.faseUltima=$phase
     $report.motivo=if($report.guardaRealAprovada){'Identidade/TLS/permissoes/catalogo/historico atuais e fontes V1-V10 conferidos.'}elseif($report.erro){$report.erro.codigo+' na fase '+$report.erro.fase+'; BE/FE real nao podem iniciar. Sem nova tentativa automatica.'}else{'Descarte seguro nao confirmado; BE/FE real nao podem iniciar.'}
     $report.checks=$checks.ToArray();$report.queries=$queries.ToArray()
+    if ($CadastroPreGrant -and $report.estado -eq 'GUARDA_PRE_GRANT_CADASTRO_APROVADA') {$report.motivo='Pre-condicoes para ajuste cadastral conferidas. Nao libera backend; exige guarda normal apos ajuste.'}
     $report.auxiliar=[ordered]@{arquivo='infra/prod/guarda-wmsprod.ps1';sha256=(Get-FileHash -LiteralPath $script:WmsProdSource -Algorithm SHA256).Hash}
     [pscustomobject]$report
 }

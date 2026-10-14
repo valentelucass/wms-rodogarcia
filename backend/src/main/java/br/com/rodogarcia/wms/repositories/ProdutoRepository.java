@@ -12,6 +12,19 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface ProdutoRepository extends JpaRepository<Produto, Long> {
+    @Query(
+            """
+        select count(p) from Produto p where p.id=:id and (
+          exists(select e.id from Embalagem e where e.produto.id=p.id) or
+          exists(select i.id from ItemNotaEntrada i where i.produto.id=p.id) or
+          exists(select i.id from ItemPedidoSaida i where i.produto.id=p.id) or
+          exists(select u.id from UnidadeLogistica u where u.produto.id=p.id) or
+          exists(select c.id from CargaInicial c where c.produto.id=p.id) or
+          exists(select f.id from FatoServico f where f.produto.id=p.id) or
+          exists(select r.id from ReferenciaFiscalProduto r where r.produto.id=p.id))
+        """)
+    long contarDependencias(Long id);
+
     @Query("select p.id from Produto p where p.cliente.id = :clienteId and p.sku = :sku")
     Optional<Long> buscarIdPorSku(Long clienteId, String sku);
 

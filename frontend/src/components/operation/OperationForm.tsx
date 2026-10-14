@@ -20,6 +20,10 @@ export function OperationForm({
     fixedFields?: string[];
 }) {
     const addressImport = s.e.id === "ImportacaoEnderecoController.previa";
+    const registryEdit =
+        /^(Cliente|Armazem|Produto|Embalagem|Endereco)Controller\.alterar$/.test(
+            s.e.id,
+        );
     const internalFields = operationContextFields(s.e.id);
     const queryFields = s.e.query.filter(
         (f) => !["pagina", "tamanho"].includes(f.name),
@@ -31,6 +35,10 @@ export function OperationForm({
     const collectorFields = collector
         ? bodyFields.filter((f) => ["medidas", "conjuntoId"].includes(f.name))
         : [];
+    if (registryEdit)
+        bodyFields.sort(
+            (a, b) => Number(a.name === "motivo") - Number(b.name === "motivo"),
+        );
     const groups = [
         {
             fields: s.e.params,
@@ -73,6 +81,16 @@ export function OperationForm({
             }}
             noValidate
         >
+            {registryEdit && (
+                <p className="hint">{information.registryEdit.description}</p>
+            )}
+            {/^(EnderecoController\.(criar|alterar)|CapacidadeController\.configurar)$/.test(
+                s.e.id,
+            ) && (
+                <p className="hint">
+                    {information.addressCapacity.description}
+                </p>
+            )}
             {s.e.id === "PedidoEntradaController.efetivar" && (
                 <p className="hint">
                     {s.withoutReceivingDivergence
@@ -93,7 +111,11 @@ export function OperationForm({
             )}
             {addressImport && <AddressImportFields state={s} />}
             {!addressImport && hasFixedFields && (
-                <fieldset className="operation-fixed-fields" disabled>
+                <fieldset
+                    className="operation-fixed-fields"
+                    disabled
+                    style={registryEdit ? { display: "none" } : undefined}
+                >
                     <legend className="sr-only">Registro selecionado</legend>
                     {groups.flatMap((group) =>
                         group.fields
@@ -111,17 +133,30 @@ export function OperationForm({
                                 />
                             )),
                     )}
-                    {groups.map((group, index) => (
-                        <Result
-                            key={index}
-                            type={s.e.id}
-                            data={Object.fromEntries(
-                                group.fields
-                                    .filter((f) => fixedFields.includes(f.name))
-                                    .map((f) => [f.name, group.values[f.name]]),
-                            )}
-                        />
-                    ))}
+                    {groups
+                        .filter((group) =>
+                            group.fields.some(
+                                (f) =>
+                                    fixedFields.includes(f.name) &&
+                                    !["id", "versao"].includes(f.name),
+                            ),
+                        )
+                        .map((group, index) => (
+                            <Result
+                                key={index}
+                                type={s.e.id}
+                                data={Object.fromEntries(
+                                    group.fields
+                                        .filter((f) =>
+                                            fixedFields.includes(f.name),
+                                        )
+                                        .map((f) => [
+                                            f.name,
+                                            group.values[f.name],
+                                        ]),
+                                )}
+                            />
+                        ))}
                 </fieldset>
             )}
             {!addressImport &&
@@ -145,10 +180,13 @@ export function OperationForm({
                             />
                         ))}
                         {collectorFields.length > 0 && (
-                            <details>
+                            <details className="collector-measures">
                                 <summary>
                                     Medidas físicas e conjunto de duas posições
                                 </summary>
+                                <p className="hint">
+                                    {information.collectorMeasures.description}
+                                </p>
                                 <Fields
                                     fields={collectorFields}
                                     values={s.body}

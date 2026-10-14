@@ -145,6 +145,13 @@ async function main() {
   }
   if (command === "iniciar") return startSelected();
   console.log("[WMS PM2] Preparando a fonte atual antes de substituir a versao ativa.");
+  // CAD-EDIT01: somente a atualizacao explicita do operador aplica o delta restrito.
+  // A guarda preliminar nao libera a aplicacao; a guarda normal continua obrigatoria.
+  if (command === "atualizar") {
+    console.log("[WMS PM2] Conferindo as permissoes das correcoes cadastrais em WMS_PROD.");
+    const result = JSON.parse((await ps("../cadastros/aplicar-permissoes-prod.ps1", ["-Modo", "Apply"], true)).replace(/^\uFEFF/, ""));
+    if (result.estado !== "DIREITOS_PROD_APLICADOS_E_CONFERIDOS") throw new Error("PROD_CAD_EDIT_NOT_CONFIRMED");
+  }
   await ps("iniciar-prod.ps1", ["-PrepareOnly", "-PrepareForPm2"]);
   const selected = await json(path.join(area, "prepared.json"));
   const expected = path.join(root, "orchestracao/.runtime/launcher-producao/runs", selected.runId, "release.json");

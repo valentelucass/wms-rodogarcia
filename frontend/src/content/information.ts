@@ -10,6 +10,31 @@ export type Information = {
 };
 
 export const information = {
+    collectorMeasures: {
+        title: "Medidas da unidade e destino",
+        description:
+            "Informe as medidas físicas da mercadoria. Para uma unidade em uma posição, indique uma posição necessária e deixe o conjunto vazio. Somente para duas posições, informe o conjunto cadastrado e acrescente o segundo destino.",
+    },
+    addressCapacity: {
+        title: "Capacidade da posição",
+        description:
+            "Para endereçar, complete o tipo de unidade permitido (bobina, pallet ou volume), peso máximo, altura, largura, profundidade e empilhamento máximo da posição. Esses limites pertencem ao endereço; as medidas informadas no coletor pertencem à mercadoria. Uma unidade em uma posição não precisa de conjunto. Campos ausentes deixam a capacidade pendente.",
+    },
+    positionSets: {
+        title: "Conjuntos de duas posições",
+        description:
+            "Use conjuntos somente quando uma única unidade precisar ocupar duas posições juntas. Para uma bobina em uma posição, não crie conjunto. Os limites e o tipo de unidade permitido podem ser preenchidos em Endereços, ao cadastrar ou editar a posição. O botão Configurar também permite completar esses limites.",
+    },
+    registryEdit: {
+        title: "Correção de cadastro",
+        description:
+            "Gestor pode corrigir os dados com justificativa e revisão atual. Identidades e vínculos de proprietário permanecem preservados. Alterações de medida, conversão e estrutura física são conferidas pelo sistema para proteger operações existentes.",
+    },
+    unitLabel: {
+        title: "Etiqueta da unidade",
+        description:
+            "Barras e QR identificam o mesmo UUID. A data em destaque é a chegada física; a quantidade é o total do produto nas notas de origem. A numeração considera as unidades ativas do pedido no momento da consulta. Reimprimir não cria estoque. Confira tamanho, leitura e substituição física na impressora.",
+    },
     confirmedEntries: {
         title: "Distribuição das entradas conferidas",
         description:

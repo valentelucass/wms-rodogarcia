@@ -80,6 +80,10 @@ public class OperacaoUnidade {
         return resultado;
     }
 
+    public String getUsuario() {
+        return usuario;
+    }
+
     public Instant getRegistradaEm() {
         return registradaEm;
     }

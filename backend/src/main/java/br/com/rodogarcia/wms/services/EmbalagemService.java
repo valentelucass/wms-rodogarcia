@@ -108,8 +108,27 @@ public class EmbalagemService {
                         .buscarParaAtualizar(id)
                         .orElseThrow(RegraNegocioException::naoEncontrado);
         CadastroSupport.versao(entidade, dados.versao());
+        var quantidade =
+                dados.quantidadeProduto() == null
+                        ? entidade.getQuantidadeProduto()
+                        : dados.quantidadeProduto();
+        CadastroSupport.quantidade(entidade.getProduto(), quantidade);
+        if (quantidade.compareTo(entidade.getQuantidadeProduto()) != 0
+                && repository.contarUnidades(id) > 0)
+            throw RegraNegocioException.conflito(
+                    "EMBALAGEM_EM_USO",
+                    "A quantidade por DUN já foi utilizada em unidades. Cadastre outra configuração para mudar a conversão; código DUN e descrição continuam editáveis.");
         var antes = EmbalagemDto.Resposta.de(entidade);
         entidade.alterarDescricao(CadastroSupport.texto(dados.descricao()), Instant.now(clock));
+
+        entidade.corrigirCadastro(
+                dados.codigoDun() == null
+                        ? entidade.getCodigoDun()
+                        : CadastroSupport.codigo(dados.codigoDun()),
+                dados.quantidadeProduto() == null
+                        ? entidade.getQuantidadeProduto()
+                        : dados.quantidadeProduto(),
+                Instant.now(clock));
         repository.flush();
         var depois = EmbalagemDto.Resposta.de(entidade);
         auditoria.registrar("EMBALAGEM", id, "ALTERACAO", motivo, antes, depois);

@@ -21,7 +21,13 @@ public final class ClienteDto {
     public record Alterar(
             @NotNull @Min(0) Long versao,
             @NotBlank @Size(max = 120) String nome,
-            @NotBlank @Size(min = 5, max = 500) String motivo) {}
+            @NotBlank @Size(min = 5, max = 500) String motivo,
+            @Size(max = 30) @Pattern(regexp = "[A-Za-z0-9][A-Za-z0-9./ -]*")
+                    String documentoFiscal) {
+        public Alterar(Long versao, String nome, String motivo) {
+            this(versao, nome, motivo, null);
+        }
+    }
 
     public record Resposta(
             Long id,

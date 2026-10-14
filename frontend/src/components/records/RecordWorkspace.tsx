@@ -206,6 +206,7 @@ function PageRecords(props: Props & { definition: RecordPage }) {
     return (
         <section
             className="workspace-panel record-workspace"
+            data-record-source={definition.source}
             aria-label={definition.title ?? current.title}
         >
             <header className="record-page-header">

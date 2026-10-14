@@ -40,7 +40,10 @@ class Sql01MavenPolicyTest {
                         "ModeloEnderecosTest",
                         "NfeDocumentoServiceTest",
                         "NfeBobinasTest",
-                        "NfeSkuTest");
+                        "NfeSkuTest",
+                        "CadastrosEdicaoTest",
+                        "EtiquetaLayoutTest",
+                        "CapacidadeSupportTest");
         assertThat(
                         text(
                                 pom,
