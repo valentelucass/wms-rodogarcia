@@ -47,7 +47,11 @@ async function ps(file, args = [], quiet = false) {
     });
     child.stderr.resume();
     child.on("error", () => reject(new Error("PROD_PM2_HELPER_NOT_STARTED")));
-    child.on("exit", code => code === 0 ? resolve(output) : reject(new Error("PROD_PM2_HELPER_REFUSED_" + code)));
+    child.on("exit", code => {
+      const reason = output.split(/\r?\n/).findLast(line => /^PROD_[A-Z0-9_]+$/.test(line));
+      if (code === 0) resolve(output);
+      else reject(new Error(reason || 'PROD_PM2_'+path.basename(file,'.ps1').replace(/-/g,'_').toUpperCase()+'_REFUSED_'+code));
+    });
   });
 }
 async function list() {
@@ -119,8 +123,10 @@ async function main() {
   }
   if (command === 'migrar') {
     if (apps.length) throw new Error('PROD_PM2_MAIN_ALREADY_REGISTERED');
-    await ps('pm2-main-check.ps1');
     const before = (await invoke('list')).map(a => ({id:a.pm_id,name:a.name,pid:a.pid,status:a.pm2_env.status,restarts:a.pm2_env.restart_time}));
+    const childPids = before.filter(a => a.pid > 0 && a.status === 'online').map(a=>a.pid);
+    if (!childPids.length) throw new Error('PROD_PM2_MAIN_NO_LIVE_CHILD');
+    await ps('pm2-main-check.ps1',['-KnownChildPids',childPids.join(',')]);
     const migrationPath = path.join(area, 'main-migration.json');
     await fs.writeFile(migrationPath, JSON.stringify({startedUtc:new Date().toISOString(),before},null,2));
     const guardPath = path.join(area,'pre-migration-guard-'+randomUUID()+'.json');

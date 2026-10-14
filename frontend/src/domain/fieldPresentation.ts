@@ -1,5 +1,6 @@
 import { canPresent, type Perfil, type Values } from "../contracts/runtime";
 import { automaticCodes } from "./automaticCodes";
+import { confirmedWithoutDivergence } from "../modules/recebimento/finalization";
 // Conditional historical resolution gates from current services; presentation only.
 const policies: Record<string, Record<string, Perfil>> = {
     "PedidoSaidaDto.Reservar": {
@@ -103,5 +104,12 @@ export function presentationDefaults(
             ),
         ),
         ...(automaticCodes[schema] ? { [automaticCodes[schema]]: null } : {}),
+        ...(schema === "PedidoEntradaDto.Efetivar"
+            ? {
+                  aceitarDivergencias: confirmedWithoutDivergence(context)
+                      ? false
+                      : null,
+              }
+            : {}),
     };
 }

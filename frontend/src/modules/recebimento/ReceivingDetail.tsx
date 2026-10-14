@@ -4,6 +4,7 @@ import { isObject, type Values } from "../../contracts/runtime";
 import { StatusBadge } from "../../design-system/StatusBadge";
 import { recordRoot } from "../../domain/recordContext";
 import { display } from "../../domain/labels";
+import { formatProductQuantity } from "../../domain/quantityPresentation";
 import {
     receivingDate,
     receivingNotes,
@@ -166,7 +167,20 @@ export function ReceivingDetail({
                                                     "Diferença",
                                                     "Ação",
                                                 ].map((title) => (
-                                                    <th key={title} scope="col">
+                                                    <th
+                                                        key={title}
+                                                        scope="col"
+                                                        className={
+                                                            [
+                                                                "Previsto",
+                                                                "Bom físico",
+                                                                "Avariado físico",
+                                                                "Diferença",
+                                                            ].includes(title)
+                                                                ? "quantity-cell"
+                                                                : undefined
+                                                        }
+                                                    >
                                                         {title}
                                                     </th>
                                                 ))}
@@ -208,9 +222,13 @@ export function ReceivingDetail({
                                                             item.diferenca,
                                                         ].map(
                                                             (value, index) => (
-                                                                <td key={index}>
-                                                                    {display(
+                                                                <td
+                                                                    key={index}
+                                                                    className="quantity-cell"
+                                                                >
+                                                                    {formatProductQuantity(
                                                                         value,
+                                                                        item.unidadeMedida,
                                                                     )}
                                                                 </td>
                                                             ),

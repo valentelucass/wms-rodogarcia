@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { call, type Transport } from "../../api/client";
+import { formatProductQuantity } from "../../domain/quantityPresentation";
 import type {
     NfeImportacaoDto_Documento,
     NfeImportacaoDto_DocumentoSalvo,
@@ -99,12 +100,19 @@ export function NfeDocument({
                                     {i.informacoesAdicionais}
                                 </td>
                                 <td>
-                                    {i.quantidadeComercial} {i.unidadeComercial}
+                                    {formatProductQuantity(
+                                        i.quantidadeComercial,
+                                        i.unidadeComercial,
+                                    )}{" "}
+                                    {i.unidadeComercial}
                                     <br />
                                     GTIN: {value(i.gtin)}
                                 </td>
                                 <td>
-                                    {i.quantidadeTributavel}{" "}
+                                    {formatProductQuantity(
+                                        i.quantidadeTributavel,
+                                        i.unidadeTributavel,
+                                    )}{" "}
                                     {i.unidadeTributavel}
                                     <br />
                                     GTIN: {value(i.gtinTributavel)}
@@ -137,8 +145,12 @@ export function NfeDocument({
                         fields={{
                             "Quantidade de volumes": v.quantidade,
                             Espécie: v.especie,
-                            "Peso líquido informado (kg)": v.pesoLiquido,
-                            "Peso bruto informado (kg)": v.pesoBruto,
+                            "Peso líquido informado (kg)":
+                                formatProductQuantity(v.pesoLiquido, "KG"),
+                            "Peso bruto informado (kg)": formatProductQuantity(
+                                v.pesoBruto,
+                                "KG",
+                            ),
                         }}
                     />
                 ))

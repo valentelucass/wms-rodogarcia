@@ -22,7 +22,10 @@ export function OperationForm({
     const queryFields = s.e.query.filter(
         (f) => !["pagina", "tamanho"].includes(f.name),
     );
-    const bodyFields = s.e.request ? records[s.e.request] : [];
+    const bodyFields = (s.e.request ? records[s.e.request] : []).filter(
+        (f) =>
+            !(s.withoutReceivingDivergence && f.name === "aceitarDivergencias"),
+    );
     const collectorFields = collector
         ? bodyFields.filter((f) => ["medidas", "conjuntoId"].includes(f.name))
         : [];
@@ -68,6 +71,14 @@ export function OperationForm({
             }}
             noValidate
         >
+            {s.e.id === "PedidoEntradaController.efetivar" && (
+                <p className="hint">
+                    {s.withoutReceivingDivergence
+                        ? information.receivingFinalizationMatched.description
+                        : information.receivingFinalizationAcceptance
+                              .description}
+                </p>
+            )}
             {s.e.id === "UnidadeLogisticaController.unitizar" && (
                 <p className="hint">
                     {information.receivingBobinas.description}

@@ -33,10 +33,7 @@ it("FE05 FE10 avaria reconhecimento Gestor reparo consulta e liberação mantêm
     await click("Selecionar registro 1");
     selected("Posições de destino / Item 1 / Endereço (ID) *", "81");
     fill("Quantidade *", "5.000000");
-    fill(
-        "Instante real do fato (ISO com fuso) *",
-        "2026-10-08T13:00:00.123456Z",
-    );
+    fill("Instante real do fato *", "2026-10-08T10:00:00.123");
     fill(
         "Motivo / justificativa *",
         "Avaria fictícia observada com destino seguro",

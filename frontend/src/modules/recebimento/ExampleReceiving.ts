@@ -24,7 +24,8 @@ export class ExampleReceiving {
             isObject(data) &&
             Array.isArray(data.notas)
         ) {
-            data.divergente = this.partial && this.arrivals > 0;
+            data.divergente =
+                (this.partial || this.damaged) && this.arrivals > 0;
             data.notas = data.notas.filter(isObject).map((note) => ({
                 ...note,
                 xmlVinculado: this.xml,

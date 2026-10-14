@@ -17,6 +17,7 @@ import { changeContingencyKind } from "../modules/regularizacao/command";
 import { useRequestScope } from "./useRequestScope";
 import { presentationDefaults } from "../domain/fieldPresentation";
 import { operationContextFields } from "../domain/operationContextFields";
+import { confirmedWithoutDivergence } from "../modules/recebimento/finalization";
 export interface OperationOptions {
     id: string;
     transport: Transport;
@@ -63,6 +64,12 @@ export function useOperation({
             : {},
     );
     const [file, setFile] = useState<File>();
+    const withoutReceivingDivergence =
+        id === "PedidoEntradaController.efetivar" &&
+        confirmedWithoutDivergence(context, params.id, body.versao);
+    const commandBody = withoutReceivingDivergence
+        ? { ...body, aceitarDivergencias: false }
+        : body;
     const original = useRef(JSON.stringify({ params, query, body }));
     const [receipt, setReceipt] = useState<Receipt>();
     const [error, setError] = useState<Error>();
@@ -150,7 +157,14 @@ export function useOperation({
                 : v,
         );
     const prepare = () =>
-        prepareCommand({ endpoint: e, params, query, body, file, perfil });
+        prepareCommand({
+            endpoint: e,
+            params,
+            query,
+            body: commandBody,
+            file,
+            perfil,
+        });
     const send = async (repeat = false, pageRequest?: Request) => {
         if (running.current || !allowed) return;
         running.current = true;
@@ -246,7 +260,8 @@ export function useOperation({
         setParams,
         query,
         setQuery,
-        body,
+        body: commandBody,
+        withoutReceivingDivergence,
         updateBody,
         file,
         setFile,

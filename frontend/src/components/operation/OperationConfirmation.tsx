@@ -4,6 +4,7 @@ import { operationContextFields } from "../../domain/operationContextFields";
 import { actionLabel } from "../../domain/journeys";
 import { Dialog } from "../layout/Dialog";
 import { Result } from "../Result";
+import { confirmedWithoutDivergence } from "../../modules/recebimento/finalization";
 export function OperationConfirmation({
     id,
     context,
@@ -35,6 +36,15 @@ export function OperationConfirmation({
                     data={Object.fromEntries(
                         Object.entries(values).filter(
                             ([key, value]) =>
+                                !(
+                                    id === "PedidoEntradaController.efetivar" &&
+                                    key === "aceitarDivergencias" &&
+                                    confirmedWithoutDivergence(
+                                        context,
+                                        values.id,
+                                        values.versao,
+                                    )
+                                ) &&
                                 !operationContextFields(id).includes(key) &&
                                 (key !==
                                     automaticCodes[

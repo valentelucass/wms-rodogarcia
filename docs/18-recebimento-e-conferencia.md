@@ -39,6 +39,8 @@ O valor opcional por item é o valor de mercadoria informado na nota (`vProd` no
 
 Quarentena não desaparece automaticamente quando a última chegada completa a previsão. O supervisor ainda confirma a conferência. Com divergência, `aceitarDivergencias=true` e motivo documentam a solução com o cliente. Não há aprovação obrigatória por segunda pessoa.
 
+**FE05-ACEITE01, interface em 13/10/2026:** quando a consulta do mesmo pedido/revisão informa ausência de divergência, o formulário omite a pergunta e envia `aceitarDivergencias=false`. Com diferença, avaria ou consulta não comprovada mantém escolha explícita. Não altera a exigência de motivo/confirmação nem a revalidação transacional acima. [Comportamento e provas locais](design-system/etapa-15.md).
+
 Exemplos de AC03 implementados:
 
 - Previsto 100, recebido 98: o pedido fica em quarentena; após aceite, registra 98, preservando a falta de 2.

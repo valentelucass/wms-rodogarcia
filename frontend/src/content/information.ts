@@ -10,6 +10,21 @@ export type Information = {
 };
 
 export const information = {
+    receivingFinalizationMatched: {
+        title: "Conferência sem divergência",
+        description:
+            "As quantidades físicas conferem com a previsão e não há avaria. Confirme a efetivação para concluir a entrada. Os dados serão conferidos novamente ao confirmar.",
+    },
+    receivingFinalizationAcceptance: {
+        title: "Aceite de divergências",
+        description:
+            "Quando houver diferença ou avaria, registre a tratativa no motivo e aceite somente o que foi autorizado com o cliente. O aceite é necessário apenas para efetivar uma conferência com divergência.",
+    },
+    operationDateTime: {
+        title: "Data e horário da operação",
+        description:
+            "Horário de Brasília. Escolha a data no calendário e informe o horário real do fato.",
+    },
     receivingPhysicalQuantity: {
         title: "Quantidade física",
         description:

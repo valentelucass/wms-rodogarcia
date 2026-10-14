@@ -5,6 +5,7 @@ import { FormReferences } from "../FormReferences";
 import { XmlField } from "./XmlField";
 import { useReferenceCatalog } from "../context/ReferenceCatalog";
 import { ReferenceSelect } from "../context/ReferenceSelect";
+import { DateTimeField } from "./DateTimeField";
 export const scalarInputValue = (field: Field, value: string) =>
     value === "" &&
     field.type === "String" &&
@@ -33,6 +34,17 @@ export function ScalarField({
         enums[f.type] ??
         f.Pattern?.match(/regexp = "([A-Z_|]+)"/)?.[1].split("|");
     const name = prefixLabel(path, title);
+    if (f.type === "Instant")
+        return (
+            <DateTimeField
+                id={id}
+                name={name}
+                value={value}
+                onChange={onChange}
+                required={f.required}
+                disabled={disabled}
+            />
+        );
     if (
         catalog &&
         ["clienteId", "armazemId"].includes(f.name) &&
@@ -127,7 +139,9 @@ export function ScalarField({
                     }
                     required={f.required}
                 >
-                    <option value="">Não informado</option>
+                    <option value="">
+                        {f.required ? "Selecione" : "Não informado"}
+                    </option>
                     <option value="false">Não</option>
                     <option value="true">Sim</option>
                 </select>
@@ -185,11 +199,6 @@ export function ScalarField({
                     value={String(value ?? "")}
                     onChange={(e) =>
                         onChange(scalarInputValue(f, e.target.value))
-                    }
-                    placeholder={
-                        f.type === "Instant"
-                            ? "2026-10-08T12:00:00.123456Z"
-                            : undefined
                     }
                 />
             )}

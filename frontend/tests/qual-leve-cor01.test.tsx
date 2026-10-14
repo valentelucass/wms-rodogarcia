@@ -111,21 +111,15 @@ it.each(["resumo", "detalhe"] as const)(
         const unRow = within(table)
             .getAllByRole("row")
             .find((row) => row.textContent?.includes("SKU-UN"))!;
+        expect(within(kgRow).getByRole("cell", { name: "KG" })).toBeVisible();
         expect(
-            within(kgRow).getByRole("cell", { name: "KG" }),
+            within(kgRow).getByRole("cell", { name: "12,00" }),
         ).toBeVisible();
         expect(
-            within(kgRow).getByRole("cell", { name: "12.000000" }),
+            within(kgRow).getByRole("cell", { name: "11,00" }),
         ).toBeVisible();
-        expect(
-            within(kgRow).getByRole("cell", { name: "11.000000" }),
-        ).toBeVisible();
-        expect(
-            within(unRow).getByRole("cell", { name: "UN" }),
-        ).toBeVisible();
-        expect(
-            within(unRow).getByRole("cell", { name: "-1" }),
-        ).toBeVisible();
+        expect(within(unRow).getByRole("cell", { name: "UN" })).toBeVisible();
+        expect(within(unRow).getByRole("cell", { name: "-1" })).toBeVisible();
         expect(table).not.toHaveTextContent("0.012");
         expect(table).not.toHaveTextContent(" TO");
     },

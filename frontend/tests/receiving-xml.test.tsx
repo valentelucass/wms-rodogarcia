@@ -48,7 +48,7 @@ it("exportacao mostra oito bobinas do mesmo SKU e o aviso sem corrigir peso", ()
     expect(screen.getAllByText("1 bobina · 1 posição prevista")).toHaveLength(
         8,
     );
-    expect(screen.getAllByText("14.172")).toHaveLength(2);
+    expect(screen.getAllByText("14,172")).toHaveLength(2);
     expect(screen.getByLabelText("Conferência do arquivo")).toHaveTextContent(
         "Valores preservados",
     );

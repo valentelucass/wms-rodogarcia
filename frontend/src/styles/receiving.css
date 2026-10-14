@@ -2,6 +2,12 @@
     align-items: end;
 }
 
+.quantity-cell {
+    text-align: right;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
 .nfe-create,
 .nfe-document,
 .nfe-create-choices,

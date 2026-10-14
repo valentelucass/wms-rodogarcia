@@ -220,7 +220,7 @@ test("FE10 retirada integral e devolucao ligada a baixa", async ({ page }) => {
         .fill("DEV-FICTICIA-601");
     await page
         .getByLabel("Chegada Real *", { exact: true })
-        .fill("2026-10-08T13:00:00.123456Z");
+        .fill("2026-10-08T10:00:00.123");
     await page
         .getByLabel("Nota / Emitente Cnpj *", { exact: true })
         .fill("12345678000190");
@@ -295,7 +295,7 @@ test("FE10 retirada integral e devolucao ligada a baixa", async ({ page }) => {
         ).raw!,
     });
     const entry = (entries.itens as Record<string, unknown>[])[0];
-    expect(entry.chegadaReal).toBe("2026-10-08T13:00:00.123456Z");
+    expect(entry.chegadaReal).toBe("2026-10-08T13:00:00.123Z");
     expect(entry.efetivadaEm).toBe("2026-10-08T13:01:00.123456Z");
     await expect(
         page

@@ -1,6 +1,20 @@
 # Continuidade do projeto WMS Rodogarcia
 
-## PM2-PROD02 — execução principal aguardando UAC, 13/10/2026
+## FE05-ACEITE01 — formulário de efetivação corrigido e testado, 13/10/2026
+
+Conferência atual sem divergência omite Aceitar divergências e envia false. Só usa detalhe do mesmo pedido e revisão; demais casos mantêm escolha explícita, sem Sim automático. Backend continua revalidando perfil/revisão/divergência e bloqueando divergência nova sem aceite. Seis testes novos, **625/625 na regressão frontend**, tipagem/lint/build/diff check e Chrome fictício desktop/mobile aprovados. [Contrato](design-system/etapa-15.md), recibo `orchestracao/.runtime/receiving-finalization-20261013/resultado.json`.
+
+Fonte pronta; sem banco real ou reinício operacional nesta validação. Publicar pelo comando `pm2-wms.bat atualizar` no CMD administrador, incluindo calendário/formatação de FE05-DATA-PESO01. Pacote operacional confirmado ainda 4573ed7613a6431c84839dd473e3d213; não declarar produção atualizada por testes/build locais.
+
+## FE05-DATA-PESO01 — implementação local concluída, 13/10/2026
+
+Calendário/horário de Brasília no campo compartilhado Instant e formatação pt-BR de quantidades/pesos no recebimento implementados. KG 1820.000000 aparece 1.820,00; precisão adicional permanece visível. Contrato/wire exatos preservados. 23 testes novos, regressão completa 619/619, tipagem/lint/build final e Chrome desktop/mobile claro/escuro em exercício fictício explícito. [Detalhes](design-system/etapa-14.md), recibo `orchestracao/.runtime/receiving-presentation-20261013/resultado.json`. Build inicial OOM foi repetido com processos locais encerrados e heap 512 MB. Sem banco/API real, publicação ou reinício operacional por este incremento; versão ativa ainda 4573ed7613a6431c84839dd473e3d213. Para publicar no principal, `pm2-wms.bat atualizar` em terminal administrador.
+
+## PM2-PROD02 — execução principal concluída, 13/10/2026
+
+**Pendência superada:** `main-migration.json` registra término em `2026-10-13T23:04:02.830Z`, API/UI online no PM2 principal, IDs 19/20 e `saved=true`. Supervisores 43604/44940; Java 71156/25590 e Node 17688/25591. Run anterior 4573ed7613a6431c84839dd473e3d213 permanece; DEV 5904/35416 preservado. Não repetir a migração. Fonte alterada posteriormente ainda exige `pm2-wms.bat atualizar`.
+
+Operador executou pelo CMD com acesso ao principal, mas o helper recusou antes de iniciar migração (`HELPER_REFUSED_1`). Ajustada atestação do daemon para servidor real do pipe + parentesco de processo PM2, sem depender de comando contendo `Daemon.js`; erro agora identifica helper/fase. Sete testes locais aprovados. Migração/save principal continuam sem confirmação; repetir comando no terminal administrador do operador. Portas existentes preservadas.
 
 O Windows cancelou a tentativa de elevação. Nenhum processo WMS foi parado; `pm2-wms.bat migrar` está pronto para o terminal administrador onde o PM2 principal funciona e inclui save. Não há job de migração em execução. Ambos WMS isolados e DEV foram novamente conferidos com mesmos PIDs.
 

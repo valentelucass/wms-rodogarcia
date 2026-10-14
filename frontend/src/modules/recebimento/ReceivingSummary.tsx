@@ -1,6 +1,7 @@
 import { isObject, type Values } from "../../contracts/runtime";
 import type { Workflow } from "../../domain/workflow";
 import { display } from "../../domain/labels";
+import { formatProductQuantity } from "../../domain/quantityPresentation";
 export function ReceivingSummary({
     workflow,
     onSelectItem,
@@ -43,10 +44,18 @@ export function ReceivingSummary({
                         <tr>
                             <th scope="col">Nota / item / SKU</th>
                             <th scope="col">Unidade do produto</th>
-                            <th scope="col">Previsto</th>
-                            <th scope="col">Bom físico</th>
-                            <th scope="col">Avariado físico</th>
-                            <th scope="col">Diferença recebida</th>
+                            <th scope="col" className="quantity-cell">
+                                Previsto
+                            </th>
+                            <th scope="col" className="quantity-cell">
+                                Bom físico
+                            </th>
+                            <th scope="col" className="quantity-cell">
+                                Avariado físico
+                            </th>
+                            <th scope="col" className="quantity-cell">
+                                Diferença recebida
+                            </th>
                             {onSelectItem && <th scope="col">Ação</th>}
                         </tr>
                     </thead>
@@ -72,12 +81,22 @@ export function ReceivingSummary({
                                                 : "nota manual"}
                                         </th>
                                         <td>{display(item.unidadeMedida)}</td>
-                                        <td>{display(item.prevista)}</td>
-                                        <td>{display(item.recebidaBoa)}</td>
-                                        <td>
-                                            {display(item.recebidaAvariada)}
-                                        </td>
-                                        <td>{display(item.diferenca)}</td>
+                                        {[
+                                            item.prevista,
+                                            item.recebidaBoa,
+                                            item.recebidaAvariada,
+                                            item.diferenca,
+                                        ].map((value, index) => (
+                                            <td
+                                                className="quantity-cell"
+                                                key={index}
+                                            >
+                                                {formatProductQuantity(
+                                                    value,
+                                                    item.unidadeMedida,
+                                                )}
+                                            </td>
+                                        ))}
                                         {onSelectItem && (
                                             <td>
                                                 <button

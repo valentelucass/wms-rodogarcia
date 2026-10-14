@@ -185,9 +185,9 @@ class NfeBobinasTest {
                 .containsSubsequence("sku", "unidadeMedida", "prevista");
         assertThat(
                         java.util.Arrays.stream(componentes)
-                                .filter(c -> c.getName().equals("unidadeMedida"))
-                                .map(java.lang.reflect.RecordComponent::getType))
-                .containsExactly(String.class);
+                                .filter(c -> c.getName().equals("unidadeMedida")))
+                .singleElement()
+                .satisfies(c -> assertThat(c.getType()).isEqualTo(String.class));
     }
 
     @ParameterizedTest

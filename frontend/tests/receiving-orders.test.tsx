@@ -428,10 +428,9 @@ describe("FE05-PED01 pedido de entrada", () => {
                 dialog.getByLabelText("Itens / Item 1 / Item da nota (ID) *"),
             ).toHaveValue("401"),
         );
-        fireEvent.change(
-            dialog.getByLabelText("Chegada física real (ISO com fuso) *"),
-            { target: { value: "2026-10-08T12:00:00Z" } },
-        );
+        fireEvent.change(dialog.getByLabelText("Chegada física real *"), {
+            target: { value: "2026-10-08T09:00:00" },
+        });
         fireEvent.change(
             dialog.getByLabelText("Itens / Item 1 / Quantidade boa recebida *"),
             { target: { value: "98" } },
@@ -572,10 +571,9 @@ describe("FE05-PED01 pedido de entrada", () => {
                     ),
                 ).toHaveValue("401"),
             );
-            fireEvent.change(
-                dialog.getByLabelText("Chegada física real (ISO com fuso) *"),
-                { target: { value: "2026-10-08T12:00:00Z" } },
-            );
+            fireEvent.change(dialog.getByLabelText("Chegada física real *"), {
+                target: { value: "2026-10-08T09:00:00" },
+            });
             fireEvent.change(dialog.getByLabelText("Observacao *"), {
                 target: { value: `Chegada física ${arrival + 1}` },
             });

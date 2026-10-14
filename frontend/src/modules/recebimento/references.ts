@@ -20,6 +20,22 @@ export function receivingReferences(
         ctx.pedidoId = entry.id;
         ctx.versaoPedido = entry.versao;
     }
+    if (controller === "PedidoEntradaController" && action === "efetivar") {
+        ctx.receivingConference = undefined;
+        const detail = selected["PedidoEntradaDto.Detalhe"];
+        if (
+            detail &&
+            isObject(detail.pedido) &&
+            detail.pedido.id === entry?.id &&
+            detail.pedido.versao === entry?.versao &&
+            typeof detail.divergente === "boolean"
+        )
+            ctx.receivingConference = {
+                id: detail.pedido.id,
+                versao: detail.pedido.versao,
+                divergente: detail.divergente,
+            };
+    }
     ctx.entradaId = undefined;
     if (incoming) {
         ctx.entradaId = incoming.id;

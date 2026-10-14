@@ -15,6 +15,10 @@
 
 **FE05-PED01:** [Pedidos de entrada, notas, conferência e histórico no mesmo contexto](design-system/etapa-07.md).
 
+**FE05-DATA-PESO01:** [Calendário com horário de Brasília e quantidades em português](design-system/etapa-14.md).
+
+**FE05-ACEITE01:** [Efetivação sem pergunta de aceite quando a conferência não tem divergência](design-system/etapa-15.md).
+
 **FE05-XML-BOBINAS01:** [XML por peso, cadastro assistido, contagem física e distribuição de bobinas — implementado e validado no DEV](design-system/etapa-10.md).
 
 **FE04-EXCEL01:** [modelo Excel, prévia e organização compartilhada dos formulários](design-system/etapa-09.md).

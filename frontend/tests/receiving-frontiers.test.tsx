@@ -38,7 +38,7 @@ it("FE05 condição95boa5avaria efetivada permanece triagem/quarentena sem dispo
     fill("Motivo / justificativa *", "Conferência de condição fictícia");
     await confirm();
     await click("Registrar chegada dos itens consultados");
-    fill("Chegada física real (ISO com fuso) *", "2026-10-08T12:00:00.123456Z");
+    fill("Chegada física real *", "2026-10-08T09:00:00.123");
     fill("Observacao *", "Quantidade boa e avariada verificadas no exercício");
     fill("Itens / Item 1 / Quantidade boa recebida *", "95.000000");
     fill("Itens / Item 1 / Quantidade avariada *", "5.000000");
@@ -55,9 +55,10 @@ it("FE05 condição95boa5avaria efetivada permanece triagem/quarentena sem dispo
         screen.getByRole("region", {
             name: "Conferência física e notas do pedido",
         }),
-    ).toHaveTextContent("95.0000005.0000000.000000");
+    ).toHaveTextContent("9550");
     await click("Conferência");
     await click("Efetivar carga integral");
+    fill("Aceitar divergências *", "true");
     fill(
         "Motivo / justificativa *",
         "Efetivação supervisionada com condição recebida",

@@ -1,5 +1,9 @@
 # Decisões e pendências do WMS Rodogarcia
 
+## FE05-ACEITE01 — correção de apresentação pedida por Lucas, 13/10/2026
+
+Relato direto: o formulário pede resposta de Aceitar divergências mesmo sem diferença ou avaria. A correção omite a pergunta com conferência atual sem divergência e envia false, preservando o contrato/validação do backend. Com divergência ou consulta não comprovada mantém escolha explícita; nunca assume aceite positivo. Motivo/confirmação/perfil/revisão permanecem exigidos. [Implementação e provas locais](design-system/etapa-15.md). Não representa nova aprovação de regra operacional ou publicação: fonte testada aguarda atualização no PM2 principal.
+
 ## PM2-PROD01 — publicação autorizada no PM2, 13/10/2026
 
 Lucas pediu subir frontend/backend separadamente, nomes `wms-ui-25591` e `wms-api-25590`, arquivo de configuração na raiz, usando o exemplo Satélite somente como referência. Implementados ecosystem e controlador próprios; produção migrada após build, fingerprints e guarda atual, encerrando apenas a instância WMS PROD atestada. PM2_HOME/pipes exclusivos preservam outros projetos; nenhuma configuração instalada do PM2 ou SQL foi modificada. O usuário confirmou que o HTTPS já funciona, dispensando alteração do tunnel.

@@ -17,7 +17,7 @@ import {
 } from "./support/operationalHarness";
 async function arrival(qty: string) {
     selected("Itens / Item 1 / Item da nota (ID) *", "401");
-    fill("Chegada física real (ISO com fuso) *", "2026-10-08T12:00:00.123456Z");
+    fill("Chegada física real *", "2026-10-08T09:00:00.123");
     fill("Observacao *", "Conferência física fictícia");
     fill("Itens / Item 1 / Quantidade boa recebida *", qty);
     await confirm();
@@ -58,10 +58,8 @@ it("FE05 XML sem chegada partes 50+48 divergência100/98 e efetivação supervis
     expect(body(lastMutation(t.requests)).versao).toBe("0");
     await click("Conferir itens importados (sem confirmar chegada)");
     await consult();
-    expect(
-        screen.getAllByRole("cell", { name: "100.000000" })[0],
-    ).toBeInTheDocument();
-    expect(screen.queryByText("98.000000", { exact: true })).toBeNull();
+    expect(screen.getAllByRole("cell", { name: "100" })[0]).toBeInTheDocument();
+    expect(screen.queryByText("98", { exact: true })).toBeNull();
     await click("Conferência");
     await click("Iniciar conferência");
     fill(
@@ -75,16 +73,12 @@ it("FE05 XML sem chegada partes 50+48 divergência100/98 e efetivação supervis
     await click("Registrar chegada física");
     selected("Revisão atual *", "3");
     await arrival("48.000000");
-    expect(
-        screen.getAllByRole("cell", { name: "98.000000" })[0],
-    ).toBeInTheDocument();
-    expect(
-        screen.getAllByRole("cell", { name: "2.000000" })[0],
-    ).toBeInTheDocument();
+    expect(screen.getAllByRole("cell", { name: "98" })[0]).toBeInTheDocument();
+    expect(screen.getAllByRole("cell", { name: "2" })[0]).toBeInTheDocument();
     await click("Conferência");
     await click("Efetivar carga integral");
     selected("Revisão atual *", "4");
-    fill("Aceitar Divergencias *", "true");
+    fill("Aceitar divergências *", "true");
     fill(
         "Motivo / justificativa *",
         "Diferença fictícia aceita por Supervisor",

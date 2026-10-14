@@ -115,7 +115,8 @@ async function continueWith(page: Page, name: string) {
     await page.getByRole("button", { name, exact: true }).click();
 }
 const unit = "00000000-0000-4000-8000-000000000003";
-const instant = "2026-10-08T12:00:00.123456Z";
+const instant = "2026-10-08T12:00:00.123Z";
+const localInstant = "2026-10-08T09:00:00.123";
 async function count(page: Page, value = "8.000000") {
     await page.goto(url + "/#contagem");
     await fill(page, "Código *", unit);
@@ -310,7 +311,7 @@ test("FE12 CHEGADA consulta modo prova concilia consulta", async ({ page }) => {
         "FE12-CHEGADA",
     );
     await page.getByLabel("Tipo *", { exact: true }).selectOption("CHEGADA");
-    await fill(page, "Instante real do fato (ISO com fuso) *", instant);
+    await fill(page, "Instante real do fato *", localInstant);
     await fill(page, "Operador *", "Operador fictício FE12");
     await fill(page, "Fonte *", "Planilha fictícia FE12");
     await page
@@ -324,8 +325,8 @@ test("FE12 CHEGADA consulta modo prova concilia consulta", async ({ page }) => {
     );
     await fill(
         page,
-        "Dados do fato de contingência / Dados do fato de contingência / Chegada física real (ISO com fuso) *",
-        instant,
+        "Dados do fato de contingência / Dados do fato de contingência / Chegada física real *",
+        localInstant,
     );
     await fill(
         page,

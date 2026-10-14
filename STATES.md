@@ -1,6 +1,22 @@
 # Estado e trilha de implementação do WMS Rodogarcia
 
+## FE05-ACEITE01 — escolha de aceite dispensada na conferência sem divergência, 13/10/2026
+
+Lucas relatou que Efetivar carga integral exigia Sim/Não mesmo sem divergência. Implementada apresentação condicional com consulta do mesmo pedido/revisão: false oculta campo/linha de confirmação e envia false; divergência/avaria/consulta não comprovada mantém escolha explícita, sem Sim automático. Dados de outro pedido/revisão antiga não dispensam o campo. Regra transacional backend/DTO Boolean obrigatório preservados. Cenário fictício de avaria alinhado; orientações no catálogo único.
+
+Resultado local: seis testes novos, regressão completa **625/625 em 62 arquivos**, tipagem/lint/build/diff check aprovados. Chrome fictício explícito comprovou envio false sem pergunta e exigência de aceite para avaria com diferença zero; celular/tema escuro sem overflow/erros JS. [Contrato](docs/design-system/etapa-15.md), recibo `orchestracao/.runtime/receiving-finalization-20261013/resultado.json`. Sem SQL/backend real ou publicação/reinício DEV/PROD. Seleção/API/UI operacionais ainda no run 4573ed7613a6431c84839dd473e3d213; um `pm2-wms.bat atualizar` no CMD administrador publica esta correção e FE05-DATA-PESO01 juntos.
+
+## FE05-DATA-PESO01 — calendário e apresentação de pesos, 13/10/2026
+
+Pedido expresso de Lucas: calendário com horário na chegada física e peso KG em português (`1820.000000` → `1.820,00`). Campo compartilhado `Instant` usa controle nativo acessível e horário de Brasília, independente do fuso da máquina, enviando instante UTC explícito. Instante já carregado mantém sua precisão até edição. Formatação exata aplicada ao resumo, detalhe, prévia XML e pesos dos volumes; KG tem pelo menos duas casas, preservando frações adicionais, negativos, ausentes e valores grandes. IDs/SKU/quantidades/documento/cálculo não mudam.
+
+Validado localmente: 23 testes novos e regressão completa **619/619 em 61 arquivos**, tipagem, lint e build final. Chrome fictício explícito, computador UTC/locale pt-BR, envio de 08:45 Brasília como 11:45Z e peso original 1820.000000; desktop/mobile 390 px claro/escuro, 44 px no campo, sem erros JS/overflow. Primeira tentativa de build teve falta de memória; repetição após fechar processos locais passou com heap 512 MB. [Contrato](docs/design-system/etapa-14.md), recibo `orchestracao/.runtime/receiving-presentation-20261013/resultado.json`. Sem integração SQL, escrita real ou publicação/reinício DEV/PROD por este incremento. Pacote ativo ainda 4573ed7613a6431c84839dd473e3d213; publicar fonte nova pelo PM2 principal em terminal administrador.
+
 ## PM2-PROD02 — transferência para PM2 principal autorizada, 13/10/2026
+
+**Concluída pelo comando do operador em 13/10/2026, 20:04 (Brasília).** Recibo `orchestracao/.runtime/launcher-producao/pm2/main-migration.json` registra API/UI online, IDs PM2 19/20, supervisores 43604/44940 e lista salva (`saved=true`). Processos atuais Java 71156/25590 e Node 17688/25591; pacote continua `4573ed7613a6431c84839dd473e3d213`. DEV 5904/35416 preservado. Esta confirmação supera as pendências históricas abaixo; não implica publicação das alterações de fonte posteriores.
+
+Tentativa posterior pelo CMD administrador chegou ao helper principal e retornou `PROD_PM2_HELPER_REFUSED_1`, sem registro de início da migração nem alteração de portas. Removida a dependência da string `Daemon.js` no comando: atestação agora cruza PID real do pipe com pai de processo vivo devolvido pelo PM2. Erros incluem código da fase/helper; sete testes locais aprovados, incluindo pipe Windows real fictício com vínculo aceito e vínculo errado recusado. A mensagem anterior ocultava a causa interna, portanto o mecanismo foi corrigido/testado sem afirmar que o diagnóstico elevado já foi reproduzido. Pendente executar novamente `pm2-wms.bat migrar` no CMD administrador. DEV/PROD ainda com mesmos donos 5904/35416/33516/68932.
 
 Resultado da tentativa de elevação: Windows retornou “operação cancelada pelo usuário”; job não iniciado, sem transferência nem save principal. O comando pronto `pm2-wms.bat migrar` deve ser executado no terminal administrador do operador. Conferência posterior confirmou ambos WMS isolados online e as quatro portas DEV/PROD com mesmos donos. Helper `pm2-main-check.ps1` identifica o dono real do pipe e corrige somente o resíduo conhecido 42760 antes da transferência; parsing aprovado, execução elevada ainda pendente.
 

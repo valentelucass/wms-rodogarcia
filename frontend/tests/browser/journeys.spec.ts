@@ -192,8 +192,8 @@ test("Recebimento integral: nota → chegada → efetivação → unidade → et
         }),
     ).toHaveValue("401");
     await page
-        .getByLabel("Chegada física real (ISO com fuso) *", { exact: true })
-        .fill("2026-10-08T12:00:00.123456Z");
+        .getByLabel("Chegada física real *", { exact: true })
+        .fill("2026-10-08T09:00:00.123");
     await page
         .getByLabel("Observacao *", { exact: true })
         .fill("Recebimento fictício conferido");
@@ -574,7 +574,7 @@ test("Financeiro: cálculo → fechamento → memória → aprovação → entre
         .fill("ESL EXERCÍCIO MANUAL");
     await page
         .getByLabel("Entregue Em *", { exact: true })
-        .fill("2026-10-08T12:00:00.123456Z");
+        .fill("2026-10-08T09:00:00.123");
     await page
         .getByLabel("Motivo / justificativa *", { exact: true })
         .fill("Entrega fictícia efetuada externamente");
@@ -601,7 +601,7 @@ test("Financeiro: cálculo → fechamento → memória → aprovação → entre
             .fill(reference);
         await page
             .getByLabel("Emitida Em *", { exact: true })
-            .fill("2026-10-08T12:30:00.123456Z");
+            .fill("2026-10-08T09:30:00.123");
         await page
             .getByLabel("Fonte *", { exact: true })
             .fill("Conferência externa fictícia");
@@ -668,7 +668,7 @@ test("Financeiro: cálculo → fechamento → memória → aprovação → entre
         .fill("Gestor fictício");
     await page
         .getByLabel("Conferida Em *", { exact: true })
-        .fill("2026-10-08T13:00:00.123456Z");
+        .fill("2026-10-08T10:00:00.123");
     await page
         .getByLabel("Motivo / justificativa *", { exact: true })
         .fill("Tratativa fictícia com comprovantes");

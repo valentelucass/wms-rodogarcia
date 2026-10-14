@@ -16,6 +16,7 @@ import type {
 import { Dialog } from "../../components/layout/Dialog";
 import { ReferenceSelect } from "../../components/context/ReferenceSelect";
 import { registerPageLeave } from "../../domain/pageLeave";
+import { formatProductQuantity } from "../../domain/quantityPresentation";
 import { NfeDocument, downloadXml } from "./NfeDocument";
 import { XmlProductForm } from "./XmlProductForm";
 import type { Perfil } from "../../contracts/runtime";
@@ -529,7 +530,11 @@ export function ReceivingCreateDialog({
                                                     </button>
                                                 )}
                                             <p className="hint">
-                                                Na nota: {i.quantidadeComercial}{" "}
+                                                Na nota:{" "}
+                                                {formatProductQuantity(
+                                                    i.quantidadeComercial,
+                                                    i.unidadeComercial,
+                                                )}{" "}
                                                 {i.unidadeComercial}. A contagem
                                                 de bobinas será informada na
                                                 conferência física.
@@ -537,7 +542,10 @@ export function ReceivingCreateDialog({
                                             {mapped?.quantidadeEstoque && (
                                                 <p>
                                                     Previsto no estoque:{" "}
-                                                    {mapped.quantidadeEstoque}{" "}
+                                                    {formatProductQuantity(
+                                                        mapped.quantidadeEstoque,
+                                                        mapped.unidadeEstoque,
+                                                    )}{" "}
                                                     {mapped.unidadeEstoque} ·
                                                     fator{" "}
                                                     {mapped.fatorConversao}

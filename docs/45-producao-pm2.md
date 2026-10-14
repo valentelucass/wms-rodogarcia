@@ -35,6 +35,8 @@ Por correção expressa de Lucas, o controlador usa agora o PM2 principal (`%USE
 
 `pm2-wms.bat migrar` é a transferência única da instância isolada anterior: exige ausência de entradas WMS no principal, guarda atual, remove apenas as duas entradas atestadas do legado, salva sua lista vazia, inicia o pacote selecionado no principal e executa o equivalente a `pm2 save`. O preload `pm2-isolation.cjs` e o argumento interno `--isolado` permanecem apenas para retirar esse legado; não alteram arquivos instalados nem pipes do principal. Recibo em `orchestracao/.runtime/launcher-producao/pm2/main-migration.json`.
 
+O helper principal atesta o PID servidor do pipe com `GetNamedPipeServerProcessId` e exige vínculo de pai com um processo vivo devolvido pela consulta PM2. Não pressupõe que um daemon iniciado por serviço contenha `Daemon.js` em sua linha de comando. A recusa informa a fase; falha anterior à guarda/parada preserva os WMS ativos.
+
 API abre somente WMS_PROD com WMSPROD, TLS Mandatory e validação de certificado. Cada início exige guarda atual; configuração/guarda recusada sai com código 20, sem autorestart nem repetição SQL automática. Credenciais/chaves DPAPI são lidas pelo helper existente e passam somente na memória do Java. Não ficam em ecosystem, argumentos, dump ou logs PM2. Não há migrations, grants ou testes de negócio em produção.
 
 A UI aguarda o recibo e o processo API da mesma versão. Cada componente tem supervisor independente; queda após readiness permite reinício limitado, com nova guarda da API. Parada Windows usa mensagem `shutdown`, arquivo de controle e encerramento apenas dos handles filhos criados pelo supervisor. Se o wrapper desaparecer, o PowerShell observa a morte do pai e encerra seus filhos; nunca usa kill genérico por porta. PM2 tem uma instância por componente, sem cluster/watch ou repetição ilimitada de falhas iniciais.
@@ -44,6 +46,8 @@ O rodapé continua mostrando a ativação bem-sucedida de frontend + backend. Re
 Protocolo Windows e readiness seguem a [documentação oficial do PM2](https://pm2.keymetrics.io/docs/usage/signals-clean-restart/); recusa de reinício por código usa [stop_exit_codes](https://pm2.keymetrics.io/docs/usage/restart-strategies/). O isolamento de pipes foi conferido no código local da versão instalada.
 
 ## Verificação
+
+Transferência posterior concluída pelo operador em 13/10/2026, 20:04 (Brasília): `main-migration.json` registra `saved=true`, IDs principais 19/20 online, supervisores 43604/44940. Java 71156/25590 e Node 17688/25591 consomem o mesmo run 4573ed7613a6431c84839dd473e3d213; horário do rodapé preservado porque não houve pacote novo. Não repetir `migrar` após este sucesso; usar `atualizar` para fonte posterior.
 
 Ativação concluída em 13/10/2026: run `4573ed7613a6431c84839dd473e3d213`, API/UI online após saída do controlador; Java 33516/25590 e Node 68932/25591, supervisores 68112/54624. Rodapé HTTPS mostra `13/10/2026, 19:26:34 (Brasília)`. UI, API pública, relay e metadados responderam HTTP 200, certificado válido. Guarda nova 26/26, build BE/FE e 32 testes locais aprovados (2 wrapper, 6 seleção e 24 launcher). DEV 5904/35416 preservado. Sem login autenticado, testes de negócio ou fixtures PROD nesta publicação.
 
