@@ -1,5 +1,15 @@
 # Estado e trilha de implementação do WMS Rodogarcia
 
+## PREPARO-AUTO01-TRAVA01 — espera pela preparação e DEV conferido, 15/10/2026
+
+Novo console de Lucas: `database/iniciar-bancos.bat` concluiu DEV/PROD até V13; `iniciar-dev.bat` recusou a trava local (`31da0a2e710841909ed3c7bcecb6f5c5`) antes de SQL. A trava já estava livre na inspeção; a versão antiga não registrou quem a segurava naquela tentativa, portanto não presumir processo travado ou abandonado.
+
+Correção: trava comum agora aguarda até180s **antes de qualquer SQL**, informa PID observado quando disponível e é liberada em finally. Plan sem SQL não adquire essa trava. Mesmo nome para bootstrap manual e launchers, preservando exclusão e reentrada do bootstrap dentro do preparador. Espera local não altera a regra de interromper após transporte/guarda SQL falhos; não repete conexões/migrations, encerra processos alheios ou modifica schema/permissões por causa de conflito.
+
+**Conferido:** 7 testes com processos Windows fictícios (espera, timeout, dono, reentrada, exceção, abandono e Plan),18 do preparador,18 bootstrap e8 PM2; parsing PS/diff aprovados. Preparo real somente WMS_DEV concluiu `AMBIENTE_ATUALIZADO`, catálogo68tabelas/717colunas/1346itens, histórico13 e guardas/permissões aprovados, sem novo grant. Trava ocupada durante o preparo e adquirida imediatamente por outro processo após o fim. Recibos em `orchestracao/.runtime/trava-preparo-20261015/` e `orchestracao/.runtime/preparo-ambiente/b76dddca0e2c4746aa63a05ac181e540/resultado.json`.
+
+Partida da aplicação DEV continua com Lucas: usar somente `iniciar-dev.bat` na raiz; não precisa executar o BAT de bancos antes. Nenhum reinício/publicação PROD nesta correção. Uma publicação posterior foi encontrada pronta no PM2 (`554e29f2de994d22bd2da7edbe897d67`, observada17:28UTC); preservada, sem atribuí-la a este incremento.
+
 ## PREPARO-AUTO01 — partida sempre atualizada, 15/10/2026
 
 Pedido de Lucas: iniciar qualquer ambiente com a fonte atual; PROD publicado pelo agente e partida DEV reservada ao operador. Fluxo build atual → migrations/permissões → guarda → troca somente dos processos atestados. DEV prepara somente WMS_DEV; PROD mantém DEV completo antes de PROD pelo bootstrap existente, com exclusão de execuções simultâneas e somente bancos existentes. Aplicação continua com identidade própria, TLS validado, validate/initnever/migrationsOFF.

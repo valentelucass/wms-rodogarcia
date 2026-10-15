@@ -4,6 +4,7 @@ $WmsD21InicioRoot=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 $ErrorActionPreference='Stop'
 . (Join-Path $PSScriptRoot 'd21-flyway.ps1')
 . (Join-Path $PSScriptRoot 'd22-credencial.ps1')
+. (Join-Path $PSScriptRoot 'trava-preparo.ps1')
 function Invoke-WmsD22InicioAutomatico {
     param([switch]$Offline,[hashtable]$Adaptadores,
         [string[]]$Bancos=@('WMS_DEV','WMS_PROD'),[switch]$SomenteExistentes)
@@ -41,13 +42,14 @@ function Invoke-WmsD22InicioAutomatico {
         }
     }
     $senha=$null;$etapas=New-Object 'Collections.Generic.List[object]';$fase='PREFLIGHT_LOCAL';$codigo=$null;$resultado='FALHA';$devOk=$false;$fontes=@()
-    $dbMutex=$null;$dbLock=$false
+    $dbLease=$null;$lockReport=$null
     try{
         if($real){
-            # Mesmo lock para o BAT de bancos, DEV e PROD; nao espera nem repete.
-            $dbMutex=[Threading.Mutex]::new($false,'Local\WMS_Rodogarcia_Preparo_Bancos')
-            try{$dbLock=$dbMutex.WaitOne(0)}catch [Threading.AbandonedMutexException]{$dbLock=$true}
-            if(-not $dbLock){throw 'D21_PREPARO_BANCO_EM_ANDAMENTO'}
+            # Mesmo lock para BAT de bancos, DEV e PROD; nenhuma conexao durante a espera.
+            & $Adaptadores.Mostrar 'Conferindo exclusao do preparo; outra execucao pode ser aguardada por ate 180s antes de qualquer SQL.'
+            $dbLease=Enter-WmsDatabasePreparationLock
+            $lockReport=Get-WmsDatabasePreparationLockReport $dbLease
+            if(-not $dbLease.acquired){throw 'D21_PREPARO_BANCO_EM_ANDAMENTO'}
         }
         & $Adaptadores.Mostrar ('D22 automatico | TCP127.0.0.1:1433 | '+($Bancos -join ' -> ')+' | bootstrap/upgrade | TLS obrigatorio')
         $fase='CREDENCIAL_DPAPI';$senha=& $Adaptadores.Senha
@@ -121,14 +123,14 @@ function Invoke-WmsD22InicioAutomatico {
         $codigo=if($e.Message -cmatch '^(D20|D21|D22)_[A-Z0-9_]+$'){$e.Message}else{'D21_ENTRADA_CONEXAO_FERRAMENTA_FALHOU'}
     }finally{
         if($null -ne $senha -and $senha -is [Security.SecureString]){$senha.Dispose()}
-        if($dbMutex){if($dbLock){$dbMutex.ReleaseMutex()};$dbMutex.Dispose()}
+        Exit-WmsDatabasePreparationLock $dbLease
     }
     $explicacao=if($resultado -ne 'FALHA'){($Bancos -join ' e ')+': historico/checksums validados, pendentes aplicadas e catalogo real confrontado com fonte.'}
         elseif($fase -eq 'CREDENCIAL_DPAPI'){'Credencial WMS ausente/invalida neste usuario/maquina. Execute database/configurar-credencial.bat. Nenhuma senha/confirmacao sera pedida; nenhuma conexao SQL solicitada.'}
         else{'Falha nesta fase: interrompido, sem clean/repair/baseline/recriacao. Erro DEV bloqueia PROD. Preservar bancos/historico, corrigir causa e reexecutar; Flyway determina pendentes. TLS obrigatorio.'}
     & $Adaptadores.Mostrar ($explicacao+' Fase: '+$fase)
     [pscustomobject]@{natureza='D22_ORQUESTRACAO_AUTOMATICA';endpoint='127.0.0.1:1433';resultado=$resultado;fase=$fase;codigo=$codigo;
-        bancos=$Bancos;explicacao=$explicacao;devConcluido=$devOk;etapas=$etapas.ToArray();fontes=$fontes;grants=0;baselineAutomatico=$false;repair=$false;clean=$false}
+        bancos=$Bancos;trava=$lockReport;explicacao=$explicacao;devConcluido=$devOk;etapas=$etapas.ToArray();fontes=$fontes;grants=0;baselineAutomatico=$false;repair=$false;clean=$false}
 }
 if($MyInvocation.InvocationName -ne '.'){
     if($Offline -and $Fixture){throw 'D22_MODOS_INCOMPATIVEIS'}

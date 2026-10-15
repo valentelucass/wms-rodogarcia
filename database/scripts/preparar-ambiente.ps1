@@ -13,7 +13,7 @@ function Invoke-WmsEnvironmentPreparation {
     $report=[ordered]@{natureza='WMS_PREPARO_AMBIENTE';ambiente=$Ambiente;modo=$Modo;
         inicioUtc=[DateTime]::UtcNow.ToString('o');estado='INTERROMPIDO';fase='PREFLIGHT_LOCAL';
         codigo=$null;bancos=$targets;bootstrap=$null;permissoes=@();fontes=@();recibo=$null;
-        processosEncerrados=0;clean=$false;repair=$false;recapturaTLS=$false}
+        processosEncerrados=0;clean=$false;repair=$false;recapturaTLS=$false;trava=$null}
     if($real){
         $Adaptadores=@{
             Fontes={Get-WmsD21Fontes $WmsD21InicioRoot}
@@ -45,12 +45,12 @@ function Invoke-WmsEnvironmentPreparation {
             }
         }
     }
-    $mutex=$null;$locked=$false
+    $lease=$null
     try{
-        if($real){
-            $mutex=[Threading.Mutex]::new($false,'Local\WMS_Rodogarcia_Preparo_Bancos')
-            try{$locked=$mutex.WaitOne(0)}catch [Threading.AbandonedMutexException]{$locked=$true}
-            if(-not $locked){throw 'D21_PREPARO_BANCO_EM_ANDAMENTO'}
+        if($real -and $Modo -ceq 'Apply'){
+            $lease=Enter-WmsDatabasePreparationLock
+            $report.trava=Get-WmsDatabasePreparationLockReport $lease
+            if(-not $lease.acquired){throw 'D21_PREPARO_BANCO_EM_ANDAMENTO'}
         }
         $report.fontes=@(& $Adaptadores.Fontes)
         if(-not $report.fontes.Count){throw 'D21_MIGRATIONS_AUSENTES'}
@@ -83,7 +83,7 @@ function Invoke-WmsEnvironmentPreparation {
         $e=$_.Exception;while($e.InnerException){$e=$e.InnerException}
         $report.codigo=if($e.Message -cmatch '^(D20|D21|D22|CAD|SQL|PROD|DEV02|WMS_PREP)_[A-Z0-9_]+$'){$e.Message}else{'WMS_PREP_FALHA_CONTROLADA'}
     }finally{
-        if($mutex){if($locked){$mutex.ReleaseMutex()};$mutex.Dispose()}
+        Exit-WmsDatabasePreparationLock $lease
         $report['fimUtc']=[DateTime]::UtcNow.ToString('o')
     }
     [pscustomobject]$report
@@ -96,6 +96,6 @@ if($MyInvocation.InvocationName -ne '.'){
     $r.recibo=[IO.Path]::GetFullPath((Join-Path $area 'resultado.json'))
     $json=$r|ConvertTo-Json -Depth 15
     [IO.File]::WriteAllText($r.recibo,$json,[Text.UTF8Encoding]::new($false))
-    [pscustomobject]@{estado=$r.estado;ambiente=$r.ambiente;codigo=$r.codigo;recibo=$r.recibo}|ConvertTo-Json
+    [pscustomobject]@{estado=$r.estado;ambiente=$r.ambiente;codigo=$r.codigo;recibo=$r.recibo;trava=$r.trava}|ConvertTo-Json
     if($r.estado -ceq 'INTERROMPIDO'){exit 20}
 }

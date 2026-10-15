@@ -1,5 +1,11 @@
 # Decisões e pendências do WMS Rodogarcia
 
+## PREPARO-AUTO01-TRAVA01 — escolha técnica para concorrência local, 15/10/2026
+
+Dentro do pedido vigente de sempre preparar ao subir, e após console com banco concluído mas DEV recusado por mutex, adotada espera limitada a180s antes de SQL. Plan somente local não adquire trava. Relatório registra tempo e PID observado quando disponível; PID é diagnóstico, não autorização para encerrar processo. Exclusão/reentrada/liberação em finally preservadas.
+
+Não é retry de banco nem nova aprovação comercial: conexão/guarda inconclusivas continuam interrompendo sem repetição/fallback. Fonte/migrations/permissões e processos operacionais não são alterados para liberar uma trava. Testes concorrentes e preparo real DEV aprovados; partida DEV permanece com o operador.
+
 ## PREPARO-AUTO01 — preparar ao iniciar, 15/10/2026
 
 Autorização expressa de Lucas: “quero que sempre fique pronto para eu subir qualquer um ja suba atualizado”; depois “ja suba vc mesmo o prod q eu subo o dev”. Abrange preparar fonte, migrations e permissões WMS pelos launchers protegidos e publicar PROD nesta demanda. Não autoriza servidor/outros bancos/runtime compartilhado, recriação de bancos, clean/repair/baseline ou testes de negócio em PROD. DEV permanece sob partida do operador. Substitui a necessidade de liberação avulsa da V13 e das seis permissões no mesmo escopo. [Fluxo](45-producao-pm2.md).

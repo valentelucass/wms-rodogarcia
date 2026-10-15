@@ -1,5 +1,13 @@
 # Continuidade do projeto WMS Rodogarcia
 
+## PREPARO-AUTO01-TRAVA01 — bloqueio local tratado, 15/10/2026
+
+Console novo confirmou bootstrap DEV/PROD completo e, depois, recusa imediata de mutex no DEV antes de SQL. A trava já estava livre ao inspecionar; dono histórico não foi registrado. Implementada espera local limitada a180s, PID observado e liberação em finally, com mesmo mutex/reentrada. Plan sem SQL não ocupa trava; falha de transporte/guarda SQL segue sem retry/fallback.
+
+51 verificações focais aprovadas (7 processos Windows,18 preparador,18 bootstrap,8 PM2), parsing e diff. Preparo real DEV concluído: histórico13/catalogo68t717c1346itens/guardas atuais, sem novo grant; trava liberada confirmada por aquisição em processo separado. Recibos `orchestracao/.runtime/trava-preparo-20261015/` e preparo `b76dddca0e2c4746aa63a05ac181e540`. Lucas inicia a aplicação por `iniciar-dev.bat`; não executar bancos à parte nem encerrar processos por PID observado.
+
+Produção não foi reiniciada pelo agente neste incremento. Encontrada seleção posterior `554e29f2de994d22bd2da7edbe897d67` pronta, preservada. Não atribuir essa publicação à correção da trava nem sobrescrever seus recibos.
+
 ## PREPARO-AUTO01 — automação e publicação solicitadas, 15/10/2026
 
 PROD publicado: run `33cef6964be2430baf9f05201e5c9939`, PM2 API/UI online e lista salva. V13 e permissões novas aplicadas em DEV e PROD com guardas e catálogo/histórico reais aprovados. Sete verificações operacionais HTTP200, incluindo versão ativa pública, API e relay. Recibo `orchestracao/.runtime/preparo-20261015/producao-conferida.json`. Lucas pode iniciar DEV por `iniciar-dev.bat`; agente não iniciou DEV nem executou negócios/fixtures em PROD.
