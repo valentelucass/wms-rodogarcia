@@ -2,6 +2,8 @@
 
 Pedido de Lucas em 13/10/2026: gerenciar frontend e backend separadamente no PM2, com arquivo na raiz e nome contendo a porta. O exemplo Satélite é referência de organização; Java, flags, credenciais e tarefas daquele projeto não pertencem ao WMS.
 
+**Ativação PREPARO-AUTO01 concluída em 15/10/2026:** V13 e direitos por coluna atuais em DEV/PROD, guardas aprovadas, produção no run `33cef6964be2430baf9f05201e5c9939`, API/UI online, PM2 salvo e HTTPS/versão ativa conferidos. O primeiro erro DEV era de aplicação da migration após histórico validado; V13 ainda pendente corrigida com GO antes de aplicá-la, sem repair. Recibo `orchestracao/.runtime/preparo-20261015/producao-conferida.json`.
+
 ## Uso
 
 Na raiz, executar como administrador, no mesmo usuário Windows que possui os canais DPAPI de produção e o PM2 principal:

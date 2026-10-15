@@ -2,7 +2,11 @@
 
 ## PREPARO-AUTO01 — automação e publicação solicitadas, 15/10/2026
 
-Fonte e banco devem ser preparados no próprio comando de subida. DEV fica com Lucas; publicação PROD pedida ao agente. Planos DEV/PROD passaram sem SQL, parser da V13 corrigido preservando seus bytes, testes de falha/isolamento adicionados. 143 verificações locais aprovadas. Pacote PROD atual compilado em `4878b4f589094eb29b46991dfe035f38`, hashes e fontes conferidos; seleção ativa anterior `bbc5f90dd7904ef2a5aa64e06b9ab493` preservada. Tentativa PROD: `PROD_PM2_MAIN_ACCESS_REQUIRED`; RunAs foi cancelado pelo usuário segundo Windows. Sem SQL ou troca operacional. Recibo `orchestracao/.runtime/preparo-20261015/publicacao-f158377a24374b99a242468fd8dea4fc/pendencia.json`. O PM2 principal exige token administrador e não deve ser substituído por outro daemon.
+PROD publicado: run `33cef6964be2430baf9f05201e5c9939`, PM2 API/UI online e lista salva. V13 e permissões novas aplicadas em DEV e PROD com guardas e catálogo/histórico reais aprovados. Sete verificações operacionais HTTP200, incluindo versão ativa pública, API e relay. Recibo `orchestracao/.runtime/preparo-20261015/producao-conferida.json`. Lucas pode iniciar DEV por `iniciar-dev.bat`; agente não iniciou DEV nem executou negócios/fixtures em PROD.
+
+O erro enviado do DEV estava no Migrate após PreValidate aprovado; o classificador o chamou indevidamente de checksum. Antes da correção, leituras protegidas confirmaram V13 ausente em ambos os bancos, V12 íntegra e nenhum efeito parcial. Corrigida somente a V13 pendente com GO após ADD ativo; SHA3794C8638C4A3F2B823B76288967EE0E03C81E804879F15F4A4986BECFB7DD28/checksum1550763371 agora aplicados e imutáveis. Não usar repair nem alterar V1–V13. Diagnóstico agora registra somente códigos SQL/versão, sem texto bruto.
+
+145 verificações locais no conjunto e build atual aprovados; execução SQL comprova estrutura/permissões e startup, não o fluxo autenticado de edição persistida. UAC inicial não apareceu para Lucas; shell padrão do Windows conseguiu elevar. Conflito DEV/PROD simultâneos foi recusado pela trava antes da publicação; nova execução serial concluiu exit0. Fonte atual e pacote ativo foram conferidos. [Fluxo atual](45-producao-pm2.md).
 
 ## TAB-EDIT01 — edição de tabelas preparada, 15/10/2026
 

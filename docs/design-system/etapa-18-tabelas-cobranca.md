@@ -1,5 +1,7 @@
 # TAB-EDIT01 — edição das tabelas de cobrança, 15/10/2026
 
+**Ativação em 15/10/2026:** estrutura V13 e seis permissões adicionais aplicadas em DEV/PROD com guardas atuais; PROD publicado no run33cef6964be2430baf9f05201e5c9939. V13 pendente corrigida com GO entre ADD ativo e o índice antes de sua aplicação: SHA3794C8638C4A3F2B823B76288967EE0E03C81E804879F15F4A4986BECFB7DD28/checksum1550763371 agora imutáveis. Evidência operacional em `orchestracao/.runtime/preparo-20261015/producao-conferida.json`. Este aceite cobre estrutura/permissões e disponibilidade; edição autenticada persistida em DEV permanece por conferir.
+
 Pedido expresso de Lucas: editar tabelas já criadas, incluindo valores e inclusão/remoção de serviços, e retirar a etapa lateral duplicada “Vínculos por cliente”. O pedido autoriza a implementação; não representa aplicação de migration, grants ou publicação.
 
 ## Comportamento entregue
