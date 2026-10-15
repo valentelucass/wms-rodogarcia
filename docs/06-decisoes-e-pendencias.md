@@ -1,5 +1,9 @@
 # Decisões e pendências do WMS Rodogarcia
 
+## PREPARO-AUTO01 — preparar ao iniciar, 15/10/2026
+
+Autorização expressa de Lucas: “quero que sempre fique pronto para eu subir qualquer um ja suba atualizado”; depois “ja suba vc mesmo o prod q eu subo o dev”. Abrange preparar fonte, migrations e permissões WMS pelos launchers protegidos e publicar PROD nesta demanda. Não autoriza servidor/outros bancos/runtime compartilhado, recriação de bancos, clean/repair/baseline ou testes de negócio em PROD. DEV permanece sob partida do operador. Substitui a necessidade de liberação avulsa da V13 e das seis permissões no mesmo escopo. [Fluxo](45-producao-pm2.md).
+
 ## TAB-EDIT01 — edição de tabelas e retirada da etapa duplicada, 15/10/2026
 
 **Pedido expresso de Lucas:** acrescentar edição dos dados e serviços das tabelas existentes, para corrigir valores ou adicionar/remover serviços, e excluir “Vínculos por cliente” da navegação por duplicar a gestão da tela “Tabelas e vigências”. Implementação autorizada por este pedido.

@@ -9,8 +9,10 @@ function New-WmsD22LauncherFixture([string]$Falha=''){
     $catalogo=@([pscustomobject]@{categoria='T';tabela='ficticio';nome='';valor=''})
     $f=@{contexto=$contexto;falha=$Falha;eventos=(New-Object 'Collections.Generic.List[string]');copias=(New-Object 'Collections.Generic.List[object]');senha=$null;ddl=0;sql=0;catalogo=$catalogo}
     $a=@{}
+    $credSource=Join-Path $PSScriptRoot 'd22-credencial.ps1'
     $a.Mostrar={param($Texto)}
     $a.Senha={
+        . $credSource
         $f.eventos.Add('Credencial')
         $f.senha=Read-WmsD22Credencial $f.contexto
         $f.senha

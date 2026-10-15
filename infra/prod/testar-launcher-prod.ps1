@@ -94,7 +94,8 @@ Check 'codigos-falhas-distinguem-auth-porta-guarda-build' {Need ((Get-WmsProduct
 # Nenhum datasource, identidade real, API ou aplicacao WMS e iniciado neste harness.
 Check 'falha-build-literal-preserva-versao-anterior-e-nao-chega-guarda' {
     $isolated=Join-Path $evidence 'build-failure-repository'
-    foreach($dir in @('infra/prod','backend/scripts/prod','frontend/tools')){$null=New-Item -ItemType Directory -Path (Join-Path $isolated $dir) -Force}
+    foreach($dir in @('infra/prod','infra/dev','backend/scripts/prod','frontend/tools')){$null=New-Item -ItemType Directory -Path (Join-Path $isolated $dir) -Force}
+    Copy-Item -LiteralPath (Join-Path $repository 'infra/dev/preparo-ambiente.ps1') -Destination (Join-Path $isolated 'infra/dev/preparo-ambiente.ps1')
     foreach($name in @('iniciar-prod.ps1','launcher-common.ps1','producao.json')){Copy-Item -LiteralPath (Join-Path $PSScriptRoot $name) -Destination (Join-Path $isolated ('infra/prod/'+$name))}
     [IO.File]::WriteAllText((Join-Path $isolated 'backend/scripts/prod/setup-prod.ps1'),'function Initialize-WmsProductionIdentity { [pscustomobject]@{origin="https://wms.rodogarcia.com.br";issuer="https://example.invalid";audience="synthetic-prod"} }; function Assert-WmsProductionIdentity { param($Identity) }',[Text.UTF8Encoding]::new($false))
     [IO.File]::WriteAllText((Join-Path $isolated 'backend/scripts/prod/credential-prod.ps1'),'function Get-WmsProductionCredentialMetadata { [pscustomobject]@{database="WMS_PROD";login="WMSPROD";aclValida=$true} }',[Text.UTF8Encoding]::new($false))

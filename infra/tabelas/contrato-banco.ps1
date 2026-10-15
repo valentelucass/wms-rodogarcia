@@ -2,8 +2,8 @@
 function Add-WmsBillingTableExpectedContract($Historical, $Migration) {
     if (!$Migration -or $Migration.version -cne '13' -or
         $Migration.script -cne 'V13__historico_itens_tabela_cobranca.sql' -or
-        $Migration.checksum -ne 1799558472 -or
-        $Migration.sha256 -cne '0680C24C0DF20A36108901A2186142780D64E9A984FBF927928AD1C7295792BC') {
+        $Migration.checksum -ne 1550763371 -or
+        $Migration.sha256 -cne '3794C8638C4A3F2B823B76288967EE0E03C81E804879F15F4A4986BECFB7DD28') {
         throw 'BILLING_TABLE_MIGRATION_CONTRACT_INVALID'
     }
     $history=@($Historical.historico | Where-Object {$_.type -ceq 'SQL'})

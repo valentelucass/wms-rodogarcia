@@ -54,7 +54,12 @@ function D20Constraint($Tabela,[string]$Trecho,[string]$Coluna,[string]$Origem) 
         $tipo=if($Matches[1] -eq 'PRIMARY KEY'){'PK'}else{'UNIQUE'}
         $cols=if($Matches.cols){D20ColunasLista $Matches.cols}else{@($Coluna)}
     } elseif($d -match '(?s)^CHECK\s*\(.+\)$'){$tipo='CHECK'}
-    elseif($d -match '(?s)^DEFAULT\s+.+$'){$tipo='DEFAULT';$cols=@($Coluna)}
+    elseif($d -match '(?s)^DEFAULT\s+.+$'){
+        $tipo='DEFAULT';$cols=@($Coluna)
+        # WITH VALUES preenche a coluna adicionada; nao integra a expressao
+        # persistida em sys.default_constraints. Aceitar somente esse sufixo.
+        $d=$d -replace '\s+WITH VALUES$',''
+    }
     else{throw "D20_CONSTRAINT_DEFINICAO_NAO_SUPORTADA_$n"}
     $Tabela.constraints[$n]=[pscustomobject]@{nome=$n;tipo=$tipo;colunas=@($cols);referencia=$referencia;definicao=$d;origem=$Origem}
 }
@@ -107,7 +112,7 @@ function D20SchemaEfetivo([object[]]$Fontes) {
                 else{if(-not $t.constraints.Contains($corpo)){throw "D20_DROP_INEXISTENTE_$corpo"};$t.constraints.Remove($corpo)}
                 $alteracoes+=[pscustomobject]@{tabela=$n;acao=$acao;origem=$f.arquivo;definicao=$corpo};continue
             }
-            if($s -match '(?s)^CREATE(?<unique> UNIQUE)? INDEX (?<nome>\w+) ON wms\.(?<t>\w+)\s*\((?<cols>[^)]+)\)(?:\s+INCLUDE\s*\((?<incl>[^)]+)\))?(?:\s+WHERE (?<filtro>.+))?$'){
+            if($s -match '(?s)^CREATE(?<unique> UNIQUE)? INDEX (?<nome>\w+)\s+ON wms\.(?<t>\w+)\s*\((?<cols>[^)]+)\)(?:\s+INCLUDE\s*\((?<incl>[^)]+)\))?(?:\s+WHERE (?<filtro>.+))?$'){
                 $n=$Matches.nome;$tn=$Matches.t
                 if(-not $tabelas.Contains($tn) -or $tabelas[$tn].indices.Contains($n)){throw "D20_INDICE_INVALIDO_$n"}
                 $tabelas[$tn].indices[$n]=[pscustomobject]@{nome=$n;unique=([bool]$Matches.unique);colunas=@(D20ColunasLista $Matches.cols);incluidas=if($Matches.incl){@(D20ColunasLista $Matches.incl)}else{@()};filtro=$Matches.filtro;origem=$f.arquivo};continue

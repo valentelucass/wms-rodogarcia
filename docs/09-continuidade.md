@@ -1,5 +1,9 @@
 # Continuidade do projeto WMS Rodogarcia
 
+## PREPARO-AUTO01 — automação e publicação solicitadas, 15/10/2026
+
+Fonte e banco devem ser preparados no próprio comando de subida. DEV fica com Lucas; publicação PROD pedida ao agente. Planos DEV/PROD passaram sem SQL, parser da V13 corrigido preservando seus bytes, testes de falha/isolamento adicionados. 143 verificações locais aprovadas. Pacote PROD atual compilado em `4878b4f589094eb29b46991dfe035f38`, hashes e fontes conferidos; seleção ativa anterior `bbc5f90dd7904ef2a5aa64e06b9ab493` preservada. Tentativa PROD: `PROD_PM2_MAIN_ACCESS_REQUIRED`; RunAs foi cancelado pelo usuário segundo Windows. Sem SQL ou troca operacional. Recibo `orchestracao/.runtime/preparo-20261015/publicacao-f158377a24374b99a242468fd8dea4fc/pendencia.json`. O PM2 principal exige token administrador e não deve ser substituído por outro daemon.
+
 ## TAB-EDIT01 — edição de tabelas preparada, 15/10/2026
 
 Fonte com editor completo das tabelas ativas, valores e inclusão/remoção de serviços. Navegação sem “Vínculos por cliente”; funções de vínculo integradas à tela de tabelas. Histórico financeiro mantém os itens originais; serviço revalida alcance, contexto, vigência e revisão, com auditoria/repetição na mesma transação. [Contrato, limites e seis colunas adicionais](design-system/etapa-18-tabelas-cobranca.md).

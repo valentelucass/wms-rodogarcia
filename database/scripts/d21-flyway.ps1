@@ -53,6 +53,19 @@ function New-WmsD21StartInfo([string]$DatabaseRoot,[string]$Banco,[string]$Servi
     $psi.EnvironmentVariables['WMS_DB_BOOTSTRAP_INIT_SQL']=Get-WmsD21InitSql $Banco $Servidor
     $psi
 }
+function Get-WmsD21FlywayFailure([int]$ExitCode,[string]$Texto){
+    $diag=[ordered]@{sqlNumber=$null;sqlState=$null;version=$null}
+    if($Texto -match '(?im)^\s*(?:\[ERROR\]\s*)?Error Code\s*:\s*([0-9]{1,6})\s*$'){$diag.sqlNumber=[int]$Matches[1]}
+    if($Texto -match '(?im)^\s*(?:\[ERROR\]\s*)?SQL State\s*:\s*([A-Z0-9]{5})\s*$'){$diag.sqlState=$Matches[1]}
+    if($Texto -match '(?i)Migration V([1-9][0-9]*)__[a-z0-9_]+\.sql failed'){$diag.version=$Matches[1]}
+    $reason=if($ExitCode -eq 0){'GOAL_OK'}
+        elseif($Texto -match '(?i)SSL|TLS|PKIX|certificate'){'TLS_NAO_VALIDADO'}
+        elseif($Texto -match '(?i)connection.*(?:refused|reset|closed|failed)|login failed|socket|timeout'){'CONEXAO_INTERROMPIDA_OU_RECUSADA'}
+        elseif($Texto -match '(?i)checksum|validation failed|validate failed|detected applied migration not resolved'){'HISTORICO_CHECKSUM_OU_MIGRATION'}
+        elseif($null -ne $diag.sqlNumber){'MIGRATION_SQL_FALHOU'}
+        else{'FERRAMENTA_OU_MIGRATION_FALHOU'}
+    [pscustomobject]@{resultado=$reason;diagnostico=[pscustomobject]$diag}
+}
 function Invoke-WmsD21Processo([Diagnostics.ProcessStartInfo]$Info,[Security.SecureString]$Senha,[int]$TimeoutMs=300000){
     $bstr=[IntPtr]::Zero;$p=$null;$out=$null;$err=$null;$texto=$null;$iniciado=$false
     $script:WmsD21UltimoPid=$null
@@ -67,9 +80,9 @@ function Invoke-WmsD21Processo([Diagnostics.ProcessStartInfo]$Info,[Security.Sec
         if(-not $p.WaitForExit($TimeoutMs)){throw 'D21_FLYWAY_TIMEOUT'}
         $p.WaitForExit();$exit=$p.ExitCode
         $texto=$out.Result+"`n"+$err.Result
-        $motivo=if($exit -eq 0){'GOAL_OK'}elseif($texto -match '(?i)checksum|validation failed|validate failed|migration.*(missing|failed)'){'HISTORICO_CHECKSUM_OU_MIGRATION'}elseif($texto -match '(?i)SSL|TLS|PKIX|certificate'){'TLS_NAO_VALIDADO'}elseif($texto -match '(?i)connection|login failed|socket|timeout'){'CONEXAO_INTERROMPIDA_OU_RECUSADA'}else{'FERRAMENTA_OU_MIGRATION_FALHOU'}
+        $classified=Get-WmsD21FlywayFailure $exit $texto
         # Nunca propagar stdout/stderr bruto, URL, SQL ou valores do ambiente.
-        [pscustomobject]@{exitCode=$exit;resultado=$motivo;saidaBrutaDescartada=$true;pid=$p.Id;processoEncerrado=$p.HasExited}
+        [pscustomobject]@{exitCode=$exit;resultado=$classified.resultado;diagnostico=$classified.diagnostico;saidaBrutaDescartada=$true;pid=$p.Id;processoEncerrado=$p.HasExited}
     }finally{
         if($null -ne $p){
             if($iniciado -and -not $p.HasExited){$null=& (Join-Path $env:SystemRoot 'System32/taskkill.exe') /PID $p.Id /T /F 2>&1}
@@ -82,8 +95,7 @@ function Invoke-WmsD21Processo([Diagnostics.ProcessStartInfo]$Info,[Security.Sec
 }
 function Invoke-WmsD21Flyway([string]$Banco,[string]$Servidor,[Security.SecureString]$Senha,[string]$Etapa){
     $psi=New-WmsD21StartInfo $WmsD21Database $Banco $Servidor $Etapa
-    $profile=Get-ProjetosSqlProfile
-    if($profile.server -cne $Servidor){throw 'D24_RUNTIME_SERVIDOR_DIVERGENTE'}
+    $profile=Get-WmsRuntimeTrust
     $psi.EnvironmentVariables['WMS_DB_BOOTSTRAP_TRUSTSTORE']=$profile.truststore
     $psi.EnvironmentVariables['WMS_DB_BOOTSTRAP_CERTIFICATE_HOST']=$profile.certificateHost
     Invoke-WmsD21Processo $psi $Senha

@@ -6,6 +6,7 @@ $ErrorActionPreference = 'Stop'
 if ($PrepareForPm2 -and -not $PrepareOnly) { throw 'PROD_PM2_PREPARE_ONLY_REQUIRED' }
 $repository = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 . (Join-Path $PSScriptRoot 'launcher-common.ps1')
+. (Join-Path $repository 'infra/dev/preparo-ambiente.ps1')
 $runId = [guid]::NewGuid().ToString('N')
 $runDirectory = Join-Path $repository ('orchestracao/.runtime/launcher-producao/runs/' + $runId)
 $null = New-Item -ItemType Directory -Path $runDirectory
@@ -45,7 +46,7 @@ function Fail-WmsProductionLauncher {
     Write-Host ('[WMS PROD] Bloqueado: ' + $Reason) -ForegroundColor Yellow
     foreach ($message in $guidance) { Write-Host ('[WMS PROD] ' + $message) }
     Write-Host ('[WMS PROD] Recibo: ' + $receiptPath)
-    Write-Host '[WMS PROD] Nenhum fallback DEV, migration ou encerramento de processo existente.'
+    Write-Host '[WMS PROD] Consulte o recibo para as etapas concluidas. Nenhum fallback ou encerramento de processo existente.'
     exit $Code
 }
 
@@ -123,6 +124,7 @@ try {
     . (Join-Path $repository 'backend/scripts/prod/start-backend-prod.ps1')
     Assert-WmsProductionFreePort $config.backendPort
     Assert-WmsProductionFreePort $config.frontendPort
+    $receipt['databasePreparation']=Start-WmsEnvironmentPreparation $repository 'PROD'
     $guardHelper = Join-Path $PSScriptRoot 'guarda-wmsprod.ps1'
     $guardHash = (Get-FileHash $guardHelper -Algorithm SHA256).Hash
     $guardLaunchArgs = '-NoProfile -ExecutionPolicy Bypass -File ' + (ConvertTo-WmsProductionArgument $guardHelper)

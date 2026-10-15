@@ -87,7 +87,7 @@ function Get-WmsD21CatalogoEsperado([object[]]$Fontes){
         }
         foreach($i in $t.indices.Values){
             $ordens=@();$sql=(@($fs|Where-Object {$_.arquivo -ceq $i.origem})[0]).texto
-            $m=[regex]::Match((D20LimparSql $sql),'(?s)CREATE(?: UNIQUE)? INDEX '+[regex]::Escape($i.nome)+' ON wms\.'+[regex]::Escape($t.nome)+'\s*\((?<cols>[^)]+)\)')
+            $m=[regex]::Match((D20LimparSql $sql),'(?s)CREATE(?: UNIQUE)? INDEX '+[regex]::Escape($i.nome)+'\s+ON wms\.'+[regex]::Escape($t.nome)+'\s*\((?<cols>[^)]+)\)')
             foreach($p in $m.Groups['cols'].Value -split ','){$ordens+=if($p.Trim() -match '\sDESC$'){'1'}else{'0'}}
             $v=([string][int]$i.unique)+'|'+($i.colunas -join ',')+'|'+($ordens -join ',')+'|'+(@($i.incluidas|Sort-Object) -join ',')+'|'+(Get-WmsD21Expressao $i.filtro)
             $ret.Add([pscustomobject]@{categoria='IDX';tabela=$t.nome;nome=$i.nome;valor=$v})

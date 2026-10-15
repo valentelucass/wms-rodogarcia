@@ -1,5 +1,9 @@
 # Bancos WMS — conexão compartilhada
 
+## Preparação integrada em 15/10/2026
+
+`iniciar-dev.bat` prepara fonte e somente WMS_DEV antes da guarda. `pm2-wms.bat atualizar` e `iniciar` preparam a fonte e executam DEV completo antes de PROD pelo bootstrap protegido, depois as permissões e guarda final antes de trocar os processos. Não precisa executar este BAT de bancos à parte para subir a aplicação. Os bancos devem existir; faltantes são recusados na subida. Mutex comum recusa execução simultânea, sem espera/repetição. O BAT de bancos manual conserva seu bootstrap DEV → PROD. Aplicação continua com identidade própria e migrationsOFF; admin somente no preparador protegido. Recibos em `orchestracao/.runtime/preparo-ambiente/`.
+
 **D27: V10 aplicada somente WMS_DEV. Não usar iniciar-bancos.bat como preparação/continuação D27:** esse launcher percorre DEV→PROD. A autorização atual não inclui aplicar V10 em PROD. [Executor e resultado DEV](docs/d27-migration-dev.md).
 
 WMS_PROD: última evidência real D24, V1–V9. Não conectar ou atualizar PROD nesta D27. [Migration README vigente](migrations/README.md).

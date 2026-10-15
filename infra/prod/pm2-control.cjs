@@ -52,15 +52,15 @@ async function ps(file, args = [], quiet = false) {
       if (code === 0) resolve(output);
       else {
         const error = new Error(reason || 'PROD_PM2_'+path.basename(file,'.ps1').replace(/-/g,'_').toUpperCase()+'_REFUSED_'+code);
-        if (path.basename(file) === 'aplicar-permissoes-prod.ps1') {
+        if (path.basename(file) === 'preparar-ambiente.ps1') {
           try {
             const receipt = JSON.parse(output.replace(/^\uFEFF/, ''));
             const receiptPath = typeof receipt.recibo === 'string' ? path.resolve(receipt.recibo) : '';
-            const relative = path.relative(path.join(root, 'orchestracao/.runtime/cadastros-etiqueta-20261014'), receiptPath);
-            if (receipt.estado === 'INTERROMPIDO' && /^(CAD|SQL|PROD)_[A-Z0-9_]+$/.test(receipt.erro?.codigo) &&
+            const relative = path.relative(path.join(root, 'orchestracao/.runtime/preparo-ambiente'), receiptPath);
+            if (receipt.estado === 'INTERROMPIDO' && /^(D20|D21|D22|CAD|SQL|PROD|DEV02|WMS_PREP)_[A-Z0-9_]+$/.test(receipt.codigo) &&
                 receiptPath && !/[\r\n\0]/.test(receiptPath) && relative && !relative.startsWith('..') && !path.isAbsolute(relative)) {
-              error.controlledCode = receipt.erro.codigo;
-              error.receiptPath = path.join(receiptPath, 'resultado.json');
+              error.controlledCode = receipt.codigo;
+              error.receiptPath = receiptPath;
             }
           } catch { /* Mensagem bruta do helper continua privada. */ }
         }
@@ -158,21 +158,14 @@ async function main() {
     console.log('[WMS PM2] Transferencia para PM2 principal concluida; pm2 save executado.');
     return;
   }
-  if (command === "iniciar") return startSelected();
   console.log("[WMS PM2] Preparando a fonte atual antes de substituir a versao ativa.");
-  // CAD-EDIT01: somente a atualizacao explicita do operador aplica o delta restrito.
-  // A guarda preliminar nao libera a aplicacao; a guarda normal continua obrigatoria.
-  if (command === "atualizar") {
-    console.log("[WMS PM2] Conferindo as permissoes das correcoes cadastrais em WMS_PROD.");
-    const result = JSON.parse((await ps("../cadastros/aplicar-permissoes-prod.ps1", ["-Modo", "Apply"], true)).replace(/^\uFEFF/, ""));
-    if (result.estado !== "DIREITOS_PROD_APLICADOS_E_CONFERIDOS") throw new Error("PROD_CAD_EDIT_NOT_CONFIRMED");
-  }
   await ps("iniciar-prod.ps1", ["-PrepareOnly", "-PrepareForPm2"]);
   const selected = await json(path.join(area, "prepared.json"));
   const expected = path.join(root, "orchestracao/.runtime/launcher-producao/runs", selected.runId, "release.json");
   if (!/^[a-f0-9]{32}$/.test(selected.runId) || path.resolve(selected.releasePath) !== expected ||
       hash(await fs.readFile(expected)).toLowerCase() !== selected.releaseSha256.toLowerCase()) throw new Error("PROD_PM2_PREPARED_INVALID");
   const release = await json(expected);
+  async function assertCurrentSource() {
   const { verifyBuild } = await import(pathToFileURL(path.join(root, "frontend/tools/prod-server.mjs")).href);
   const build = await verifyBuild(path.dirname(release.frontend.manifestPath), release.frontend.manifestPath);
   for (const item of build.manifest.inputs)
@@ -182,11 +175,18 @@ async function main() {
   const source = await json(release.backend.sourceManifest.path);
   for (const item of source.files)
     if (hash(await fs.readFile(path.join(root, "backend", item.path))) !== item.sha256) throw new Error("PROD_PM2_SOURCE_CHANGED");
+  }
+  await assertCurrentSource();
+  console.log("[WMS PM2] Preparando migrations e permissoes antes da interrupcao.");
+  const preparation = JSON.parse((await ps("../../database/scripts/preparar-ambiente.ps1", ["-Ambiente", "PROD", "-Modo", "Apply"], true)).replace(/^\uFEFF/, ""));
+  if (preparation.estado !== "AMBIENTE_ATUALIZADO") throw new Error("PROD_DATABASE_PREPARATION_REFUSED");
   const guardPath = path.join(area, "pre-update-guard-"+randomUUID()+".json");
   console.log("[WMS PM2] Conferindo ambiente antes da interrupcao.");
   await ps("guarda-wmsprod.ps1", ["-EvidencePath", guardPath], true);
   const guard = await json(guardPath);
   if (!guard.guardaRealAprovada) throw new Error("PROD_CURRENT_GUARD_BLOCKED");
+  await assertCurrentSource();
+  if (hash(await fs.readFile(expected)).toLowerCase() !== selected.releaseSha256.toLowerCase()) throw new Error("PROD_PM2_PREPARED_INVALID");
   if (!apps.some(a => a.pm2_env.status === "online")) await ps("pm2-stop-standalone.ps1", ["-InspectOnly"]);
   await stopApps(apps);
   await ps("pm2-stop-standalone.ps1");
@@ -201,8 +201,7 @@ main().catch(err => {
   console.error(/^PROD_[A-Z0-9_]+$/.test(err.message) ? err.message : "PROD_PM2_CONTROL_FAILED");
   if (err.controlledCode && err.receiptPath) {
     console.error('[WMS PM2] Motivo: '+err.controlledCode);
-    if (err.controlledCode === 'CAD_MIGRATIONS_INESPERADAS' || err.controlledCode === 'CAD_MIGRATIONS_DIVERGENTES')
-      console.error('[WMS PM2] O contrato de migrations nao corresponde a fonte atual. Conclua a ativacao da migration pendente (V12) e a atualizacao das guardas antes de publicar. Nenhum processo WMS foi parado.');
+    console.error('[WMS PM2] Preparo interrompido; consulte o recibo. Nenhum processo WMS foi parado.');
     console.error('[WMS PM2] Recibo: '+err.receiptPath);
   }
   if (err.message === 'PROD_PM2_MAIN_ACCESS_REQUIRED')

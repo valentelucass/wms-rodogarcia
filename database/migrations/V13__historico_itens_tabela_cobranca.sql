@@ -5,6 +5,8 @@ IF DB_NAME() <> N'${wmsDatabase}'
 
 ALTER TABLE wms.item_tabela_cobranca ADD ativo bit NOT NULL
     CONSTRAINT df_item_tabela_cobranca_ativo DEFAULT (1) WITH VALUES;
+GO
+
 ALTER TABLE wms.item_tabela_cobranca DROP CONSTRAINT uk_item_tabela_cobranca_1;
 CREATE UNIQUE INDEX uk_item_tabela_cobranca_ativo
     ON wms.item_tabela_cobranca(tabela_id, servico_id, categoria) WHERE ativo = 1;

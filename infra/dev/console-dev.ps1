@@ -60,6 +60,7 @@ function Write-WmsDevConsoleFailure([string]$Reason,[string]$ReceiptPath) {
         '^AUTH_NATIVE_CONFIGURATION_REQUIRED$' { 'Falta a configuracao inicial do login. Use infra\auth\configurar-login-dev.bat.';break }
         '^AUTH_' { 'A configuracao de login precisa ser conferida.';break }
         '^GUARD_' { 'A verificacao do banco nao foi aprovada. Confira a orientacao acima.';break }
+        '^WMS_PREP_' { 'O preparo automatico do banco foi interrompido. Confira o motivo e o recibo acima; a instancia anterior foi preservada.';break }
         '^BACKEND_NOT_READY$' { 'O backend nao ficou disponivel. O registro abaixo contem o diagnostico.';break }
         '^FRONTEND_' { 'A interface nao ficou disponivel. Confira as dependencias e o registro abaixo.';break }
         '^PREPARATION_ARTIFACT_MISSING$' { 'Faltam arquivos preparados para iniciar o sistema.';break }

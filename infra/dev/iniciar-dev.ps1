@@ -12,6 +12,7 @@ $repository = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 . (Join-Path $PSScriptRoot 'espera-conexao.ps1')
 . (Join-Path $PSScriptRoot 'artefato-backend.ps1')
 . (Join-Path $PSScriptRoot 'reiniciar-instancia.ps1')
+. (Join-Path $PSScriptRoot 'preparo-ambiente.ps1')
 $connectionWaitPolicy = Get-WmsDevConnectionWaitPolicy
 $runsRoot = Join-Path $repository 'orchestracao/.runtime/be02-dev-fonte01/prumo/runs'
 $runId = [guid]::NewGuid().ToString('D')
@@ -136,7 +137,8 @@ try {
     $vitePath = Join-Path $frontendRoot 'node_modules/vite/bin/vite.js'
     if (-not (Test-Path -LiteralPath $vitePath -PathType Leaf)) { Fail-Startup 60 'FRONTEND_DEPENDENCIES_MISSING' }
     Write-WmsDevConsoleStep 1 'Configuracao inicial conferida' -Done
-    Write-WmsDevConsoleStep 2 'Verificando conexao e estrutura do WMS_DEV...'
+    Write-WmsDevConsoleStep 2 'Atualizando e verificando o WMS_DEV...'
+    $receipt['databasePreparation']=Start-WmsEnvironmentPreparation $repository 'DEV'
     Write-Host ('  Abertura SQL: ate '+$connectionWaitPolicy.ConnectTimeoutSeconds+'s; consultas: ate '+$connectionWaitPolicy.CommandTimeoutSeconds+'s cada; verificacao total: ate '+$connectionWaitPolicy.GuardTimeoutSeconds+'s.') -ForegroundColor DarkGray
     $receipt['connectionWaitPolicy'] = $connectionWaitPolicy
 
@@ -282,6 +284,7 @@ try {
     Write-Host '  Execute iniciar-dev.bat quando quiser iniciar novamente.' -ForegroundColor Yellow
     exit 1
 } catch {
+    if ($_.Exception.Message -match '^WMS_PREP_[A-Z_]+$') { Fail-Startup 20 $_.Exception.Message }
     # Nao imprimir excecao arbitraria: pode conter configuracao ou argumento sensivel.
     if ($_.Exception.Message -match '^DEV_RESTART_[A-Z_]+$') { Fail-Startup 50 $_.Exception.Message }
     if ($_.Exception.Message -match '^DEV_CURRENT_[A-Z_]+$') { Fail-Startup 30 $_.Exception.Message }

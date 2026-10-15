@@ -6,7 +6,7 @@ $Db=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 . (Join-Path $PSScriptRoot 'd22-fixture.ps1')
 $casos=New-Object 'Collections.Generic.List[object]'
 function Caso([string]$Nome,[scriptblock]$Teste){$erro=$null;try{& $Teste}catch{$erro=$_.Exception.Message};$casos.Add([pscustomobject]@{caso=$Nome;aprovado=($null -eq $erro);erro=$erro})}
-function Exigir([bool]$Ok){if(-not $Ok){throw 'D22_FIXTURE_DIVERGENTE'}}
+function Exigir([bool]$Ok){if(-not $Ok){throw ('D22_FIXTURE_DIVERGENTE_LINHA_'+(Get-PSCallStack)[1].ScriptLineNumber)}}
 function Recusa([scriptblock]$Acao,[string]$Codigo){$falhou=$false;try{& $Acao}catch{$falhou=$_.Exception.Message -like ('*'+$Codigo+'*')};Exigir $falhou}
 function Disposto([Security.SecureString]$Senha){try{$x=$Senha.Copy();$x.Dispose();$false}catch{$e=$_.Exception;while($e.InnerException){$e=$e.InnerException};$e -is [ObjectDisposedException]}}
 function Descartes($F){Exigir (Disposto $F.estado.senha);foreach($c in $F.estado.copias){Exigir (Disposto $c)}}
@@ -23,7 +23,8 @@ Caso 'DPAPI REAL ficticia Export Import SecureString somente nenhuma SQL' {
 Caso 'Automatica sem confirmar DEV completo primeiro e 13 copias descartadas' {
     $f=New-WmsD22LauncherFixture;$f.adaptadores.Confirmar={throw 'PROMPT_INDEVIDO'}
     $r=Invoke-WmsD22InicioAutomatico -Adaptadores $f.adaptadores
-    Exigir ($r.resultado -ceq 'DEV_PROD_BOOTSTRAP_UPGRADE_CONCLUIDO' -and $f.estado.copias.Count -eq 13)
+    if($r.resultado -cne 'DEV_PROD_BOOTSTRAP_UPGRADE_CONCLUIDO'){throw ($r.codigo+'_'+$r.fase)}
+    Exigir ($f.estado.copias.Count -eq 13)
     Exigir (($f.estado.eventos -join ',') -ceq 'Credencial,Preflight,Inspect,Create:WMS_DEV,PreValidate:WMS_DEV,Migrate:WMS_DEV,PostValidate:WMS_DEV,Info:WMS_DEV,Schema:WMS_DEV,Create:WMS_PROD,PreValidate:WMS_PROD,Migrate:WMS_PROD,PostValidate:WMS_PROD,Info:WMS_PROD,Schema:WMS_PROD')
     Descartes $f
 }

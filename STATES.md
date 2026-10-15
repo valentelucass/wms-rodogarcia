@@ -1,5 +1,9 @@
 # Estado e trilha de implementação do WMS Rodogarcia
 
+## PREPARO-AUTO01 — partida sempre atualizada, 15/10/2026
+
+Pedido de Lucas: deixar qualquer ambiente pronto ao iniciar; depois solicitou ao agente subir PROD e reservou DEV para ele. Implementado build atual → migrations/permissões → guarda → troca somente dos processos atestados. DEV prepara somente WMS_DEV; PROD mantém DEV completo antes de PROD pelo bootstrap existente, com mutex comum e somente bancos existentes. Corrigido parser local da V13 (índice multilinha e DEFAULT WITH VALUES), sem alterar migrations. TLS privado atual, sem profile/factory que recapture confiança. 143 verificações locais aprovadas, planos DEV/PROD sem SQL. Pacote PROD atual compilado em `4878b4f589094eb29b46991dfe035f38`, hashes e fontes conferidos; seleção ativa anterior `bbc5f90dd7904ef2a5aa64e06b9ab493` preservada. Subida PROD tentada: PM2 exigiu administrador; elevação RunAs retornou cancelada pelo usuário. Nenhum SQL, migration/grant ou processo operacional alterado pelo agente nesta tentativa. Recibo `orchestracao/.runtime/preparo-20261015/publicacao-f158377a24374b99a242468fd8dea4fc/pendencia.json`. Não transportar aprovação dos testes puros como aceite real. [Guia](docs/45-producao-pm2.md).
+
 ## TAB-EDIT01 — editar tabelas e integrar os vínculos, 15/10/2026
 
 Pedido de Lucas implementado na fonte: Editar em tabelas ativas para Gestor, com descrição/contexto/vigência e alteração, inclusão e remoção de serviços. Retirada a etapa lateral “Vínculos por cliente”; manutenção dos vínculos integrada a “Tabelas e vigências”. Preços antigos e IDs dos itens históricos permanecem preservados; revisão, motivo, repetição, alcance e auditoria transacionais. Mudanças de contexto ou período que reinterpretariam vínculo/cálculo são recusadas com orientação. [Contrato, V13 e seis permissões novas](docs/design-system/etapa-18-tabelas-cobranca.md).
