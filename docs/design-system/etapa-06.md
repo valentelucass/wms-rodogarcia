@@ -149,6 +149,66 @@ Ajuda de configuração/mínimo/GRIS/resolução em `information.ts`, revisada c
 
 Fonte pronta; preview próprio encerrado, sem SQL/backend, reinício operacional ou publicação. Transporte fictício não comprova integração real nem atualização da instância ativa; DEV pelo operador no fluxo habitual.
 
+## Seleção do serviço — FE11-SERV-SEL01
+
+Pedido de Lucas em 15/10/2026: Selecionar este registro parecia não responder nos detalhes de um serviço. A abertura da consulta já selecionava o registro, e o botão repetia a seleção sem fechar a janela ou confirmar visualmente. `RecordWorkspace` deixa de selecionar serviços pela abertura; o botão do leitor especializado em `RecordDialog` seleciona explicitamente e fecha após a guarda existente.
+
+Ao retornar à lista, mensagem com `role=status` identifica o serviço escolhido. `RecordTable.selectedId` marca a linha com fundo verde discreto e texto Selecionado, usando os tokens dos dois temas. O foco retorna ao botão que abriu os detalhes. Consultar/fechar outro serviço preserva a seleção; selecionar outro substitui o anterior e mantém apenas um marcador. A seleção chega ao contexto da jornada e ao serviço do novo item de tabela, com ID/revisão originais. Não executa escrita de negócio nem altera permissões. Outros tipos de registro e seleções internas permanecem como antes; nenhuma ajuda do catálogo foi acrescentada.
+
+**Conferência:** 46 testes frontend em cinco arquivos, incluindo três casos integrados de seleção/fechamento/confirmação/contexto/perfis; tipagem, lint focal, formatação e build aprovados. Chrome com transporte fictício em oito layouts claro/escuro, 390/768/1024/1440 px, sem overflow da página. Conferidos Enter, retorno do foco, consulta passiva, substituição explícita, ID Long/revisão exatos e Nova tabela recebendo o serviço escolhido. Supervisor seleciona sem ganhar criação/auditoria. Capturas desktop/celular e próxima etapa inspecionadas. [Galeria](../../orchestracao/.runtime/service-selection-20261015/galeria.html), [recibo](../../orchestracao/.runtime/service-selection-20261015/validacao.json).
+
+Fonte pronta; preview próprio encerrado, sem SQL/backend, reinício operacional ou publicação. Transporte fictício não comprova integração real nem atualização da instância ativa; DEV pelo operador no fluxo habitual.
+
+## Filtros da contagem física — FE12-CONT-FILTROS01
+
+Pedido de Lucas em 15/10/2026 a partir da imagem de Contagem física. `ContagemController.listar` reutiliza `StockQueryFilters` em `RecordWorkspace`: Cliente e armazém, Identificação da unidade (produto/UUID) e Localização e situação (endereço/situação/impedimento). Os dois primeiros grupos dividem a linha no desktop; endereço ocupa metade do último grupo e os dois seletores de resultado dividem o restante. Tablet empilha grupos, dando linha própria ao endereço; celular usa uma coluna. Aplicar/Restaurar ficam alinhados em faixa abaixo dos filtros, separados da busca local/Atualizar lista.
+
+Reutilizados campos, estilos e estados existentes; apenas a escolha do apresentador e o agrupamento de impedimento foram ampliados. Preservados critérios, padrões, ID Long/UUID, distinção entre contar/aplicar ajuste e permissões. Orientação atual da jornada revisada e mantida; nenhuma ajuda do catálogo foi acrescentada. O navegador não calcula diferença nem confirma ajuste automaticamente.
+
+**Conferência:** 42 testes frontend existentes em cinco arquivos, tipagem, lint focal, formatação e build aprovados. Chrome com transporte fictício em dez layouts claro/escuro, 390/768/1024/1280/1600 px: sete filtros sem ausência/duplicação, seletores com pelo menos 250 px, comandos alinhados e sem overflow. Enter, toque de 44 px no celular, IDs/UUID/situação/impedimento exatos, restauração, bloqueio durante consulta, erro/recuperação e perfis Gestor/Supervisor/Operação conferidos. Capturas desktop/celular inspecionadas. [Galeria](../../orchestracao/.runtime/count-filters-20261015/galeria.html), [recibo](../../orchestracao/.runtime/count-filters-20261015/validacao.json).
+
+Fonte pronta; preview próprio encerrado, sem SQL/backend, reinício operacional ou publicação. Transporte fictício não comprova integração real nem atualização da instância ativa; DEV pelo operador no fluxo habitual.
+
+## Filtros da carga inicial — FE12-CARGA-FILTROS01
+
+Pedido de Lucas em 15/10/2026 a partir da imagem de Carga inicial excepcional. `CargaInicialController.listar` reutiliza `StockQueryFilters`, com dois grupos empilhados: Cliente e armazém e Dados da carga. Desktop distribui produto, referência e situação em 2:1:1, com rótulos/controles alinhados. Abaixo de 1280 px, produto ganha linha inteira e referência/situação ficam abaixo; celular usa uma coluna. Aplicar/Restaurar ficam alinhados à direita em faixa própria, separados da busca local/Atualizar lista. O empilhamento evita sobra excessiva dentro do grupo de cliente/armazém.
+
+Somente apresentador/estilos: `Fields`, seletores, consulta, padrões, IDs, referência e situação canônica preservados. Ajuda atual da jornada revisada e mantida; nenhuma entrada do catálogo precisou mudar. Preparação não vira liberação de saída; regularização, versão/revisão/hash, etiquetas e permissões continuam regidos pelo backend.
+
+**Conferência:** 42 testes frontend existentes em cinco arquivos, tipagem, lint focal, formatação e build aprovados. Chrome com transporte fictício em dez layouts claro/escuro, 390/768/1024/1280/1600 px: cinco filtros sem ausência/duplicação, campos com pelo menos 250 px, produto mais largo e sem overflow. Enter, toque de 44 px no celular, IDs Long/referência/situação exatos, restauração, pendência, erro/recuperação e acesso de Gestor/Supervisor conferidos; Operação sem acesso. Ajuste final de proporção conferido novamente no navegador e build. Capturas desktop/tablet/celular inspecionadas. [Galeria](../../orchestracao/.runtime/initial-load-filters-20261015/galeria.html), [recibo](../../orchestracao/.runtime/initial-load-filters-20261015/validacao.json).
+
+Fonte pronta; preview próprio encerrado, sem SQL/backend, reinício operacional ou publicação. Transporte fictício não comprova integração real nem atualização da instância ativa; DEV pelo operador no fluxo habitual.
+
+## Filtros da contingência — FE12-CONTING-FILTROS01
+
+Pedido de Lucas em 15/10/2026 a partir da imagem de Registrar fatos da planilha. `ContingenciaController.listar` reutiliza `StockQueryFilters` com dois grupos empilhados: Cliente e armazém e Registro e situação. O segundo apresenta identidade/tipo na primeira linha e situação/pendência na seguinte. Desktop/tablet usam duas colunas; celular usa uma. Campos maiores acomodam o rótulo de identidade sem deslocar o controle em relação a Tipo. Aplicar/Restaurar ficam em faixa própria, separados da busca local/Atualizar lista.
+
+`groupsBySchema` reúne os agrupamentos específicos de indicadores, carga inicial e contingência; estoque/contagem mantêm o agrupamento padrão. Reutilizados `Fields`, seletores, valores, critérios e estados. Orientação da jornada revisada e preservada; nenhuma entrada do catálogo precisou mudar. Conciliação continua explícita e dependente de versão/hash, dependências e prova da operação original; nenhuma fila automática ou operação de negócio foi criada.
+
+**Conferência:** 42 testes frontend existentes em cinco arquivos, tipagem, lint focal, formatação e build aprovados. Chrome com transporte fictício em dez layouts claro/escuro, 390/768/1024/1280/1600 px: seis filtros sem ausência/duplicação, campos com pelo menos 250 px, controles/comandos alinhados e sem overflow. Enter, toque de 44 px no celular, IDs Long/identidade/tipo/situação/pendência exatos, restauração, bloqueio durante consulta e erro/recuperação conferidos. Gestor/Supervisor mantêm consulta/registro; Operação sem acesso. Capturas desktop/tablet/celular inspecionadas. [Galeria](../../orchestracao/.runtime/contingency-filters-20261015/galeria.html), [recibo](../../orchestracao/.runtime/contingency-filters-20261015/validacao.json).
+
+Fonte pronta; preview próprio encerrado, sem SQL/backend, reinício operacional ou publicação. Transporte fictício não comprova integração real nem atualização da instância ativa; DEV pelo operador no fluxo habitual.
+
+## Identificação da consulta de histórico — FE02-AUD-CLAREZA01
+
+Pedido de Lucas em 15/10/2026: marcação roxa Auditar Serviço considerada confusa. `AuditSelection` separa os dados da ação. Cartão neutro identifica Registro selecionado e tipo; serviço apresenta nome e código separados. Botão roxo Ver histórico recebe ícone próprio e nome acessível com o alvo. Cabeçalho Histórico de alterações e orientação visível explicam a finalidade. Textos principal/legado centralizados em `information.ts`. Sem identificação completa, são apresentados código ou ID disponíveis; nenhum nome é inventado. A área dos dados não executa a consulta.
+
+`JourneyPage` passa a selecionar o alvo e abrir a etapa de auditoria no mesmo clique, respeitando `canLeavePage`. Antes, o comando apenas preparava o alvo. A consulta existente recebe o tipo e o ID originais. `RecordWorkspace` usa Histórico de alterações como título geral e Legado não atribuído para esse namespace, com explicações do mesmo catálogo; serviço não é apresentado como vínculo. Histórico confirmado e legado não atribuído permanecem separados em conteúdo e namespace. Permissões/contratos não foram ampliados. O leitor interno de auditoria conserva o contexto do seu diálogo.
+
+**Conferência:** 34 testes frontend em sete arquivos, incluindo dois novos casos de navegação com serviço e legado de mesmo ID Long; tipagem, lint focal, formatação e build aprovados. Chrome fictício em dez layouts claro/escuro, 390/768/1024/1280/1600 px: sem overflow, nome/código separados, ação por Enter e etapa aberta com tipo/ID exatos. Conferidos múltiplos alvos, os 17 tipos, código/ID sem nome, vazio, textos longos, bloqueio e toque de 44 px no celular. Supervisor/Operação continuam sem auditoria; transporte somente GET fictício. Capturas inspecionadas. [Galeria](../../orchestracao/.runtime/audit-target-clarity-20261015/galeria.html), [recibo](../../orchestracao/.runtime/audit-target-clarity-20261015/validacao.json).
+
+Fonte pronta; preview próprio encerrado, sem SQL/backend, reinício operacional ou publicação. Transporte fictício não comprova integração real nem atualização da instância ativa; DEV pelo operador no fluxo habitual.
+
+## Apresentação da contingência — FE12-CONTING-TEXTO01
+
+Pedido de Lucas em 15/10/2026: texto grande e estranho no cabeçalho de Registrar fatos da planilha. A etapa apresenta apenas “Registre os fatos da planilha após a recuperação da conexão.” Como funciona fica junto de Registrar ocorrência, com aparência secundária; o comando principal permanece azul. Detalhes são consultados no popup existente, em quatro assuntos: Dados do fato, Conciliação, Pendências e Reenvio.
+
+Texto centralizado em `information.contingencyRegistration`, preservando registro manual, dados específicos de CHEGADA, versão/hash, execução/vínculo explícitos, prova da operação original, dependências, conflitos e confirmação original no reenvio. A observação específica sobre exercício não ocupa o cabeçalho compartilhado. Nenhuma fila automática, operação de negócio ou permissão foi criada. `InformationHint.label` é opcional; consumidores anteriores continuam com ícone e comportamento existentes.
+
+**Conferência:** 44 testes frontend existentes em quatro arquivos, tipagem, lint focal, formatação e build aprovados. Chrome fictício em dez layouts claro/escuro, 390/768/1024/1280/1600 px: resumo em até duas linhas e ajuda dentro da tela em desktop/celular. Conferidos conteúdo dos quatro assuntos, Enter/Escape, foco preservado, toque de 44 px, ajuda sem abrir registro/escrever, seis critérios exatos, restauração, pendência/erro/recuperação e perfis. Capturas inspecionadas após a animação do popup. [Galeria](../../orchestracao/.runtime/contingency-intro-20261015/galeria.html), [recibo](../../orchestracao/.runtime/contingency-intro-20261015/validacao.json).
+
+Fonte pronta; preview próprio encerrado, sem SQL/backend, reinício operacional ou publicação. Transporte fictício não comprova integração real nem atualização da instância ativa; DEV pelo operador no fluxo habitual.
+
 ## Cobertura e fontes
 
 O [inventário por página](inventario-paginas.md) registra a visão anterior, a fonte principal, o detalhe, cada ação migrada, DTOs, campos, permissões, referências obrigatórias e fontes de validação. São 171 ocorrências de ações, incluindo comandos compartilhados entre etapas. O [inventário estruturado](../../frontend/evidencias/record-pages-inventario.json) é gerado pela verificação das definições reais, sem excluir ações para reduzir o denominador.

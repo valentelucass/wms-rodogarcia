@@ -275,7 +275,13 @@ export function RecordTable({
                         const identity = recordIdentity(row);
                         const operation = canOperate?.(row);
                         return (
-                            <tr key={identity} data-record-id={identity} data-selected={identity === selectedId ? "true" : undefined}>
+                            <tr
+                                key={identity}
+                                data-record-id={identity}
+                                data-selected={
+                                    identity === selectedId ? "true" : undefined
+                                }
+                            >
                                 {keys.map((key, i) => (
                                     <td
                                         key={key}
@@ -294,21 +300,25 @@ export function RecordTable({
                                     >
                                         {i === 0 ? (
                                             <>
-                                            <button
-                                                className="record-link"
-                                                type="button"
-                                                disabled={pending}
-                                                onClick={() => onOpen(row)}
-                                                aria-label={`Ver detalhes de ${recordTitle(row)}`}
-                                            >
-                                                <ReferenceValue
-                                                    field={key}
-                                                    value={values[key]}
-                                                    row={values}
-                                                    type={type}
-                                                />
-                                            </button>
-                                            {identity === selectedId && <span className="record-selection-marker">Selecionado</span>}
+                                                <button
+                                                    className="record-link"
+                                                    type="button"
+                                                    disabled={pending}
+                                                    onClick={() => onOpen(row)}
+                                                    aria-label={`Ver detalhes de ${recordTitle(row)}`}
+                                                >
+                                                    <ReferenceValue
+                                                        field={key}
+                                                        value={values[key]}
+                                                        row={values}
+                                                        type={type}
+                                                    />
+                                                </button>
+                                                {identity === selectedId && (
+                                                    <span className="record-selection-marker">
+                                                        Selecionado
+                                                    </span>
+                                                )}
                                             </>
                                         ) : ["situacao", "condicao"].includes(
                                               key,

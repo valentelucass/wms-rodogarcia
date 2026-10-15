@@ -24,7 +24,7 @@
     min-width: 0;
     max-width: 100%;
 }
-.audit-selection-target > button {
+.audit-selection-target button {
     max-width: 100%;
     white-space: normal;
     overflow-wrap: anywhere;
@@ -76,27 +76,76 @@
     min-width: 0;
 }
 .audit-selection .audit-selection-target {
-    flex: 1 1 260px;
-    max-width: 480px;
+    flex: 1 1 360px;
+    max-width: 720px;
     min-width: 0;
+    padding: var(--og-space-3);
+    border: 1px solid var(--og-border);
+    border-radius: var(--og-radius-control);
+    background: var(--og-surface);
 }
 .audit-selection .audit-selection-target--legacy {
     flex-basis: 100%;
     max-width: none;
 }
-.audit-selection .audit-selection-target > button {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+.audit-target-main {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--og-space-3);
+}
+.audit-target-summary {
+    display: grid;
     gap: var(--og-space-1);
-    width: 100%;
-    text-align: left;
+    min-width: 0;
+}
+.audit-target-main > button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--og-space-2);
 }
 .audit-target-kind {
     font-size: var(--og-type-caption);
+    color: var(--og-text-muted);
 }
 .audit-target-name {
     overflow-wrap: anywhere;
+}
+.audit-target-code {
+    margin: 0;
+    font-size: var(--og-type-caption);
+}
+.audit-target-code > div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--og-space-1) var(--og-space-2);
+}
+.audit-target-code dt {
+    color: var(--og-text-muted);
+}
+.audit-target-code dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+.audit-target-legacy {
+    display: grid;
+    justify-items: start;
+    gap: var(--og-space-2);
+    margin-top: var(--og-space-3);
+    padding-top: var(--og-space-3);
+    border-top: 1px solid var(--og-border);
+}
+.audit-target-legacy p {
+    margin: 0;
+}
+@media (max-width: 767px) {
+    .audit-target-main {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .audit-selection-target button {
+        min-height: var(--og-touch-height);
+    }
 }
 .record-workspace[data-record-source="ConfiguracaoCobrancaController.tabelas"]
     .record-filters

@@ -222,7 +222,7 @@ it("FE12-04 relatório auditoria Gestor consulta filtros e Operação não tem a
     await click("Consultar clientes para auditoria");
     await screen.findByRole("button", { name: "Selecionar registro 1" });
     await click("Selecionar registro 1");
-    await click("Auditar Cliente Cliente fictício 1 · DEMO-1");
+    await click("Ver histórico de Cliente: Cliente fictício 1 · DEMO-1");
     selected("Tipo *", "CLIENTE");
     selected("Registro Id *", "1");
     await consult();

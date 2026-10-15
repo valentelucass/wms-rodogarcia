@@ -54,7 +54,16 @@ export function JourneyPage({
         ),
     );
     const selectionLocked = false;
-    const selectRecord = (v: Values, type: string) => onRecord(v, type);
+    const selectRecord = (v: Values, type: string) => {
+        if (type === "Auditoria.alvo" && !canLeavePage()) return;
+        onRecord(v, type);
+        if (type === "Auditoria.alvo") {
+            const auditStep = journey.steps.findIndex((s) =>
+                s.actions.includes("AuditoriaController.listar"),
+            );
+            if (auditStep >= 0) setStep(auditStep);
+        }
+    };
     const derived = operationContext(
         recordPages[journey.id][step].source,
         context,

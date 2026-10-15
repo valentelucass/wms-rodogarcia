@@ -236,7 +236,13 @@ export function InformationCard({
     );
 }
 
-export function InformationHint({ topic }: { topic: InformationKey }) {
+export function InformationHint({
+    topic,
+    label,
+}: {
+    topic: InformationKey;
+    label?: string;
+}) {
     const content = information[topic];
     const { anchorProps, popup, show } =
         useInformationPopup<HTMLButtonElement>(content);
@@ -245,11 +251,19 @@ export function InformationHint({ topic }: { topic: InformationKey }) {
             <button
                 {...anchorProps}
                 type="button"
-                className="information-hint"
-                aria-label={informationLabels.help(content.title)}
+                className={
+                    "information-hint" +
+                    (label ? " information-hint--labelled" : "")
+                }
+                aria-label={
+                    label
+                        ? `${label}: ${content.title}`
+                        : informationLabels.help(content.title)
+                }
                 onClick={show}
             >
                 <span aria-hidden="true">i</span>
+                {label}
             </button>
             {popup}
         </>

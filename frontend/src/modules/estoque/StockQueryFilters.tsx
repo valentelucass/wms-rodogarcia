@@ -10,7 +10,7 @@ const stockGroups: FilterGroup[] = [
     },
     {
         title: "Localização e situação",
-        names: ["enderecoId", "disponivel", "situacao"],
+        names: ["enderecoId", "disponivel", "situacao", "impedimento"],
         kind: "location",
     },
 ];
@@ -22,18 +22,42 @@ const indicatorGroups: FilterGroup[] = [
     },
     { title: "Opções do relatório", names: ["valor", "fuso"], kind: "options" },
 ];
+const initialLoadGroups: FilterGroup[] = [
+    stockGroups[0],
+    {
+        title: "Dados da carga",
+        names: ["produtoId", "referencia", "situacao"],
+        kind: "initial-load",
+    },
+];
+const contingencyGroups: FilterGroup[] = [
+    stockGroups[0],
+    {
+        title: "Registro e situação",
+        names: ["identidadeFato", "tipo", "situacao", "pendencia"],
+    },
+];
+const groupsBySchema: Record<string, FilterGroup[]> = {
+    "IndicadorEstoqueController.listar.query": indicatorGroups,
+    "CargaInicialController.listar.query": initialLoadGroups,
+    "ContingenciaController.listar.query": contingencyGroups,
+};
 
 export function StockQueryFilters(props: ComponentProps<typeof Fields>) {
     const indicators =
         props.schema === "IndicadorEstoqueController.listar.query";
-    const groups = indicators ? indicatorGroups : stockGroups;
+    const initialLoad = props.schema === "CargaInicialController.listar.query";
+    const contingency = props.schema === "ContingenciaController.listar.query";
+    const groups = groupsBySchema[props.schema ?? ""] ?? stockGroups;
     const known = new Set(groups.flatMap((group) => group.names));
     const other = props.fields.filter((field) => !known.has(field.name));
     return (
         <div
             className={
                 "stock-filter-grid" +
-                (indicators ? " stock-filter-grid--indicators" : "")
+                (indicators ? " stock-filter-grid--indicators" : "") +
+                (initialLoad ? " stock-filter-grid--initial-load" : "") +
+                (contingency ? " stock-filter-grid--contingency" : "")
             }
         >
             {groups.map((group) => {

@@ -44,6 +44,13 @@
 .stock-filter-group--indicator-context > .field:last-of-type {
     grid-column: 1 / -1;
 }
+.stock-filter-grid--initial-load,
+.stock-filter-grid--contingency {
+    grid-template-columns: minmax(0, 1fr);
+}
+.stock-filter-grid > .stock-filter-group--initial-load {
+    grid-template-columns: minmax(0, 2fr) repeat(2, minmax(0, 1fr));
+}
 .stock-filter-grid > .stock-filter-group--options {
     grid-template-columns: minmax(0, 1fr);
 }
@@ -60,6 +67,12 @@
     .stock-filter-grid > .stock-filter-group--options {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
+    .stock-filter-grid > .stock-filter-group--initial-load {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .stock-filter-group--initial-load > .field:first-of-type {
+        grid-column: 1 / -1;
+    }
 }
 @media (min-width: 768px) and (max-width: 1279px) {
     .stock-filter-grid > .stock-filter-group--location {
@@ -72,7 +85,8 @@
 @media (max-width: 767px) {
     .stock-filter-grid > .stock-filter-group,
     .stock-filter-grid > .stock-filter-group--location,
-    .stock-filter-grid > .stock-filter-group--options {
+    .stock-filter-grid > .stock-filter-group--options,
+    .stock-filter-grid > .stock-filter-group--initial-load {
         grid-template-columns: minmax(0, 1fr);
     }
     .record-filters--stock .record-filter-actions > button {

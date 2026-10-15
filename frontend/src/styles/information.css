@@ -84,6 +84,24 @@
     background: transparent;
     color: var(--og-text);
 }
+.information-hint--labelled {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--og-space-2);
+    width: auto;
+    min-height: 38px;
+    padding: var(--og-space-2) var(--og-space-3);
+    border: 1px solid var(--og-border-strong);
+    border-radius: var(--og-radius-control);
+    color: var(--og-text);
+    background: var(--og-surface);
+    font-size: var(--og-type-body);
+    font-weight: 500;
+}
+.information-hint--labelled:hover:not(:disabled) {
+    background: var(--og-surface-raised);
+}
 .overview-map-heading {
     justify-content: flex-start;
     gap: 4px;
@@ -114,6 +132,14 @@
     .information-hint {
         width: 44px;
         min-height: 44px;
+    }
+    .information-hint--labelled {
+        width: auto;
+    }
+}
+@media (max-width: 767px) {
+    .information-hint--labelled {
+        min-height: var(--og-touch-height);
     }
 }
 @media (prefers-reduced-motion: reduce) {

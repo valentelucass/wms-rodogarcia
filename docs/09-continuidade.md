@@ -1,5 +1,41 @@
 # Continuidade do projeto WMS Rodogarcia
 
+## FE12-CONTING-TEXTO01 — resumo e ajuda da contingência, 15/10/2026
+
+`regularizacao/definition.ts` conserva uma frase curta na etapa de contingência. `RecordWorkspace` oferece Como funciona somente em `ContingenciaController.listar` com consulta permitida. Conteúdo detalhado em `information.contingencyRegistration`; `InformationHint.label` é opcional e permite botão com texto, preservando consumidores de ícone. Variante local de CSS mantém toque, teclado e popup padrão. [Definição](design-system/etapa-06.md#apresentação-da-contingência--fe12-conting-texto01).
+
+44 testes existentes em quatro arquivos, tipagem/lint/formatação/build e dez layouts Chrome fictícios aprovados. Conferidos resumo curto, ajuda completa dentro da tela, Enter/Escape/foco, toque de 44 px, ausência de operação ao abrir ajuda, critérios exatos e perfis. [Galeria](../orchestracao/.runtime/contingency-intro-20261015/galeria.html), [recibo](../orchestracao/.runtime/contingency-intro-20261015/validacao.json). Preview próprio encerrado; sem SQL/backend, reinício operacional ou publicação. Versão ativa não medida; DEV pelo operador. Preservar alterações anteriores da árvore.
+
+## FE02-AUD-CLAREZA01 — cartão de histórico com ação explícita, 15/10/2026
+
+`AuditSelection` usa cartão neutro, tipo selecionado, nome/código de serviço separados e botão Ver histórico; nome acessível identifica o alvo. Dados parciais exibem código ou ID disponível, sem inventar nome. Textos principal/legado em `information.ts`; ícone history no catálogo existente. `JourneyPage.selectRecord` preserva a guarda de rascunho e abre a etapa `AuditoriaController.listar` após selecionar `Auditoria.alvo`. `RecordWorkspace` usa título/ajuda do catálogo conforme histórico geral ou namespace de legado. Aplicação do alvo e namespace de legado permanecem em `auditTargets`. [Definição](design-system/etapa-06.md#identificação-da-consulta-de-histórico--fe02-aud-clareza01).
+
+34 testes em sete arquivos, tipagem/lint/formatação/build e dez layouts Chrome fictícios aprovados; dois novos testes de navegação/ID/namespace. Conferidos os 17 tipos, múltiplos alvos, dados parciais, textos longos, vazio/bloqueio, teclado/toque e perfis. [Galeria](../orchestracao/.runtime/audit-target-clarity-20261015/galeria.html), [recibo](../orchestracao/.runtime/audit-target-clarity-20261015/validacao.json). Preview próprio encerrado; sem SQL/backend, reinício operacional ou publicação. Versão ativa não medida; DEV pelo operador. Preservar alterações anteriores da árvore.
+
+## FE12-CONTING-FILTROS01 — consulta de contingência em grupos, 15/10/2026
+
+`RecordWorkspace` passa `ContingenciaController.listar` ao `StockQueryFilters`. Grupo cliente/armazém e grupo Registro e situação (identidade/tipo/situação/pendência), empilhados; campos em duas colunas ou uma no celular. `groupsBySchema` reúne os três agrupamentos específicos já utilizados, preservando o padrão de estoque/contagem. `Fields`, controles e orientação da jornada mantidos. [Definição](design-system/etapa-06.md#filtros-da-contingência--fe12-conting-filtros01).
+
+42 testes existentes em cinco arquivos, tipagem/lint/formatação/build e dez layouts Chrome fictícios aprovados. Conferidos critérios exatos, rótulo longo, teclado/toque, restauração, pendência/erro/recuperação e perfis: Gestor/Supervisor com consulta/registro; Operação sem acesso. [Galeria](../orchestracao/.runtime/contingency-filters-20261015/galeria.html), [recibo](../orchestracao/.runtime/contingency-filters-20261015/validacao.json). Preview próprio encerrado; sem SQL/backend, reinício operacional ou publicação. Versão ativa não medida; DEV pelo operador. Preservar alterações anteriores da árvore.
+
+## FE12-CARGA-FILTROS01 — consulta de carga inicial em grupos, 15/10/2026
+
+`RecordWorkspace` passa `CargaInicialController.listar` ao `StockQueryFilters`, com grupos específicos para cliente/armazém e produto/referência/situação. Estilos locais `stock-filter-grid--initial-load` e `stock-filter-group--initial-load` empilham os grupos e distribuem os dados em 2:1:1 no desktop; tablet coloca produto acima de referência/situação e celular usa uma coluna. `Fields`, seletores, contrato e orientação da jornada preservados. [Definição](design-system/etapa-06.md#filtros-da-carga-inicial--fe12-carga-filtros01).
+
+42 testes existentes em cinco arquivos, tipagem/lint/formatação/build e dez layouts Chrome fictícios aprovados. Conferidos critérios exatos, restauração, teclado/toque, consulta pendente/erro/recuperação e perfis: Gestor/Supervisor com consulta/criação; Operação sem acesso. [Galeria](../orchestracao/.runtime/initial-load-filters-20261015/galeria.html), [recibo](../orchestracao/.runtime/initial-load-filters-20261015/validacao.json). Preview próprio encerrado; sem SQL/backend, reinício operacional ou publicação. Versão ativa não medida; DEV pelo operador. Preservar alterações anteriores da árvore.
+
+## FE12-CONT-FILTROS01 — consulta de contagem física em grupos, 15/10/2026
+
+`RecordWorkspace` passa `ContagemController.listar` ao `StockQueryFilters`. Grupo Localização e situação reconhece `impedimento`, sem criar campos que não estejam no contrato recebido. Reutiliza `Fields`, seletores e CSS existentes; três grupos e comandos abaixo, com adaptação a tablet/celular. Orientação da jornada revisada e mantida. [Definição](design-system/etapa-06.md#filtros-da-contagem-física--fe12-cont-filtros01).
+
+42 testes existentes em cinco arquivos, tipagem/lint/formatação/build e dez layouts Chrome fictícios aprovados. Conferidos sete campos, IDs Long/UUID/situação/impedimento exatos, teclado/toque, restauração, consulta pendente/erro/recuperação e acesso de Gestor/Supervisor/Operação. [Galeria](../orchestracao/.runtime/count-filters-20261015/galeria.html), [recibo](../orchestracao/.runtime/count-filters-20261015/validacao.json). Preview próprio encerrado; sem SQL/backend, reinício operacional ou publicação. Versão ativa não medida; DEV pelo operador. Preservar alterações anteriores da árvore.
+
+## FE11-SERV-SEL01 — seleção explícita do serviço corrigida, 15/10/2026
+
+`RecordWorkspace.open` deixa de selecionar automaticamente `ConfiguracaoCobrancaDto.Servico` ao abrir os detalhes. O botão de `ServiceDetail` em `RecordDialog` seleciona e fecha após a guarda existente. O consumidor confirma o nome em `role=status`; `RecordTable.selectedId` destaca a linha com marcador textual. Estado global/contexto de cobrança continuam usando o registro original, sem conversão numérica do ID. Abrir/fechar outro serviço não troca a seleção. [Definição](design-system/etapa-06.md#seleção-do-serviço--fe11-serv-sel01).
+
+46 testes focais em cinco arquivos, tipagem/lint/formatação/build e oito layouts Chrome fictícios aprovados. Conferidos teclado/foco, ID Long/revisão, troca explícita, serviço herdado por Nova tabela e restrições de Supervisor. [Galeria](../orchestracao/.runtime/service-selection-20261015/galeria.html), [recibo](../orchestracao/.runtime/service-selection-20261015/validacao.json). Preview próprio encerrado; sem SQL/backend, reinício operacional ou publicação. Versão ativa não medida; DEV pelo operador no fluxo habitual. Preservar alterações anteriores da árvore.
+
 ## FE11-CONTRATO-UX01 — formulário de contrato por seções, 15/10/2026
 
 `ContractConfigurationFields` é usado somente em `ConfiguracaoCobrancaController.configurar`, com grupos filtrados de `OperationForm`. Reutiliza metadados/controles/políticas; `ScalarField.choiceLabels` muda apenas a apresentação das opções deste consumidor. Lista do mínimo usa referências de serviço e mantém IDs Long no array original. Ajuda no catálogo; resolução histórica continua em `Fields`, com informar roxo/remover vermelho e alinhamento local. Confirmação fica visível na rolagem do diálogo. [Definição](design-system/etapa-06.md#configuração-do-contrato--fe11-contrato-ux01).

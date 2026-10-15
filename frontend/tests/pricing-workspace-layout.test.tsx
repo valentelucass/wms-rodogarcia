@@ -59,21 +59,7 @@ it.each(["GESTOR", "SUPERVISOR"] as const)(
         expect(
             screen.queryByRole("button", { name: "Nova tabela" }) !== null,
         ).toBe(perfil === "GESTOR");
-        if (perfil === "GESTOR") {
-            fireEvent.click(
-                screen.getByRole("button", {
-                    name: /Auditar Serviço Serviço Alfa/,
-                }),
-            );
-            expect(onRecord).toHaveBeenCalledWith(
-                {
-                    dto: "ConfiguracaoCobrancaDto.Servico",
-                    registroId: "9007199254740997",
-                },
-                "Auditoria.alvo",
-            );
-            expect(requests).toHaveLength(1);
-        } else
+        if (perfil !== "GESTOR")
             expect(
                 screen.queryByRole("region", {
                     name: "Registro consultado para auditoria",
@@ -106,5 +92,20 @@ it.each(["GESTOR", "SUPERVISOR"] as const)(
         );
         expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
         expect(requests.every((r) => r.endpoint.method === "GET")).toBe(true);
+        if (perfil === "GESTOR") {
+            fireEvent.click(
+                screen.getByRole("button", {
+                    name: /Ver histórico de Serviço: Serviço Alfa/,
+                }),
+            );
+            expect(onRecord).toHaveBeenCalledWith(
+                {
+                    dto: "ConfiguracaoCobrancaDto.Servico",
+                    registroId: "9007199254740997",
+                },
+                "Auditoria.alvo",
+            );
+            expect(screen.getByLabelText("Tipo *")).toBeInTheDocument();
+        }
     },
 );

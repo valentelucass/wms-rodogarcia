@@ -10,6 +10,39 @@ export type Information = {
 };
 
 export const information = {
+    contingencyRegistration: {
+        title: "Registro manual da planilha",
+        description:
+            "Registre os fatos manualmente depois que a conexão for restabelecida. Não há sincronização automática offline.",
+        facts: [
+            {
+                label: "Dados do fato",
+                value: "Informe identidade, instante real, operador, fonte e dependências. Para CHEGADA, inclua os dados específicos da chegada.",
+            },
+            {
+                label: "Conciliação",
+                value: "Confira versão e hash. Executar ou vincular são ações explícitas; vincular exige prova da operação original.",
+            },
+            {
+                label: "Pendências",
+                value: "Dependências mantêm pendência. Conteúdo divergente retorna conflito.",
+            },
+            {
+                label: "Reenvio",
+                value: "A repetição conserva a confirmação original. Consulte o estado atual.",
+            },
+        ],
+    },
+    auditHistory: {
+        title: "Histórico de alterações",
+        description:
+            "Consulte as alterações do registro indicado. Essa consulta não modifica os dados.",
+    },
+    auditHistoryLegacy: {
+        title: "Legado não atribuído",
+        description:
+            "O histórico confirmado usa o vínculo selecionado. Candidatos legados ambíguos não são histórico confirmado deste vínculo. Coincidência de ID não comprova que o registro pertence ao vínculo.",
+    },
     contractConfiguration: {
         title: "Parâmetros do contrato",
         description:

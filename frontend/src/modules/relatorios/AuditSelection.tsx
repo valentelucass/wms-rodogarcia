@@ -2,6 +2,8 @@ import type { Workflow } from "../../domain/workflow";
 import type { Values } from "../../contracts/runtime";
 import { auditTargets } from "./auditTargets";
 import { businessTitle } from "../../domain/referencePresentation";
+import { information } from "../../content/information";
+import { Icon } from "../../design-system/Icon";
 export function AuditSelection({
     workflow,
     onSelect,
@@ -20,11 +22,8 @@ export function AuditSelection({
             aria-label="Registro consultado para auditoria"
         >
             <header className="audit-selection-heading">
-                <h2>Auditoria de um registro consultado</h2>
-                <p>
-                    Selecione o cadastro ou pedido para consultar seu histórico
-                    preservado.
-                </p>
+                <h2>{information.auditHistory.title}</h2>
+                <p>{information.auditHistory.description}</p>
             </header>
             {available.length === 0 && (
                 <p>
@@ -34,80 +33,122 @@ export function AuditSelection({
             )}
             {available.length > 0 && (
                 <div className="audit-selection-actions">
-                    {available.map((t) => (
-                        <div
-                            key={t.dto}
-                            className={
-                                "audit-selection-target" +
-                                (t.tipo === "VINCULO_COBRANCA"
-                                    ? " audit-selection-target--legacy"
-                                    : "")
-                            }
-                        >
-                            <button
-                                type="button"
-                                className="action-details"
-                                disabled={disabled}
-                                onClick={() =>
-                                    onSelect(
-                                        {
-                                            dto: t.dto,
-                                            registroId:
-                                                workflow.selected[t.dto].id,
-                                        },
-                                        "Auditoria.alvo",
-                                    )
+                    {available.map((t) => {
+                        const record = workflow.selected[t.dto];
+                        const service =
+                            t.dto === "ConfiguracaoCobrancaDto.Servico";
+                        const name = service
+                            ? record.descricao
+                                ? String(record.descricao)
+                                : undefined
+                            : businessTitle(record, t.dto, workflow.catalogs);
+                        const code =
+                            service &&
+                            record.codigo != null &&
+                            record.codigo !== ""
+                                ? String(record.codigo)
+                                : undefined;
+                        return (
+                            <article
+                                key={t.dto}
+                                aria-label={`Registro selecionado: ${t.label}`}
+                                className={
+                                    "audit-selection-target" +
+                                    (t.tipo === "VINCULO_COBRANCA"
+                                        ? " audit-selection-target--legacy"
+                                        : "")
                                 }
                             >
-                                <span className="audit-target-kind">
-                                    Auditar {t.label}
-                                </span>{" "}
-                                <span className="audit-target-name">
-                                    {businessTitle(
-                                        workflow.selected[t.dto],
-                                        t.dto,
-                                        workflow.catalogs,
-                                    )}
-                                </span>
-                            </button>
-                            {t.tipo === "VINCULO_COBRANCA" && (
-                                <>
-                                    <p>
-                                        O histórico confirmado usa o vínculo
-                                        selecionado. Candidatos legados ambíguos
-                                        não são histórico confirmado deste
-                                        vínculo. Coincidência de ID não comprova
-                                        que o registro pertence ao vínculo.
-                                    </p>
+                                <div className="audit-target-main">
+                                    <div className="audit-target-summary">
+                                        <span className="audit-target-kind">
+                                            Registro selecionado · {t.label}
+                                        </span>
+                                        {name && (
+                                            <strong className="audit-target-name">
+                                                {name}
+                                            </strong>
+                                        )}
+                                        {(code || !name) && (
+                                            <dl className="audit-target-code">
+                                                <div>
+                                                    <dt>
+                                                        {code
+                                                            ? "Código"
+                                                            : "Identificador"}
+                                                    </dt>
+                                                    <dd>
+                                                        {code ??
+                                                            String(record.id)}
+                                                    </dd>
+                                                </div>
+                                            </dl>
+                                        )}
+                                    </div>
                                     <button
                                         type="button"
                                         className="action-details"
+                                        aria-label={`Ver histórico de ${t.label}: ${name ?? (code ? `código ${code}` : `registro ${record.id}`)}`}
                                         disabled={disabled}
                                         onClick={() =>
                                             onSelect(
                                                 {
                                                     dto: t.dto,
-                                                    registroId:
-                                                        workflow.selected[t.dto]
-                                                            .id,
-                                                    legado: true,
+                                                    registroId: record.id,
                                                 },
                                                 "Auditoria.alvo",
                                             )
                                         }
                                     >
-                                        Consultar legado não atribuído do
-                                        vínculo{" "}
-                                        {businessTitle(
-                                            workflow.selected[t.dto],
-                                            t.dto,
-                                            workflow.catalogs,
-                                        )}
+                                        <Icon name="history" />
+                                        Ver histórico
                                     </button>
-                                </>
-                            )}
-                        </div>
-                    ))}
+                                </div>
+                                {t.tipo === "VINCULO_COBRANCA" && (
+                                    <div className="audit-target-legacy">
+                                        <strong>
+                                            {
+                                                information.auditHistoryLegacy
+                                                    .title
+                                            }
+                                        </strong>
+                                        <p>
+                                            {
+                                                information.auditHistoryLegacy
+                                                    .description
+                                            }
+                                        </p>
+                                        <button
+                                            type="button"
+                                            className="action-details"
+                                            disabled={disabled}
+                                            onClick={() =>
+                                                onSelect(
+                                                    {
+                                                        dto: t.dto,
+                                                        registroId:
+                                                            workflow.selected[
+                                                                t.dto
+                                                            ].id,
+                                                        legado: true,
+                                                    },
+                                                    "Auditoria.alvo",
+                                                )
+                                            }
+                                        >
+                                            Consultar legado não atribuído do
+                                            vínculo{" "}
+                                            {businessTitle(
+                                                workflow.selected[t.dto],
+                                                t.dto,
+                                                workflow.catalogs,
+                                            )}
+                                        </button>
+                                    </div>
+                                )}
+                            </article>
+                        );
+                    })}
                 </div>
             )}
         </section>

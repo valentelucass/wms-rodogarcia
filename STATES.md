@@ -1,5 +1,53 @@
 # Estado e trilha de implementação do WMS Rodogarcia
 
+## FE12-CONTING-TEXTO01 — apresentação curta da contingência, 15/10/2026
+
+Lucas considerou grande e estranho o texto de Registrar fatos da planilha. Cabeçalho reduzido a uma frase; Como funciona fica ao lado de Registrar ocorrência e abre orientações por Dados do fato, Conciliação, Pendências e Reenvio. Ajuda centralizada em `information.ts`, sem bloco técnico extenso na apresentação. [Definição](docs/design-system/etapa-06.md#apresentação-da-contingência--fe12-conting-texto01).
+
+**Conferido:** 44 testes frontend existentes em quatro arquivos, tipagem/lint/formatação/build aprovados. Chrome fictício em dez layouts claro/escuro, 390/768/1024/1280/1600 px; resumo em até duas linhas, ajuda dentro da tela, Enter/Escape/foco, toque, critérios, restauração, erro/recuperação e perfis preservados. [Galeria](orchestracao/.runtime/contingency-intro-20261015/galeria.html), [recibo](orchestracao/.runtime/contingency-intro-20261015/validacao.json).
+
+Regras de registro/conciliação preservadas. Fonte pronta; sem SQL/backend, reinício operacional ou publicação. Transporte fictício não comprova integração real; versão ativa não medida. DEV pelo operador no fluxo habitual; alterações anteriores preservadas.
+
+## FE02-AUD-CLAREZA01 — identificação e ação do histórico separadas, 15/10/2026
+
+Lucas considerou confusa a marcação roxa Auditar Serviço. `AuditSelection` apresenta cartão neutro com Registro selecionado/tipo, nome e código do serviço separados; roxo fica no botão Ver histórico com ícone. Explicação visível informa o propósito da consulta. O clique passa a selecionar e abrir a etapa de auditoria da jornada, preservando a guarda de rascunho. Legado continua separado. [Definição](docs/design-system/etapa-06.md#identificação-da-consulta-de-histórico--fe02-aud-clareza01).
+
+**Conferido:** 34 testes frontend em sete arquivos, incluindo dois novos casos de abertura com tipo/ID exatos; tipagem/lint/formatação/build aprovados. Chrome fictício em dez layouts claro/escuro, 390/768/1024/1280/1600 px, mais múltiplos alvos, 17 tipos, textos longos, dados parciais, vazio, bloqueio, teclado, namespace de legado e perfis. [Galeria](orchestracao/.runtime/audit-target-clarity-20261015/galeria.html), [recibo](orchestracao/.runtime/audit-target-clarity-20261015/validacao.json).
+
+Textos em `information.ts`; sem alteração de dados, contratos ou permissões. Fonte pronta, sem SQL/backend, reinício operacional ou publicação. Transporte fictício não comprova integração real; versão ativa não medida. DEV pelo operador no fluxo habitual; alterações anteriores preservadas.
+
+## FE12-CONTING-FILTROS01 — filtros da contingência organizados, 15/10/2026
+
+Lucas pediu organizar a consulta Registrar fatos da planilha. Seis filtros em Cliente e armazém e Registro e situação. Identidade/tipo e situação/pendência ficam em linhas alinhadas; comandos abaixo e uma coluna no celular. [Definição](docs/design-system/etapa-06.md#filtros-da-contingência--fe12-conting-filtros01).
+
+**Conferido:** 42 testes frontend existentes em cinco arquivos, tipagem/lint/formatação/build aprovados. Chrome fictício em dez layouts claro/escuro, 390/768/1024/1280/1600 px: sem overflow, rótulo longo/controles/comandos alinhados, teclado/toque, critérios exatos, restauração, pendência/erro/recuperação e perfis. [Galeria](orchestracao/.runtime/contingency-filters-20261015/galeria.html), [recibo](orchestracao/.runtime/contingency-filters-20261015/validacao.json).
+
+Somente apresentação; conciliação, prova da operação e permissões preservadas. Fonte pronta, sem SQL/backend, reinício operacional ou publicação. Transporte fictício não comprova integração real; versão ativa não medida. DEV pelo operador no fluxo habitual; alterações anteriores preservadas.
+
+## FE12-CARGA-FILTROS01 — filtros da carga inicial organizados, 15/10/2026
+
+Lucas pediu organizar a consulta de Carga inicial excepcional. Cinco filtros em dois grupos empilhados: Cliente e armazém e Dados da carga. Produto com largura maior; referência/situação e Aplicar/Restaurar alinhados. Tablet dá linha própria ao produto; celular usa uma coluna. [Definição](docs/design-system/etapa-06.md#filtros-da-carga-inicial--fe12-carga-filtros01).
+
+**Conferido:** 42 testes frontend existentes em cinco arquivos, tipagem/lint/formatação/build aprovados. Chrome fictício em dez layouts claro/escuro, 390/768/1024/1280/1600 px: sem overflow, campos/comandos alinhados, teclado/toque, critérios exatos, restauração, pendência/erro/recuperação e perfis. [Galeria](orchestracao/.runtime/initial-load-filters-20261015/galeria.html), [recibo](orchestracao/.runtime/initial-load-filters-20261015/validacao.json).
+
+Somente apresentação; regras, contratos e permissões preservados. Fonte pronta, sem SQL/backend, reinício operacional ou publicação. Transporte fictício não comprova integração real; versão ativa não medida. DEV pelo operador no fluxo habitual; alterações anteriores preservadas.
+
+## FE12-CONT-FILTROS01 — filtros da contagem física organizados, 15/10/2026
+
+Lucas pediu organizar a consulta de Contagem física mostrada na imagem. Sete filtros em Cliente e armazém, Identificação da unidade e Localização e situação, com endereço mais largo e Aplicar/Restaurar em faixa própria. Reutiliza o padrão de consultas de estoque; grupos se reorganizam em tablet/celular. [Definição](docs/design-system/etapa-06.md#filtros-da-contagem-física--fe12-cont-filtros01).
+
+**Conferido:** 42 testes frontend existentes em cinco arquivos, tipagem/lint/formatação/build aprovados. Chrome fictício em dez layouts claro/escuro, 390/768/1024/1280/1600 px: sem overflow, seletores e comandos alinhados, teclado/toque, critérios exatos, restauração, pendência/erro/recuperação e perfis. [Galeria](orchestracao/.runtime/count-filters-20261015/galeria.html), [recibo](orchestracao/.runtime/count-filters-20261015/validacao.json).
+
+Somente apresentação; contagem não aplica ajuste, cálculos e permissões continuam no backend. Fonte pronta, sem SQL/backend, reinício operacional ou publicação. Transporte fictício não comprova integração real; versão ativa não medida. DEV pelo operador no fluxo habitual; alterações anteriores preservadas.
+
+## FE11-SERV-SEL01 — seleção do serviço com retorno visível, 15/10/2026
+
+Lucas informou que Selecionar este registro parecia não fazer nada. Causa: abrir os detalhes já selecionava o serviço, e o botão repetia a seleção mantendo o diálogo aberto. Agora a consulta só seleciona pelo botão: fecha os detalhes, anuncia o nome escolhido e marca a linha da lista. Consultar/fechar outro serviço mantém a seleção anterior; o serviço escolhido chega ao item de Nova tabela com ID/revisão exatos. [Definição](docs/design-system/etapa-06.md#seleção-do-serviço--fe11-serv-sel01).
+
+**Conferido:** 46 testes frontend em cinco arquivos, tipagem/lint/formatação/build aprovados. Chrome fictício em oito layouts claro/escuro, 390/768/1024/1440 px; seleção por Enter, retorno do foco, troca explícita, uso na próxima etapa e perfis Gestor/Supervisor. [Galeria](orchestracao/.runtime/service-selection-20261015/galeria.html), [recibo](orchestracao/.runtime/service-selection-20261015/validacao.json).
+
+Fonte pronta; sem SQL/backend, reinício operacional ou publicação. Transporte fictício não comprova integração real; versão ativa não medida neste pedido. DEV pelo operador no fluxo habitual. Seleção não grava operação de negócio nem amplia permissões; alterações anteriores preservadas.
+
 ## FE11-CONTRATO-UX01 — configuração do contrato organizada, 15/10/2026
 
 Pedido de Lucas após imagem de mínimo, GRIS e resolução histórica. Formulário de `ConfiguracaoCobrancaController.configurar` organizado em Cliente/vigência, Ciclo, Mínimo, GRIS e Justificativa/resolução histórica. Rótulos e opções legíveis; serviços do mínimo identificados pelo nome, inclusão verde/remoção vermelha. Resolução histórica mantém orientação e tipo/compromisso alinhados; botão de informar roxo. Confirmação visível durante rolagem. [Definição](docs/design-system/etapa-06.md#configuração-do-contrato--fe11-contrato-ux01).

@@ -19,8 +19,14 @@ import {
     type RecordPage,
 } from "../../domain/recordPages";
 import { operationContext } from "../../domain/workflow";
-import { recordIdentity, recordRoot, recordTitle } from "../../domain/recordContext";
+import {
+    recordIdentity,
+    recordRoot,
+    recordTitle,
+} from "../../domain/recordContext";
 import { canLeavePage } from "../../domain/pageLeave";
+import { information } from "../../content/information";
+import { InformationHint } from "../information/InformationPopup";
 import { useRecordQuery } from "../../hooks/useRecordQuery";
 import { Fields } from "../Fields";
 import { StockQueryFilters } from "../../modules/estoque/StockQueryFilters";
@@ -130,6 +136,9 @@ function PageRecords(
     const groupedStockFilters = [
         "EstoqueController.listar",
         "IndicadorEstoqueController.listar",
+        "ContagemController.listar",
+        "CargaInicialController.listar",
+        "ContingenciaController.listar",
     ].includes(definition.source);
     const FilterFields = groupedStockFilters ? StockQueryFilters : Fields;
     const current = journey.steps[step];
@@ -234,24 +243,41 @@ function PageRecords(
         if (isObject(receipt.data))
             setConfirmed({ row: receipt.data, type: responseType });
     };
+    const auditHelp =
+        definition.source === "AuditoriaController.listar"
+            ? query.filters.tipo === "VINCULO_COBRANCA_LEGADO"
+                ? information.auditHistoryLegacy
+                : information.auditHistory
+            : undefined;
+    const title = auditHelp?.title ?? definition.title ?? current.title;
     return (
         <section
             className="workspace-panel record-workspace"
             data-record-source={definition.source}
-            aria-label={definition.title ?? current.title}
+            aria-label={title}
         >
             <header className="record-page-header">
                 <div>
-                    <h2>{definition.title ?? current.title}</h2>
+                    <h2>{title}</h2>
                     <p>
-                        {journey.id === "entrada"
-                            ? "Consulte o pedido para administrar suas notas, registrar chegadas e conferir a carga antes da efetivação."
-                            : current.help}
+                        {auditHelp
+                            ? auditHelp.description
+                            : journey.id === "entrada"
+                              ? "Consulte o pedido para administrar suas notas, registrar chegadas e conferir a carga antes da efetivação."
+                              : current.help}
                     </p>
                 </div>
                 <div className="record-header-controls">
                     {props.viewPicker}
                     <div className="record-header-actions">
+                        {definition.source ===
+                            "ContingenciaController.listar" &&
+                            query.allowed && (
+                                <InformationHint
+                                    topic="contingencyRegistration"
+                                    label="Como funciona"
+                                />
+                            )}
                         {definition.source ===
                             "ImportacaoEnderecoController.consultar" &&
                             query.allowed && <AddressTemplateLink />}
@@ -500,11 +526,15 @@ function PageRecords(
                                               )
                                     }
                                     type={type}
-                                    title={definition.title ?? current.title}
+                                    title={title}
                                     pending={query.pending}
                                     selectedId={
-                                        type === "ConfiguracaoCobrancaDto.Servico" && workflow.selected[type]
-                                            ? recordIdentity(workflow.selected[type])
+                                        type ===
+                                            "ConfiguracaoCobrancaDto.Servico" &&
+                                        workflow.selected[type]
+                                            ? recordIdentity(
+                                                  workflow.selected[type],
+                                              )
                                             : undefined
                                     }
                                     onOpen={open}
@@ -662,8 +692,14 @@ function PageRecords(
                     onReceipt={completed}
                     onRecord={(row, selectedType) => {
                         onRecord(row, selectedType);
-                        if (definition.source === "ConfiguracaoCobrancaController.servicos" && selectedType === "ConfiguracaoCobrancaDto.Servico") {
-                            setMessage(`Serviço selecionado: ${recordTitle(row)}.`);
+                        if (
+                            definition.source ===
+                                "ConfiguracaoCobrancaController.servicos" &&
+                            selectedType === "ConfiguracaoCobrancaDto.Servico"
+                        ) {
+                            setMessage(
+                                `Serviço selecionado: ${recordTitle(row)}.`,
+                            );
                             setConfirmed(undefined);
                         }
                     }}

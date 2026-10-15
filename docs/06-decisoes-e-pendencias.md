@@ -1,5 +1,41 @@
 # Decisões e pendências do WMS Rodogarcia
 
+## FE12-CONTING-TEXTO01 — texto inicial compacto, 15/10/2026
+
+Lucas pediu melhorar o texto grande da tela Registrar fatos da planilha. Escolha de apresentação: frase curta sobre o registro após recuperar a conexão, ajuda Como funciona com orientações por assunto e ação Registrar ocorrência em destaque. Usa o popup informativo existente, com conteúdo centralizado. [Definição e conferência](design-system/etapa-06.md#apresentação-da-contingência--fe12-conting-texto01).
+
+Mantidos registro manual, dados da chegada, versão/hash, comandos explícitos, prova da operação original, pendência, conflito e repetição. Não cria fila automática offline nem altera contratos/permissões. Fonte conferida localmente, sem publicação neste pedido.
+
+## FE02-AUD-CLAREZA01 — clareza do atalho de histórico, 15/10/2026
+
+Lucas pediu melhorar o significado da marcação Auditar Serviço. Escolha de apresentação: separar identificação e ação, usando cartão neutro para o registro selecionado e botão roxo Ver histórico com ícone; nome/código do serviço em campos distintos e explicação visível da finalidade. Ao revisar o clique, identificou-se que ele apenas preparava o alvo: agora a jornada também abre a etapa correspondente, com a guarda existente de rascunho. [Definição e conferência](design-system/etapa-06.md#identificação-da-consulta-de-histórico--fe02-aud-clareza01).
+
+Consulta preserva dados e permissões; ID/tipo originais alimentam a mesma API. Legado não atribuído mantém comando e namespace próprios, sem ser apresentado como histórico confirmado. Fonte conferida localmente, sem publicação neste pedido.
+
+## FE12-CONTING-FILTROS01 — organização da consulta de contingência, 15/10/2026
+
+Lucas pediu organizar os filtros de Registrar fatos da planilha. Escolha de apresentação: contexto cliente/armazém separado do registro; identidade/tipo e situação/pendência em duas linhas, com espaço para o rótulo longo. Aplicar/Restaurar têm faixa própria. [Definição e conferência](design-system/etapa-06.md#filtros-da-contingência--fe12-conting-filtros01).
+
+Mantidos critérios, valores, padrões e permissões de Supervisor/Gestor. Não muda o registro manual, a conciliação explícita, as dependências ou a prova da operação original. Fonte conferida localmente, sem publicação neste pedido.
+
+## FE12-CARGA-FILTROS01 — organização da consulta de carga inicial, 15/10/2026
+
+Lucas pediu organizar os filtros da imagem de Carga inicial excepcional. Escolha de apresentação: dois grupos empilhados, produto com largura maior e referência/situação alinhadas; comandos em faixa abaixo. No tablet o produto ganha linha própria; no celular os campos se empilham. [Definição e conferência](design-system/etapa-06.md#filtros-da-carga-inicial--fe12-carga-filtros01).
+
+Preservados critérios, valores, padrões e permissões de Supervisor/Gestor. A apresentação não altera preparação, regularização, etiquetas ou disponibilidade da carga. Fonte conferida localmente, sem publicação neste pedido.
+
+## FE12-CONT-FILTROS01 — organização da consulta de contagem física, 15/10/2026
+
+Lucas pediu organizar os filtros da imagem de Contagem física. Escolha de apresentação: cliente/armazém e produto/UUID em grupos próprios, endereço/situação/impedimento no terceiro grupo, com comandos alinhados abaixo. Reutiliza os componentes e estilos já usados nas consultas de estoque. [Definição e conferência](design-system/etapa-06.md#filtros-da-contagem-física--fe12-cont-filtros01).
+
+Campos, valores, padrões, consulta, revisão, cálculo e permissões preservados. Contar continua distinto de aplicar ajuste. Fonte conferida localmente, sem publicação neste pedido.
+
+## FE11-SERV-SEL01 — correção do botão de seleção do serviço, 15/10/2026
+
+Lucas informou que o botão Selecionar este registro não tinha efeito perceptível. Correção do fluxo de serviços: abrir detalhes apenas consulta; selecionar escolhe explicitamente o serviço, fecha o diálogo e confirma o resultado na lista. Consultar outro registro sem selecionar conserva o anterior. A seleção alimenta o contexto existente da jornada e os itens de Nova tabela. [Definição e conferência](design-system/etapa-06.md#seleção-do-serviço--fe11-serv-sel01).
+
+IDs/revisões originais, contratos e permissões preservados; nenhuma operação de cadastro ou cobrança é executada pelo botão. Demais tipos de registro e seleções internas mantêm seu comportamento. Fonte conferida localmente, sem publicação neste pedido.
+
 ## FE11-CONTRATO-UX01 — organização de mínimo e GRIS, 15/10/2026
 
 Lucas pediu organizar o formulário mostrado na imagem. Escolha de apresentação: cinco seções, rótulos curtos com opções legíveis, lista de serviços identificados pelo nome, resolução histórica opcional alinhada e confirmação visível ao rolar. Cores de incluir/remover e informar resolução seguem os tokens existentes. [Definição e conferência](design-system/etapa-06.md#configuração-do-contrato--fe11-contrato-ux01).

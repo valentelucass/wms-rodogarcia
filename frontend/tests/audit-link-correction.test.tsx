@@ -92,7 +92,7 @@ describe("005 vínculo lógico e legado separado", () => {
         ]) {
             fireEvent.click(
                 screen.getByRole("button", {
-                    name: `Auditar ${label}`,
+                    name: new RegExp(`^Ver histórico de ${label}:`),
                 }),
             );
             fireEvent.click(screen.getByRole("button", { name: "Consultar" }));

@@ -54,7 +54,7 @@ export const journeys: Journey[] = [
         steps: [
             s(
                 "Registrar fatos da planilha",
-                "Fluxo manual após recuperação da rede: registre identidade do fato, instante real, operador, fonte, dependências e dados de CHEGADA pelo contrato. Consulte versão/hash antes de conciliar. EXECUTAR ou VINCULAR com prova da operação original são comandos explícitos. Dependência mantém pendência; conteúdo divergente retorna conflito. Repetição conserva a confirmação original; consulte o estado atual. Não há fila automática offline nem efeito real neste exercício.",
+                "Registre os fatos da planilha após a recuperação da conexão.",
                 "ContingenciaController",
                 ["listar", "consultar", "registrar", "conciliar"],
             ),
