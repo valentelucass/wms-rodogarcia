@@ -194,6 +194,7 @@ export function RecordTable({
     canEdit,
     canOperate,
     title,
+    selectedId,
 }: {
     rows: Values[];
     type: string;
@@ -202,6 +203,7 @@ export function RecordTable({
     canEdit?: (row: Values) => string | undefined;
     canOperate?: (row: Values) => string | undefined;
     title?: string;
+    selectedId?: string;
 }) {
     const view = (row: Values) => ({ ...row, ...recordRoot(row) });
     const candidateKeys =
@@ -273,7 +275,7 @@ export function RecordTable({
                         const identity = recordIdentity(row);
                         const operation = canOperate?.(row);
                         return (
-                            <tr key={identity} data-record-id={identity}>
+                            <tr key={identity} data-record-id={identity} data-selected={identity === selectedId ? "true" : undefined}>
                                 {keys.map((key, i) => (
                                     <td
                                         key={key}
@@ -291,6 +293,7 @@ export function RecordTable({
                                         }
                                     >
                                         {i === 0 ? (
+                                            <>
                                             <button
                                                 className="record-link"
                                                 type="button"
@@ -305,6 +308,8 @@ export function RecordTable({
                                                     type={type}
                                                 />
                                             </button>
+                                            {identity === selectedId && <span className="record-selection-marker">Selecionado</span>}
+                                            </>
                                         ) : ["situacao", "condicao"].includes(
                                               key,
                                           ) ? (
@@ -322,7 +327,7 @@ export function RecordTable({
                                 <td className="record-cell-actions">
                                     <div className="record-row-actions">
                                         <button
-                                            className="record-action-icon"
+                                            className="record-action-icon action-details"
                                             type="button"
                                             title="Ver detalhes"
                                             disabled={pending}

@@ -1,5 +1,5 @@
 import { it, expect } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { FictitiousTransport } from "../src/api/fictitious";
 import {
     Harness,
@@ -31,7 +31,11 @@ it("FE05 FE10 avaria reconhecimento Gestor reparo consulta e liberação mantêm
     await click("Consultar posições para avaria e reparo");
     await screen.findByRole("button", { name: "Selecionar registro 1" });
     await click("Selecionar registro 1");
-    selected("Posições de destino / Item 1 / Endereço *", "81");
+    expect(
+        within(screen.getByRole("group", { name: "Posição 1" })).getByLabelText(
+            "Endereço *",
+        ),
+    ).toHaveValue("81");
     fill("Quantidade *", "5.000000");
     fill("Instante real do fato *", "2026-10-08T10:00:00.123");
     fill(

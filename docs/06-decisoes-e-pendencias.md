@@ -1,5 +1,83 @@
 # Decisões e pendências do WMS Rodogarcia
 
+## FE11-CONTRATO-UX01 — organização de mínimo e GRIS, 15/10/2026
+
+Lucas pediu organizar o formulário mostrado na imagem. Escolha de apresentação: cinco seções, rótulos curtos com opções legíveis, lista de serviços identificados pelo nome, resolução histórica opcional alinhada e confirmação visível ao rolar. Cores de incluir/remover e informar resolução seguem os tokens existentes. [Definição e conferência](design-system/etapa-06.md#configuração-do-contrato--fe11-contrato-ux01).
+
+Não altera fórmulas, parâmetros contratados, defaults, null/zero, validação ou permissões. Mínimo, GRIS e ciclo continuam exigindo informação contratual; nenhum valor é presumido. Resolução histórica mantém compromisso identificado e exclusividade do Gestor. Fonte conferida localmente, sem publicação neste pedido.
+
+## FE12-AUD-FILTROS01 — organização da consulta de histórico, 15/10/2026
+
+Lucas pediu organizar os filtros mostrados na imagem de Histórico do vínculo. Escolha de apresentação: tipo mais estreito, maior espaço para o registro, busca/seleção lado a lado quando cabem e comandos em faixa separada. Busca na resposta permanece distinta da busca nas opções do seletor. [Definição e conferência](design-system/etapa-06.md#filtros-do-histórico--fe12-aud-filtros01).
+
+Alteração restrita ao layout. Preservados tipos aceitos, valores, controles, permissões, namespaces e distinção entre histórico confirmado e legado. Fonte conferida localmente, sem publicação neste pedido.
+
+## FE11-TAB-UX01 — organização de tabelas, visão e auditoria, 15/10/2026
+
+Lucas pediu organizar o conjunto mostrado na imagem. Escolha de apresentação: auditoria compacta com alvos legíveis, Visão dentro do cabeçalho da consulta e armazém com largura adequada ao lado de Aplicar/Restaurar. O padrão de escolha de visão é compartilhado; a limitação do filtro é específica da consulta de tabelas. A troca de visão deixa de reabrir o comando inicial da página. [Definição e conferência](design-system/etapa-06.md#tabelas-e-auditoria--fe11-tab-ux01).
+
+Sem alterar cálculo, parâmetros, vigências, histórico ou permissões. Auditoria confirmada e legado continuam distintos, com seus identificadores próprios. Fonte conferida localmente, sem publicação neste pedido.
+
+## FE11-SERV-UX01 — organização dos detalhes do serviço, 15/10/2026
+
+Lucas pediu melhorar a organização do diálogo mostrado na imagem. Escolha de apresentação: largura menor, nome/situação em destaque, código/tipo/unidade de cobrança alinhados e seleção junto de Fechar no mesmo rodapé. Termos conhecidos do contrato recebem rótulos legíveis; valores desconhecidos continuam apresentados integralmente. [Definição e conferência](design-system/etapa-06.md#detalhes-do-serviço--fe11-serv-ux01).
+
+Sem alterar cadastro, cálculo, elegibilidade do serviço ou permissões. Selecionar conserva o registro original e não executa operação de negócio. Fonte conferida localmente, sem publicação neste pedido.
+
+## FE08-IND-FILTROS01 — organização de Indicadores e validade, 15/10/2026
+
+Lucas pediu organizar os filtros mostrados na imagem. Escolha de apresentação: contexto separado das opções do relatório, produto com largura própria e comandos em faixa alinhada abaixo. Os grupos ficam lado a lado no desktop e se empilham em telas menores. [Definição e conferência](design-system/etapa-06.md#filtros-de-indicadores--fe08-ind-filtros01).
+
+Mantidos os cinco critérios, referências contextuais, fuso padrão e restrição de valor a Supervisor/Gestor. Não altera cálculo, disponibilidade, configuração de validade ou contratos backend. Fonte conferida localmente, sem publicação neste pedido.
+
+## FE08-AVARIA-UX01 — organização do registro do fato, 15/10/2026
+
+Lucas pediu cores também no diálogo de Registrar fato e uma organização mais profissional. Escolha de apresentação: quatro seções, destinos em linhas numeradas com rótulos curtos, inclusão verde/remoção vermelha e confirmação visível durante rolagem. Referências usam as cores compartilhadas de FE02-REF-COR01. [Definição e conferência](design-system/etapa-06.md#registro-do-fato-de-avaria--fe08-avaria-ux01).
+
+Não altera o processo de avaria, destinos válidos, capacidade, resolução de pendências ou limites do contrato. Quantidade, data, justificativa e destino restante são preservados ao editar a lista. Fonte conferida localmente, sem publicação neste pedido.
+
+## FE02-REF-COR01 — consultas de referências com cores distintas, 15/10/2026
+
+Lucas pediu diferenciar os três botões de referências da imagem. Escolha de apresentação: produtos/catálogos em roxo, origem/unidade/estoque em âmbar, posições/endereço/capacidade em turquesa. Aplicado ao componente compartilhado de referências, sem depender da ordem dos botões. [Definição e conferência](design-system/etapa-06.md#cores-das-consultas-de-referências--fe02-ref-cor01).
+
+Mantidos textos, ações, validações e estados de carregamento/erro. Fonte conferida localmente, sem publicação neste pedido.
+
+## FE08-FILTROS01 — organização dos critérios de estoque, 15/10/2026
+
+Lucas apontou desorganização na tela de corrigir organização física. Escolha de apresentação: três grupos sem retirar critérios, campos mais largos e ações em faixa própria. Aplicada às páginas que usam a mesma consulta `EstoqueController.listar`; outras consultas mantêm seu padrão existente. [Definição e conferência](design-system/etapa-06.md#filtros-de-unidades--fe08-filtros01).
+
+Não altera obrigatoriedade, defaults, regras de disponibilidade ou permissões. Os mesmos campos/seletores enviam os sete critérios exatos; IDs, UUID, restauração e estados de erro/carregamento preservados. Fonte conferida localmente, sem publicação neste pedido.
+
+## FE02-RESULT-ALIGN01 — agrupamento dos dados consultados, 15/10/2026
+
+Lucas apontou dados e comandos soltos na imagem de Pedido/Entradas conferidas/Progresso e pediu alinhar esse padrão em outros pontos. Escolha visual: blocos delimitados, campos em grade, seleção ao final do registro e cabeçalhos com atualização própria. Removida navegação inativa de listas vazias; paginação de consultas relacionadas conectada ao mecanismo já existente. [Definição e evidências](design-system/etapa-06.md#dados-e-consultas-alinhados--fe02-result-align01).
+
+Não altera regras, permissões ou contratos backend. Consulta, seleção e paginação mantêm identidades/revisões exatas; atualização de um bloco não atualiza os demais. Fonte pronta e conferida localmente, sem publicação neste recorte.
+
+## FE04-ENC-UX01 — apresentação dos impedimentos, 15/10/2026
+
+Lucas apontou desorganização na consulta de encerramento. Aplicada apresentação específica: identificação/situação, lista legível de impedimentos e respectivas referências, seleção única do cadastro e operações recolhidas em grupo separado da navegação. As operações usam grade responsiva. Não altera as regras nem transforma lista vazia em aprovação; consulta sem lista informa essa ausência. [Definição e conferência](design-system/etapa-06.md#consulta-de-encerramento--fe04-enc-ux01).
+
+50 testes focais e oito layouts fictícios aprovados. Fonte pronta, sem publicação ou alteração de banco neste recorte.
+
+## FE02-DIALOG-ORG01 — organização do encerramento e diálogos, 15/10/2026
+
+Lucas apontou desorganização na imagem de solicitar encerramento definitivo. Escolha de apresentação aplicada ao padrão compartilhado: ação no título, cadastro/situação identificados, eliminação de faixa técnica vazia, outras operações em grupo recolhido durante edição e navegação separada. Encerramento mantém o tipo do cadastro consultado fixo com sua identidade, evitando selecionar outro tipo com o mesmo ID. [Definição e conferência](design-system/etapa-06.md#organização-dos-diálogos--fe02-dialog-org01).
+
+Não altera o processo de encerramento nem as permissões/backend. Descarte de edição continua explícito, e confirmação conserva IDs/revisão atuais. 678 testes frontend e oito layouts fictícios aprovados; fonte pronta, sem publicação neste recorte.
+
+## END-CONJ-UX01 — usabilidade na criação de conjuntos, 15/10/2026
+
+Lucas pediu reorganizar o formulário da imagem para melhorar a usabilidade. Escolha de apresentação: título específico, três blocos, posições lado a lado, rótulos com unidades, orientação decimal única e confirmação visível ao rolar. A seleção começa pelo armazém; sua troca limpa as posições anteriores, preservando o restante digitado. [Detalhamento e validação](22-enderecamento-movimentacao-e-estoque.md#end-conj-ux01--formulário-do-conjunto-de-posições-15102026).
+
+Não redefine a proposta AC05 nem os limites efetivos: valores reais continuam informados pela operação, e compatibilidade/permissão são revalidadas no backend. Sem alteração de contrato, banco ou publicação neste pedido.
+
+## FE02-ACOES01 — cores distintas e filtros alinhados, 15/10/2026
+
+Lucas pediu cor nos botões neutros dos diálogos, mostrou também a seleção de registro e corrigiu a proposta: “cor diferentes, tudo azul fica ruim”. Escolha visual aplicada: detalhes roxo, selecionar verde, recarregar turquesa e voltar/fechar vermelho suave; principais e edição preservam azul. O significado da ação continua indicado pelo rótulo/ícone. Pedido complementar: alinhar o campo Produto/SKU aos botões Aplicar/Restaurar, sem a orientação inferior deslocar a linha das ações. [Composição e conferência](design-system/etapa-06.md#cores-por-função-e-alinhamento-dos-filtros--fe02-acoes01).
+
+Escopo de apresentação compartilhada, sem mudança de regras, permissões, payloads ou publicação. Fonte validada localmente; execução operacional permanece distinta do build.
+
 ## PREPARO-AUTO01-TRAVA01 — escolha técnica para concorrência local, 15/10/2026
 
 Dentro do pedido vigente de sempre preparar ao subir, e após console com banco concluído mas DEV recusado por mutex, adotada espera limitada a180s antes de SQL. Plan somente local não adquire trava. Relatório registra tempo e PID observado quando disponível; PID é diagnóstico, não autorização para encerrar processo. Exclusão/reentrada/liberação em finally preservadas.

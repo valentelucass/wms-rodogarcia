@@ -126,6 +126,10 @@
     --og-warning-text: #854d0e;
     --og-warning-bg: #fef3c7;
     --og-neutral-badge-bg: #f4f4f5;
+    --wms-action-details-bg: #f3e8ff;
+    --wms-action-details-text: #7e22ce;
+    --wms-action-select-text: #166534;
+    --wms-action-refresh-text: #115e59;
     --og-overlay: rgb(0 0 0 / 40%);
 }
 
@@ -161,5 +165,9 @@
     --og-warning-text: #facc15;
     --og-warning-bg: #422006;
     --og-neutral-badge-bg: #27272a;
+    --wms-action-details-bg: #2e1065;
+    --wms-action-details-text: #d8b4fe;
+    --wms-action-select-text: #4ade80;
+    --wms-action-refresh-text: #5eead4;
     --og-overlay: rgb(0 0 0 / 60%);
 }

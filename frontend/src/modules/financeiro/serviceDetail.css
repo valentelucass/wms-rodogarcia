@@ -1,0 +1,59 @@
+.record-dialog.record-dialog--service {
+    width: min(760px, calc(100vw - 32px));
+}
+.service-detail {
+    display: grid;
+    gap: var(--og-space-5);
+    min-width: 0;
+}
+.service-detail-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--og-space-4);
+}
+.service-detail-heading > h3 {
+    margin: 0;
+    min-width: 0;
+    font-size: var(--og-type-section);
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+.service-detail-status {
+    display: grid;
+    justify-items: end;
+    gap: var(--og-space-1);
+    flex-shrink: 0;
+}
+.service-detail-fields {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--og-space-4);
+    margin: 0;
+    padding: var(--og-space-4);
+    border-radius: var(--og-radius-control);
+    background: var(--og-surface-raised);
+}
+.service-detail-fields > div {
+    min-width: 0;
+}
+.service-detail-fields dt {
+    margin-bottom: var(--og-space-1);
+    font-size: var(--og-type-caption);
+    color: var(--og-text-muted);
+}
+.service-detail-fields dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+@media (max-width: 600px) {
+    .service-detail-heading {
+        flex-direction: column;
+    }
+    .service-detail-status {
+        justify-items: start;
+    }
+    .service-detail-fields {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}

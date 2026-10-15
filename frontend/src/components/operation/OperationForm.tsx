@@ -3,11 +3,17 @@ import { records } from "../../contracts/runtime";
 import type { OperationState } from "../../hooks/useOperation";
 import { Fields } from "../Fields";
 import { AddressImportFields } from "../../modules/cadastros/AddressImportFields";
+import { PositionSetFields } from "../../modules/cadastros/PositionSetFields";
+import { DamageRegistrationFields } from "../../modules/estoque/DamageRegistrationFields";
+import { ContractConfigurationFields } from "../../modules/financeiro/ContractConfigurationFields";
 import { automaticCodes } from "../../domain/automaticCodes";
 import { operationContextFields } from "../../domain/operationContextFields";
 import { information } from "../../content/information";
 import { Result } from "../Result";
-import { presentationLabel } from "../../domain/referencePresentation";
+import {
+    presentationLabel,
+    technicalField,
+} from "../../domain/referencePresentation";
 export function OperationForm({
     state: s,
     perfil,
@@ -20,6 +26,7 @@ export function OperationForm({
     fixedFields?: string[];
 }) {
     const addressImport = s.e.id === "ImportacaoEnderecoController.previa";
+    const positionSetCreate = s.e.id === "CapacidadeController.criar";
     const tableEdit = s.e.id === "ConfiguracaoCobrancaController.alterar";
     const registryEdit =
         /^(Cliente|Armazem|Produto|Embalagem|Endereco)Controller\.alterar$/.test(
@@ -71,6 +78,11 @@ export function OperationForm({
     const hasFixedFields = groups.some((group) =>
         group.fields.some((f) => fixedFields.includes(f.name)),
     );
+    const visibleFixedField = (name: string) =>
+        fixedFields.includes(name) && name !== "id" && !technicalField(name);
+    const hasVisibleFixedFields = groups.some((group) =>
+        group.fields.some((f) => visibleFixedField(f.name)),
+    );
     const hasEditableFields = groups.some((group) =>
         group.fields.some((f) => !fixedFields.includes(f.name)),
     );
@@ -110,7 +122,7 @@ export function OperationForm({
                     {information.receivingBobinas.description}
                 </p>
             )}
-            {automaticCodes[s.e.request ?? ""] && (
+            {automaticCodes[s.e.request ?? ""] && !positionSetCreate && (
                 <p className="hint">
                     O código será gerado automaticamente ao confirmar.
                 </p>
@@ -121,7 +133,10 @@ export function OperationForm({
                     className="operation-fixed-fields"
                     disabled
                     style={
-                        registryEdit || tableEdit
+                        registryEdit ||
+                        tableEdit ||
+                        !hasVisibleFixedFields ||
+                        s.e.id.startsWith("EncerramentoController.")
                             ? { display: "none" }
                             : undefined
                     }
@@ -145,11 +160,7 @@ export function OperationForm({
                     )}
                     {groups
                         .filter((group) =>
-                            group.fields.some(
-                                (f) =>
-                                    fixedFields.includes(f.name) &&
-                                    !["id", "versao"].includes(f.name),
-                            ),
+                            group.fields.some((f) => visibleFixedField(f.name)),
                         )
                         .map((group, index) => (
                             <Result
@@ -178,17 +189,50 @@ export function OperationForm({
                         disabled={s.pending || s.uncertain || s.completed}
                     >
                         <legend className="sr-only">Dados da operação</legend>
-                        {groups.map((group, index) => (
-                            <Fields
-                                key={index}
-                                {...group}
-                                fields={group.fields.filter(
-                                    (f) => !fixedFields.includes(f.name),
-                                )}
+                        {positionSetCreate ? (
+                            <PositionSetFields state={s} />
+                        ) : s.e.id ===
+                          "ConfiguracaoCobrancaController.configurar" ? (
+                            <ContractConfigurationFields
+                                groups={groups.map((group) => ({
+                                    ...group,
+                                    fields: group.fields.filter(
+                                        (field) =>
+                                            !fixedFields.includes(field.name),
+                                    ),
+                                }))}
                                 perfil={perfil}
-                                lockedFields={fixedFields}
+                                disabled={
+                                    s.pending || s.uncertain || s.completed
+                                }
                             />
-                        ))}
+                        ) : s.e.id === "AvariaController.registrar" ? (
+                            <DamageRegistrationFields
+                                groups={groups.map((group) => ({
+                                    ...group,
+                                    fields: group.fields.filter(
+                                        (field) =>
+                                            !fixedFields.includes(field.name),
+                                    ),
+                                }))}
+                                perfil={perfil}
+                                disabled={
+                                    s.pending || s.uncertain || s.completed
+                                }
+                            />
+                        ) : (
+                            groups.map((group, index) => (
+                                <Fields
+                                    key={index}
+                                    {...group}
+                                    fields={group.fields.filter(
+                                        (f) => !fixedFields.includes(f.name),
+                                    )}
+                                    perfil={perfil}
+                                    lockedFields={fixedFields}
+                                />
+                            ))
+                        )}
                         {collectorFields.length > 0 && (
                             <details className="collector-measures">
                                 <summary>

@@ -1,5 +1,111 @@
 # Estado e trilha de implementação do WMS Rodogarcia
 
+## FE11-CONTRATO-UX01 — configuração do contrato organizada, 15/10/2026
+
+Pedido de Lucas após imagem de mínimo, GRIS e resolução histórica. Formulário de `ConfiguracaoCobrancaController.configurar` organizado em Cliente/vigência, Ciclo, Mínimo, GRIS e Justificativa/resolução histórica. Rótulos e opções legíveis; serviços do mínimo identificados pelo nome, inclusão verde/remoção vermelha. Resolução histórica mantém orientação e tipo/compromisso alinhados; botão de informar roxo. Confirmação visível durante rolagem. [Definição](docs/design-system/etapa-06.md#configuração-do-contrato--fe11-contrato-ux01).
+
+**Conferido:** 199 testes frontend em cinco arquivos, incluindo três novos casos de lista/precisão/ausência/resolução/conflito; tipagem/lint/formatação/build aprovados. Chrome fictício em oito layouts claro/escuro, 390/768/1024/1440 px; preenchimento também conferido nos dois temas em desktop/celular. Sem overflow, confirmação visível, controles de 44 px no celular, IDs/decimais/códigos exatos, bloqueio durante envio e Supervisor sem configuração. [Galeria](orchestracao/.runtime/contract-form-20261015/galeria.html), [recibo](orchestracao/.runtime/contract-form-20261015/visual.json).
+
+Ajuda centralizada em `information.ts`; cálculo, parâmetros, contrato, ausência/zero, permissões e compromisso histórico preservados. Fonte pronta; sem SQL/backend, reinício operacional ou publicação. Prova fictícia não comprova integração real; DEV pelo operador no fluxo habitual. Alterações anteriores da árvore preservadas.
+
+## FE12-AUD-FILTROS01 — filtros do histórico alinhados, 15/10/2026
+
+Pedido de Lucas após imagem de Histórico do vínculo. Tipo com largura menor; busca e seleção do registro ficam lado a lado quando há espaço, com mais área para identificar o registro. Aplicar/Restaurar em faixa própria à direita; tablet reorganiza os campos e celular usa uma coluna. Aplicado às consultas `AuditoriaController.listar` em `RecordWorkspace`, sem alterar controles ou critérios. [Definição](docs/design-system/etapa-06.md#filtros-do-histórico--fe12-aud-filtros01).
+
+**Conferido:** 45 testes frontend existentes em quatro arquivos, tipagem/lint/formatação/build aprovados. Chrome fictício: oito layouts claro/escuro em 390/768/1024/1600 px, sem overflow; teclado, toque de 44 px, muitos/um registro, consulta pendente, erro/recuperação e restauração. Tipo/ID Long e namespace de legado preservados; Supervisor continua sem acesso. [Galeria](orchestracao/.runtime/audit-filters-20261015/galeria.html), [recibo](orchestracao/.runtime/audit-filters-20261015/visual.json).
+
+Fonte pronta, sem SQL/backend, reinício operacional ou publicação. Prova fictícia não comprova integração real; DEV pelo operador no fluxo habitual. Alterações anteriores da árvore preservadas.
+
+## FE11-TAB-UX01 — página de tabelas e auditoria organizada, 15/10/2026
+
+Pedido de Lucas após imagem de auditoria/visão/Tabelas e vigências. Auditoria compacta e alinhada à consulta, com tipo e identificação do alvo separados. Visão integrada ao cabeçalho junto de Nova tabela; armazém com largura limitada e Aplicar/Restaurar alinhados à caixa. Seletores de visão compartilhados agora ficam dentro da consulta. Corrigida reabertura do comando inicial ao trocar a visão; foco permanece no seletor. [Definição](docs/design-system/etapa-06.md#tabelas-e-auditoria--fe11-tab-ux01).
+
+**Conferido:** 38 testes frontend em cinco arquivos, incluindo dois novos casos de troca de visão/foco/contexto/perfil; tipagem/lint/formatação/build aprovados. Chrome fictício em oito layouts claro/escuro, 390/768/1024/1600 px: sem overflow, cabeçalho/filtros alinhados, teclado, busca preservada ao atualizar, IDs Long exatos e perfis preservados. Vários alvos/legado também conferidos em desktop/celular. [Galeria](orchestracao/.runtime/pricing-workspace-20261015/galeria.html), [recibo](orchestracao/.runtime/pricing-workspace-20261015/visual.json).
+
+Fonte pronta, sem SQL/backend, reinício operacional ou publicação. Contratos, parâmetros financeiros, histórico e permissões preservados. Prova fictícia não comprova integração real; DEV pelo operador no fluxo habitual. Alterações anteriores da árvore preservadas.
+
+## FE11-SERV-UX01 — detalhes do serviço compactos, 15/10/2026
+
+Pedido de Lucas após imagem de Armazenagem fictícia. Diálogo de serviço com largura proporcional, título específico/ícone de serviços, descrição sem repetição, situação em badge e código/tipo/unidade de cobrança no mesmo bloco. Fechar e Selecionar reunidos no rodapé, sem faixa exclusiva de seleção. [Definição](docs/design-system/etapa-06.md#detalhes-do-serviço--fe11-serv-ux01).
+
+**Conferido:** 37 testes frontend em cinco arquivos, incluindo três novos casos de seleção exata, valores desconhecidos e ausência/inatividade; tipagem/lint/formatação/build aprovados. Chrome fictício em oito layouts claro/escuro, 390/768/1024/1440 px; textos longos também conferidos nos dois temas em desktop/celular. Sem overflow; Tab/Enter/Escape, retorno de foco e seleção sem escrita com ID/revisão exatos. [Galeria](orchestracao/.runtime/service-detail-20261015/galeria.html), [recibo](orchestracao/.runtime/service-detail-20261015/visual.json).
+
+Fonte pronta, sem SQL/backend, reinício operacional ou publicação. Contrato, dados, permissões e comportamento da seleção preservados. Prova fictícia não comprova integração real; DEV pelo operador no fluxo habitual. Alterações anteriores da árvore preservadas.
+
+## FE08-IND-FILTROS01 — filtros de indicadores organizados, 15/10/2026
+
+Pedido de Lucas após imagem de Indicadores e validade. Filtros divididos em Contexto da consulta (cliente/armazém e produto em linha própria) e Opções do relatório (incluir valor/fuso). Aplicar/Restaurar ficam alinhados em faixa própria; grupos se reorganizam no tablet e celular. Padrão aplicado às páginas que consultam `IndicadorEstoqueController.listar`. [Definição](docs/design-system/etapa-06.md#filtros-de-indicadores--fe08-ind-filtros01).
+
+**Conferido:** 44 testes frontend em cinco arquivos, incluindo três novos casos de aplicação/restauração e valor por perfil; tipagem/lint/formatação/build aprovados. Chrome fictício: dez layouts claro/escuro em 390/768/1024/1280/1600 px, sem overflow, controles com pelo menos 250 px, teclado, IDs Long/fuso exatos e Operação sem inclusão de valor. [Galeria](orchestracao/.runtime/indicator-filters-20261015/galeria.html), [recibo](orchestracao/.runtime/indicator-filters-20261015/visual.json).
+
+Contrato, padrões, permissões e referências preservados; ajuda do catálogo revisada. Fonte pronta, sem SQL/backend, reinício operacional ou publicação. Validação fictícia não comprova integração real; partida DEV pelo operador no fluxo habitual. Alterações anteriores da árvore preservadas.
+
+## FE08-AVARIA-UX01 — formulário de registro do fato, 15/10/2026
+
+Pedido de Lucas após imagem de Registrar fato. Formulário organizado em Unidade afetada, Dados do fato, Destino da mercadoria e Justificativa/pendências. Destinos em linhas numeradas com rótulos curtos Endereço/Código lido, Adicionar verde e Remover vermelho; referências herdam roxo/âmbar/turquesa. Confirmação permanece visível ao rolar. Cores de inclusão/remoção também aplicadas às listas genéricas de `Fields`. [Definição](docs/design-system/etapa-06.md#registro-do-fato-de-avaria--fe08-avaria-ux01).
+
+**Conferido:** 61 testes frontend em sete arquivos, incluindo três novos casos de inclusão/remoção sem perder o fato, confirmação exata, conflito/bloqueio e unidade fixa/perfil; tipagem/lint/formatação/build aprovados. Chrome fictício em oito layouts claro/escuro, 390/768/1024/1440 px, mais destinos preenchidos nos dois temas e desktop/celular: sem overflow, seções/campos alinhados, confirmação visível, teclado, ID Long/revisão/decimal exatos e restrição de pendências ao Gestor. [Galeria](orchestracao/.runtime/damage-form-20261015/galeria.html), [recibo](orchestracao/.runtime/damage-form-20261015/visual.json).
+
+Ajuda centralizada em `information.ts`; contrato, validações, permissões, dados selecionados e revisão preservados. Fonte pronta, sem SQL/backend, reinício operacional ou publicação. Validação fictícia não comprova integração real; partida DEV pelo operador no fluxo habitual. Alterações anteriores da árvore preservadas.
+
+## FE02-REF-COR01 — cores nas consultas de referências, 15/10/2026
+
+Pedido de Lucas após imagem dos três botões de referências de Estoque. `ReferenceLookup` usa cores por família: consultas gerais/catálogos em roxo, unidade/estoque (origem) em âmbar e endereço/capacidade em turquesa. Inclui os três botões da imagem e consultas equivalentes das outras jornadas, com normal/hover/foco e bloqueio existentes. [Definição](docs/design-system/etapa-06.md#cores-das-consultas-de-referências--fe02-ref-cor01).
+
+**Conferido:** 24 testes frontend em quatro arquivos, tipagem/lint/formatação/build aprovados; Chrome fictício em seis layouts claro/escuro e 390/768/1440 px, sem overflow. Dezoito medições de contraste normal/hover/foco acima de 4,5:1, teclado, toque de 44 px, consulta pendente e erro preservados. [Galeria](orchestracao/.runtime/reference-colors-20261015/galeria.html), [recibo](orchestracao/.runtime/reference-colors-20261015/visual.json).
+
+Fonte pronta; sem SQL/backend, reinício operacional ou publicação. Rótulos, destinos, permissões e seleção preservados; validação fictícia não comprova integração real. Alterações anteriores da árvore mantidas.
+
+## FE08-FILTROS01 — filtros de unidades organizados, 15/10/2026
+
+Pedido de Lucas após imagem de “Corrigir organização física”. Os sete filtros das páginas baseadas em `EstoqueController.listar` ficam em três grupos: cliente/armazém, identificação da unidade e localização/situação. Seletores com mais largura, controles alinhados e Aplicar/Restaurar em faixa própria à direita; tablet reorganiza os grupos e celular usa uma coluna. Busca local/Atualizar lista continuam separados. [Definição](docs/design-system/etapa-06.md#filtros-de-unidades--fe08-filtros01).
+
+**Conferido:** 45 testes frontend em quatro arquivos, incluindo dois novos casos de aplicação/restauração exata dos sete critérios e bloqueio/erro sem perda dos filtros; tipagem/lint/formatação/build aprovados. Chrome fictício: dez layouts, claro/escuro e 390/768/1024/1280/1600 px, sem overflow, campos com pelo menos 250 px, teclado, toque de 44 px, referências contextuais e IDs Long/UUID exatos. [Galeria](orchestracao/.runtime/stock-filters-20261015/galeria.html), [recibo](orchestracao/.runtime/stock-filters-20261015/visual.json).
+
+Fonte pronta; sem SQL/backend, reinício operacional ou publicação. Defaults, contratos, permissões e carregamento das referências preservados; validação fictícia não comprova integração real. Partida DEV pelo operador no fluxo habitual. Alterações anteriores da árvore preservadas.
+
+## FE02-RESULT-ALIGN01 — dados e consultas relacionados alinhados, 15/10/2026
+
+Pedido de Lucas após imagem de Pedido/Entradas conferidas/Progresso. Padrão compartilhado de resultados com blocos delimitados, títulos e espaçamentos uniformes, campos em duas colunas nos diálogos e uma no celular. Seleção fica ao final dos dados do registro. Cada consulta relacionada possui cabeçalho com seu próprio Atualizar; margens e larguras coincidem. Lista vazia não exibe paginação inativa; listas preenchidas relacionadas agora usam a paginação existente da consulta, preservando alvo/filtros. [Definição](docs/design-system/etapa-06.md#dados-e-consultas-alinhados--fe02-result-align01).
+
+**Conferência:** 686 testes frontend em 70 arquivos, incluindo três novos casos de vazio/zero/falso, paginação/seleção e atualização isolada após erro; tipagem/lint/formatação/build isolado aprovados. Chrome fictício: oito layouts claro/escuro em 390/768/1024/1440 px, larguras/margens/cabeçalhos alinhados e sem overflow; teclado, recarga independente, seleção e IDs Long exatos conferidos. [Galeria](orchestracao/.runtime/result-alignment-20261015/galeria.html), [recibo](orchestracao/.runtime/result-alignment-20261015/visual.json).
+
+Fonte pronta; sem SQL/backend, reinício operacional ou publicação. Prova de navegador usa transporte fictício e não comprova integração real. Partida DEV pelo operador e atualização pelo fluxo habitual. Alterações anteriores preservadas.
+
+## FE04-ENC-UX01 — consulta de encerramento organizada, 15/10/2026
+
+Pedido de Lucas após a imagem dos impedimentos. A consulta tem título específico, cadastro identificado e situação legível. Impedimentos aparecem em lista numerada, com recurso, descrição integral e referência consultada; removidos tabela genérica, colunas duplicadas, detalhe aninhado e seleção individual do impedimento. A seleção única continua sendo a do cadastro. Operações ficam recolhidas em seção própria, com duas colunas no desktop e uma no celular; fechar e recarregar permanecem no rodapé. [Definição](docs/design-system/etapa-06.md#consulta-de-encerramento--fe04-enc-ux01).
+
+**Conferido localmente:** 50 testes frontend em cinco arquivos, incluindo cinco novos casos da consulta; tipagem/lint/formatação/build aprovados. Chrome fictício: oito layouts claro/escuro em 390/768/1024/1440 px, sem overflow; zero, múltiplos e lista não informada diferenciados, seleção sem escrita e confirmação com ID Long/tipo/revisão preservados. [Galeria](orchestracao/.runtime/closure-detail-20261015/galeria.html), [recibo](orchestracao/.runtime/closure-detail-20261015/visual.json).
+
+Fonte pronta; sem SQL/backend, reinício operacional ou publicação. A verificação visual usa transporte fictício e não comprova integração. Atualização da instância pelo fluxo habitual, DEV pelo operador. Alterações anteriores preservadas.
+
+## FE02-DIALOG-ORG01 — ação, cadastro e navegação separados, 15/10/2026
+
+Pedido de Lucas após a imagem do encerramento definitivo. Cabeçalho informa a ação, com nome do cadastro e situação consultada em faixa própria; retirada a superfície vazia de campos internos. Tipo do cadastro selecionado permanece fixo junto à identidade/revisão. Outras operações ficam em grupo separado, recolhido durante edição, com proteção de descarte e foco no formulário após seleção. Rodapé exclusivo para voltar/fechar, detalhes e recarga; alinhado no desktop e em coluna no celular. Encerramentos simples usam largura menor. [Definição](docs/design-system/etapa-06.md#organização-dos-diálogos--fe02-dialog-org01).
+
+**Conferido:** suíte completa frontend **678/678 em 68 arquivos**, incluindo três novos casos de identificação/organização/troca protegida/contrato/bloqueio; tipagem/lint/formatação/build isolado aprovados. Chrome fictício: oito layouts, claro/escuro e 390/768/1024/1440 px, sem overflow; menu por teclado, foco, edição pendente e confirmação com ID Long/tipo/revisão atual. Capturas inspecionadas. [Galeria](orchestracao/.runtime/dialog-organization-20261015/galeria.html), [recibo](orchestracao/.runtime/dialog-organization-20261015/visual.json).
+
+Fonte pronta; sem SQL/backend, reinício operacional ou publicação. Atualização da instância pelo fluxo habitual, com partida DEV pelo operador. Alterações anteriores da árvore preservadas.
+
+## END-CONJ-UX01 — formulário do conjunto de posições, 15/10/2026
+
+Pedido de Lucas para reorganizar o formulário mostrado na imagem. Criação com título específico e três blocos: armazém/duas posições, limites do conjunto e justificativa. Nomes legíveis, posições lado a lado, peso/empilhamento separados das dimensões e orientação decimal única. Código automático identificado sem campo adicional; confirmação permanece visível durante a rolagem. [Definição](docs/22-enderecamento-movimentacao-e-estoque.md#end-conj-ux01--formulário-do-conjunto-de-posições-15102026).
+
+Posições ficam desabilitadas até selecionar o armazém; troca de armazém limpa somente as posições, preservando limites e motivo. IDs/contrato exatos, validação, permissões e confirmação existentes mantidos, sem cálculo automático de capacidade. Textos de ajuda em `frontend/src/content/information.ts`.
+
+**Conferido localmente:** 64 testes frontend em sete arquivos, incluindo cinco novos casos de contexto/limpeza seletiva/contrato/confirmação/envio/permissão; tipagem/lint/formatação/build isolado aprovados. Chrome fictício em 390/768/1024/1440 px, claro/escuro: oito layouts sem overflow, teclado, botão de confirmação visível e envio fictício com IDs/decimais exatos. Capturas inspecionadas. [Galeria](orchestracao/.runtime/position-set-20261015/galeria.html), [recibo](orchestracao/.runtime/position-set-20261015/visual.json).
+
+Fonte pronta, sem SQL/backend, reinício operacional ou publicação. Atualização da instância continua pelo fluxo habitual; partida DEV pelo operador. Alterações anteriores de cores/alinhamento preservadas.
+
+## FE02-ACOES01 — cores por função e alinhamento dos filtros, 15/10/2026
+
+Pedido de Lucas a partir dos diálogos de Clientes e dos filtros de Embalagens/DUN. Cores distintas nos componentes compartilhados: detalhes roxo, seleção verde, recarga turquesa, voltar/fechar vermelho suave; ações principais e edição mantêm azul. Inclui ícone de detalhes, atualização da lista, referências consultadas e X dos diálogos de conta. Filtros alinham os botões à linha do controle, deixando a orientação abaixo do campo; no celular, ações em linha própria. [Definição](docs/design-system/etapa-06.md#cores-por-função-e-alinhamento-dos-filtros--fe02-acoes01).
+
+**Conferido localmente:** 49 testes frontend, tipagem/lint/formatação/build isolado aprovados. Chrome com componentes oficiais e transporte fictício: 46 medições de contraste, mínimo 4,66:1; claro/escuro, desktop/celular, hover, teclado, seleção/retorno/recarga e bloqueio do fechar preservados. Dez verificações dos filtros em 1920/1440/1024/768/390 px, com 0 px de diferença entre topo do campo e botões quando lado a lado. Capturas inspecionadas, sem overflow/erro JavaScript/acesso API. [Galeria](orchestracao/.runtime/button-colors-20261015/galeria.html), [recibo](orchestracao/.runtime/button-colors-20261015/visual.json).
+
+Fonte pronta; atualização da instância continua pelo launcher habitual, com DEV sob partida do operador. Nenhum SQL/backend, reinício operacional ou publicação neste recorte. Build preserva o aviso preexistente de bundle acima de 500 kB.
+
 ## PREPARO-AUTO01-TRAVA01 — espera pela preparação e DEV conferido, 15/10/2026
 
 Novo console de Lucas: `database/iniciar-bancos.bat` concluiu DEV/PROD até V13; `iniciar-dev.bat` recusou a trava local (`31da0a2e710841909ed3c7bcecb6f5c5`) antes de SQL. A trava já estava livre na inspeção; a versão antiga não registrou quem a segurava naquela tentativa, portanto não presumir processo travado ou abandonado.

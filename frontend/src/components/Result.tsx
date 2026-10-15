@@ -12,6 +12,7 @@ import {
     technicalField,
 } from "../domain/referencePresentation";
 import { ConfirmedEntries } from "../modules/recebimento/ConfirmedEntries";
+import { ClosureDetail } from "../modules/cadastros/ClosureDetail";
 export function Result(props: Parameters<typeof ResultContent>[0]) {
     const parent = useContext(FormReferences);
     const indexed = indexRecords(
@@ -45,6 +46,8 @@ function ResultContent({
     if (data === null || data === undefined)
         return <p>Não informado pelo servidor.</p>;
     if (isLosslessNumber(data)) return <span>{data.value}</span>;
+    if (type === "EncerramentoDto.Resultado" && isObject(data))
+        return <ClosureDetail data={data} onSelect={onSelect} />;
     if (Array.isArray(data)) {
         if (data.length === 0)
             return <p className="empty">Nenhum registro encontrado.</p>;
@@ -133,6 +136,7 @@ function ResultContent({
                                         records[child] && (
                                             <button
                                                 type="button"
+                                                className="action-select"
                                                 onClick={() =>
                                                     onSelect(x, child)
                                                 }
@@ -160,15 +164,19 @@ function ResultContent({
                         onSelect={onSelect}
                         depth={depth + 1}
                     />
-                    <Pagination
-                        page={Number(data.pagina)}
-                        pages={Number(data.totalPaginas)}
-                        total={String(data.totalItens)}
-                        count={data.itens.length}
-                        size={Number(data.tamanho)}
-                        disabled={pending}
-                        onPage={onPage}
-                    />
+                    {(data.itens.length > 0 ||
+                        Number(data.totalItens) > 0 ||
+                        Number(data.totalPaginas) > 1) && (
+                        <Pagination
+                            page={Number(data.pagina)}
+                            pages={Number(data.totalPaginas)}
+                            total={String(data.totalItens)}
+                            count={data.itens.length}
+                            size={Number(data.tamanho)}
+                            disabled={pending}
+                            onPage={onPage}
+                        />
+                    )}
                 </div>
             );
         }
@@ -186,9 +194,16 @@ function ResultContent({
             ([, x]) => Object.keys(x as object).length === 0,
         );
         return (
-            <>
+            <div className="result-record">
                 {(scalar.length > 0 || emptyNested.length > 0) && (
-                    <dl className="record">
+                    <dl
+                        className={
+                            "record result-fields" +
+                            (nested.length > emptyNested.length
+                                ? " result-fields--summary"
+                                : "")
+                        }
+                    >
                         {scalar.map(([k, x]) => (
                             <div key={k}>
                                 <dt>{presentationLabel(k)}</dt>
@@ -212,11 +227,6 @@ function ResultContent({
                         ))}
                     </dl>
                 )}
-                {onSelect && records[type] && data.id !== undefined && (
-                    <button type="button" onClick={() => onSelect(data, type)}>
-                        Selecionar este registro
-                    </button>
-                )}
                 {nested
                     .filter((entry) => !emptyNested.includes(entry))
                     .map(([k, x]) => (
@@ -237,7 +247,18 @@ function ResultContent({
                             />
                         </section>
                     ))}
-            </>
+                {onSelect && records[type] && data.id !== undefined && (
+                    <div className="result-selection">
+                        <button
+                            type="button"
+                            className="action-select"
+                            onClick={() => onSelect(data, type)}
+                        >
+                            Selecionar este registro
+                        </button>
+                    </div>
+                )}
+            </div>
         );
     }
     return <p>{display(data)}</p>;

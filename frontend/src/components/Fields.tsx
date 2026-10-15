@@ -167,6 +167,7 @@ function FieldControl({
                         />
                         <button
                             type="button"
+                            className="action-remove"
                             onClick={() =>
                                 onChange(list.filter((_, j) => i !== j))
                             }
@@ -177,6 +178,7 @@ function FieldControl({
                 ))}
                 <button
                     type="button"
+                    className="action-add"
                     onClick={() =>
                         onChange([...list, initialValue(lt, refs.defaults)])
                     }
@@ -234,6 +236,11 @@ function FieldControl({
                 {value === null || value === undefined ? (
                     <button
                         type="button"
+                        className={
+                            f.name === "resolucao"
+                                ? "action-details"
+                                : undefined
+                        }
                         onClick={() => onChange(initialValue(f.type))}
                     >
                         Informar {label(f.name)}
@@ -253,6 +260,11 @@ function FieldControl({
                         {!f.required && (
                             <button
                                 type="button"
+                                className={
+                                    f.name === "resolucao"
+                                        ? "action-remove"
+                                        : undefined
+                                }
                                 onClick={() => onChange(null)}
                             >
                                 Remover {label(f.name)}

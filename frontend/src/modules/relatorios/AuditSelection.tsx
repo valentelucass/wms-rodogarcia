@@ -15,12 +15,17 @@ export function AuditSelection({
         (t) => workflow.selected[t.dto]?.id !== undefined,
     );
     return (
-        <section aria-label="Registro consultado para auditoria">
-            <h2>Auditoria de um registro consultado</h2>
-            <p>
-                Selecione o cadastro ou pedido para consultar seu histórico
-                preservado.
-            </p>
+        <section
+            className="audit-selection"
+            aria-label="Registro consultado para auditoria"
+        >
+            <header className="audit-selection-heading">
+                <h2>Auditoria de um registro consultado</h2>
+                <p>
+                    Selecione o cadastro ou pedido para consultar seu histórico
+                    preservado.
+                </p>
+            </header>
             {available.length === 0 && (
                 <p>
                     Consulte um cliente abaixo ou selecione um registro em sua
@@ -41,6 +46,7 @@ export function AuditSelection({
                         >
                             <button
                                 type="button"
+                                className="action-details"
                                 disabled={disabled}
                                 onClick={() =>
                                     onSelect(
@@ -53,12 +59,16 @@ export function AuditSelection({
                                     )
                                 }
                             >
-                                Auditar {t.label}{" "}
-                                {businessTitle(
-                                    workflow.selected[t.dto],
-                                    t.dto,
-                                    workflow.catalogs,
-                                )}
+                                <span className="audit-target-kind">
+                                    Auditar {t.label}
+                                </span>{" "}
+                                <span className="audit-target-name">
+                                    {businessTitle(
+                                        workflow.selected[t.dto],
+                                        t.dto,
+                                        workflow.catalogs,
+                                    )}
+                                </span>
                             </button>
                             {t.tipo === "VINCULO_COBRANCA" && (
                                 <>
@@ -71,6 +81,7 @@ export function AuditSelection({
                                     </p>
                                     <button
                                         type="button"
+                                        className="action-details"
                                         disabled={disabled}
                                         onClick={() =>
                                             onSelect(

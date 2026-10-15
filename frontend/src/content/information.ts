@@ -10,6 +10,62 @@ export type Information = {
 };
 
 export const information = {
+    contractConfiguration: {
+        title: "Parâmetros do contrato",
+        description:
+            "Informe os parâmetros contratados. Ausência de configuração não equivale a zero. Use ponto para decimais.",
+    },
+    contractMinimum: {
+        title: "Mínimo de cobrança",
+        description:
+            "Informe a aplicação, o valor, a proporção e os serviços previstos no contrato.",
+    },
+    contractGris: {
+        title: "GRIS",
+        description:
+            "Informe a aplicação, o percentual, a base, a periodicidade e a proporção contratados.",
+    },
+    contractHistorical: {
+        title: "Resolução financeira histórica",
+        description:
+            "Identifique a resolução histórica com seu compromisso de origem. Ela não reativa cadastros nem cria movimentação física.",
+    },
+    contractMinimumEmpty: {
+        title: "Serviços do mínimo",
+        description: "Nenhum serviço adicionado.",
+    },
+    damageUnit: {
+        title: "Unidade afetada",
+        description:
+            "Consulte e selecione a unidade para carregar sua identificação e revisão atuais.",
+    },
+    damageQuantity: {
+        title: "Quantidade afetada",
+        description: "Informe a quantidade afetada; use ponto para decimais.",
+    },
+    damageDestinations: {
+        title: "Destino da mercadoria",
+        description:
+            "Adicione as posições de destino e informe o código lido de cada endereço.",
+    },
+    damageDestinationsEmpty: {
+        title: "Posições de destino",
+        description: "Nenhuma posição adicionada.",
+    },
+    closureImpediments: {
+        title: "Impedimentos do cadastro",
+        description:
+            "Confira as pendências desta consulta. As regras de encerramento serão verificadas novamente ao confirmar.",
+    },
+    closureNoImpediments: {
+        title: "Consulta sem impedimentos informados",
+        description: "Nenhum impedimento informado nesta consulta.",
+    },
+    closureImpedimentsUnavailable: {
+        title: "Impedimentos não informados",
+        description:
+            "A consulta não informou a lista de impedimentos. Consulte novamente para conferir.",
+    },
     billingTableEdit: {
         title: "Edição da tabela de cobrança",
         description:
@@ -29,6 +85,22 @@ export const information = {
         title: "Conjuntos de duas posições",
         description:
             "Use conjuntos somente quando uma única unidade precisar ocupar duas posições juntas. Para uma bobina em uma posição, não crie conjunto. Os limites e o tipo de unidade permitido podem ser preenchidos em Endereços, ao cadastrar ou editar a posição. O botão Configurar também permite completar esses limites.",
+    },
+    positionSetCreate: {
+        title: "Criar conjunto de posições",
+        description:
+            "Use este conjunto quando uma única unidade precisar ocupar duas posições juntas.",
+        footer: "Código gerado ao confirmar",
+    },
+    positionSetSelection: {
+        title: "Escolha das posições",
+        description:
+            "Escolha duas posições diferentes do mesmo armazém e área. Trocar o armazém limpa a seleção das posições.",
+    },
+    positionSetLimits: {
+        title: "Limites do conjunto",
+        description:
+            "Limites aferidos para o conjunto. Peso em kg e dimensões em metros; use ponto e até 3 casas decimais (ex.: 2.50).",
     },
     registryEdit: {
         title: "Correção de cadastro",

@@ -4,6 +4,151 @@ Pedido expresso de Lucas em 09/10/2026. Esta entrega reorganiza as 12 áreas e s
 
 **Complemento FE05-PED01:** Entrada e conferência passou a reunir seus quatro grupos de capacidades na única visão Pedidos de entrada, com seções internas. A contagem de 50 páginas/171 ocorrências abaixo registra o inventário original de REG01, preservado para rastrear comandos; não representa quatro etapas globais atuais de Entrada. [Comportamento atual](etapa-07.md).
 
+## Cores por função e alinhamento dos filtros — FE02-ACOES01
+
+Pedido de Lucas em 15/10/2026, com exemplos dos diálogos de detalhe/edição de Clientes e do filtro de Embalagens/DUN. A correção expressa pede cores diferentes, evitando concentrar todas as ações em azul.
+
+| Função | Apresentação compartilhada |
+| --- | --- |
+| Ver detalhes e reabrir referências | Roxo, inclusive o ícone de detalhes na tabela. |
+| Selecionar registro | Verde nos resultados individuais e nas listas de referências. |
+| Atualizar lista, recarregar e consultar estado atual | Turquesa. |
+| Voltar, fechar detalhes/referências e X do diálogo | Vermelho suave, inclusive nos diálogos de conta. |
+| Ação principal e edição | Azul existente. |
+
+Classes reutilizáveis em `styles/base.css`, com cores dos tokens dos temas claro/escuro. Rótulos e ícones preservam a identificação da ação; cor não declara sucesso, disponibilidade ou efeito de negócio. O fechamento mantém a mesma proteção de alterações pendentes, foco e bloqueio durante operações.
+
+Nos filtros compartilhados de `RecordWorkspace`, campos e grupo de ações se alinham pelo início da linha do controle: o grupo reserva a altura do rótulo mais seu intervalo. Textos de orientação continuam abaixo do campo, sem puxar os botões para baixo. Em até 600 px, as ações ocupam sua própria linha, sem a reserva superior. Filtros, contexto e consultas permanecem iguais.
+
+Validação local: 49 testes frontend, tipagem, lint, formatação e build isolado aprovados. Chrome com componentes oficiais e transporte fictício explícito: 46 medições de contraste, mínimo 4,66:1; normal/hover, dois temas, teclado, toque de 44 px, seleção/retorno/recarga e fechamento bloqueado conferidos. Dez medições do filtro de Produto/SKU em 1920/1440/1024/768/390 px; diferença de 0 px entre os topos dos controles e botões quando lado a lado, sem overflow. [Capturas](../../orchestracao/.runtime/button-colors-20261015/galeria.html) e [recibo](../../orchestracao/.runtime/button-colors-20261015/visual.json). Sem SQL, backend, reinício operacional ou publicação.
+
+## Organização dos diálogos — FE02-DIALOG-ORG01
+
+Pedido de Lucas em 15/10/2026, a partir do diálogo de solicitar encerramento definitivo. Ajuste no padrão compartilhado de `RecordDialog` e `OperationForm`:
+
+- O cabeçalho informa a ação atual. Nome do registro e situação consultada aparecem em uma faixa própria; quando a resposta não traz nome/código, a identificação da linha original é usada somente com identidade correspondente.
+- Campos fixos exclusivamente técnicos não geram uma superfície vazia. Inputs ocultos de identidade/revisão continuam protegidos. Encerramento de um registro selecionado mantém também seu tipo fixo, sem oferecer troca para outro cadastro.
+- A ação principal fica junto ao formulário. Outras operações ficam em um grupo separado, aberto nos detalhes e recolhido durante uma ação. A escolha preserva o aviso de edição pendente; após troca autorizada, recolhe o menu e leva o foco ao formulário.
+- O rodapé contém somente voltar/fechar, detalhes e recarga. Botões ficam alinhados no desktop e em coluna no celular. Solicitação/confirmação simples de encerramento usa largura de até 720 px; formulários extensos conservam sua largura.
+
+Permissões, revisão, IDs, confirmação, resposta desconhecida e validações backend permanecem nas fronteiras existentes. Menu recolhido não concede nem retira permissão. Dados e ações disponíveis continuam vindo das consultas e políticas atuais.
+
+Chrome local com componentes oficiais e transporte fictício explícito: oito layouts nos temas claro/escuro, 390/768/1024/1440 px, sem overflow. Conferidos menu por teclado, foco, proteção da justificativa, tipo e ID Long preservados, revisão atual na confirmação e separação da navegação. [Capturas](../../orchestracao/.runtime/dialog-organization-20261015/galeria.html) e [recibo](../../orchestracao/.runtime/dialog-organization-20261015/visual.json). Fonte e build locais não representam atualização operacional.
+
+## Consulta de encerramento — FE04-ENC-UX01
+
+Pedido de Lucas em 15/10/2026, após imagem da consulta com tabela e comandos desorganizados. `ClosureDetail` substitui a renderização genérica de `EncerramentoDto.Resultado` tanto no diálogo quanto nos demais resultados desse contrato.
+
+- Cabeçalho “Encerramento do cadastro”; resumo com tipo, nome/referência e situação legível. Nome da linha original só é aproveitado com a mesma identidade.
+- Impedimentos em lista numerada, com título legível, recurso, descrição integral e referência do registro relacionado, usando consulta autorizada existente quando disponível. Nenhuma operação de negócio ou seleção é criada para a linha do impedimento.
+- Lista vazia e lista não informada têm mensagens distintas; item incompleto permanece contado. Nenhuma dessas mensagens decide liberação ou substitui a revalidação backend.
+- Seleção única do cadastro após os impedimentos. Operações recolhidas por padrão, em duas colunas ao expandir e uma no celular. Rodapé exclusivo para fechar/recarregar.
+- Textos de ajuda em `frontend/src/content/information.ts`; regras, permissões e contratos de confirmação preservados.
+
+Conferência: 50 testes em cinco arquivos, cinco novos casos de apresentação/identidade/seleção/estados; tipagem/lint/formatação/build aprovados. Chrome com componentes oficiais e transporte fictício: oito layouts em 390/768/1024/1440 px, claro/escuro, sem overflow; lista com um/dois/zero impedimentos, lista ausente, seleção sem escrita e confirmação com ID Long/tipo/revisão. [Capturas](../../orchestracao/.runtime/closure-detail-20261015/galeria.html), [recibo](../../orchestracao/.runtime/closure-detail-20261015/visual.json). Sem integração SQL/backend, reinício operacional ou publicação neste recorte.
+
+## Dados e consultas alinhados — FE02-RESULT-ALIGN01
+
+Pedido de Lucas em 15/10/2026, a partir da consulta de Pedido/Entradas conferidas/Progresso. O estilo posterior de `workspace.css` retirava a divisão entre as seções genéricas; consultas relacionadas exibiam atualização isolada abaixo dos resultados. A apresentação compartilhada de `Result` e `RelatedRecords` passa a manter uma hierarquia uniforme.
+
+- Campos com espaçamento constante; em diálogos, duas colunas no desktop e uma no celular. Resumo e objetos aninhados possuem limites visuais e títulos alinhados. Seleção fica ao final dos dados do próprio registro, sem trocar seu alvo.
+- Consultas relacionadas em blocos da mesma largura, com título e Atualizar no cabeçalho. Atualização e erro pertencem ao bloco correspondente. Nomes acessíveis distinguem a consulta da lista interna de entradas conferidas.
+- Listas vazias informam ausência de registros sem controles de paginação inativos. Listas preenchidas preservam contagem/páginas; as relacionadas usam `onPage` com o `useRecordQuery` existente, mantendo pedido e filtros aplicados.
+- Zero, falso, campos não informados e coleções vazias continuam distintos. IDs Long, permissões, revisão e seleção de entrada preservados. Ajuda de `information.confirmedEntries` e seu consumidor revisados, permanecendo adequados ao fluxo.
+
+Conferência: 686 testes frontend em 70 arquivos, incluindo três novos casos de consulta relacionada e adaptação da expectativa do estado vazio. Tipagem/lint/formatação/build aprovados; preservado aviso preexistente de bundle acima de 500 kB. Chrome fictício: oito layouts claro/escuro em 390/768/1024/1440 px sem overflow, larguras/margens/cabeçalhos alinhados, teclado, recarga isolada após erro, paginação e seleção exatas. [Capturas](../../orchestracao/.runtime/result-alignment-20261015/galeria.html), [recibo](../../orchestracao/.runtime/result-alignment-20261015/visual.json). Sem API/SQL real, alteração de processo operacional ou publicação neste recorte.
+
+## Filtros de unidades — FE08-FILTROS01
+
+Pedido de Lucas em 15/10/2026, após imagem dos sete filtros comprimidos de Corrigir organização física. `StockQueryFilters` organiza a consulta `EstoqueController.listar`, compartilhada pelas páginas de unidades/estoque, reutilizando os campos existentes.
+
+- Cliente e armazém: escopo obrigatório, lado a lado quando há largura.
+- Identificação da unidade: Produto/SKU e UUID, com espaço para ler os seletores e manter as orientações existentes.
+- Localização e situação: endereço, disponibilidade para saída e situação, com endereço mais largo. Tablet redistribui os controles; celular mantém uma coluna.
+- Aplicar/Restaurar em faixa própria alinhada à direita, antes da busca local e atualização da lista. Campos adicionais futuros não são omitidos.
+
+Defaults, filtros enviados, obrigatoriedade, permissões, tipagem e seletores existentes permanecem. Orientações de referência continuam junto aos campos, incluindo carregamento/erro/ausência; não foi duplicada regra operacional em ajuda ou UI.
+
+Conferência: 45 testes em quatro arquivos, incluindo dois novos casos de envio/restauração dos sete critérios e bloqueio/erro com preservação dos filtros. Tipagem/lint/formatação/build aprovados; aviso preexistente do bundle preservado. Chrome fictício em dez layouts, dois temas e 390/768/1024/1280/1600 px: sem overflow, controles com pelo menos 250 px, alinhamento, teclado, alvos de toque de 44 px e carregamento das referências no contexto. IDs Long, UUID e critérios exatos conferidos. [Capturas](../../orchestracao/.runtime/stock-filters-20261015/galeria.html), [recibo](../../orchestracao/.runtime/stock-filters-20261015/visual.json). Sem API/SQL real, alteração de processo operacional ou publicação.
+
+## Cores das consultas de referências — FE02-REF-COR01
+
+Pedido de Lucas em 15/10/2026 a partir dos três botões de “Consultar referências para a tarefa” em Estoque. Botões compartilhados de `ReferenceLookup` recebem `action-reference`, com família estável pela consulta:
+
+| Consulta | Cor |
+| --- | --- |
+| Geral/catálogos, incluindo produtos | Roxo |
+| Unidade/estoque, incluindo origem da unidade | Âmbar |
+| Endereço/capacidade, incluindo posições | Turquesa |
+
+Reutiliza tokens dos temas claro/escuro; hover e foco seguem o padrão compartilhado. Rótulos continuam identificando as ações. Carregamento, bloqueio de duplo envio, erro, destinos e seleção permanecem. Ver referências consultadas continua com a variante existente de detalhes.
+
+Conferência: 24 testes em quatro arquivos, tipagem/lint/formatação/build aprovados. Chrome fictício em seis layouts claro/escuro, 390/768/1440 px: sem overflow, três cores distintas, 18 medições de contraste normal/hover/foco acima de 4,5:1, teclado, toque de 44 px, bloqueio durante consulta e erro preservados. [Capturas](../../orchestracao/.runtime/reference-colors-20261015/galeria.html), [recibo](../../orchestracao/.runtime/reference-colors-20261015/visual.json). Sem API/SQL real, reinício operacional ou publicação; preservado aviso preexistente do bundle.
+
+## Registro do fato de avaria — FE08-AVARIA-UX01
+
+Pedido de Lucas em 15/10/2026, após imagem de Registrar fato. `DamageRegistrationFields`, selecionado por `OperationForm` somente em `AvariaController.registrar`, apresenta quatro seções: Unidade afetada, Dados do fato, Destino da mercadoria e Justificativa/pendências. Campos continuam usando metadados, componentes e políticas existentes; campos adicionais futuros não são omitidos.
+
+Posições de destino usam linhas numeradas com nomes acessíveis próprios e rótulos curtos Endereço/Código lido. Adicionar é verde; remover é vermelho. Incluir/remover preserva quantidade, horário, justificativa e os demais destinos. Conjunto de posições permanece opcional, após a lista de destinos. Cores de inclusão/remoção também cobrem listas genéricas de `Fields`; referências do diálogo herdam FE02-REF-COR01. Confirmação visível durante a rolagem, com duas colunas no desktop e uma no celular.
+
+Ajuda em `information.damageUnit`, `damageQuantity`, `damageDestinations` e `damageDestinationsEmpty`. Decimal, fuso, revisão, campos fixos, limites e validações do contrato permanecem. Resolução de pendências conserva a política exclusiva do Gestor. Nenhum cálculo ou autorização foi transferido ao navegador.
+
+Conferência: 61 testes em sete arquivos, três novos casos de contrato/destinos/bloqueio/conflito/perfil, além da jornada completa de avaria e fronteiras existentes. Tipagem/lint/formatação/build aprovados. Chrome fictício: oito layouts iniciais claro/escuro em 390/768/1024/1440 px e destinos preenchidos nos dois temas em desktop/celular; sem overflow, margens/campos alinhados, confirmação visível, teclado, remoção sem perda e POST fictício somente após revisão, com ID Long/revisão/decimal exatos. [Capturas](../../orchestracao/.runtime/damage-form-20261015/galeria.html), [recibo](../../orchestracao/.runtime/damage-form-20261015/visual.json). Sem API/SQL real, alteração de processo operacional ou publicação; aviso preexistente do bundle preservado.
+
+## Filtros de indicadores — FE08-IND-FILTROS01
+
+Pedido de Lucas em 15/10/2026 para organizar Indicadores e validade. `StockQueryFilters` estende o agrupamento de estoque às consultas `IndicadorEstoqueController.listar`: Contexto da consulta contém cliente/armazém lado a lado e produto em uma linha inteira; Opções do relatório contém incluir valor e fuso. Os grupos usam proporção 3:2 no desktop, se empilham abaixo de 1280 px e usam uma coluna abaixo de 768 px. Aplicar/Restaurar ficam alinhados à direita em faixa própria; busca local/Atualizar permanecem separados.
+
+Reutilizados `Fields`, seletores e políticas existentes. Sem alteração em obrigatoriedade, IDs, fuso padrão `America/Sao_Paulo`, inclusão de valor restrita a Supervisor/Gestor, validação, consulta ou restauração. Ajuda de valor armazenado/validade em `information.ts` e orientação da página revisadas e preservadas; layout não muda esses significados nem exige nova explicação.
+
+**Conferência:** 44 testes frontend em cinco arquivos, incluindo três novos casos de aplicação/restauração e acesso ao valor nos três perfis; tipagem, lint focal, formatação e build aprovados. Dez layouts Chrome fictícios nos dois temas, 390/768/1024/1280/1600 px: campos com pelo menos 250 px, alinhamento, ausência de overflow, teclado, IDs Long/fuso exatos e Operação sem valor. Capturas desktop/tablet/celular inspecionadas. [Galeria](../../orchestracao/.runtime/indicator-filters-20261015/galeria.html), [recibo visual](../../orchestracao/.runtime/indicator-filters-20261015/visual.json).
+
+Fonte pronta; sem backend/SQL, reinício operacional ou publicação. Prova com transporte fictício não comprova integração real ou atualização da instância ativa. Preview próprio encerrado; DEV pelo operador no fluxo habitual.
+
+## Detalhes do serviço — FE11-SERV-UX01
+
+Pedido de Lucas em 15/10/2026 a partir da imagem do serviço de armazenagem. Apresentação específica de `ConfiguracaoCobrancaDto.Servico` em `RecordDialog`: largura máxima de 760 px, título Detalhes do serviço, ícone de serviços, descrição uma única vez e situação em badge. Código, tipo de serviço e unidade de cobrança formam uma faixa de três colunas no desktop e uma no celular. Fechar e Selecionar compartilham o rodapé, eliminando a faixa adicional de seleção.
+
+`ServiceDetail` traduz apenas termos conhecidos de tipo/unidade do contrato para leitura (por exemplo, `POSICAO_DIA` → Posição por dia). Valores desconhecidos e dados ausentes continuam explícitos; textos longos quebram sem truncamento. Não calcula preços nem altera dados, seleção, permissões ou regras. Outros resultados e formulários mantêm sua apresentação. Nenhuma ajuda do catálogo é adicionada ou alterada neste ajuste de organização.
+
+**Conferência:** 37 testes frontend em cinco arquivos, incluindo três novos casos de seleção exata, desconhecidos e ausência/inatividade; tipagem, lint focal, formatação e build aprovados. Oito layouts Chrome fictícios em 390/768/1024/1440 px, claro/escuro: diálogo compacto, controles alinhados e sem overflow. Textos longos adicionais conferidos nos dois temas em desktop/celular. Tab contido, Enter/Escape, retorno ao acionador e seleção com ID/revisão/tipo/unidade exatos, sem requisição de negócio. Capturas inspecionadas. [Galeria](../../orchestracao/.runtime/service-detail-20261015/galeria.html), [recibo](../../orchestracao/.runtime/service-detail-20261015/visual.json).
+
+Fonte pronta; preview próprio encerrado, sem SQL/backend, reinício operacional ou publicação. Transporte fictício não comprova integração real nem atualização da instância ativa; DEV pelo operador no fluxo habitual.
+
+## Tabelas e auditoria — FE11-TAB-UX01
+
+Pedido de Lucas em 15/10/2026 a partir da imagem com auditoria, Visão e Tabelas e vigências. O seletor de visão deixa de ocupar uma faixa solta fora da consulta e passa ao cabeçalho de `RecordWorkspace`, junto dos comandos de criação. Grade mantém as bases alinhadas no desktop e empilha no celular. Aplica-se também aos outros seletores de visão do mesmo componente, com rótulos existentes preservados.
+
+`AuditSelection` usa cabeçalho e comandos lado a lado quando há espaço, sem margens externas adicionais na jornada. Botões roxos identificam ação/tipo e nome do registro em linhas próprias; textos extensos quebram sem corte. Alvos múltiplos e o bloco de legado com sua explicação permanecem separados. Não altera DTO/ID enviado, seleção ou permissões. O filtro de `ConfiguracaoCobrancaController.tabelas` limita a largura do armazém e alinha Aplicar/Restaurar à base do controle; busca local/Atualizar continuam em faixa própria.
+
+A conferência de teclado nativa identificou que mudar a visão reaplicava o `startAction` inicial e abria um diálogo do contexto anterior. A ação inicial é agora consumida apenas até o usuário trocar a visão; essa troca monta a consulta escolhida, sem reabrir o comando, e mantém foco no seletor. Abertura inicial de operações e proteção de descarte existentes preservadas. Textos de ajuda e orientação sobre histórico, vigências e parâmetros ausentes revisados e preservados; sem regra financeira no navegador.
+
+**Conferência:** 38 testes frontend em cinco arquivos, incluindo dois novos casos de foco, ausência de diálogo indevido, critérios exatos e perfis; tipagem, lint focal, formatação e build aprovados. Oito layouts Chrome fictícios em 390/768/1024/1600 px, claro/escuro: sem overflow, controles alinhados, alvos móveis de 44 px, troca por teclado, aplicação com ID Long exato e busca mantida na recarga. Auditoria/legado com DTO/ID próprios; Supervisor sem auditoria/criação. Alvos múltiplos e explicação do legado conferidos em desktop/celular. Capturas inspecionadas. [Galeria](../../orchestracao/.runtime/pricing-workspace-20261015/galeria.html), [recibo](../../orchestracao/.runtime/pricing-workspace-20261015/visual.json).
+
+Fonte pronta; preview próprio encerrado, sem SQL/backend, reinício operacional ou publicação. Transporte fictício não comprova integração real nem atualização da instância ativa; DEV pelo operador no fluxo habitual.
+
+## Filtros do histórico — FE12-AUD-FILTROS01
+
+Pedido de Lucas em 15/10/2026 a partir da imagem de Histórico do vínculo. Layout específico das consultas `AuditoriaController.listar` no `RecordWorkspace`: tipo até 300 px e registro no restante da grade. Busca nas opções e seleção compartilham a linha quando há espaço. Abaixo de 1280 px, tipo e registro usam linhas próprias; abaixo de 768 px, busca/seleção também se empilham. Aplicar/Restaurar têm faixa exclusiva alinhada à direita e alvos de 44 px no celular. Busca local da resposta/Atualizar continuam separados dos critérios da consulta.
+
+Apenas classe/estilos de apresentação; campos, valores, tipos, seletores, paginação de opções, envio e permissões existentes preservados. Nenhuma atribuição automática de legado ou alteração de namespace. Orientação da página sobre histórico confirmado/legado revisada e preservada; nenhuma ajuda do catálogo precisou mudar.
+
+**Conferência:** 45 testes frontend existentes em quatro arquivos, tipagem, lint focal, formatação e build aprovados. Oito layouts Chrome fictícios, claro/escuro em 390/768/1024/1600 px, sem overflow e com controles/comandos alinhados. Verificados teclado, busca nas opções, registro único, pendência, erro/recuperação, restauração, busca local da resposta e consulta com tipo/ID Long exatos. Legado mantém namespace próprio; Supervisor permanece sem acesso à consulta. Capturas desktop/tablet/celular inspecionadas. [Galeria](../../orchestracao/.runtime/audit-filters-20261015/galeria.html), [recibo](../../orchestracao/.runtime/audit-filters-20261015/visual.json).
+
+Fonte pronta; preview próprio encerrado, sem SQL/backend, reinício operacional ou publicação. Transporte fictício não comprova integração real nem atualização da instância ativa; DEV pelo operador no fluxo habitual.
+
+## Configuração do contrato — FE11-CONTRATO-UX01
+
+Pedido de Lucas em 15/10/2026 a partir da imagem de mínimo, GRIS, justificativa e resolução histórica. Apresentação específica de `ConfiguracaoCobrancaController.configurar` por `ContractConfigurationFields`: Cliente e vigência, Ciclo de cobrança, Mínimo de cobrança, GRIS e Justificativa/resolução histórica. Campos em duas colunas no desktop/tablet e uma no celular; modalidade/aplicação em linha própria, sem dispersar os parâmetros entre grupos. Confirmação permanece visível durante rolagem.
+
+Rótulos mais curtos e opções legíveis preservam os valores canônicos do contrato. `ScalarField.choiceLabels` é opcional e mantém a apresentação anterior para os demais consumidores. Serviços abrangidos pelo mínimo têm seleção por nome/código, linhas identificadas, Adicionar verde e Remover vermelho; envio continua como lista de IDs Long. Inclusão/remoção preservam os demais serviços e parâmetros. Resolução histórica reutiliza os campos/permissões existentes; orientação em linha própria e tipo/compromisso alinhados. Informar resolução fica roxo e remover vermelho nos objetos `resolucao` de `Fields`.
+
+Ajuda de configuração/mínimo/GRIS/resolução em `information.ts`, revisada com o documento 29 e os alinhamentos AC. Sem cálculo no frontend ou defaults financeiros novos. Ausência, não aplicação e zero continuam distintos; nenhum parâmetro é apagado automaticamente ao trocar opções. Backend permanece responsável por combinação válida, permissão, histórico e cálculo.
+
+**Conferência:** 199 testes frontend em cinco arquivos, incluindo três novos casos de lista/ID/precisão, ausência/resolução opcional e bloqueio/conflito; tipagem, lint focal, formatação e build aprovados. Oito layouts Chrome fictícios em 390/768/1024/1440 px, claro/escuro, sem overflow; seções alinhadas, confirmação visível ao rolar e controles de 44 px no celular. Também conferidos serviços/parâmetros preenchidos, resolução aberta com tipo/compromisso na mesma linha, confirmação por teclado, bloqueio durante envio e POST fictício com IDs/decimais/códigos exatos. Supervisor sem configuração. Capturas inspecionadas. [Galeria](../../orchestracao/.runtime/contract-form-20261015/galeria.html), [recibo](../../orchestracao/.runtime/contract-form-20261015/visual.json).
+
+Fonte pronta; preview próprio encerrado, sem SQL/backend, reinício operacional ou publicação. Transporte fictício não comprova integração real nem atualização da instância ativa; DEV pelo operador no fluxo habitual.
+
 ## Cobertura e fontes
 
 O [inventário por página](inventario-paginas.md) registra a visão anterior, a fonte principal, o detalhe, cada ação migrada, DTOs, campos, permissões, referências obrigatórias e fontes de validação. São 171 ocorrências de ações, incluindo comandos compartilhados entre etapas. O [inventário estruturado](../../frontend/evidencias/record-pages-inventario.json) é gerado pela verificação das definições reais, sem excluir ações para reduzir o denominador.

@@ -392,10 +392,6 @@
     line-height: var(--og-leading-title);
     overflow-wrap: anywhere;
 }
-.account-dialog .dialog-close {
-    border-color: var(--og-border);
-    background: var(--og-surface-raised);
-}
 .account-dialog .dialog-body {
     padding: var(--og-space-6);
 }

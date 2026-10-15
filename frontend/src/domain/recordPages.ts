@@ -312,6 +312,7 @@ export function recordActionLabel(id: string): string {
         if (command === "reativar") return `Reativar ${entity}`;
     }
     const labels: Record<string, string> = {
+        "CapacidadeController.criar": "Novo conjunto de posições",
         "PedidoEntradaController.criar": "Novo pedido de entrada",
         "PedidoSaidaController.criar": "Nova saída",
         "ContagemController.contar": "Nova contagem",

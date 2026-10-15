@@ -1,4 +1,11 @@
-import { useEffect, useState, type ComponentProps } from "react";
+import {
+    useEffect,
+    useLayoutEffect,
+    useRef,
+    useState,
+    type ComponentProps,
+    type ReactNode,
+} from "react";
 import {
     endpoint,
     isObject,
@@ -12,10 +19,11 @@ import {
     type RecordPage,
 } from "../../domain/recordPages";
 import { operationContext } from "../../domain/workflow";
-import { recordIdentity, recordRoot } from "../../domain/recordContext";
+import { recordIdentity, recordRoot, recordTitle } from "../../domain/recordContext";
 import { canLeavePage } from "../../domain/pageLeave";
 import { useRecordQuery } from "../../hooks/useRecordQuery";
 import { Fields } from "../Fields";
+import { StockQueryFilters } from "../../modules/estoque/StockQueryFilters";
 import { Pagination } from "../layout/Pagination";
 import { OperationResults } from "../operation/OperationResults";
 import { AddressTemplateLink } from "../../modules/cadastros/AddressTemplateLink";
@@ -55,42 +63,58 @@ export function RecordWorkspace(props: Props) {
             ) ?? 0,
         ),
     );
-    return (
-        <>
-            {definition.views && (
-                <label className="record-view-picker">
-                    {props.journey.id === "precos"
-                        ? "Visão"
-                        : "Tipo de cadastro"}
-                    <select
-                        value={view}
-                        onChange={(event) => {
-                            if (canLeavePage())
-                                setView(Number(event.target.value));
-                        }}
-                    >
-                        {definition.views.map((v, index) => (
-                            <option value={index} key={v.title}>
-                                {v.title}
-                            </option>
-                        ))}
-                    </select>
-                </label>
-            )}
-            <PageRecords
-                key={view}
-                {...props}
-                definition={definition.views?.[view] ?? definition}
-                context={{
-                    ...props.context,
-                    ...definition.context,
-                    ...definition.views?.[view]?.context,
+    const viewControl = useRef<HTMLSelectElement>(null);
+    const restoreViewFocus = useRef(false);
+    const [viewChanged, setViewChanged] = useState(false);
+    useLayoutEffect(() => {
+        if (restoreViewFocus.current) {
+            viewControl.current?.focus();
+            restoreViewFocus.current = false;
+        }
+    }, [view]);
+    const viewPicker = definition.views && (
+        <label className="record-view-picker">
+            {props.journey.id === "precos" ? "Visão" : "Tipo de cadastro"}
+            <select
+                ref={viewControl}
+                aria-label={
+                    props.journey.id === "precos" ? "Visão" : "Tipo de cadastro"
+                }
+                value={view}
+                onChange={(event) => {
+                    if (canLeavePage()) {
+                        restoreViewFocus.current = true;
+                        setViewChanged(true);
+                        setView(Number(event.target.value));
+                    }
                 }}
-            />
-        </>
+            >
+                {definition.views.map((v, index) => (
+                    <option value={index} key={v.title}>
+                        {v.title}
+                    </option>
+                ))}
+            </select>
+        </label>
+    );
+    return (
+        <PageRecords
+            key={view}
+            {...props}
+            startAction={viewChanged ? "" : props.startAction}
+            viewPicker={viewPicker}
+            definition={definition.views?.[view] ?? definition}
+            context={{
+                ...props.context,
+                ...definition.context,
+                ...definition.views?.[view]?.context,
+            }}
+        />
     );
 }
-function PageRecords(props: Props & { definition: RecordPage }) {
+function PageRecords(
+    props: Props & { definition: RecordPage; viewPicker?: ReactNode },
+) {
     const {
         journey,
         step,
@@ -103,6 +127,11 @@ function PageRecords(props: Props & { definition: RecordPage }) {
         onNavigate,
     } = props;
     const definition = props.definition;
+    const groupedStockFilters = [
+        "EstoqueController.listar",
+        "IndicadorEstoqueController.listar",
+    ].includes(definition.source);
+    const FilterFields = groupedStockFilters ? StockQueryFilters : Fields;
     const current = journey.steps[step];
     const query = useRecordQuery(
         definition.source,
@@ -183,7 +212,7 @@ function PageRecords(props: Props & { definition: RecordPage }) {
         if (localPage > maximumLocalPage) setLocalPage(maximumLocalPage);
     }, [localPage, maximumLocalPage]);
     const open = (row: Values, action?: string) => {
-        onRecord(row, type);
+        if (type !== "ConfiguracaoCobrancaDto.Servico") onRecord(row, type);
         setOpening({ row, type, action });
     };
     const completed: Props["onReceipt"] = (
@@ -220,43 +249,47 @@ function PageRecords(props: Props & { definition: RecordPage }) {
                             : current.help}
                     </p>
                 </div>
-                <div className="record-header-actions">
-                    {definition.source ===
-                        "ImportacaoEnderecoController.consultar" &&
-                        query.allowed && <AddressTemplateLink />}
-                    {headers.map((id, i) => (
-                        <button
-                            className={i === 0 ? "primary" : ""}
-                            key={id}
-                            type="button"
-                            onClick={() => {
-                                if (id === "PedidoEntradaController.criar")
-                                    setCreatingEntry(true);
-                                else if (
-                                    id === "UnidadeLogisticaController.unitizar"
-                                ) {
-                                    const pedido =
-                                        workflow.selected[
-                                            "PedidoEntradaDto.Resumo"
-                                        ];
-                                    if (pedido)
-                                        setOpening({
-                                            row: pedido,
-                                            type: "PedidoEntradaDto.Resumo",
-                                            action: id,
-                                        });
-                                    else
-                                        setMessage(
-                                            "Selecione um pedido efetivado na lista para distribuir suas entradas em unidades.",
-                                        );
-                                } else setOpening({ action: id });
-                            }}
-                        >
-                            {id === "PedidoEntradaController.criar"
-                                ? "Novo pedido"
-                                : recordActionLabel(id)}
-                        </button>
-                    ))}
+                <div className="record-header-controls">
+                    {props.viewPicker}
+                    <div className="record-header-actions">
+                        {definition.source ===
+                            "ImportacaoEnderecoController.consultar" &&
+                            query.allowed && <AddressTemplateLink />}
+                        {headers.map((id, i) => (
+                            <button
+                                className={i === 0 ? "primary" : ""}
+                                key={id}
+                                type="button"
+                                onClick={() => {
+                                    if (id === "PedidoEntradaController.criar")
+                                        setCreatingEntry(true);
+                                    else if (
+                                        id ===
+                                        "UnidadeLogisticaController.unitizar"
+                                    ) {
+                                        const pedido =
+                                            workflow.selected[
+                                                "PedidoEntradaDto.Resumo"
+                                            ];
+                                        if (pedido)
+                                            setOpening({
+                                                row: pedido,
+                                                type: "PedidoEntradaDto.Resumo",
+                                                action: id,
+                                            });
+                                        else
+                                            setMessage(
+                                                "Selecione um pedido efetivado na lista para distribuir suas entradas em unidades.",
+                                            );
+                                    } else setOpening({ action: id });
+                                }}
+                            >
+                                {id === "PedidoEntradaController.criar"
+                                    ? "Novo pedido"
+                                    : recordActionLabel(id)}
+                            </button>
+                        ))}
+                    </div>
                 </div>
             </header>
             {!query.allowed ? (
@@ -269,7 +302,16 @@ function PageRecords(props: Props & { definition: RecordPage }) {
                         (f) => !["pagina", "tamanho"].includes(f.name),
                     ) && (
                         <form
-                            className="record-filters"
+                            className={
+                                "record-filters" +
+                                (groupedStockFilters
+                                    ? " record-filters--stock"
+                                    : "") +
+                                (definition.source ===
+                                "AuditoriaController.listar"
+                                    ? " record-filters--audit"
+                                    : "")
+                            }
                             onSubmit={(event) => {
                                 event.preventDefault();
                                 query.search();
@@ -277,7 +319,7 @@ function PageRecords(props: Props & { definition: RecordPage }) {
                         >
                             <fieldset disabled={query.pending}>
                                 <legend>Filtros da consulta</legend>
-                                <Fields
+                                <FilterFields
                                     fields={[
                                         ...query.e.params,
                                         ...query.e.query,
@@ -309,7 +351,7 @@ function PageRecords(props: Props & { definition: RecordPage }) {
                                     </button>
                                     {journey.id === "entrada" && (
                                         <button
-                                            className="record-refresh"
+                                            className="record-refresh action-refresh"
                                             type="button"
                                             disabled={query.pending}
                                             onClick={query.refresh}
@@ -379,6 +421,7 @@ function PageRecords(props: Props & { definition: RecordPage }) {
                             )}
                             <button
                                 type="button"
+                                className="action-refresh"
                                 disabled={query.pending}
                                 onClick={query.refresh}
                             >
@@ -459,6 +502,11 @@ function PageRecords(props: Props & { definition: RecordPage }) {
                                     type={type}
                                     title={definition.title ?? current.title}
                                     pending={query.pending}
+                                    selectedId={
+                                        type === "ConfiguracaoCobrancaDto.Servico" && workflow.selected[type]
+                                            ? recordIdentity(workflow.selected[type])
+                                            : undefined
+                                    }
                                     onOpen={open}
                                     canEdit={(row) =>
                                         visibleRecordActions(
@@ -612,7 +660,13 @@ function PageRecords(props: Props & { definition: RecordPage }) {
                         query.refresh();
                     }}
                     onReceipt={completed}
-                    onRecord={onRecord}
+                    onRecord={(row, selectedType) => {
+                        onRecord(row, selectedType);
+                        if (definition.source === "ConfiguracaoCobrancaController.servicos" && selectedType === "ConfiguracaoCobrancaDto.Servico") {
+                            setMessage(`Serviço selecionado: ${recordTitle(row)}.`);
+                            setConfirmed(undefined);
+                        }
+                    }}
                     onNavigate={onNavigate}
                     journey={journey}
                 />

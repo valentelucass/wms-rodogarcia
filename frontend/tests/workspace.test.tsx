@@ -65,7 +65,7 @@ it("paginação remota preserva filtros recebidos, Long exato e bloqueia envio d
     );
     expect(screen.getByRole("button", { name: "Anterior" })).toBeEnabled();
 });
-it("resultado vazio conserva paginação coerente e não oferece destinos inexistentes", async () => {
+it("resultado vazio dispensa paginação e não oferece destinos inexistentes", async () => {
     render(
         <Operation
             id="ProdutoController.listar"
@@ -77,7 +77,13 @@ it("resultado vazio conserva paginação coerente e não oferece destinos inexis
     );
     fireEvent.click(screen.getByRole("button", { name: "Consultar" }));
     await screen.findByText("Nenhum registro encontrado.");
-    expect(screen.getByText("Página 1 de 1")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Anterior" })).toBeDisabled();
-    expect(screen.getByRole("button", { name: "Próxima" })).toBeDisabled();
+    expect(
+        screen.queryByRole("navigation", { name: "Paginação dos resultados" }),
+    ).not.toBeInTheDocument();
+    expect(
+        screen.queryByRole("button", { name: "Anterior" }),
+    ).not.toBeInTheDocument();
+    expect(
+        screen.queryByRole("button", { name: "Próxima" }),
+    ).not.toBeInTheDocument();
 });

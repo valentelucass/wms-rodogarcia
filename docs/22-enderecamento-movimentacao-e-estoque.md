@@ -22,6 +22,18 @@ O bloco permite confirmar a localização física, remanejar uma unidade inteira
 
 V4 acrescenta os campos e tabelas, índices, FKs e restrições; amplia auditoria. V1/V2/V3 ficam preservadas. Unidades antigas continuam sem localização até confirmação física. A migração inicializa `revisao_conteudo` pela versão antiga para preservar a revisão da etiqueta existente. A aplicação nunca executa migrations automaticamente; procedimento e permissões em [database/migrations](../database/migrations/README.md).
 
+## END-CONJ-UX01 — formulário do conjunto de posições, 15/10/2026
+
+Pedido de Lucas para melhorar a usabilidade da criação, sem alterar as regras de capacidade. O diálogo passa a chamar-se **Novo conjunto de posições** e usa um formulário específico com os controles existentes:
+
+1. **Armazém e posições:** armazém primeiro, seguido de Primeira posição e Segunda posição lado a lado no desktop. O par fica desabilitado antes da escolha do armazém. Ao trocar esse contexto, limpa somente as duas posições; limites e justificativa são preservados. Consultas continuam usando o catálogo autorizado do armazém selecionado.
+2. **Limites do conjunto:** peso máximo em kg e empilhamento na primeira linha; altura, largura e profundidade em metros na seguinte. Uma única orientação explica decimais, sem repetir prefixos técnicos nem calcular limites no navegador.
+3. **Justificativa:** campo completo na parte final, antes da confirmação existente. O código automático é identificado no topo; a ação de conferir permanece visível durante a rolagem.
+
+No celular, os campos passam para uma coluna. Ajuda centralizada em `frontend/src/content/information.ts`, com consumidores no formulário. Nomes das posições também ficam legíveis nos detalhes e na conferência. A fronteira `CapacidadeDto.CriarConjunto`, os IDs, a precisão decimal, os bloqueios durante envio e a permissão do Gestor continuam iguais. A seleção auxilia o preenchimento; o backend continua responsável por compatibilidade, mesma área, tipos, limites e efeitos.
+
+Validação local: 64 testes em sete arquivos, incluindo cinco novos casos do fluxo; tipagem/lint/formatação/build aprovados. Chrome com transporte fictício explícito, claro/escuro e 390/768/1024/1440 px: oito layouts sem overflow, posições alinhadas, sequência de teclado, confirmação visível, mudança de armazém e envio exato conferidos. [Galeria](../orchestracao/.runtime/position-set-20261015/galeria.html), [recibo](../orchestracao/.runtime/position-set-20261015/visual.json). Fonte pronta; sem integração SQL, reinício operacional ou publicação neste recorte.
+
 ## Capacidade e duas posições
 
 **END-CAP01, 14/10/2026:** tipo de unidade permitido incluído também em criar/editar endereço, junto dos limites físicos. Antes, dimensões podiam ser cadastradas enquanto o tipo só era informado pelo comando separado de capacidade, causando bloqueio mesmo com medidas preenchidas. Campos opcionais permitem manter cadastro incompleto, mas não autorizam endereçamento. PUT legado sem tipo mantém o atual; troca de tipo é estrutural e recusa ocupação/conjunto ativo. A mensagem `CAPACIDADE_NAO_CONFIGURADA` lista exatamente os campos ausentes e a posição.

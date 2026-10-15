@@ -161,7 +161,7 @@ it("FE04 encerramento consulta impedimentos solicitação inativação e histór
     await confirm();
     await click("Consultar situação e impedimentos atuais");
     await consult();
-    expect(screen.getByText("INATIVO", { exact: true })).toBeInTheDocument();
+    expect(screen.getByText("Inativo", { exact: true })).toBeInTheDocument();
     expect(
         t.requests.filter((r) => r.endpoint.id.endsWith("inativar")),
     ).toHaveLength(1);
@@ -205,7 +205,7 @@ it("FE04 revisão antiga recusa não antecipa alteração nem apaga impedimento"
     fill("Identificador *", "1");
     await consult();
     expect(
-        screen.getByRole("cell", { name: "Estoque impede a inativação" }),
+        screen.getByText("Estoque impede a inativação", { exact: true }),
     ).toBeInTheDocument();
     await click("Solicitar encerramento deste cadastro");
     fill("Motivo / justificativa *", "Encerramento fictício motivado");

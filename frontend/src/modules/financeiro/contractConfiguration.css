@@ -1,0 +1,123 @@
+.contract-configuration-fields {
+    display: grid;
+    gap: var(--og-space-4);
+    min-width: 0;
+}
+.contract-configuration-fields > .contract-section {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: var(--og-space-4);
+    margin: 0;
+    padding: var(--og-space-4);
+    border-radius: var(--og-radius-control);
+}
+.contract-section > legend {
+    font-size: var(--og-type-body);
+}
+.contract-configuration-help,
+.contract-section-help {
+    margin: 0;
+}
+.contract-section-help,
+.contract-field--wide,
+.contract-minimum-services,
+.contract-resolution {
+    grid-column: 1 / -1;
+}
+.contract-field,
+.contract-field > .field {
+    min-width: 0;
+    margin: 0;
+}
+.contract-field :is(input, select, textarea),
+.contract-service-row :is(input, select) {
+    width: 100%;
+    min-width: 0;
+}
+.contract-section > .contract-minimum-services {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--og-space-3);
+    padding: var(--og-space-3);
+    margin: 0;
+    background: var(--og-surface-raised);
+    border-radius: var(--og-radius-control);
+}
+.contract-minimum-services > .hint {
+    margin: 0;
+}
+.contract-service-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--og-space-3);
+    align-items: end;
+    min-width: 0;
+}
+.contract-service-row > .field {
+    margin: 0;
+}
+.contract-service-actions {
+    display: flex;
+    justify-content: flex-start;
+}
+.contract-resolution > .hint {
+    margin: 0 0 var(--og-space-3);
+}
+.contract-resolution > .structured-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--og-space-3);
+    margin: 0;
+    border-radius: var(--og-radius-control);
+}
+.contract-resolution > .structured-fields > button {
+    grid-column: 1 / -1;
+    justify-self: start;
+}
+.contract-resolution > .structured-fields > .hint {
+    grid-column: 1 / -1;
+    margin: 0;
+}
+.contract-resolution > .structured-fields > div:not(.field) {
+    grid-column: 1 / -1;
+}
+.contract-resolution > .structured-fields > div:not(.field) > p {
+    margin: 0;
+    font-size: var(--og-type-caption);
+    color: var(--og-text-muted);
+}
+.contract-resolution > .structured-fields > .field {
+    margin: 0;
+}
+.contract-resolution > .structured-fields > .field > label {
+    min-height: 3em;
+    justify-content: flex-end;
+}
+.record-dialog:has(.contract-configuration-fields) .operation form > .actions {
+    position: sticky;
+    bottom: 0;
+    z-index: var(--og-z-sticky);
+    background: var(--og-surface);
+    padding-block: var(--og-space-3);
+    margin-bottom: 0;
+}
+.contract-configuration-fields :is(input, select, textarea, button) {
+    scroll-margin-block: 80px;
+}
+@media (max-width: 600px) {
+    .contract-resolution > .structured-fields > .field > label {
+        min-height: auto;
+    }
+    .contract-configuration-fields > .contract-section,
+    .contract-service-row,
+    .contract-resolution > .structured-fields {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .contract-configuration-fields > .contract-section {
+        padding: var(--og-space-3);
+    }
+    .contract-service-actions > button {
+        width: 100%;
+    }
+}

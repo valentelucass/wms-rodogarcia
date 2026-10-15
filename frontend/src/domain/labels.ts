@@ -9,6 +9,8 @@ const labels: Record<string, string> = {
     unidadeId: "Unidade logística (ID)",
     embalagemId: "Embalagem / DUN (ID)",
     enderecoId: "Endereço (ID)",
+    enderecoAId: "Primeira posição",
+    enderecoBId: "Segunda posição",
     conjuntoId: "Conjunto de posições (ID)",
     reservaId: "Reserva (ID)",
     notaOrigemId: "Nota de origem (ID)",

@@ -1,5 +1,83 @@
 # Continuidade do projeto WMS Rodogarcia
 
+## FE11-CONTRATO-UX01 — formulário de contrato por seções, 15/10/2026
+
+`ContractConfigurationFields` é usado somente em `ConfiguracaoCobrancaController.configurar`, com grupos filtrados de `OperationForm`. Reutiliza metadados/controles/políticas; `ScalarField.choiceLabels` muda apenas a apresentação das opções deste consumidor. Lista do mínimo usa referências de serviço e mantém IDs Long no array original. Ajuda no catálogo; resolução histórica continua em `Fields`, com informar roxo/remover vermelho e alinhamento local. Confirmação fica visível na rolagem do diálogo. [Definição](design-system/etapa-06.md#configuração-do-contrato--fe11-contrato-ux01).
+
+199 testes em cinco arquivos, tipagem/lint/formatação/build e oito layouts Chrome fictícios aprovados; parâmetros preenchidos e resolução também conferidos em desktop/celular, claro/escuro. IDs/decimais/valores canônicos, ausência distinta de zero, confirmação prévia, pendência/conflito e perfis preservados. [Galeria](../orchestracao/.runtime/contract-form-20261015/galeria.html) e relatórios no mesmo diretório. Preview próprio encerrado; sem SQL/backend, reinício operacional ou publicação. Versão ativa não medida neste pedido; DEV pelo operador. Preservar todas as alterações anteriores da árvore.
+
+## FE12-AUD-FILTROS01 — filtros de auditoria organizados, 15/10/2026
+
+`RecordWorkspace` marca a consulta `AuditoriaController.listar` com `record-filters--audit`; estilos em `modules/relatorios/auditFilters.css`, importados no CSS central. Tipo até 300 px no desktop e registro com área maior; busca/seleção compartilham a linha quando há espaço. Aplicar/Restaurar abaixo, com alinhamento e resposta a tablet/celular. `Fields`, `EntityReferenceField`, validação e consultas não foram alterados neste recorte. [Definição](design-system/etapa-06.md#filtros-do-histórico--fe12-aud-filtros01).
+
+45 testes existentes em quatro arquivos, tipagem/lint/formatação/build e oito layouts Chrome fictícios aprovados. Conferidos muitos/um registro, teclado, pendência/erro/recuperação/restauração, ID Long/namespace exatos e bloqueio de Supervisor. [Galeria](../orchestracao/.runtime/audit-filters-20261015/galeria.html) e relatórios no mesmo diretório. Preview próprio encerrado; sem SQL/backend, reinício operacional ou publicação. Versão ativa não medida neste pedido; DEV pelo operador. Preservar todas as alterações anteriores da árvore.
+
+## FE11-TAB-UX01 — tabelas e auditoria alinhadas, 15/10/2026
+
+`RecordWorkspace` entrega o seletor de visão ao cabeçalho de `PageRecords`; grupo em grade junto dos comandos. Ao trocar a visão, deixa de reaplicar `startAction` inicial e restaura foco no seletor após montar a nova consulta. `AuditSelection` possui cabeçalho compacto e comandos roxos com tipo/nome em linhas próprias; mantém seleção/legado e seus namespaces. Filtro de tabelas com largura limitada e ações alinhadas, responsivo. [Definição](design-system/etapa-06.md#tabelas-e-auditoria--fe11-tab-ux01).
+
+38 testes focais em cinco arquivos, tipagem/lint/formatação/build e oito layouts Chrome fictícios aprovados. A conferência nativa identificou e validou a correção da reabertura indevida do comando anterior ao mudar de visão. [Galeria](../orchestracao/.runtime/pricing-workspace-20261015/galeria.html) e relatórios no mesmo diretório. Preview próprio encerrado; sem SQL/backend, reinício operacional ou publicação. Versão ativa não medida neste pedido; DEV pelo operador. Preservar todas as alterações anteriores da árvore.
+
+## FE11-SERV-UX01 — consulta do serviço organizada, 15/10/2026
+
+`RecordDialog` usa `ServiceDetail` somente ao consultar `ConfiguracaoCobrancaDto.Servico`; título/ícone/largura próprios e seleção no rodapé compartilhado. Descrição/situação em destaque, demais atributos em três colunas ou uma no celular. Rótulos são apresentação; seleção envia os valores originais, incluindo ID/revisão/tipo/unidade. Outros leitores e formulários permanecem no padrão vigente. [Definição](design-system/etapa-06.md#detalhes-do-serviço--fe11-serv-ux01).
+
+37 testes focais em cinco arquivos, tipagem/lint/formatação/build e oito layouts Chrome fictícios aprovados; textos longos, teclado, retorno de foco e seleção sem escrita conferidos. [Galeria](../orchestracao/.runtime/service-detail-20261015/galeria.html) e relatórios no mesmo diretório. Preview próprio encerrado; sem SQL/backend, reinício operacional ou publicação. Versão ativa não medida neste pedido; DEV pelo operador. Preservar todas as alterações anteriores da árvore.
+
+## FE08-IND-FILTROS01 — indicadores em grupos, 15/10/2026
+
+`StockQueryFilters` agora também atende `IndicadorEstoqueController.listar` no `RecordWorkspace`, além de Estoque. Usa os mesmos `Fields` em Contexto da consulta e Opções do relatório, sem retirar critérios futuros do grupo Outros filtros. Produto em linha própria; comandos abaixo, com adaptação a desktop/tablet/celular. Permissões, defaults, carregamento e contrato preservados. [Definição](design-system/etapa-06.md#filtros-de-indicadores--fe08-ind-filtros01).
+
+44 testes focais em cinco arquivos, tipagem/lint/formatação/build e dez layouts Chrome fictícios aprovados. [Galeria](../orchestracao/.runtime/indicator-filters-20261015/galeria.html) e relatórios no mesmo diretório. Preview próprio encerrado; sem SQL/backend, reinício operacional ou publicação. Fonte distinta da versão ativa, não medida neste pedido; DEV pelo operador. Preservar todas as alterações anteriores da árvore.
+
+## FE08-AVARIA-UX01 — registro de fato reorganizado, 15/10/2026
+
+`DamageRegistrationFields` é usado somente em `AvariaController.registrar`, reutilizando campos, metadados e políticas existentes. Quatro seções; posições em grupos acessíveis numerados, com Endereço/Código lido e inclusão/remoção próprias. Mantidos campos fixos, revisão, validação e resolução exclusiva do Gestor. Textos no catálogo; ações de incluir/remover coloridas também em listas genéricas de `Fields`. [Definição](design-system/etapa-06.md#registro-do-fato-de-avaria--fe08-avaria-ux01).
+
+61 testes em sete arquivos, tipagem/lint/formatação/build e oito layouts iniciais Chrome fictícios aprovados; destinos preenchidos, teclado, confirmação visível e contrato exato conferidos. [Galeria](../orchestracao/.runtime/damage-form-20261015/galeria.html) e relatórios no mesmo diretório. Preview próprio encerrado, sem SQL/backend, reinício operacional ou publicação; fonte distinta da versão ativa não medida neste pedido. DEV pelo operador; preservar alterações anteriores da árvore.
+
+## FE02-REF-COR01 — cores das referências, 15/10/2026
+
+`ReferenceLookup` marca consultas com `action-reference` e família de apresentação: catálogo roxo, origem/unidade/estoque âmbar, endereço/capacidade turquesa. Tokens existentes dos dois temas; normal/hover/foco/disabled preservados. [Definição](design-system/etapa-06.md#cores-das-consultas-de-referências--fe02-ref-cor01).
+
+24 testes focais, tipagem/lint/formatação/build e seis layouts Chrome fictícios conferidos, com 18 medições de contraste. [Galeria](../orchestracao/.runtime/reference-colors-20261015/galeria.html) e recibo no mesmo diretório. Preview próprio encerrado; sem SQL/backend, reinício operacional ou publicação. Fonte distinta da versão ativa, não medida neste pedido; DEV pelo operador. Preservar todas as alterações anteriores da árvore.
+
+## FE08-FILTROS01 — filtros de unidades em grupos, 15/10/2026
+
+`StockQueryFilters` reutiliza `Fields` no `RecordWorkspace` somente para `EstoqueController.listar`. Três grupos, seletores com mais espaço, ações alinhadas e resposta a desktop/tablet/celular; critérios adicionais futuros continuam apresentados em Outros filtros. Contrato/defaults/obrigatoriedade e consulta de referências mantidos. [Definição](design-system/etapa-06.md#filtros-de-unidades--fe08-filtros01).
+
+45 testes focais, tipagem/lint/formatação/build e dez layouts Chrome fictícios conferidos. [Galeria](../orchestracao/.runtime/stock-filters-20261015/galeria.html) e relatórios no mesmo diretório. Preview próprio encerrado; sem SQL/backend, reinício operacional ou publicação. Fonte distinta da versão ativa, não medida neste pedido; partida DEV pelo operador. Preservar todas as alterações anteriores da árvore.
+
+## FE02-RESULT-ALIGN01 — blocos de dados e consultas alinhados, 15/10/2026
+
+`Result` agrupa campos e seções aninhadas, com seleção no fim do registro; diálogos usam duas colunas no desktop e uma no celular. `RelatedRecords` possui cabeçalho/título/Atualizar e corpo delimitados, com largura e margens uniformes. Nomes acessíveis distinguem a consulta da lista interna. Vazio sem paginação inútil; consulta relacionada preenchida pagina pelo `useRecordQuery` existente. [Definição](design-system/etapa-06.md#dados-e-consultas-alinhados--fe02-result-align01).
+
+686 testes frontend em 70 arquivos, tipagem/lint/formatação/build e oito layouts Chrome fictícios conferidos. [Galeria](../orchestracao/.runtime/result-alignment-20261015/galeria.html) e relatórios no mesmo diretório. Sem SQL/backend, reinício operacional ou publicação; preview próprio encerrado. Fonte distinta da versão ativa, não medida neste pedido; partida DEV pelo operador. Preservar as alterações anteriores da árvore.
+
+## FE04-ENC-UX01 — consulta de encerramento reorganizada, 15/10/2026
+
+`ClosureDetail` apresenta cadastro/situação e impedimentos em lista, com descrição e referência. Usado pelo diálogo e pelos demais consumidores de `Result` com `EncerramentoDto.Resultado`. Sem tabela genérica, detalhe/seleção por impedimento ou operações misturadas ao rodapé. Operações recolhidas por padrão nesta consulta, em grade ao expandir. Ajuda centralizada no catálogo. [Definição](design-system/etapa-06.md#consulta-de-encerramento--fe04-enc-ux01).
+
+50 testes em cinco arquivos, tipagem/lint/formatação/build e oito layouts Chrome fictícios aprovados. [Fotos](../orchestracao/.runtime/closure-detail-20261015/galeria.html) e recibo no mesmo diretório. Preview próprio encerrado; sem SQL/backend, reinício operacional ou publicação. Fonte distinta da versão ativa; DEV continua sob partida do operador. Preservar todas as alterações anteriores da árvore.
+
+## FE02-DIALOG-ORG01 — diálogo reorganizado e regressão completa, 15/10/2026
+
+Fonte com ação no título, identificação/situação do cadastro, campos internos sem faixa vazia e tipo fixo no encerramento selecionado. Outras operações recolhidas durante edição; navegação em faixa própria, com teclado/foco e proteção de alterações pendentes preservados. [Definição](design-system/etapa-06.md#organização-dos-diálogos--fe02-dialog-org01).
+
+**678/678 testes frontend em 68 arquivos**, tipagem/lint/formatação/build aprovados. Chrome fictício: oito layouts claro/escuro, 390–1440 px, menu, confirmação e ID Long/tipo/revisão conferidos. [Fotos](../orchestracao/.runtime/dialog-organization-20261015/galeria.html) e recibo no mesmo diretório. Preview próprio encerrado; sem SQL/backend ou publicação. Preservar as alterações anteriores da árvore; atualização operacional pelo launcher habitual, DEV pelo operador.
+
+## END-CONJ-UX01 — criação de conjunto reorganizada, 15/10/2026
+
+Fonte com formulário específico em três blocos, nomes legíveis das posições, medidas compactas com unidades e confirmação visível durante rolagem. Armazém habilita as posições; sua troca limpa apenas o par anterior, preservando limites/motivo. Código automático e contrato existentes mantidos. [Definição](22-enderecamento-movimentacao-e-estoque.md#end-conj-ux01--formulário-do-conjunto-de-posições-15102026).
+
+64 testes focais em sete arquivos, tipagem/lint/formatação/build aprovados; Chrome fictício em oito layouts, dois temas e 390–1440 px, com teclado e confirmação exata. [Fotos](../orchestracao/.runtime/position-set-20261015/galeria.html) e recibo no mesmo diretório. Preview próprio encerrado, sem SQL/backend ou publicação. Preservar as alterações de FE02-ACOES01 ainda presentes na árvore; atualização operacional segue o launcher habitual, com DEV pelo operador.
+
+## FE02-ACOES01 — botões diferenciados e filtros alinhados, 15/10/2026
+
+Fonte pronta: detalhes roxo, selecionar verde, recarregar turquesa e voltar/fechar vermelho suave, incluindo X dos diálogos; principais/edição continuam azuis. Aplicado aos componentes compartilhados de registros, resultados e referências. Filtros usam a linha do controle como referência, preservando a orientação abaixo e as ações separadas no celular. [Definição](design-system/etapa-06.md#cores-por-função-e-alinhamento-dos-filtros--fe02-acoes01).
+
+49 testes frontend e tipagem/lint/formatação/build aprovados; Chrome fictício com 46 medições de contraste (mínimo 4,66:1) e 10 verificações de alinhamento, claro/escuro e 390–1920 px. [Fotos](../orchestracao/.runtime/button-colors-20261015/galeria.html) e recibo no mesmo diretório. Preview próprio encerrado. Sem SQL, alteração operacional ou publicação; atualização da instância pelo fluxo habitual e partida DEV pelo operador.
+
 ## PREPARO-AUTO01-TRAVA01 — bloqueio local tratado, 15/10/2026
 
 Console novo confirmou bootstrap DEV/PROD completo e, depois, recusa imediata de mutex no DEV antes de SQL. A trava já estava livre ao inspecionar; dono histórico não foi registrado. Implementada espera local limitada a180s, PID observado e liberação em finally, com mesmo mutex/reentrada. Plan sem SQL não ocupa trava; falha de transporte/guarda SQL segue sem retry/fallback.

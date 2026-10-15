@@ -21,15 +21,19 @@ import {
 import { absorb, operationContext, type Workflow } from "../../domain/workflow";
 import { registerPageLeave } from "../../domain/pageLeave";
 import { Dialog } from "../layout/Dialog";
+import { StatusBadge } from "../../design-system/StatusBadge";
 import { Operation } from "../Operation";
 import { Result } from "../Result";
 import type { NextAction, Journey } from "../../domain/journeys";
 import { ReferenceLookup } from "../ReferenceLookup";
 import { DispatchReservations } from "../../modules/saida/DispatchReservations";
 import { AdjustmentOrigin } from "../../modules/financeiro/AdjustmentOrigin";
+import { ServiceDetail } from "../../modules/financeiro/ServiceDetail";
 import { AuditSelection } from "../../modules/relatorios/AuditSelection";
 import { useRecordQuery } from "../../hooks/useRecordQuery";
 import { ReceivingDetail } from "../../modules/recebimento/ReceivingDetail";
+import { ClosureDetail } from "../../modules/cadastros/ClosureDetail";
+import { Icon } from "../../design-system/Icon";
 import { WorkflowReferences } from "../context/WorkflowReferences";
 import {
     receivingSection,
@@ -59,27 +63,42 @@ function RelatedRecords({
     onRecord: (row: Values, type: string) => void;
 }) {
     const query = useRecordQuery(id, transport, context, perfil, onReceipt);
+    const name = recordActionLabel(id).replace(/^Consultar\s+/i, "");
+    const title = name.charAt(0).toLocaleUpperCase("pt-BR") + name.slice(1);
     return (
-        <section className="record-related" aria-label={recordActionLabel(id)}>
-            <h3>{recordActionLabel(id)}</h3>
-            {query.pending && (
-                <p role="status">Carregando registros relacionados…</p>
-            )}
-            {query.error && <p role="alert">{query.error}</p>}
-            {query.receipt && (
-                <Result
-                    data={query.receipt.data}
-                    type={query.e.response}
-                    onSelect={locked ? undefined : onRecord}
-                />
-            )}
-            <button
-                type="button"
-                disabled={query.pending || locked}
-                onClick={query.refresh}
-            >
-                Atualizar registros relacionados
-            </button>
+        <section
+            className="record-related"
+            aria-label={`Consulta: ${title}`}
+            aria-busy={query.pending}
+        >
+            <header className="record-related-header">
+                <h3>{title}</h3>
+                <button
+                    type="button"
+                    className="action-refresh"
+                    aria-label={`Atualizar ${name}`}
+                    disabled={query.pending || locked}
+                    onClick={query.refresh}
+                >
+                    <Icon name="refresh" />
+                    Atualizar
+                </button>
+            </header>
+            <div className="record-related-content">
+                {query.pending && (
+                    <p role="status">Carregando registros relacionados…</p>
+                )}
+                {query.error && <p role="alert">{query.error}</p>}
+                {query.receipt && (
+                    <Result
+                        data={query.receipt.data}
+                        type={query.e.response}
+                        onSelect={locked ? undefined : onRecord}
+                        onPage={locked ? undefined : query.page}
+                        pending={query.pending}
+                    />
+                )}
+            </div>
         </section>
     );
 }
@@ -262,13 +281,14 @@ export function RecordDialog({
         };
     }, [reload, detailRevision]);
     const chooseAction = (id: string) => {
-        if (!canClose()) return;
+        if (!canClose()) return false;
         edit.current = { dirty: false, locked: false };
         setAction(id);
         if (journey.id === "entrada") setActionRevision((value) => value + 1);
         if (journey.id === "entrada" && !id.endsWith(".consultar"))
             setSection(receivingSection(id));
         setCompletedAction("");
+        return true;
     };
     const derived = record
         ? rowContext(
@@ -309,6 +329,16 @@ export function RecordDialog({
             (id !== action || completedAction === action) &&
             (journey.id !== "entrada" || receivingSection(id) === section),
     );
+    const title = record ? recordTitle(record) : "";
+    const serviceDetail =
+        recordType === "ConfiguracaoCobrancaDto.Servico" && !action;
+    const subjectTitle =
+        title === "Registro consultado" &&
+        target.current.row &&
+        record &&
+        recordIdentity(target.current.row) === recordIdentity(record)
+            ? recordTitle(target.current.row)
+            : title;
     const commandReceipt = (
         r: Receipt,
         type: string,
@@ -466,10 +496,35 @@ export function RecordDialog({
             defaults={derived}
         >
             <Dialog
-                className="record-dialog"
-                title={record ? recordTitle(record) : recordActionLabel(action)}
+                className={
+                    "record-dialog" +
+                    (serviceDetail ? " record-dialog--service" : "") +
+                    (recordType === "EncerramentoDto.Resultado"
+                        ? " record-dialog--closure"
+                        : "") +
+                    (/^EncerramentoController\.(solicitar|inativar)$/.test(
+                        action,
+                    )
+                        ? " record-dialog--compact-action"
+                        : "")
+                }
+                title={
+                    action
+                        ? recordActionLabel(action)
+                        : serviceDetail
+                          ? "Detalhes do serviço"
+                          : recordType === "EncerramentoDto.Resultado"
+                            ? "Encerramento do cadastro"
+                            : subjectTitle
+                }
                 wide
-                icon={journey.id === "entrada" ? "entrada" : "cadastros"}
+                icon={
+                    serviceDetail
+                        ? "servicos"
+                        : journey.id === "entrada"
+                          ? "entrada"
+                          : "cadastros"
+                }
                 locked={locked}
                 onClose={() => {
                     if (canClose()) onClose();
@@ -489,6 +544,24 @@ export function RecordDialog({
                     </div>
                 ) : (
                     <>
+                        {record && action && (
+                            <section
+                                className="record-action-subject"
+                                aria-label="Registro da operação"
+                            >
+                                <div>
+                                    <span className="hint">
+                                        Registro selecionado
+                                    </span>
+                                    <strong>{subjectTitle}</strong>
+                                </div>
+                                {recordRoot(record).situacao != null && (
+                                    <StatusBadge
+                                        value={recordRoot(record).situacao}
+                                    />
+                                )}
+                            </section>
+                        )}
                         {refreshing && (
                             <p role="status">
                                 Atualizando notas, itens e conferência deste
@@ -568,33 +641,47 @@ export function RecordDialog({
                                 className="record-detail"
                                 aria-label="Dados do registro"
                             >
-                                <Result
-                                    data={record}
-                                    type={recordType}
-                                    onSelect={selectRecord}
-                                />
+                                {serviceDetail ? (
+                                    <ServiceDetail data={record} />
+                                ) : recordType ===
+                                  "EncerramentoDto.Resultado" ? (
+                                    <ClosureDetail
+                                        data={record}
+                                        subjectTitle={subjectTitle}
+                                        onSelect={selectRecord}
+                                    />
+                                ) : (
+                                    <Result
+                                        data={record}
+                                        type={recordType}
+                                        onSelect={selectRecord}
+                                    />
+                                )}
                             </section>
                         )}
-                        {record &&
-                            page.related?.map((id) => (
-                                <RelatedRecords
-                                    key={id}
-                                    id={id}
-                                    transport={transport}
-                                    perfil={perfil}
-                                    context={rowContext(
-                                        id,
-                                        snapshot.current.context,
-                                        workingWorkflow.current,
-                                        record,
-                                        recordType,
-                                        false,
-                                    )}
-                                    locked={locked}
-                                    onReceipt={commandReceipt}
-                                    onRecord={selectRecord}
-                                />
-                            ))}
+                        {record && Boolean(page.related?.length) && (
+                            <div className="record-related-list">
+                                {page.related?.map((id) => (
+                                    <RelatedRecords
+                                        key={id}
+                                        id={id}
+                                        transport={transport}
+                                        perfil={perfil}
+                                        context={rowContext(
+                                            id,
+                                            snapshot.current.context,
+                                            workingWorkflow.current,
+                                            record,
+                                            recordType,
+                                            false,
+                                        )}
+                                        locked={locked}
+                                        onReceipt={commandReceipt}
+                                        onRecord={selectRecord}
+                                    />
+                                ))}
+                            </div>
+                        )}
                         {action &&
                             (!opening.row ||
                                 available.includes(action) ||
@@ -613,7 +700,7 @@ export function RecordDialog({
                                     context={derived}
                                     perfil={perfil}
                                     inDialog
-                                    hideHeading={!record}
+                                    hideHeading
                                     fixedFields={
                                         opening.row ||
                                         (journey.id === "entrada" && record)
@@ -635,7 +722,11 @@ export function RecordDialog({
                                                   "versao",
                                                   "versaoPedido",
                                                   "versaoDestino",
-                                                  ...(journey.id === "entrada"
+                                                  ...(journey.id ===
+                                                      "entrada" ||
+                                                  action.startsWith(
+                                                      "EncerramentoController.",
+                                                  )
                                                       ? ["tipo", "registroId"]
                                                       : []),
                                               ].filter(
@@ -673,6 +764,7 @@ export function RecordDialog({
                                 </p>
                                 <button
                                     type="button"
+                                    className="action-refresh"
                                     disabled={verifying}
                                     onClick={() => void verify()}
                                 >
@@ -696,6 +788,7 @@ export function RecordDialog({
                                 {verification && (
                                     <button
                                         type="button"
+                                        className="action-dismiss"
                                         onClick={() => {
                                             if (
                                                 window.confirm(
@@ -722,8 +815,22 @@ export function RecordDialog({
                                     Recarregue os dados para conferir.
                                 </p>
                             )}
-                        <div className="actions record-dialog-footer">
-                            {record && contextActions.length > 0 && (
+                        {record && contextActions.length > 0 && (
+                            <details
+                                className="record-other-operations"
+                                open={
+                                    !action &&
+                                    recordType !== "EncerramentoDto.Resultado"
+                                }
+                            >
+                                <summary>
+                                    {action
+                                        ? "Outras operações"
+                                        : "Operações deste registro"}
+                                    <span className="record-operation-count">
+                                        {contextActions.length}
+                                    </span>
+                                </summary>
                                 <div
                                     className="record-context-actions"
                                     role="group"
@@ -739,16 +846,59 @@ export function RecordDialog({
                                                     (refreshing ||
                                                         Boolean(refreshError)))
                                             }
-                                            onClick={() => chooseAction(id)}
+                                            onClick={(event) => {
+                                                const dialog =
+                                                    event.currentTarget.closest(
+                                                        "dialog",
+                                                    );
+                                                if (!chooseAction(id)) return;
+                                                event.currentTarget
+                                                    .closest("details")
+                                                    ?.removeAttribute("open");
+                                                requestAnimationFrame(() =>
+                                                    dialog
+                                                        ?.querySelector<HTMLElement>(
+                                                            '.operation-fields :is(input:not([type="hidden"]), select, textarea):not(:disabled)',
+                                                        )
+                                                        ?.focus(),
+                                                );
+                                            }}
                                         >
                                             {recordActionLabel(id)}
                                         </button>
                                     ))}
                                 </div>
+                            </details>
+                        )}
+                        <div className="actions record-dialog-footer">
+                            <button
+                                type="button"
+                                className="action-dismiss"
+                                disabled={locked}
+                                onClick={() => {
+                                    if (canClose()) onClose();
+                                }}
+                            >
+                                {action ? "Voltar à lista" : "Fechar detalhes"}
+                            </button>
+                            {serviceDetail && record?.id !== undefined && (
+                                <button
+                                    type="button"
+                                    className="action-select"
+                                    disabled={locked}
+                                    onClick={() => {
+                                        if (!canClose()) return;
+                                        selectRecord(record, recordType);
+                                        onClose();
+                                    }}
+                                >
+                                    Selecionar este registro
+                                </button>
                             )}
                             {record && action && (
                                 <button
                                     type="button"
+                                    className="action-details"
                                     disabled={locked}
                                     onClick={() => {
                                         if (canClose()) {
@@ -760,18 +910,10 @@ export function RecordDialog({
                                     Ver detalhes do registro
                                 </button>
                             )}
-                            <button
-                                type="button"
-                                disabled={locked}
-                                onClick={() => {
-                                    if (canClose()) onClose();
-                                }}
-                            >
-                                {action ? "Voltar à lista" : "Fechar detalhes"}
-                            </button>
                             {record && page.detail && !locked && (
                                 <button
                                     type="button"
+                                    className="action-refresh"
                                     onClick={() => {
                                         if (canClose()) {
                                             setAction("");

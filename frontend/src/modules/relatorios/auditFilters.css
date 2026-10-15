@@ -1,0 +1,46 @@
+.record-filters--audit > fieldset {
+    display: grid;
+    grid-template-columns: minmax(220px, 300px) minmax(0, 1fr);
+    align-items: start;
+    gap: var(--og-space-4);
+}
+.record-filters--audit .field :is(input, select) {
+    width: 100%;
+    min-width: 0;
+}
+.record-filters--audit .entity-reference-field:has(> input) {
+    display: grid;
+    grid-template-columns: minmax(200px, 1fr) minmax(260px, 2fr);
+    column-gap: var(--og-space-3);
+    row-gap: var(--og-space-1);
+}
+.record-filters--audit
+    .entity-reference-field
+    > :is(label, .hint, [role="alert"], .button-row) {
+    grid-column: 1 / -1;
+}
+.record-filters--audit .record-filter-actions {
+    grid-column: 1 / -1;
+    justify-content: flex-end;
+    padding-top: var(--og-space-3);
+    border-top: 1px solid var(--og-border);
+}
+@media (max-width: 1279px) {
+    .record-filters--audit > fieldset {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .record-filters--audit > fieldset > .field:first-of-type {
+        max-width: 360px;
+    }
+}
+@media (max-width: 767px) {
+    .record-filters--audit .entity-reference-field:has(> input) {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .record-filters--audit > fieldset > .field:first-of-type {
+        max-width: none;
+    }
+    .record-filters--audit .record-filter-actions > button {
+        min-height: var(--og-touch-height);
+    }
+}

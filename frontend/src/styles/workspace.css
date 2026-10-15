@@ -394,6 +394,53 @@ td details {
     padding: 0;
     border: 0;
 }
+.result-record {
+    display: grid;
+    gap: var(--og-space-4);
+    min-width: 0;
+}
+.result-record > .record {
+    margin: 0;
+    gap: var(--og-space-4);
+}
+.result-record > .result-fields--summary {
+    padding: var(--og-space-4);
+    border: 1px solid var(--og-border);
+    border-radius: var(--og-radius-control);
+    background: var(--og-surface-raised);
+}
+.result-record > .result-section {
+    margin: 0;
+    padding: var(--og-space-4);
+    border: 1px solid var(--og-border);
+    border-radius: var(--og-radius-control);
+    min-width: 0;
+}
+.result-record > .result-section > h4 {
+    margin: 0 0 var(--og-space-4);
+    padding-bottom: var(--og-space-3);
+    border-bottom: 1px solid var(--og-border);
+    font-size: var(--og-type-body);
+}
+.result-selection {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: var(--og-space-3);
+    border-top: 1px solid var(--og-border);
+}
+.result-selection > button {
+    max-width: 100%;
+}
+.paged-results {
+    display: grid;
+    gap: var(--og-space-3);
+    min-width: 0;
+}
+@media (max-width: 600px) {
+    .result-selection > button {
+        width: 100%;
+    }
+}
 .pagination {
     display: flex;
     justify-content: space-between;

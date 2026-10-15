@@ -1,0 +1,81 @@
+.record-filters--stock > fieldset {
+    display: block;
+}
+.stock-filter-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--og-space-4);
+    min-width: 0;
+}
+.stock-filter-grid > .stock-filter-group {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-content: start;
+    align-items: start;
+    gap: var(--og-space-4);
+    margin: 0;
+    padding: var(--og-space-4);
+    border: 1px solid var(--og-border);
+    border-radius: var(--og-radius-control);
+    background: var(--og-surface);
+}
+.stock-filter-group > legend {
+    font-size: var(--og-type-caption);
+    color: var(--og-text-muted);
+    padding-inline: var(--og-space-2);
+}
+.stock-filter-group > .field {
+    margin: 0;
+}
+.stock-filter-group :is(input, select) {
+    width: 100%;
+    min-width: 0;
+}
+.stock-filter-grid > .stock-filter-group--location {
+    grid-column: 1 / -1;
+    grid-template-columns: minmax(0, 2fr) repeat(2, minmax(0, 1fr));
+}
+.stock-filter-grid > .stock-filter-group--other {
+    grid-column: 1 / -1;
+}
+.stock-filter-grid--indicators {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+}
+.stock-filter-group--indicator-context > .field:last-of-type {
+    grid-column: 1 / -1;
+}
+.stock-filter-grid > .stock-filter-group--options {
+    grid-template-columns: minmax(0, 1fr);
+}
+.record-filters--stock .record-filter-actions {
+    justify-content: flex-end;
+    margin-top: var(--og-space-4);
+    padding-top: var(--og-space-3);
+    border-top: 1px solid var(--og-border);
+}
+@media (max-width: 1279px) {
+    .stock-filter-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .stock-filter-grid > .stock-filter-group--options {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+@media (min-width: 768px) and (max-width: 1279px) {
+    .stock-filter-grid > .stock-filter-group--location {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .stock-filter-group--location > .field:first-of-type {
+        grid-column: 1 / -1;
+    }
+}
+@media (max-width: 767px) {
+    .stock-filter-grid > .stock-filter-group,
+    .stock-filter-grid > .stock-filter-group--location,
+    .stock-filter-grid > .stock-filter-group--options {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .record-filters--stock .record-filter-actions > button {
+        min-height: var(--og-touch-height);
+    }
+}

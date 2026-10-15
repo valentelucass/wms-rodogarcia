@@ -28,6 +28,9 @@ export function ScalarField({
     disabled,
     schema = "unknown",
     row = {},
+    labelOverride,
+    showDecimalHint = true,
+    choiceLabels,
 }: {
     f: Field;
     value: unknown;
@@ -36,12 +39,16 @@ export function ScalarField({
     disabled: boolean;
     schema?: string;
     row?: Values;
+    labelOverride?: string;
+    showDecimalHint?: boolean;
+    choiceLabels?: Record<string, string>;
 }) {
     const id = useId(),
         refs = useContext(FormReferences);
     const catalog = useReferenceCatalog();
     const referenceTransport = useReferenceTransport();
-    const title = presentationLabel(f.name) + (f.required ? " *" : "");
+    const title =
+        (labelOverride ?? presentationLabel(f.name)) + (f.required ? " *" : "");
     const choices =
         enums[f.type] ??
         f.Pattern?.match(/regexp = "([A-Z_|]+)"/)?.[1].split("|");
@@ -152,7 +159,7 @@ export function ScalarField({
                     <option value="">Selecione</option>
                     {choices.map((x) => (
                         <option key={x} value={x}>
-                            {x.replaceAll("_", " ")}
+                            {choiceLabels?.[x] ?? x.replaceAll("_", " ")}
                         </option>
                     ))}
                 </select>
@@ -242,7 +249,7 @@ export function ScalarField({
                     }
                 />
             )}
-            {f.type === "BigDecimal" && (
+            {f.type === "BigDecimal" && showDecimalHint && (
                 <span className="hint">
                     Decimal exato; use ponto. Sem cálculo no navegador.
                 </span>

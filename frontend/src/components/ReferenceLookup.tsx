@@ -46,6 +46,19 @@ export function ReferenceLookup({
                 {lookups.map(([title, id]) => (
                     <button
                         key={id}
+                        type="button"
+                        className="action-reference"
+                        data-reference-kind={
+                            /^(EnderecoController|CapacidadeController)\./.test(
+                                id,
+                            )
+                                ? "location"
+                                : /^(UnidadeLogisticaController|EstoqueController)\./.test(
+                                        id,
+                                    )
+                                  ? "origin"
+                                  : "catalog"
+                        }
                         disabled={pending}
                         onClick={() => {
                             setShowResult(true);
@@ -58,6 +71,7 @@ export function ReferenceLookup({
                 {result && !showResult && (
                     <button
                         type="button"
+                        className="action-details"
                         disabled={pending}
                         onClick={() => setShowResult(true)}
                     >
@@ -81,7 +95,11 @@ export function ReferenceLookup({
                                   }
                         }
                     />
-                    <button type="button" onClick={() => setShowResult(false)}>
+                    <button
+                        type="button"
+                        className="action-dismiss"
+                        onClick={() => setShowResult(false)}
+                    >
                         Fechar referências
                     </button>
                 </section>

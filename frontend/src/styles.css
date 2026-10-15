@@ -12,3 +12,10 @@
 @import "./styles/records.css";
 @import "./styles/receiving.css";
 @import "./modules/cadastros/addressImport.css";
+@import "./modules/cadastros/positionSets.css";
+@import "./modules/cadastros/closureDetail.css";
+@import "./modules/estoque/stockFilters.css";
+@import "./modules/estoque/damageRegistration.css";
+@import "./modules/financeiro/serviceDetail.css";
+@import "./modules/relatorios/auditFilters.css";
+@import "./modules/financeiro/contractConfiguration.css";
