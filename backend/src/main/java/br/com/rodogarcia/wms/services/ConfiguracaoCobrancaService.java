@@ -190,39 +190,7 @@ public class ConfiguracaoCobrancaService {
         String codigo = CodigoInterno.resolver(d.codigo(), "TAB", tabelas::ultimoCodigoInterno);
         if (tabelas.existsByArmazemIdAndCodigo(a.getId(), codigo))
             throw conflito("TABELA_DUPLICADA");
-        var chaves = new HashSet<String>();
-        var categorias = new HashMap<ConfiguracaoCobrancaDto.Item, String>();
-        for (var i :
-                d.itens().stream()
-                        .sorted(
-                                java.util.Comparator.comparing(
-                                        ConfiguracaoCobrancaDto.Item::servicoId))
-                        .toList()) {
-            var s =
-                    servicos.buscarParaAtualizar(i.servicoId())
-                            .orElseThrow(RegraNegocioException::naoEncontrado);
-            if (!"ATIVO".equals(s.getSituacao())
-                    && (d.resolucao() == null
-                            || d.vigenciaFim() == null
-                            || d.vigenciaFim()
-                                    .isAfter(
-                                            s.getAlteradoEm()
-                                                    .atZone(ZoneId.of("UTC"))
-                                                    .toLocalDate())))
-                throw conflito("SERVICO_INATIVO");
-            String categoria = CadastroSupport.categoriaCobranca(i.categoria());
-            categorias.put(i, categoria);
-            if (!chaves.add(s.getId() + ":" + categoria)) throw conflito("ITEM_DUPLICADO");
-            if ("PERCENTUAL".equals(s.getUnidade())
-                    ? (i.percentual() == null || i.preco() != null)
-                    : (i.preco() == null || i.percentual() != null))
-                throw CadastroSupport.invalido(
-                        "Configure preço ou percentual conforme unidade do serviço.");
-            if ("ARMAZENAGEM".equals(s.getTipo())
-                    && !List.of("", "PALLET", "BOBINA").contains(categoria))
-                throw CadastroSupport.invalido(
-                        "Categoria de armazenagem deve ser vazia, PALLET ou BOBINA.");
-        }
+        var categorias = validarItens(d.itens(), d.resolucao(), d.vigenciaFim());
         Instant agora = Instant.now(clock).truncatedTo(java.time.temporal.ChronoUnit.MICROS);
         var t =
                 tabelas.saveAndFlush(
@@ -256,6 +224,129 @@ public class ConfiguracaoCobrancaService {
                 resolucaoCadastro.paraAuditoria(d.resolucao(), r));
         operacoes.salvar(d.operacaoId(), "CRIACAO_TABELA", c, a, t.getId(), hash, r);
         return r;
+    }
+
+    @Transactional
+    public ConfiguracaoCobrancaDto.Tabela alterar(
+            @NotNull @Positive Long id, @NotNull @Valid ConfiguracaoCobrancaDto.AlterarTabela d) {
+        acesso.exigirGestor();
+        if ("ESPECIFICA".equals(d.tipo()) != (d.clienteId() != null))
+            throw CadastroSupport.invalido(
+                    "Tabela específica exige proprietário; padrão não possui proprietário.");
+        periodo(d.vigenciaInicio(), d.vigenciaFim());
+        var original = tabelas.findById(id).orElseThrow(RegraNegocioException::naoEncontrado);
+        acesso.armazem(original.getArmazem().getId());
+        acesso.armazem(d.armazemId());
+        if (original.getCliente() != null) acesso.cliente(original.getCliente().getId());
+        if (d.clienteId() != null) acesso.cliente(d.clienteId());
+        // Mesma ordem de bloqueio de cálculo/vínculo: cliente, armazém e tabela.
+        br.com.rodogarcia.wms.models.Cliente cliente = null;
+        for (Long cid :
+                java.util.stream.Stream.of(
+                                original.getCliente() == null
+                                        ? null
+                                        : original.getCliente().getId(),
+                                d.clienteId())
+                        .filter(java.util.Objects::nonNull)
+                        .distinct()
+                        .sorted()
+                        .toList()) {
+            var c = contextos.bloquearCliente(cid);
+            if (cid.equals(d.clienteId())) cliente = c;
+        }
+        br.com.rodogarcia.wms.models.Armazem armazem = null;
+        for (Long aid :
+                java.util.stream.Stream.of(original.getArmazem().getId(), d.armazemId())
+                        .distinct()
+                        .sorted()
+                        .toList()) {
+            var a =
+                    armazens.buscarParaAtualizar(aid)
+                            .orElseThrow(RegraNegocioException::naoEncontrado);
+            if (aid.equals(d.armazemId())) armazem = a;
+        }
+        String hash = operacoes.hash("ALTERACAO_TABELA", id, d);
+        var replay = operacoes.repetida(d.operacaoId(), hash, ConfiguracaoCobrancaDto.Tabela.class);
+        if (replay != null) return replay;
+        var t = tabelas.buscarParaAtualizar(id).orElseThrow(RegraNegocioException::naoEncontrado);
+        versao(t.getVersao(), d.versao());
+        if (!"ATIVA".equals(t.getSituacao())) throw conflito("TABELA_ENCERRADA");
+        CadastroSupport.ativo(armazem);
+        if (cliente != null) CadastroSupport.ativo(cliente);
+        var ligados = vinculos.findByTabelaId(id);
+        boolean calculada = diarias.existsByTabelaId(id) || calculos.tabelaUsada(id);
+        boolean mudouContexto =
+                !t.getArmazem().getId().equals(d.armazemId())
+                        || !java.util.Objects.equals(
+                                t.getCliente() == null ? null : t.getCliente().getId(),
+                                d.clienteId())
+                        || !t.getTipo().equals(d.tipo());
+        if (mudouContexto && (calculada || !ligados.isEmpty()))
+            throw RegraNegocioException.conflito(
+                    "TABELA_CONTEXTO_EM_USO",
+                    "Cliente, armazém e tipo não podem mudar após vínculo ou cálculo. Crie outra tabela para o novo contexto.");
+        if (calculada
+                && (!t.getVigenciaInicio().equals(d.vigenciaInicio())
+                        || !java.util.Objects.equals(t.getVigenciaFim(), d.vigenciaFim())))
+            throw RegraNegocioException.conflito(
+                    "HISTORICO_CALCULADO",
+                    "A vigência já possui cálculo. Preserve o período e use uma nova tabela para outra vigência.");
+        for (var v : ligados)
+            if (v.getVigenciaInicio().isBefore(d.vigenciaInicio())
+                    || (d.vigenciaFim() != null
+                            && (v.getVigenciaFim() == null
+                                    || v.getVigenciaFim().isAfter(d.vigenciaFim()))))
+                throw RegraNegocioException.conflito(
+                        "VIGENCIA_COM_VINCULO",
+                        "A vigência da tabela precisa abranger seus vínculos existentes.");
+        var categorias = validarItens(d.itens(), null, d.vigenciaFim());
+        var antes = resposta(t);
+        var atuais = itens.findByTabelaIdOrderByIdAsc(id);
+        var manter = new HashSet<ItemTabelaCobranca>();
+        for (var i : d.itens())
+            atuais.stream()
+                    .filter(a -> mesmoItem(a, i, categorias.get(i)))
+                    .findFirst()
+                    .ifPresent(manter::add);
+        // Nunca apagar nem sobrescrever tarifas referenciadas por uma memória anterior.
+        atuais.stream().filter(a -> !manter.contains(a)).forEach(ItemTabelaCobranca::retirar);
+        itens.flush(); // Libera a chave única filtrada antes de inserir substitutos.
+        for (var i : d.itens())
+            if (manter.stream().noneMatch(a -> mesmoItem(a, i, categorias.get(i))))
+                itens.save(
+                        new ItemTabelaCobranca(
+                                t,
+                                servicos.getReferenceById(i.servicoId()),
+                                categorias.get(i),
+                                i.preco(),
+                                i.percentual()));
+        t.alterar(
+                armazem,
+                cliente,
+                CadastroSupport.texto(d.descricao()),
+                d.tipo(),
+                d.vigenciaInicio(),
+                d.vigenciaFim(),
+                Instant.now(clock));
+        itens.flush();
+        tabelas.flush();
+        var r = resposta(t);
+        auditoria.registrar(
+                "TABELA_COBRANCA", id, "ALTERACAO", CadastroSupport.motivo(d.motivo()), antes, r);
+        operacoes.salvar(d.operacaoId(), "CONFIGURACAO", cliente, armazem, id, hash, r);
+        return r;
+    }
+
+    private static boolean mesmoItem(
+            ItemTabelaCobranca a, ConfiguracaoCobrancaDto.Item b, String categoria) {
+        return a.getServico().getId().equals(b.servicoId())
+                && a.getCategoria().equals(categoria)
+                && decimalIgual(a.getPreco(), b.preco())
+                && decimalIgual(a.getPercentual(), b.percentual());
+    }
+
+    private static boolean decimalIgual(java.math.BigDecimal a, java.math.BigDecimal b) {
+        return a == null ? b == null : b != null && a.compareTo(b) == 0;
     }
 
     @Transactional
@@ -574,6 +665,43 @@ public class ConfiguracaoCobrancaService {
                 resolucaoCadastro.paraAuditoria(d.resolucao(), r));
         operacoes.salvar(d.operacaoId(), "CONFIGURACAO", ctx.cliente(), ctx.armazem(), id, hash, r);
         return r;
+    }
+
+    private java.util.Map<ConfiguracaoCobrancaDto.Item, String> validarItens(
+            List<ConfiguracaoCobrancaDto.Item> novos,
+            br.com.rodogarcia.wms.dto.FechamentoCobrancaDto.Resolucao resolucao,
+            LocalDate fim) {
+        var chaves = new HashSet<String>();
+        var categorias = new HashMap<ConfiguracaoCobrancaDto.Item, String>();
+        for (var i :
+                novos.stream()
+                        .sorted(
+                                java.util.Comparator.comparing(
+                                        ConfiguracaoCobrancaDto.Item::servicoId))
+                        .toList()) {
+            var s =
+                    servicos.buscarParaAtualizar(i.servicoId())
+                            .orElseThrow(RegraNegocioException::naoEncontrado);
+            if (!"ATIVO".equals(s.getSituacao())
+                    && (resolucao == null
+                            || fim == null
+                            || fim.isAfter(
+                                    s.getAlteradoEm().atZone(ZoneId.of("UTC")).toLocalDate())))
+                throw conflito("SERVICO_INATIVO");
+            String categoria = CadastroSupport.categoriaCobranca(i.categoria());
+            categorias.put(i, categoria);
+            if (!chaves.add(s.getId() + ":" + categoria)) throw conflito("ITEM_DUPLICADO");
+            if ("PERCENTUAL".equals(s.getUnidade())
+                    ? (i.percentual() == null || i.preco() != null)
+                    : (i.preco() == null || i.percentual() != null))
+                throw CadastroSupport.invalido(
+                        "Configure preço ou percentual conforme unidade do serviço.");
+            if ("ARMAZENAGEM".equals(s.getTipo())
+                    && !List.of("", "PALLET", "BOBINA").contains(categoria))
+                throw CadastroSupport.invalido(
+                        "Categoria de armazenagem deve ser vazia, PALLET ou BOBINA.");
+        }
+        return categorias;
     }
 
     private ConfiguracaoCobrancaDto.Tabela resposta(TabelaCobranca t) {

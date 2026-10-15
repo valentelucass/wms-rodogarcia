@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param([ValidateSet('Plan','Apply')][string]$Modo='Plan')
 
-# CAD-EDIT01: autorizacao expressa de Lucas, 14/10/2026. Somente 17 UPDATEs por coluna em WMS_DEV.
+# CAD-EDIT01: autorizacao expressa de Lucas, 14/10/2026. Base historica de 17 colunas; TAB-EDIT01 acrescenta 6. Apply depende da liberacao do alvo.
 $ErrorActionPreference='Stop'
 $root=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 . (Join-Path $root 'infra/dev02/guarda-wmsdev.ps1')
@@ -9,7 +9,7 @@ $root=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 . (Join-Path $PSScriptRoot 'contrato-edicao.ps1')
 $out=Join-Path $root ('orchestracao/.runtime/cadastros-etiqueta-20261014/ativacao-'+[Guid]::NewGuid().ToString('N'))
 $null=New-Item -ItemType Directory -Path $out
-$report=[ordered]@{demanda='CAD-EDIT01';modo=$Modo;inicioUtc=[DateTime]::UtcNow.ToString('o');estado='PREPARO';fase='FONTES';banco='WMS_DEV';loginAplicacao='WMSDEV';grantsAplicados=$false;colunas=17;adminAberturas=0;prod=$false;ddl=$false;dml=$false;recapturaTLS=$false}
+$report=[ordered]@{demanda='CAD-EDIT01';modo=$Modo;inicioUtc=[DateTime]::UtcNow.ToString('o');estado='PREPARO';fase='FONTES';banco='WMS_DEV';loginAplicacao='WMSDEV';grantsAplicados=$false;colunas=23;adminAberturas=0;prod=$false;ddl=$false;dml=$false;recapturaTLS=$false}
 $connection=$null;$credential=$null;$transaction=$null;$builder=$null
 function Assert-Cad([bool]$Ok,[string]$Code){if(-not $Ok){throw ('CAD_'+$Code)}}
 function Same-CadRows($A,$B,[string[]]$Fields){
@@ -43,13 +43,18 @@ try {
     Assert-Cad ((Get-FileHash -LiteralPath $baselinePath).Hash -ceq 'C22AABF54F839D4B6E139A598A8478530F92F8911FEEE46BB2F92BC85313EA90') 'BASELINE_DIVERGENTE'
     $baseline=Get-Content -LiteralPath $baselinePath -Raw -Encoding UTF8|ConvertFrom-Json
     $migrations=@(Get-WmsDev02Migrations)
-    Assert-Cad ($migrations.Count -in @(11,12)) 'MIGRATIONS_INESPERADAS'
+    Assert-Cad ($migrations.Count -in @(11,12,13)) 'MIGRATIONS_INESPERADAS'
     $v11=@($migrations|Where-Object {$_.version -ceq '11'})[0]
     $before=Add-WmsAuthExpectedContract $baseline $v11
-    if ($migrations.Count -eq 12) {
+    if ($migrations.Count -ge 12) {
         . (Join-Path $root 'infra/tipos-unidade/contrato-banco.ps1')
         $before=Add-WmsUnitTypesExpectedContract $before ($migrations | Where-Object {$_.version -ceq '12'})
     }
+    if ($migrations.Count -eq 13) {
+        . (Join-Path $root 'infra/tabelas/contrato-banco.ps1')
+        $before=Add-WmsBillingTableExpectedContract $before ($migrations | Where-Object {$_.version -ceq '13'})
+    }
+    $legacy=Add-WmsCadastroEditExpectedContract $before -SomenteBase
     $expected=Add-WmsCadastroEditExpectedContract $before
     Assert-Cad (Same-CadRows @($expected.historico|Where-Object {$_.type -ceq 'SQL'}) $migrations @('version','script','checksum')) 'MIGRATIONS_DIVERGENTES'
     $delta=Get-WmsCadastroEditableColumns
@@ -58,7 +63,7 @@ try {
         $columns=@($delta[$table]|ForEach-Object {Assert-Cad ($_ -cmatch '^[a-z_]+$') 'COLUNA_INVALIDA';'['+$_+']'})
         'GRANT UPDATE ('+($columns -join ',')+') ON OBJECT::[wms].['+$table+'] TO [WMSDEV];'
     }) -join "`n"
-    Assert-Cad (@($expected.rights.explicit).Count-@($before.rights.explicit).Count -eq 17) 'DELTA_DIVERGENTE'
+    Assert-Cad (@($expected.rights.explicit).Count-@($before.rights.explicit).Count -eq 23) 'DELTA_DIVERGENTE'
     $sourceHash=(Get-FileHash -LiteralPath (Join-Path $PSScriptRoot 'contrato-edicao.ps1')).Hash
     $report.contratoSha256=$sourceHash
     [IO.File]::WriteAllText((Join-Path $out 'permissoes.sql'),$sql,[Text.UTF8Encoding]::new($false))
@@ -84,7 +89,7 @@ try {
     $builder.set_Encrypt([Microsoft.Data.SqlClient.SqlConnectionEncryptOption]::Mandatory);$builder.set_TrustServerCertificate($false)
     $builder.set_ServerCertificate($pre.perfilProtegido.certificate);$builder.set_Pooling($false)
     $builder.set_ConnectTimeout(30);$builder.set_ConnectRetryCount(0);$builder.set_TransparentNetworkIPResolution($false)
-    $builder.set_ApplicationName('WMS-CAD-EDIT01-17-COLUNAS')
+    $builder.set_ApplicationName('WMS-TAB-EDIT01-23-COLUNAS')
     $sqlCredential=New-Object Microsoft.Data.SqlClient.SqlCredential('sa',$credential.Password)
     $connection=New-Object Microsoft.Data.SqlClient.SqlConnection($builder.ConnectionString,$sqlCredential)
     $report.adminAberturas=1;$connection.Open()
@@ -100,7 +105,7 @@ try {
     $rights=@(Select-Cad $rightsSql)
     Assert-Cad (Same-CadRows $rights $pre.direitos.explicit $rightsFields) 'DIREITOS_MUDARAM'
     $alreadyGranted=Same-CadRows $rights $expected.rights.explicit $rightsFields
-    Assert-Cad ($alreadyGranted -or (Same-CadRows $rights $before.rights.explicit $rightsFields)) 'DIREITOS_INESPERADOS'
+    Assert-Cad ($alreadyGranted -or (Same-CadRows $rights $before.rights.explicit $rightsFields) -or (Same-CadRows $rights $legacy.rights.explicit $rightsFields)) 'DIREITOS_INESPERADOS'
     $report.antes=$rights
     if(-not $alreadyGranted){
         Assert-Cad ((Get-FileHash -LiteralPath (Join-Path $PSScriptRoot 'contrato-edicao.ps1')).Hash -ceq $sourceHash) 'CONTRATO_MUDOU'

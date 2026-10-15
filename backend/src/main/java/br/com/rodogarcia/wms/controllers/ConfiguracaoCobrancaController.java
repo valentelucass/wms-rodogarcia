@@ -9,6 +9,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -51,6 +52,12 @@ public class ConfiguracaoCobrancaController {
     public ConfiguracaoCobrancaDto.Tabela criarTabela(
             @RequestBody @Valid ConfiguracaoCobrancaDto.CriarTabela d) {
         return service.criarTabela(d);
+    }
+
+    @PutMapping("/tabelas-cobranca/{id}")
+    public ConfiguracaoCobrancaDto.Tabela alterar(
+            @PathVariable Long id, @RequestBody @Valid ConfiguracaoCobrancaDto.AlterarTabela d) {
+        return service.alterar(id, d);
     }
 
     @PostMapping("/tabelas-cobranca/{id}/encerramento")

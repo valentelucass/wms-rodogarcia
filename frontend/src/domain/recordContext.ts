@@ -66,6 +66,19 @@ export function rowContext(
         for (const key of ["clienteId", "armazemId"])
             if (key in root) values[key] = root[key];
     }
+    if (
+        action === "ConfiguracaoCobrancaController.alterar" &&
+        Array.isArray(root.itens)
+    ) {
+        values.itens = root.itens
+            .filter(isObject)
+            .map(({ servicoId, categoria, preco, percentual }) => ({
+                servicoId,
+                categoria,
+                preco,
+                percentual,
+            }));
+    }
     if (controller === "EncerramentoController") {
         const kinds: Record<string, string> = {
             "ClienteDto.Resposta": "CLIENTE",

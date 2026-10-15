@@ -181,14 +181,44 @@ export const recordPages: Record<string, RecordPage[]> = {
         page("ConfiguracaoCobrancaController.servicos", undefined, [
             "ConfiguracaoCobrancaController.criarServico",
         ]),
-        page(
-            "ConfiguracaoCobrancaController.tabelas",
-            "ConfiguracaoCobrancaController.tabela",
-            ["ConfiguracaoCobrancaController.criarTabela"],
-        ),
-        page("ConfiguracaoCobrancaController.vinculos", undefined, [
-            "ConfiguracaoCobrancaController.vincular",
-        ]),
+        {
+            ...page(
+                "ConfiguracaoCobrancaController.tabelas",
+                "ConfiguracaoCobrancaController.tabela",
+                ["ConfiguracaoCobrancaController.criarTabela"],
+            ),
+            views: [
+                {
+                    ...page(
+                        "ConfiguracaoCobrancaController.tabelas",
+                        "ConfiguracaoCobrancaController.tabela",
+                        ["ConfiguracaoCobrancaController.criarTabela"],
+                    ),
+                    title: "Tabelas e vigências",
+                    actions: [
+                        "ConfiguracaoCobrancaController.tabelas",
+                        "ConfiguracaoCobrancaController.tabela",
+                        "ConfiguracaoCobrancaController.criarTabela",
+                        "ConfiguracaoCobrancaController.alterar",
+                        "ConfiguracaoCobrancaController.encerrarTabela",
+                        "ConfiguracaoCobrancaController.vincular",
+                    ],
+                },
+                {
+                    ...page(
+                        "ConfiguracaoCobrancaController.vinculos",
+                        undefined,
+                        ["ConfiguracaoCobrancaController.vincular"],
+                    ),
+                    title: "Vínculos das tabelas",
+                    actions: [
+                        "ConfiguracaoCobrancaController.vinculos",
+                        "ConfiguracaoCobrancaController.vincular",
+                        "ConfiguracaoCobrancaController.encerrarVinculo",
+                    ],
+                },
+            ],
+        },
         page("ConfiguracaoCobrancaController.contratos", undefined, [
             "ConfiguracaoCobrancaController.configurar",
         ]),
@@ -291,6 +321,7 @@ export function recordActionLabel(id: string): string {
         "FechamentoCobrancaController.preparar": "Preparar fechamento",
         "ConfiguracaoCobrancaController.criarServico": "Novo serviço",
         "ConfiguracaoCobrancaController.criarTabela": "Nova tabela",
+        "ConfiguracaoCobrancaController.alterar": "Editar tabela",
     };
     return labels[id] ?? actionLabel(id);
 }
@@ -312,6 +343,7 @@ export function visibleRecordActions(
         }
         const situation = String(row.situacao ?? "");
         const allowed: Record<string, string[]> = {
+            "ConfiguracaoCobrancaController.alterar": ["ATIVA"],
             "UnidadeLogisticaController.unitizar": ["EFETIVADO"],
             "PedidoEntradaController.nota": ["RASCUNHO"],
             "PedidoEntradaController.xml": [

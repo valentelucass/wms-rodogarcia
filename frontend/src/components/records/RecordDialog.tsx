@@ -619,8 +619,13 @@ export function RecordDialog({
                                         (journey.id === "entrada" && record)
                                             ? [
                                                   "id",
-                                                  "clienteId",
-                                                  "armazemId",
+                                                  ...(action ===
+                                                  "ConfiguracaoCobrancaController.alterar"
+                                                      ? []
+                                                      : [
+                                                            "clienteId",
+                                                            "armazemId",
+                                                        ]),
                                                   "pedidoId",
                                                   "unidadeId",
                                                   ...(action ===

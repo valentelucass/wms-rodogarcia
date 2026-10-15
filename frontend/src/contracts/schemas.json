@@ -2542,6 +2542,83 @@
         "omitNull": true
       }
     ],
+    "ConfiguracaoCobrancaDto.AlterarTabela": [
+      {
+        "name": "operacaoId",
+        "type": "UUID",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/ConfiguracaoCobrancaDto.java"
+      },
+      {
+        "name": "versao",
+        "type": "Long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/ConfiguracaoCobrancaDto.java",
+        "Min": "0"
+      },
+      {
+        "name": "armazemId",
+        "type": "Long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/ConfiguracaoCobrancaDto.java",
+        "positive": true
+      },
+      {
+        "name": "clienteId",
+        "type": "Long",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/ConfiguracaoCobrancaDto.java",
+        "positive": true
+      },
+      {
+        "name": "descricao",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/ConfiguracaoCobrancaDto.java",
+        "notBlank": true,
+        "Size": "max = 160"
+      },
+      {
+        "name": "tipo",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/ConfiguracaoCobrancaDto.java",
+        "Pattern": "regexp = \"PADRAO|ESPECIFICA\""
+      },
+      {
+        "name": "vigenciaInicio",
+        "type": "LocalDate",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/ConfiguracaoCobrancaDto.java"
+      },
+      {
+        "name": "vigenciaFim",
+        "type": "LocalDate",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/ConfiguracaoCobrancaDto.java"
+      },
+      {
+        "name": "itens",
+        "type": "List<ConfiguracaoCobrancaDto.Item>",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/ConfiguracaoCobrancaDto.java",
+        "Size": "min = 1, max = 500",
+        "element": {
+          "name": "element",
+          "type": "ConfiguracaoCobrancaDto.Item",
+          "required": true,
+          "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/ConfiguracaoCobrancaDto.java"
+        }
+      },
+      {
+        "name": "motivo",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/ConfiguracaoCobrancaDto.java",
+        "notBlank": true,
+        "Size": "min = 5, max = 500"
+      }
+    ],
     "ConfiguracaoCobrancaDto.ItemResposta": [
       {
         "name": "id",
@@ -2640,6 +2717,12 @@
           "required": false,
           "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/ConfiguracaoCobrancaDto.java"
         }
+      },
+      {
+        "name": "descricao",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/ConfiguracaoCobrancaDto.java"
       }
     ],
     "ConfiguracaoCobrancaDto.Vincular": [

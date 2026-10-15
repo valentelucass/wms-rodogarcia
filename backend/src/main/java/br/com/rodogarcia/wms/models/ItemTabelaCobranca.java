@@ -9,18 +9,10 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 import java.math.BigDecimal;
 
 @Entity
-@Table(
-        name = "item_tabela_cobranca",
-        schema = "wms",
-        uniqueConstraints = {
-            @UniqueConstraint(
-                    name = "uk_item_tabela_cobranca_1",
-                    columnNames = {"tabela_id", "servico_id", "categoria"})
-        })
+@Table(name = "item_tabela_cobranca", schema = "wms")
 public class ItemTabelaCobranca {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,6 +34,17 @@ public class ItemTabelaCobranca {
 
     @Column(name = "percentual", nullable = true, precision = 9, scale = 6, updatable = false)
     private BigDecimal percentual;
+
+    @Column(nullable = false)
+    private boolean ativo = true;
+
+    public void retirar() {
+        ativo = false;
+    }
+
+    public boolean isAtivo() {
+        return ativo;
+    }
 
     protected ItemTabelaCobranca() {}
 

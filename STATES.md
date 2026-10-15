@@ -1,5 +1,13 @@
 # Estado e trilha de implementação do WMS Rodogarcia
 
+## TAB-EDIT01 — editar tabelas e integrar os vínculos, 15/10/2026
+
+Pedido de Lucas implementado na fonte: Editar em tabelas ativas para Gestor, com descrição/contexto/vigência e alteração, inclusão e remoção de serviços. Retirada a etapa lateral “Vínculos por cliente”; manutenção dos vínculos integrada a “Tabelas e vigências”. Preços antigos e IDs dos itens históricos permanecem preservados; revisão, motivo, repetição, alcance e auditoria transacionais. Mudanças de contexto ou período que reinterpretariam vínculo/cálculo são recusadas com orientação. [Contrato, V13 e seis permissões novas](docs/design-system/etapa-18-tabelas-cobranca.md).
+
+Validação local em `orchestracao/.runtime/tab-edit01/` e logs `tab-edit01-*.log`: **189/189 backend sem banco e 670/670 frontend**, mapeamento SQL sem JDBC, tipagem/lint/build, Chrome fictício desktop/celular claro/escuro, 31 verificações do novo contrato, 18 da V12 e planos DEV/PROD sem execução SQL. Guardas/preparadores reconhecem a V13 exata e a transição dos 17 direitos anteriores aos 23 totais; históricos originais e V10 própria de PROD preservados. [Prévia local](orchestracao/.runtime/tab-edit01/galeria.html).
+
+**Próximo deste recorte:** liberar/aplicar V13 e seis permissões no alvo específico, validar persistência e fluxo em WMS_DEV/WMSDEV com guarda atual e depois atualizar a instância pelo fluxo documentado. Fonte/pacotes locais distintos da versão ativa, não medida nesta entrega. Sem conexão SQL, DDL/grant, reinício operacional ou publicação pelo agente. O relato anterior de execução da V12 pelo operador continua sem resultado confirmado; não inferir sucesso nem executar migrations em paralelo.
+
 ## END-TIPOS01 — vários tipos e Todas as opções, 14/10/2026
 
 **END-TIPOS01-LAUNCH01, correção local dos bloqueios de partida:** console de Lucas mostrou DEV `GUARD_CURRENT_BLOCKED` e PM2 `PROD_PM2_APLICAR_PERMISSOES_PROD_REFUSED_20`. Recibos confirmaram divergência de inventário antes de qualquer abertura SQL: V12 na fonte, contratos limitados à V11. Contratos DEV/PROD agora acrescentam somente a V12 revisada, com SHA/checksum fixados, preservando baselines, catálogo, direitos e histórico anterior. Guardas continuam exigindo V12 efetivamente aplicada no histórico real. Etapa cadastral aceita a extensão exata, sem novo delta de direitos; mensagens DEV/PM2 mostram causa controlada e recibo próprio.

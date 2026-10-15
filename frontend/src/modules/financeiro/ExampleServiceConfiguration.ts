@@ -29,24 +29,33 @@ export class ExampleServiceConfiguration {
         )
             return { ...data, itens: [this.service] };
         if (
-            id === "ConfiguracaoCobrancaController.criarTabela" &&
+            [
+                "ConfiguracaoCobrancaController.criarTabela",
+                "ConfiguracaoCobrancaController.alterar",
+            ].includes(id) &&
             isObject(data)
         ) {
             this.table = {
                 ...data,
-                id: "2601",
-                codigo: body.codigo,
+                id: id.endsWith(".alterar") ? r.params?.id : "2601",
+                versao: id.endsWith(".alterar")
+                    ? String(BigInt(String(body.versao)) + 1n)
+                    : "0",
+                codigo: body.codigo ?? this.table?.codigo ?? data.codigo,
+                descricao: body.descricao,
+                clienteId: body.clienteId,
+                armazemId: body.armazemId,
                 tipo: body.tipo,
                 vigenciaInicio: body.vigenciaInicio,
                 vigenciaFim: body.vigenciaFim,
                 itens: (Array.isArray(body.itens) ? body.itens : [])
                     .filter(isObject)
-                    .map((item) => ({
+                    .map((item, index) => ({
                         ...(fixture(
                             "ConfiguracaoCobrancaDto.ItemResposta",
                         ) as Values),
                         ...item,
-                        id: "2602",
+                        id: String(2602 + index),
                     })),
             };
             return this.table;

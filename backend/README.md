@@ -1,5 +1,7 @@
 # Backend do WMS Rodogarcia
 
+TAB-EDIT01 (15/10): edição de tabelas em `PUT /api/v1/tabelas-cobranca/{id}`, com preservação dos itens históricos, Gestor/revisão/motivo/auditoria. `TabelaCobrancaEdicaoTest` integra a whitelist comprovadamente sem banco, com repositories mockados. [V13, seis permissões novas e ativação pendente](../docs/design-system/etapa-18-tabelas-cobranca.md). Não iniciar a nova fonte antes da adequação do alvo.
+
 ## Política de testes vigente — QUAL-CONF01-SQL01
 
 CAD-EDIT01 (14/10): a whitelist inclui também `NfeSkuTest`, `CadastrosEdicaoTest` e `EtiquetaLayoutTest`. Os dois últimos verificam serviços/DTOs em memória com repositories mockados, sem contexto Spring ou conexão. A edição ampliada depende das permissões por coluna listadas na [etapa 17](../docs/design-system/etapa-17.md), ainda sem ativação real.

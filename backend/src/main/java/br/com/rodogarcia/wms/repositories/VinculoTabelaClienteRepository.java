@@ -4,6 +4,8 @@ import br.com.rodogarcia.wms.models.VinculoTabelaCliente;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface VinculoTabelaClienteRepository extends JpaRepository<VinculoTabelaCliente, Long> {
+    java.util.List<VinculoTabelaCliente> findByTabelaId(Long tabelaId);
+
     java.util.List<VinculoTabelaCliente> findByClienteIdAndArmazemIdOrderByVigenciaInicioAsc(
             Long clienteId, Long armazemId);
 

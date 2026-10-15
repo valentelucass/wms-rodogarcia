@@ -4,6 +4,10 @@ import br.com.rodogarcia.wms.models.CalculoCobranca;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface CalculoCobrancaRepository extends JpaRepository<CalculoCobranca, Long> {
+    @org.springframework.data.jpa.repository.Query(
+            "select (count(m)>0) from MemoriaServico m where m.itemTabela.tabela.id=:tabelaId")
+    boolean tabelaUsada(Long tabelaId);
+
     org.springframework.data.domain.Page<CalculoCobranca> findByClienteIdAndArmazemId(
             Long clienteId, Long armazemId, org.springframework.data.domain.Pageable pagina);
 

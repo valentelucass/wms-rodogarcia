@@ -5,6 +5,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 public interface TabelaCobrancaRepository extends JpaRepository<TabelaCobranca, Long> {
+    @org.springframework.data.jpa.repository.Lock(
+            jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @Query("select t from TabelaCobranca t where t.id=:id")
+    java.util.Optional<TabelaCobranca> buscarParaAtualizar(Long id);
+
     /** Leitura serializada; chamada somente na transação de criação, antes do INSERT. */
     @Query(
             value =

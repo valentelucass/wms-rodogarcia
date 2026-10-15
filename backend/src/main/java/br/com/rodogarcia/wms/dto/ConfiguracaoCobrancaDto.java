@@ -79,6 +79,18 @@ public final class ConfiguracaoCobrancaDto {
                             com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)
                     FechamentoCobrancaDto.Resolucao resolucao) {}
 
+    public record AlterarTabela(
+            @NotNull UUID operacaoId,
+            @NotNull @Min(0) Long versao,
+            @NotNull @Positive Long armazemId,
+            @Positive Long clienteId,
+            @NotBlank @Size(max = 160) String descricao,
+            @NotNull @Pattern(regexp = "PADRAO|ESPECIFICA") String tipo,
+            @NotNull LocalDate vigenciaInicio,
+            LocalDate vigenciaFim,
+            @NotNull @Size(min = 1, max = 500) List<@NotNull @Valid Item> itens,
+            @NotBlank @Size(min = 5, max = 500) String motivo) {}
+
     public record ItemResposta(
             Long id, Long servicoId, String categoria, BigDecimal preco, BigDecimal percentual) {
         public static ItemResposta de(ItemTabelaCobranca i) {
@@ -101,7 +113,8 @@ public final class ConfiguracaoCobrancaDto {
             LocalDate vigenciaInicio,
             LocalDate vigenciaFim,
             String situacao,
-            List<ItemResposta> itens) {
+            List<ItemResposta> itens,
+            String descricao) {
         public static Tabela de(TabelaCobranca t, List<ItemTabelaCobranca> itens) {
             return new Tabela(
                     t.getId(),
@@ -113,7 +126,8 @@ public final class ConfiguracaoCobrancaDto {
                     t.getVigenciaInicio(),
                     t.getVigenciaFim(),
                     t.getSituacao(),
-                    itens.stream().map(ItemResposta::de).toList());
+                    itens.stream().map(ItemResposta::de).toList(),
+                    t.getDescricao());
         }
     }
 

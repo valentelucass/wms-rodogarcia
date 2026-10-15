@@ -15,6 +15,18 @@ export function billingReferences(
     if (controller === "ConfiguracaoCobrancaController") {
         const table = s["ConfiguracaoCobrancaDto.Tabela"],
             service = s["ConfiguracaoCobrancaDto.Servico"];
+        if (action === "alterar" && table) {
+            Object.assign(ctx, table);
+            if (Array.isArray(table.itens))
+                ctx.itens = table.itens
+                    .filter(isObject)
+                    .map(({ servicoId, categoria, preco, percentual }) => ({
+                        servicoId,
+                        categoria,
+                        preco,
+                        percentual,
+                    }));
+        }
         ctx.servicoId = service?.id;
         ctx.tabelaId = table?.id;
         const resource = action.includes("Vinculo")

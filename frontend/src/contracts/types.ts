@@ -466,6 +466,18 @@ export interface ConfiguracaoCobrancaDto_CriarTabela {
   motivo: string;
   resolucao?: FechamentoCobrancaDto_Resolucao | null;
 }
+export interface ConfiguracaoCobrancaDto_AlterarTabela {
+  operacaoId: string;
+  versao: string;
+  armazemId: string;
+  clienteId: string | null;
+  descricao: string;
+  tipo: string;
+  vigenciaInicio: string;
+  vigenciaFim: string | null;
+  itens: Array<ConfiguracaoCobrancaDto_Item>;
+  motivo: string;
+}
 export interface ConfiguracaoCobrancaDto_ItemResposta {
   id: string | null;
   servicoId: string | null;
@@ -484,6 +496,7 @@ export interface ConfiguracaoCobrancaDto_Tabela {
   vigenciaFim: string | null;
   situacao: string | null;
   itens: Array<ConfiguracaoCobrancaDto_ItemResposta> | null;
+  descricao: string | null;
 }
 export interface ConfiguracaoCobrancaDto_Vincular {
   operacaoId: string;
@@ -2128,6 +2141,7 @@ export interface ApiContracts {
   "ConfiguracaoCobrancaController.tabelas": { request: undefined; response: Array<ConfiguracaoCobrancaDto_Tabela> };
   "ConfiguracaoCobrancaController.tabela": { request: undefined; response: ConfiguracaoCobrancaDto_Tabela };
   "ConfiguracaoCobrancaController.criarTabela": { request: ConfiguracaoCobrancaDto_CriarTabela; response: ConfiguracaoCobrancaDto_Tabela };
+  "ConfiguracaoCobrancaController.alterar": { request: ConfiguracaoCobrancaDto_AlterarTabela; response: ConfiguracaoCobrancaDto_Tabela };
   "ConfiguracaoCobrancaController.encerrarTabela": { request: ConfiguracaoCobrancaDto_Encerrar; response: ConfiguracaoCobrancaDto_Tabela };
   "ConfiguracaoCobrancaController.vinculos": { request: undefined; response: Array<ConfiguracaoCobrancaDto_Vinculo> };
   "ConfiguracaoCobrancaController.vincular": { request: ConfiguracaoCobrancaDto_Vincular; response: ConfiguracaoCobrancaDto_Vinculo };

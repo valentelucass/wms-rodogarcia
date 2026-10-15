@@ -1,3 +1,7 @@
+# Migrações — TAB-EDIT01, 15/10/2026
+
+**V13 preparada, não aplicada.** [V13__historico_itens_tabela_cobranca.sql](V13__historico_itens_tabela_cobranca.sql) mantém itens antigos das tabelas para as memórias financeiras e permite substitutos ativos sem apagar registros. Ativação exige liberação do alvo, executor WMS, guardas atuais e seis permissões por coluna descritas no [contrato](../../docs/design-system/etapa-18-tabelas-cobranca.md). V1–V12 preservadas; aplicação de V12 pelo operador continua sem resultado confirmado. Não atualizar o backend com V13 ausente.
+
 # Migrações — END-TIPOS01, 14/10/2026
 
 **V12 preparada, não aplicada.** [V12__tipos_unidade_permitidos_endereco.sql](V12__tipos_unidade_permitidos_endereco.sql) amplia o CHECK da posição para aceitar combinações de PALLET/BOBINA/VOLUME e TODAS. Preserva coluna, registros, limites e V1–V11. Não cria estoque, concessões ou capacidade real.

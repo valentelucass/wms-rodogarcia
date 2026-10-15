@@ -27,10 +27,10 @@ foreach($source in @('DEV','PROD')) {
     if($source -ceq 'DEV') {
         $baseline=Get-Content -LiteralPath (Join-Path $root 'orchestracao/.runtime/d29-farol-retomada-preflight.json') -Raw -Encoding UTF8 | ConvertFrom-Json
         $baseline=Add-WmsAuthExpectedContract $baseline ($devMigrations | Where-Object version -ceq '11')
-        $migrations=$devMigrations
+        $migrations=@($devMigrations | Where-Object {[int]$_.version -le 12})
     } else {
         $baseline=Get-Content -LiteralPath (Join-Path $root 'infra/prod/contrato-aplicacao.json') -Raw -Encoding UTF8 | ConvertFrom-Json
-        $migrations=$prodMigrations
+        $migrations=@($prodMigrations | Where-Object {[int]$_.version -le 12})
     }
     $original=$baseline | ConvertTo-Json -Depth 40 -Compress
     $expected=Add-WmsUnitTypesExpectedContract $baseline $v12

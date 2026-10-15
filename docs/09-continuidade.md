@@ -1,5 +1,11 @@
 # Continuidade do projeto WMS Rodogarcia
 
+## TAB-EDIT01 — edição de tabelas preparada, 15/10/2026
+
+Fonte com editor completo das tabelas ativas, valores e inclusão/remoção de serviços. Navegação sem “Vínculos por cliente”; funções de vínculo integradas à tela de tabelas. Histórico financeiro mantém os itens originais; serviço revalida alcance, contexto, vigência e revisão, com auditoria/repetição na mesma transação. [Contrato, limites e seis colunas adicionais](design-system/etapa-18-tabelas-cobranca.md).
+
+V13 nova e guardas/preparadores locais preparados; permissões cadastrais anteriores preservadas. Recibos/capturas em `orchestracao/.runtime/tab-edit01/` e logs finais adjacentes. Somente testes puros, frontend/navegador fictício e planos locais; sem conexão ou escrita SQL, grant, reinício operacional ou publicação. Próximo: aplicação específica da V13/permissões após liberação do alvo, integração real em DEV com guarda atual e atualização pelo fluxo documentado. Não assumir que a V12 anterior já foi aplicada pelo operador.
+
 ## END-TIPOS01 — seleção múltipla e Todas as opções, 14/10/2026
 
 **Correção LAUNCH01 após os consoles:** DEV e PM2 recusaram V12 fora dos contratos locais, antes de SQL/parada de processos. Contratos das guardas e preparo de permissões atualizados para a V12 exata (SHA7EE5D7/checksum1229599714), sem alterar baselines, direitos ou catálogo. Mensagens agora identificam divergência e apontam recibo próprio. 18 testes de contrato, 12 de diagnóstico e12 PM2, planos sem banco e parser8 arquivos aprovados. Resultado em `orchestracao/.runtime/tipos-unidades-20261014/resultado-guardas.json`.

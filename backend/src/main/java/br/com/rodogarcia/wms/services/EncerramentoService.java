@@ -689,7 +689,7 @@ public class EncerramentoService {
         if (a.tipo() == Tipo.SERVICO_COBRANCA)
             for (var it :
                     em.createQuery(
-                                    "select i from ItemTabelaCobranca i where i.servico.id=:id and i.tabela.situacao='ATIVA' and (i.tabela.vigenciaFim is null or i.tabela.vigenciaFim>:hoje)",
+                                    "select i from ItemTabelaCobranca i where i.ativo=true and i.servico.id=:id and i.tabela.situacao='ATIVA' and (i.tabela.vigenciaFim is null or i.tabela.vigenciaFim>:hoje)",
                                     ItemTabelaCobranca.class)
                             .setParameter("id", a.id())
                             .setParameter("hoje", LocalDate.now(clock))

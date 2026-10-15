@@ -16,13 +16,16 @@ export const journeys: Journey[] = [
                 "Tabelas e vigências",
                 "Preserve histórico e intervalos de vigência. Não preencha parâmetro ausente com zero.",
                 "ConfiguracaoCobrancaController",
-                ["tabelas", "tabela", "criarTabela", "encerrarTabela"],
-            ),
-            s(
-                "Vínculos por cliente",
-                "Vincule uma tabela no contexto correto. Encerramento não apaga cálculo anterior.",
-                "ConfiguracaoCobrancaController",
-                ["vinculos", "vincular", "encerrarVinculo"],
+                [
+                    "tabelas",
+                    "tabela",
+                    "criarTabela",
+                    "alterar",
+                    "encerrarTabela",
+                    "vinculos",
+                    "vincular",
+                    "encerrarVinculo",
+                ],
             ),
             s(
                 "Contrato de fechamento",

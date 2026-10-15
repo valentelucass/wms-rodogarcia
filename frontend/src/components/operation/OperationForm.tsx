@@ -20,6 +20,7 @@ export function OperationForm({
     fixedFields?: string[];
 }) {
     const addressImport = s.e.id === "ImportacaoEnderecoController.previa";
+    const tableEdit = s.e.id === "ConfiguracaoCobrancaController.alterar";
     const registryEdit =
         /^(Cliente|Armazem|Produto|Embalagem|Endereco)Controller\.alterar$/.test(
             s.e.id,
@@ -81,6 +82,11 @@ export function OperationForm({
             }}
             noValidate
         >
+            {tableEdit && (
+                <p className="hint">
+                    {information.billingTableEdit.description}
+                </p>
+            )}
             {registryEdit && (
                 <p className="hint">{information.registryEdit.description}</p>
             )}
@@ -114,7 +120,11 @@ export function OperationForm({
                 <fieldset
                     className="operation-fixed-fields"
                     disabled
-                    style={registryEdit ? { display: "none" } : undefined}
+                    style={
+                        registryEdit || tableEdit
+                            ? { display: "none" }
+                            : undefined
+                    }
                 >
                     <legend className="sr-only">Registro selecionado</legend>
                     {groups.flatMap((group) =>

@@ -2,6 +2,8 @@
 # Preserva a baseline historica e estende somente UPDATE nas colunas corrigiveis.
 function Get-WmsCadastroEditableColumns {
     @{
+        tabela_cobranca=@('armazem_id','cliente_id','descricao','tipo','vigencia_inicio')
+        item_tabela_cobranca=@('ativo')
         cliente=@('documento_fiscal')
         armazem=@('documento_fiscal')
         produto=@('sku','unidade_medida','tipo_quantidade','precisao_quantidade','controla_lote','controla_validade','antecedencia_aviso_dias')
@@ -10,9 +12,10 @@ function Get-WmsCadastroEditableColumns {
     }
 }
 
-function Add-WmsCadastroEditExpectedContract($Historical) {
+function Add-WmsCadastroEditExpectedContract($Historical, [switch]$SomenteBase) {
     $expected=$Historical | ConvertTo-Json -Depth 40 | ConvertFrom-Json
     $delta=Get-WmsCadastroEditableColumns
+    if($SomenteBase){$delta.Remove('tabela_cobranca');$delta.Remove('item_tabela_cobranca')}
     foreach($table in $delta.Keys) {
         # A baseline foi capturada por column_id, conservando a ordem do catalogo V1-V11.
         $columns=@($expected.rights.columns | Where-Object { $_.tabela -ceq $table })

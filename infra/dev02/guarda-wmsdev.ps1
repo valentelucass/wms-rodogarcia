@@ -107,6 +107,10 @@ function Invoke-WmsDev02Guard {
             $baseline=Add-WmsUnitTypesExpectedContract $baseline ($migrations | Where-Object {$_.version -ceq '12'})
             $report.oraculo['tiposUnidadeSha256']=(Get-FileHash -LiteralPath (Join-Path $script:WmsDev02Root 'infra/tipos-unidade/contrato-banco.ps1') -Algorithm SHA256).Hash
         }
+        if (@($migrations | Where-Object {$_.version -ceq '13'}).Count -eq 1) {
+            . (Join-Path $script:WmsDev02Root 'infra/tabelas/contrato-banco.ps1')
+            $baseline=Add-WmsBillingTableExpectedContract $baseline ($migrations | Where-Object {$_.version -ceq '13'})
+        }
         Assert-Dev02 'inventario local completo conforme contrato versionado' (Compare-Dev02Rows $migrations @($baseline.historico|Where-Object {$_.type -ceq 'SQL'}) @('version','script'))
         . (Join-Path $script:WmsDev02Root 'infra/cadastros/contrato-edicao.ps1')
         $cadastroBefore=$baseline
@@ -182,7 +186,11 @@ function Invoke-WmsDev02Guard {
             # Este modo somente atesta a transicao autorizada; nunca libera backend.
             $alreadyCurrent=Compare-Dev02Rows $rights.explicit $baseline.rights.explicit @('class_desc','esquema','objeto','minor_id','coluna','permission_name','state_desc')
             $report.cadastroEdicao=[ordered]@{modo='PRE_GRANT';direitosAtuais=if($alreadyCurrent){'NOVOS'}else{'ANTERIORES'};liberaBackend=$false}
-            if (-not $alreadyCurrent) {$baseline=$cadastroBefore}
+            if (-not $alreadyCurrent) {
+                $legacy=Add-WmsCadastroEditExpectedContract $cadastroBefore -SomenteBase
+                $isLegacy=Compare-Dev02Rows $rights.explicit $legacy.rights.explicit @('class_desc','esquema','objeto','minor_id','coluna','permission_name','state_desc')
+                $baseline=if($isLegacy){$legacy}else{$cadastroBefore}
+            }
         }
         Assert-Dev02 'nenhuma role/ownership/schema amplo; server somente CONNECT SQL/VIEW ANY DATABASE; database CONNECT' ($rights.roles.Count -eq 0 -and $rights.serverRoles.Count -eq 0 -and $rights.ownership.Count -eq 0 -and $rights.schema.Count -eq 0 -and (Compare-Dev02Rows $rights.server @([pscustomobject]@{permission_name='CONNECT SQL'},[pscustomobject]@{permission_name='VIEW ANY DATABASE'}) @('permission_name')) -and (Compare-Dev02Rows $rights.database @([pscustomobject]@{permission_name='CONNECT'}) @('permission_name')))
         foreach ($kind in @('server','database','roles','serverRoles','ownership','schema','explicit','objects','columns')) {

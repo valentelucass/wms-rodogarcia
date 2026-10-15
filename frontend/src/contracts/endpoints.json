@@ -1009,6 +1009,28 @@
     ]
   },
   {
+    "id": "ConfiguracaoCobrancaController.alterar",
+    "method": "PUT",
+    "path": "/api/v1/tabelas-cobranca/{id}",
+    "request": "ConfiguracaoCobrancaDto.AlterarTabela",
+    "response": "ConfiguracaoCobrancaDto.Tabela",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/ConfiguracaoCobrancaController.java",
+    "handler": "alterar",
+    "permission": "GESTOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/ConfiguracaoCobrancaService.java#alterar"
+    ]
+  },
+  {
     "id": "ConfiguracaoCobrancaController.encerrarTabela",
     "method": "POST",
     "path": "/api/v1/tabelas-cobranca/{id}/encerramento",

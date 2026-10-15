@@ -36,24 +36,24 @@ public class TabelaCobranca {
     private long versao;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "armazem_id", nullable = false, updatable = false)
+    @JoinColumn(name = "armazem_id", nullable = false)
     private Armazem armazem;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
-    @JoinColumn(name = "cliente_id", nullable = true, updatable = false)
+    @JoinColumn(name = "cliente_id", nullable = true)
     private Cliente cliente;
 
     @Column(name = "codigo", nullable = false, length = 40, updatable = false)
     private String codigo;
 
     @Nationalized
-    @Column(name = "descricao", nullable = false, length = 160, updatable = false)
+    @Column(name = "descricao", nullable = false, length = 160)
     private String descricao;
 
-    @Column(name = "tipo", nullable = false, length = 16, updatable = false)
+    @Column(name = "tipo", nullable = false, length = 16)
     private String tipo;
 
-    @Column(name = "vigencia_inicio", nullable = false, updatable = false)
+    @Column(name = "vigencia_inicio", nullable = false)
     private LocalDate vigenciaInicio;
 
     @Column(name = "vigencia_fim", nullable = true)
@@ -147,6 +147,24 @@ public class TabelaCobranca {
 
     public Instant getAlteradaEm() {
         return alteradaEm;
+    }
+
+    public void alterar(
+            Armazem armazem,
+            Cliente cliente,
+            String descricao,
+            String tipo,
+            LocalDate inicio,
+            LocalDate fim,
+            Instant agora) {
+        this.armazem = armazem;
+        this.cliente = cliente;
+        this.descricao = descricao;
+        this.tipo = tipo;
+        this.vigenciaInicio = inicio;
+        this.vigenciaFim = fim;
+        Instant instante = agora.truncatedTo(java.time.temporal.ChronoUnit.MICROS);
+        this.alteradaEm = instante.isAfter(alteradaEm) ? instante : alteradaEm.plusNanos(1000);
     }
 
     public void encerrar(LocalDate fim, Instant agora) {

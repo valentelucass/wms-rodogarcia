@@ -10,6 +10,11 @@ export type Information = {
 };
 
 export const information = {
+    billingTableEdit: {
+        title: "Edição da tabela de cobrança",
+        description:
+            "Altere os dados, ajuste valores e adicione ou remova serviços, informando o motivo. As tarifas anteriores e os cálculos já registrados ficam preservados; salvar não recalcula nem altera fechamentos. Cliente, armazém, tipo e vigência são conferidos para proteger vínculos e histórico existentes.",
+    },
     collectorMeasures: {
         title: "Medidas da unidade e destino",
         description:

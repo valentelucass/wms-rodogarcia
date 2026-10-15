@@ -32,6 +32,15 @@ public class ContextoCobrancaService {
         acesso.armazem(armazem);
     }
 
+    /** Edição entre contextos bloqueia todos os clientes antes dos armazéns. */
+    @Transactional(propagation = Propagation.MANDATORY)
+    public Cliente bloquearCliente(Long cliente) {
+        acesso.exigirSupervisor();
+        acesso.cliente(cliente);
+        return clientes.buscarParaAtualizar(cliente)
+                .orElseThrow(RegraNegocioException::naoEncontrado);
+    }
+
     @Transactional(propagation = Propagation.MANDATORY)
     public Contexto bloquear(Long cliente, Long armazem) {
         autorizar(cliente, armazem);

@@ -95,6 +95,17 @@ class SqlServerUpdateMappingTest {
                         .isEqualTo(
                                 "update wms.nota_entrada set chave_acesso=?,xml_hash=?,xml_original=? where id=?");
                 assertThat(sql.get("PedidoEntrada")).doesNotContain("referencia=?", "criado_em=?");
+                assertThat(sql.get("ItemTabelaCobranca"))
+                        .isEqualTo("update wms.item_tabela_cobranca set ativo=? where id=?");
+                assertThat(sql.get("TabelaCobranca"))
+                        .contains(
+                                "armazem_id=?",
+                                "cliente_id=?",
+                                "descricao=?",
+                                "tipo=?",
+                                "vigencia_inicio=?",
+                                "versao=?")
+                        .doesNotContain("codigo=?", "criada_em=?");
                 assertThat(sql)
                         .doesNotContainKeys(
                                 "AuditoriaCadastro",

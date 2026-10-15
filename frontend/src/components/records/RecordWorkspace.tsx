@@ -59,7 +59,9 @@ export function RecordWorkspace(props: Props) {
         <>
             {definition.views && (
                 <label className="record-view-picker">
-                    Tipo de cadastro
+                    {props.journey.id === "precos"
+                        ? "Visão"
+                        : "Tipo de cadastro"}
                     <select
                         value={view}
                         onChange={(event) => {

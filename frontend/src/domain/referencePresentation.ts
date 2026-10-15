@@ -200,6 +200,8 @@ export function businessTitle(
             row.lote,
         );
     if (row.identidadeFato) return String(row.identidadeFato);
+    if (type === "ConfiguracaoCobrancaDto.Servico" && row.descricao)
+        return join(row.descricao, row.codigo);
     if (row.codigoDun) return join(row.codigoDun, row.descricao);
     if (row.sku && /Produto|Item/.test(type))
         return join(row.sku, row.descricao);

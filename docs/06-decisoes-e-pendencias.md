@@ -1,5 +1,13 @@
 # Decisões e pendências do WMS Rodogarcia
 
+## TAB-EDIT01 — edição de tabelas e retirada da etapa duplicada, 15/10/2026
+
+**Pedido expresso de Lucas:** acrescentar edição dos dados e serviços das tabelas existentes, para corrigir valores ou adicionar/remover serviços, e excluir “Vínculos por cliente” da navegação por duplicar a gestão da tela “Tabelas e vigências”. Implementação autorizada por este pedido.
+
+**Escolha técnica de preservação, não aprovação comercial:** manter itens antigos imutáveis para as memórias financeiras, inativando os substituídos e criando novos itens ativos. Edição exige Gestor, revisão, motivo e auditoria. Contexto/período já comprometidos por vínculo/cálculo não podem ser reinterpretados; o servidor apresenta a restrição. Código e identidade permanecem estáveis. Vínculos continuam operáveis na mesma tela, sem etapa própria. [Contrato e proteções](design-system/etapa-18-tabelas-cobranca.md).
+
+V13 e seis permissões adicionais preparadas, sem aplicação real. É necessária liberação do alvo para migration/permissões e validação SQL real DEV antes da publicação correspondente. Guardas preservam TLS, identidades próprias, históricos, limites e dados. Testes locais não são aceite SQL nem atualização da instância ativa.
+
 ## END-TIPOS01 — seleção de vários tipos por posição, 14/10/2026
 
 **LAUNCH01, informação posterior de Lucas:** após enviar as recusas de DEV/PM2, informou que está executando `database/iniciar-bancos.bat` para atualizar a estrutura. Essa é a execução do operador, cujo resultado permanece não confirmado; não autoriza presumir sucesso nem abrir uma execução concorrente. Contratos/mensagens locais foram corrigidos para reconhecer a V12 exata e manter a exigência de histórico SQL atual antes da partida/publicação.

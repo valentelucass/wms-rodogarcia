@@ -1,5 +1,7 @@
 # Documentação do WMS Rodogarcia
 
+[TAB-EDIT01 — edição das tabelas de cobrança](design-system/etapa-18-tabelas-cobranca.md): editor dos dados e serviços, vínculos na mesma tela, proteção financeira e ativação pendente da V13/seis permissões.
+
 **QUAL-CONF01-SQL01 — estratégia vigente e execução SQL real:** [regra permanente SQL Server/WMS_DEV](06-decisoes-e-pendencias.md#qual-conf01-sql01--testes-reais-sql-server-10102026), [estado](../states.md#qual-conf01-sql01--testes-reais-sql-server-10102026) e [procedimento](19-desenvolvimento-integrado-dev.md#política-vigente-de-testes--qual-conf01-sql01). H2 anterior é histórico; testes puros sem banco ficam separados. Guarda atual e dados preservados antes de integração, sem selecionar testes destrutivos/banco vazio.
 
 
