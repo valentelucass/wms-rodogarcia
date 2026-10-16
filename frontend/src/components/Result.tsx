@@ -3,7 +3,8 @@ import { isObject, records, listType, type Values } from "../contracts/runtime";
 import { label, display } from "../domain/labels";
 import { resultName } from "../domain/resultNames";
 import { Pagination } from "./layout/Pagination";
-import { useContext } from "react";
+import { Fragment, useContext, useId, useState } from "react";
+import { Icon } from "../design-system/Icon";
 import { FormReferences } from "./FormReferences";
 import { ReferenceValue } from "./context/ReferencePresentation";
 import {
@@ -13,6 +14,10 @@ import {
 } from "../domain/referencePresentation";
 import { ConfirmedEntries } from "../modules/recebimento/ConfirmedEntries";
 import { ClosureDetail } from "../modules/cadastros/ClosureDetail";
+import { InitialLoadDetail } from "../modules/regularizacao/InitialLoadDetail";
+import { AuditDetail } from "../modules/relatorios/AuditDetail";
+import { ServiceFactDetail } from "../modules/financeiro/ServiceFactDetail";
+import { BillingAdjustments } from "../modules/financeiro/BillingAdjustments";
 export function Result(props: Parameters<typeof ResultContent>[0]) {
     const parent = useContext(FormReferences);
     const indexed = indexRecords(
@@ -46,8 +51,82 @@ function ResultContent({
     if (data === null || data === undefined)
         return <p>Não informado pelo servidor.</p>;
     if (isLosslessNumber(data)) return <span>{data.value}</span>;
+    if (
+        type === "List<FechamentoCobrancaDto.Ajuste>" &&
+        Array.isArray(data) &&
+        data.every(isObject)
+    )
+        return (
+            <BillingAdjustments
+                rows={data}
+                onSelect={onSelect}
+                pending={pending}
+            />
+        );
+    if (type === "FechamentoCobrancaDto.Ajuste" && isObject(data))
+        return (
+            <BillingAdjustments
+                rows={[data]}
+                onSelect={onSelect}
+                pending={pending}
+            />
+        );
+    if (type === "FatoServicoDto.Fato" && isObject(data))
+        return (
+            <div className="service-fact-result">
+                <ServiceFactDetail data={data} />
+                {onSelect && data.id !== undefined && (
+                    <div className="result-selection">
+                        <button
+                            type="button"
+                            className="action-select"
+                            disabled={pending}
+                            onClick={() => onSelect(data, type)}
+                        >
+                            Selecionar este registro
+                        </button>
+                    </div>
+                )}
+            </div>
+        );
+    if (type === "AuditoriaResponse" && isObject(data))
+        return (
+            <div className="audit-result">
+                <AuditDetail data={data} />
+                {onSelect && data.id !== undefined && (
+                    <div className="result-selection">
+                        <button
+                            type="button"
+                            className="action-select"
+                            disabled={pending}
+                            onClick={() => onSelect(data, type)}
+                        >
+                            Selecionar este registro
+                        </button>
+                    </div>
+                )}
+            </div>
+        );
     if (type === "EncerramentoDto.Resultado" && isObject(data))
         return <ClosureDetail data={data} onSelect={onSelect} />;
+    if (type === "CargaInicialDto.Resultado" && isObject(data))
+        return (
+            <div className="initial-load-result">
+                <InitialLoadDetail data={data} />
+                {onSelect && data.id !== undefined && (
+                    <div className="result-selection">
+                        <button
+                            type="button"
+                            className="action-select"
+                            disabled={pending}
+                            onClick={() => onSelect(data, type)}
+                        >
+                            Selecionar esta carga
+                        </button>
+                    </div>
+                )}
+            </div>
+        );
     if (Array.isArray(data)) {
         if (data.length === 0)
             return <p className="empty">Nenhum registro encontrado.</p>;
@@ -85,71 +164,14 @@ function ResultContent({
                 />
             );
         return (
-            <div className="table-scroll readable-results">
-                <table>
-                    <caption>
-                        {resultName(child)} · {data.length} registros nesta
-                        resposta
-                    </caption>
-                    <thead>
-                        <tr>
-                            {columns.map((k) => (
-                                <th key={k} scope="col">
-                                    {presentationLabel(k)}
-                                </th>
-                            ))}
-                            <th scope="col">Detalhe</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {data.map((x, i) => (
-                            <tr
-                                key={i}
-                                data-record-id={
-                                    isObject(x) && x.id != null
-                                        ? String(x.id)
-                                        : undefined
-                                }
-                            >
-                                {columns.map((k) => (
-                                    <td key={k}>
-                                        <ReferenceValue
-                                            field={k}
-                                            value={isObject(x) ? x[k] : null}
-                                            row={isObject(x) ? x : {}}
-                                            type={child}
-                                        />
-                                    </td>
-                                ))}
-                                <td>
-                                    <details>
-                                        <summary>Ver registro {i + 1}</summary>
-                                        <Result
-                                            data={x}
-                                            type={child}
-                                            onSelect={onSelect}
-                                            depth={depth + 1}
-                                        />
-                                    </details>
-                                    {onSelect &&
-                                        isObject(x) &&
-                                        records[child] && (
-                                            <button
-                                                type="button"
-                                                className="action-select"
-                                                onClick={() =>
-                                                    onSelect(x, child)
-                                                }
-                                            >
-                                                Selecionar registro {i + 1}
-                                            </button>
-                                        )}
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+            <ResultTable
+                data={data}
+                columns={columns}
+                type={child}
+                depth={depth}
+                pending={pending}
+                onSelect={onSelect}
+            />
         );
     }
     if (isObject(data)) {
@@ -163,6 +185,7 @@ function ResultContent({
                         type={"List<" + type.slice(15, -1) + ">"}
                         onSelect={onSelect}
                         depth={depth + 1}
+                        pending={pending}
                     />
                     {(data.itens.length > 0 ||
                         Number(data.totalItens) > 0 ||
@@ -205,7 +228,7 @@ function ResultContent({
                         }
                     >
                         {scalar.map(([k, x]) => (
-                            <div key={k}>
+                            <div key={k} data-field={k}>
                                 <dt>{presentationLabel(k)}</dt>
                                 <dd>
                                     <ReferenceValue
@@ -244,6 +267,7 @@ function ResultContent({
                                 }
                                 onSelect={onSelect}
                                 depth={depth + 1}
+                                pending={pending}
                             />
                         </section>
                     ))}
@@ -252,6 +276,7 @@ function ResultContent({
                         <button
                             type="button"
                             className="action-select"
+                            disabled={pending}
                             onClick={() => onSelect(data, type)}
                         >
                             Selecionar este registro
@@ -262,4 +287,198 @@ function ResultContent({
         );
     }
     return <p>{display(data)}</p>;
+}
+
+function ResultTable({
+    data,
+    columns,
+    type,
+    depth,
+    pending,
+    onSelect,
+}: {
+    data: unknown[];
+    columns: string[];
+    type: string;
+    depth: number;
+    pending: boolean;
+    onSelect?: (row: Values, type: string) => void;
+}) {
+    const id = useId();
+    const [expanded, setExpanded] = useState<{
+        data: unknown[];
+        index: number;
+    } | null>(null);
+    const notes = type === "PedidoEntradaDto.Nota";
+    return (
+        <div
+            className={
+                "table-scroll readable-results result-table-scroll" +
+                (notes ? " note-results" : "")
+            }
+            aria-busy={pending}
+        >
+            <table>
+                <caption>
+                    {resultName(type)} · {data.length}{" "}
+                    {notes
+                        ? data.length === 1
+                            ? "nota"
+                            : "notas"
+                        : data.length === 1
+                          ? "registro"
+                          : "registros"}{" "}
+                    nesta resposta
+                </caption>
+                <thead>
+                    <tr>
+                        {columns.map((key) => (
+                            <th key={key} scope="col">
+                                {presentationLabel(key)}
+                            </th>
+                        ))}
+                        <th scope="col">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {data.map((row, index) => {
+                        const open =
+                            expanded?.data === data && expanded.index === index;
+                        const triggerId = `${id}-trigger-${index}`,
+                            panelId = `${id}-panel-${index}`;
+                        const noteIdentity = `${isObject(row) && row.numero != null ? String(row.numero) : index + 1}, série ${isObject(row) && row.serie != null ? String(row.serie) : "não informada"}`;
+                        const panelTitle = notes
+                            ? `Detalhes da nota ${noteIdentity}`
+                            : `Detalhes do registro ${index + 1}`;
+                        const close = () => {
+                            setExpanded(null);
+                            document.getElementById(triggerId)?.focus();
+                        };
+                        return (
+                            <Fragment key={index}>
+                                <tr
+                                    className="result-data-row"
+                                    data-expanded={open}
+                                    data-record-id={
+                                        isObject(row) && row.id != null
+                                            ? String(row.id)
+                                            : undefined
+                                    }
+                                >
+                                    {columns.map((key) => (
+                                        <td key={key}>
+                                            <ReferenceValue
+                                                compact
+                                                field={key}
+                                                value={
+                                                    isObject(row)
+                                                        ? row[key]
+                                                        : null
+                                                }
+                                                row={isObject(row) ? row : {}}
+                                                type={type}
+                                            />
+                                        </td>
+                                    ))}
+                                    <td
+                                        className={
+                                            "result-row-actions" +
+                                            (notes
+                                                ? " note-result-actions"
+                                                : "")
+                                        }
+                                    >
+                                        <button
+                                            id={triggerId}
+                                            type="button"
+                                            className="action-details result-detail-toggle"
+                                            aria-expanded={open}
+                                            aria-controls={
+                                                open ? panelId : undefined
+                                            }
+                                            aria-label={
+                                                notes
+                                                    ? `Ver detalhes da nota ${noteIdentity}`
+                                                    : undefined
+                                            }
+                                            onClick={() =>
+                                                setExpanded(
+                                                    open
+                                                        ? null
+                                                        : { data, index },
+                                                )
+                                            }
+                                        >
+                                            <Icon
+                                                name={
+                                                    open
+                                                        ? "chevron-down"
+                                                        : "chevron-right"
+                                                }
+                                            />
+                                            {notes
+                                                ? "Ver detalhes"
+                                                : `Ver registro ${index + 1}`}
+                                        </button>
+                                        {onSelect &&
+                                            isObject(row) &&
+                                            records[type] && (
+                                                <button
+                                                    type="button"
+                                                    className="action-select"
+                                                    disabled={pending}
+                                                    aria-label={
+                                                        notes
+                                                            ? `Selecionar nota ${noteIdentity}`
+                                                            : undefined
+                                                    }
+                                                    onClick={() =>
+                                                        onSelect(row, type)
+                                                    }
+                                                >
+                                                    {notes
+                                                        ? "Selecionar nota"
+                                                        : `Selecionar registro ${index + 1}`}
+                                                </button>
+                                            )}
+                                    </td>
+                                </tr>
+                                {open && (
+                                    <tr className="result-detail-row">
+                                        <td colSpan={columns.length + 1}>
+                                            <section
+                                                id={panelId}
+                                                className="result-row-detail"
+                                                aria-label={panelTitle}
+                                            >
+                                                <header className="result-row-detail-header">
+                                                    <h4>{panelTitle}</h4>
+                                                    <button
+                                                        type="button"
+                                                        className="action-dismiss"
+                                                        aria-label={`Fechar ${panelTitle.charAt(0).toLowerCase() + panelTitle.slice(1)}`}
+                                                        onClick={close}
+                                                    >
+                                                        <Icon name="close" />
+                                                        Fechar detalhes
+                                                    </button>
+                                                </header>
+                                                <Result
+                                                    data={row}
+                                                    type={type}
+                                                    onSelect={onSelect}
+                                                    depth={depth + 1}
+                                                    pending={pending}
+                                                />
+                                            </section>
+                                        </td>
+                                    </tr>
+                                )}
+                            </Fragment>
+                        );
+                    })}
+                </tbody>
+            </table>
+        </div>
+    );
 }

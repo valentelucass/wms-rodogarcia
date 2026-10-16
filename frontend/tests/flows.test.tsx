@@ -195,7 +195,7 @@ describe("Jornadas e segurança de apresentação", () => {
         await userEvent.click(
             screen.getByRole("button", { name: "Consultar" }),
         );
-        await screen.findByText(/Retorne à seleção fictícia/);
+        await screen.findByText(/A sessão expirou. Entre novamente/);
         expect(localStorage.length).toBe(0);
     });
     it("FE06/FE11 ações de reimpressão e demonstrativo são GET", () => {

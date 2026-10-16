@@ -18,6 +18,8 @@ import { ReceivingSummary } from "./ReceivingSummary";
 import { information } from "../../content/information";
 import type { Workflow } from "../../domain/workflow";
 import { useReferenceCatalog } from "../../components/context/ReferenceCatalog";
+import { formatDate } from "../../domain/referencePresentation";
+import { Icon } from "../../design-system/Icon";
 
 export function ReceivingDetail({
     record,
@@ -104,18 +106,14 @@ export function ReceivingDetail({
             )}
             {(section === "Notas e itens" || section === "Conferência") && (
                 <>
-                    <p>
-                        Selecione o item da nota que será conferido. O produto e
-                        sua origem permanecem vinculados ao pedido; registrar
-                        XML não confirma chegada física.
-                    </p>
-                    {root.situacao !== "RASCUNHO" && (
-                        <p>
-                            A previsão está congelada. O XML só pode ser
-                            vinculado a uma nota existente e compatível, sem
-                            alterar as quantidades físicas.
-                        </p>
-                    )}
+                    <div className="receiving-note-guidance">
+                        <p>{information.receivingNotes.description}</p>
+                        {root.situacao !== "RASCUNHO" && (
+                            <p className="hint">
+                                {information.receivingNotes.footer}
+                            </p>
+                        )}
+                    </div>
                     {notes.length === 0 && (
                         <p className="empty">
                             Este pedido ainda não possui notas. Inclua uma nota
@@ -129,27 +127,39 @@ export function ReceivingDetail({
                                 key={String(note.id)}
                                 aria-label={`Nota ${String(note.serie)}/${String(note.numero)}`}
                             >
-                                <h3>
-                                    Nota {String(note.serie)}/
-                                    {String(note.numero)}
-                                </h3>
-                                <p>
-                                    Emissão {String(note.emissao)} ·{" "}
-                                    {note.xmlVinculado
-                                        ? "XML vinculado"
-                                        : "Nota manual"}{" "}
-                                    · Primeira chegada{" "}
-                                    {receivingDate(note.primeiraChegada)}
-                                </p>
-                                {Boolean(note.xmlVinculado) && (
-                                    <SavedNfeDocument
-                                        transport={transport}
-                                        pedidoId={String(root.id)}
-                                        notaId={String(note.id)}
-                                        disabled={locked}
-                                    />
-                                )}
-                                <div className="table-scroll">
+                                <header className="receiving-note-header">
+                                    <div>
+                                        <h3>Nota {String(note.numero)}</h3>
+                                        <p className="hint">
+                                            Série {String(note.serie)}
+                                        </p>
+                                    </div>
+                                    <span className="receiving-note-origin">
+                                        {note.xmlVinculado
+                                            ? "XML vinculado"
+                                            : "Nota manual"}
+                                    </span>
+                                </header>
+                                <dl className="receiving-note-meta">
+                                    <div>
+                                        <dt>Emissão da nota</dt>
+                                        <dd>{formatDate(note.emissao)}</dd>
+                                    </div>
+                                    <div>
+                                        <dt>Primeira chegada física</dt>
+                                        <dd>
+                                            {receivingDate(
+                                                note.primeiraChegada,
+                                            )}
+                                        </dd>
+                                    </div>
+                                </dl>
+                                <div
+                                    className="table-scroll receiving-note-items"
+                                    role="region"
+                                    aria-label={`Itens da nota ${String(note.numero)}`}
+                                    tabIndex={0}
+                                >
                                     <table>
                                         <caption>
                                             Itens da nota {String(note.numero)}
@@ -197,16 +207,21 @@ export function ReceivingDetail({
                                                                 item.numeroItem,
                                                             )}{" "}
                                                             · {String(item.sku)}
-                                                            <small className="receiving-order-id">
-                                                                Item{" "}
-                                                                {String(
-                                                                    item.id,
-                                                                )}{" "}
-                                                                · produto{" "}
-                                                                {String(
-                                                                    item.produtoId,
-                                                                )}
-                                                            </small>
+                                                            <details className="receiving-note-item-identifiers">
+                                                                <summary>
+                                                                    Identificadores
+                                                                </summary>
+                                                                <small className="receiving-order-id">
+                                                                    Item{" "}
+                                                                    {String(
+                                                                        item.id,
+                                                                    )}{" "}
+                                                                    · produto{" "}
+                                                                    {String(
+                                                                        item.produtoId,
+                                                                    )}
+                                                                </small>
+                                                            </details>
                                                         </th>
                                                         <td>
                                                             {display(
@@ -234,6 +249,8 @@ export function ReceivingDetail({
                                                         <td>
                                                             <button
                                                                 type="button"
+                                                                className="action-select"
+                                                                aria-label={`Selecionar item ${String(item.id)} da nota ${String(note.numero)}`}
                                                                 disabled={
                                                                     locked
                                                                 }
@@ -248,14 +265,8 @@ export function ReceivingDetail({
                                                                     );
                                                                 }}
                                                             >
-                                                                Selecionar item{" "}
-                                                                {String(
-                                                                    item.id,
-                                                                )}{" "}
-                                                                da nota{" "}
-                                                                {String(
-                                                                    note.numero,
-                                                                )}
+                                                                <Icon name="contagem" />
+                                                                Selecionar item
                                                             </button>
                                                         </td>
                                                     </tr>
@@ -263,6 +274,14 @@ export function ReceivingDetail({
                                         </tbody>
                                     </table>
                                 </div>
+                                {Boolean(note.xmlVinculado) && (
+                                    <SavedNfeDocument
+                                        transport={transport}
+                                        pedidoId={String(root.id)}
+                                        notaId={String(note.id)}
+                                        disabled={locked}
+                                    />
+                                )}
                             </section>
                         ))}
                     {section === "Conferência" && (

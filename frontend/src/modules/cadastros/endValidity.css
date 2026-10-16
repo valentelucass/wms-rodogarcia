@@ -1,0 +1,127 @@
+.end-validity-fields {
+    display: grid;
+    gap: var(--og-space-5);
+    grid-column: 1 / -1;
+    width: 100%;
+    min-width: 0;
+}
+.end-validity-section {
+    display: grid;
+    gap: var(--og-space-3);
+    min-width: 0;
+}
+.end-validity-section :is(h3, p),
+.end-validity-manual h4 {
+    margin: 0;
+}
+.end-validity-cut {
+    max-width: 300px;
+}
+.end-validity-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+    gap: var(--og-space-4);
+    align-items: start;
+}
+.end-validity-fields .field {
+    margin: 0;
+}
+.end-validity-fields > .end-validity-resolution {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--og-space-4);
+    margin: 0;
+    padding: var(--og-space-4);
+    border-radius: var(--og-radius-card);
+}
+.end-validity-manager {
+    font-size: var(--og-type-caption);
+    color: var(--og-text-muted);
+}
+.end-validity-manual {
+    display: grid;
+    gap: var(--og-space-3);
+    padding-top: var(--og-space-4);
+    border-top: 1px solid var(--og-border);
+}
+.resolution-references {
+    display: grid;
+    gap: var(--og-space-3);
+    min-width: 0;
+    flex: 1 1 100%;
+    width: 100%;
+}
+.resolution-references > p {
+    margin: 0;
+}
+.resolution-reference-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--og-space-3);
+    min-width: 0;
+    max-height: 320px;
+    overflow: auto;
+}
+.resolution-reference {
+    display: grid;
+    grid-template-rows: 1fr auto;
+    gap: var(--og-space-3);
+    min-width: 0;
+    padding: var(--og-space-3);
+    border: 1px solid var(--og-border);
+    border-radius: var(--og-radius-control);
+    background: var(--og-surface-raised);
+}
+.resolution-reference-name {
+    display: grid;
+    gap: var(--og-space-1);
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+.resolution-reference > button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--og-space-2);
+    width: 100%;
+}
+.resolution-reference > button svg {
+    flex-shrink: 0;
+}
+.resolution-reference[data-selected="true"] {
+    border-color: var(--og-positive-text);
+}
+.resolution-reference-selected {
+    color: var(--og-positive-text);
+    font-size: var(--og-type-caption);
+}
+.record-dialog:has(.end-validity-fields) > .dialog-header {
+    position: sticky;
+    top: 0;
+    z-index: var(--og-z-sticky);
+    background: var(--og-surface);
+}
+.record-dialog:has(.end-validity-fields) .operation form > .actions {
+    position: sticky;
+    bottom: 0;
+    z-index: var(--og-z-sticky);
+    background: var(--og-surface);
+    padding-block: var(--og-space-3);
+    margin-bottom: 0;
+}
+.end-validity-fields :is(input, select, textarea, button) {
+    scroll-margin-block: 88px;
+}
+@media (max-width: 767px) {
+    .end-validity-grid,
+    .resolution-reference-list {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .end-validity-cut {
+        max-width: none;
+    }
+    .end-validity-fields :is(input, select, button),
+    .resolution-reference > button {
+        min-height: var(--og-touch-height);
+    }
+}

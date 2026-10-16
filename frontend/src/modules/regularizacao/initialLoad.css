@@ -1,0 +1,338 @@
+.initial-load-fields,
+.initial-load-detail,
+.initial-load-confirmation {
+    display: grid;
+    gap: var(--og-space-5);
+    min-width: 0;
+}
+.operation form.initial-load-query {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    gap: var(--og-space-3);
+}
+.initial-load-query > .initial-load-query-hint {
+    grid-column: 1 / -1;
+    margin: 0;
+}
+.operation .initial-load-query > .operation-fields {
+    grid-template-columns: minmax(0, 1fr);
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+}
+.initial-load-query .entity-reference-field:has(input) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--og-space-1) var(--og-space-3);
+}
+.initial-load-query .entity-reference-field > :is(label, span, .button-row) {
+    grid-column: 1 / -1;
+}
+.operation form.initial-load-query > .actions,
+.record-dialog .dialog-body .initial-load-query > .actions {
+    align-self: start;
+    margin: calc(var(--og-leading-body) + var(--og-space-1)) 0 0;
+    padding: 0;
+    border: 0;
+}
+.initial-load-query > .actions button {
+    min-height: var(--og-control-height);
+}
+.feedback--initial-load-query:has(.initial-load-query-feedback) {
+    padding: var(--og-space-2) var(--og-space-3);
+    border-color: var(--og-border);
+    background: var(--og-surface-raised);
+}
+.initial-load-query-feedback {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--og-space-2) var(--og-space-4);
+    flex-wrap: wrap;
+}
+.initial-load-query-feedback > p {
+    margin: 0;
+}
+.initial-load-query-feedback > details {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    min-width: 0;
+}
+.initial-load-query-feedback summary {
+    padding: var(--og-space-2) 0;
+    font-size: var(--og-type-caption);
+    color: var(--og-text-muted);
+    cursor: pointer;
+}
+.initial-load-query-feedback > details[open] {
+    flex-basis: 100%;
+}
+.initial-load-query-feedback dl {
+    margin: var(--og-space-2) 0 0;
+    font-size: var(--og-type-caption);
+}
+.initial-load-query-feedback dt {
+    color: var(--og-text-muted);
+}
+.initial-load-query-feedback dd {
+    margin: var(--og-space-1) 0 0;
+    overflow-wrap: anywhere;
+}
+.initial-load-form-section,
+.initial-load-detail-section {
+    display: grid;
+    gap: var(--og-space-3);
+    min-width: 0;
+}
+.initial-load-form-section + .initial-load-form-section,
+.initial-load-detail-section + .initial-load-detail-section {
+    padding-top: var(--og-space-4);
+    border-top: 1px solid var(--og-border);
+}
+.initial-load-form-section > header,
+.initial-load-detail-section > header,
+.initial-load-unit > header,
+.initial-load-detail-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--og-space-2);
+}
+.initial-load-form-section > header {
+    justify-content: flex-start;
+}
+.initial-load-fields :is(h3, h4, p),
+.initial-load-detail :is(h3, h4, p) {
+    margin: 0;
+}
+.initial-load-confirmation :is(h3, p) {
+    margin: 0;
+}
+.initial-load-confirmation h3 {
+    font-size: var(--og-type-body);
+}
+.initial-load-confirmation-intro {
+    color: var(--og-text-muted);
+}
+.initial-load-confirmation-context {
+    padding: var(--og-space-4);
+    border-radius: var(--og-radius-control);
+    background: var(--og-surface-raised);
+}
+.initial-load-confirmation-subject {
+    display: flex;
+    align-items: center;
+    gap: var(--og-space-2);
+    flex-wrap: wrap;
+}
+.record-dialog:has(.initial-load-confirmation) .record-action-subject {
+    display: none;
+}
+.initial-load-confirmation-section {
+    display: grid;
+    gap: var(--og-space-2);
+    min-width: 0;
+}
+.initial-load-confirmation-section > header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--og-space-2);
+}
+.initial-load-confirmation-reading {
+    border-left: 3px solid var(--og-link);
+    padding-left: var(--og-space-3);
+    overflow-wrap: anywhere;
+}
+.initial-load-confirmation-hash {
+    grid-column: 1 / -1;
+}
+.initial-load-confirmation-hash dd {
+    font-family: ui-monospace, monospace;
+    font-size: var(--og-type-caption);
+}
+.initial-load-confirmation .initial-load-technical {
+    margin: 0;
+    padding: var(--og-space-3) 0 0;
+    border: 0;
+    border-top: 1px solid var(--og-border);
+    border-radius: 0;
+    background: transparent;
+}
+.initial-load-confirmation .initial-load-technical > :is(p, dl) {
+    margin-top: var(--og-space-3);
+}
+.initial-load-confirmation summary {
+    cursor: pointer;
+    padding-block: var(--og-space-2);
+}
+.workspace-dialog:has(.initial-load-confirmation) {
+    width: min(820px, calc(100vw - 32px));
+}
+.workspace-dialog:has(.initial-load-confirmation) .dialog-header {
+    position: sticky;
+    top: 0;
+    z-index: var(--og-z-sticky);
+    background: var(--og-surface);
+}
+.workspace-dialog:has(.initial-load-confirmation) .confirmation > .actions {
+    position: sticky;
+    bottom: 0;
+    z-index: var(--og-z-sticky);
+    background: var(--og-surface);
+    padding-block: var(--og-space-3);
+}
+.initial-load-fields h3,
+.initial-load-detail h3 {
+    font-size: var(--og-type-body);
+}
+.initial-load-detail-heading h3 {
+    font-size: var(--og-type-section);
+}
+.initial-load-field-grid,
+.initial-load-values {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--og-space-4);
+    min-width: 0;
+}
+.initial-load-field-grid > .field {
+    margin: 0;
+}
+.initial-load-field-grid > fieldset,
+.initial-load-form-section--reason .field {
+    grid-column: 1 / -1;
+}
+.initial-load-unit-list {
+    display: grid;
+    gap: var(--og-space-3);
+    min-width: 0;
+}
+.initial-load-unit {
+    display: grid;
+    gap: var(--og-space-3);
+    padding: var(--og-space-4);
+    border: 1px solid var(--og-border);
+    border-radius: var(--og-radius-control);
+    background: var(--og-surface);
+    min-width: 0;
+}
+.initial-load-unit-actions {
+    display: flex;
+    justify-content: flex-start;
+}
+.initial-load-values {
+    margin: 0;
+    row-gap: var(--og-space-3);
+}
+.initial-load-values > div {
+    min-width: 0;
+}
+.initial-load-values dt {
+    margin-bottom: var(--og-space-1);
+    color: var(--og-text-muted);
+    font-size: var(--og-type-caption);
+}
+.initial-load-values dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+.initial-load-source {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+.initial-load-labels {
+    display: grid;
+    gap: var(--og-space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.initial-load-labels > li {
+    display: grid;
+    gap: var(--og-space-1);
+    padding: var(--og-space-3);
+    background: var(--og-surface-raised);
+    border-radius: var(--og-radius-control);
+    overflow-wrap: anywhere;
+}
+.initial-load-pending {
+    margin: 0;
+    padding: var(--og-space-3) var(--og-space-5);
+    border-left: 3px solid var(--og-warning-text);
+    background: var(--og-warning-bg);
+}
+.initial-load-technical,
+.initial-load-note {
+    min-width: 0;
+    border-top: 1px solid var(--og-border);
+    padding-top: var(--og-space-3);
+}
+.initial-load-detail summary {
+    cursor: pointer;
+    padding-block: var(--og-space-2);
+}
+.record-dialog--initial-load .record-context-actions > button {
+    flex: 0 1 auto;
+}
+.record-dialog--initial-load .dialog-header {
+    position: sticky;
+    top: 0;
+    z-index: var(--og-z-sticky);
+    background: var(--og-surface);
+}
+.record-dialog:has(.initial-load-fields) .operation form > .actions {
+    position: sticky;
+    bottom: 0;
+    z-index: var(--og-z-sticky);
+    background: var(--og-surface);
+    padding-block: var(--og-space-3);
+    margin-bottom: 0;
+}
+.initial-load-fields :is(input, select, textarea, button) {
+    scroll-margin-block: 80px;
+}
+@media (max-width: 767px) {
+    .operation form.initial-load-query {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .operation form.initial-load-query > .actions,
+    .record-dialog .dialog-body .initial-load-query > .actions {
+        margin: 0;
+    }
+    .initial-load-query .entity-reference-field:has(input) {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .operation form.initial-load-query :is(input, select, button) {
+        min-height: var(--og-touch-height);
+    }
+    .initial-load-query-feedback summary {
+        min-height: var(--og-touch-height);
+    }
+    .initial-load-confirmation summary,
+    .workspace-dialog:has(.initial-load-confirmation) .confirmation button {
+        min-height: var(--og-touch-height);
+    }
+    .initial-load-fields .information-hint {
+        width: var(--og-touch-height);
+        min-height: var(--og-touch-height);
+    }
+    .initial-load-field-grid,
+    .initial-load-values {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .initial-load-unit {
+        padding: var(--og-space-3);
+    }
+    .initial-load-unit-actions > button,
+    .initial-load-unit > header > button {
+        width: 100%;
+        min-height: var(--og-touch-height);
+    }
+}

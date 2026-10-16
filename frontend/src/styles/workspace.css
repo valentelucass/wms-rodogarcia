@@ -541,6 +541,19 @@ td details {
     padding: 0;
     background: transparent;
 }
+.confirmation .record > [data-field="motivo"] {
+    grid-column: 1 / -1;
+    padding: var(--og-space-3) var(--og-space-4);
+    border-left: 3px solid var(--og-border-strong);
+    border-radius: var(--og-radius-control);
+    background: var(--og-surface-raised);
+}
+.confirmation .record > [data-field="motivo"] dd {
+    margin-top: var(--og-space-2);
+    line-height: 1.6;
+    font-weight: var(--og-font-regular);
+    white-space: pre-wrap;
+}
 .dialog-body .actions {
     justify-content: flex-end;
     border-top: 1px solid var(--og-border);
@@ -553,7 +566,7 @@ td details {
     border: 0;
     max-width: none;
 }
-.dialog-body .user-form fieldset {
+.dialog-body .user-form > fieldset {
     grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 .dialog-body .user-form fieldset > p,
@@ -710,7 +723,7 @@ td details {
     .journey-reference-apply {
         width: 100%;
     }
-    .dialog-body .user-form fieldset {
+    .dialog-body .user-form > fieldset {
         grid-template-columns: 1fr;
     }
     .page-header {

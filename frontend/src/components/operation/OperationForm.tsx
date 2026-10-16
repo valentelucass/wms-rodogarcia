@@ -2,10 +2,19 @@ import type { Perfil } from "../../contracts/runtime";
 import { records } from "../../contracts/runtime";
 import type { OperationState } from "../../hooks/useOperation";
 import { Fields } from "../Fields";
+import { ScalarField } from "../fields/ScalarField";
+import { DispatchOrderFields } from "../../modules/saida/DispatchOrderFields";
 import { AddressImportFields } from "../../modules/cadastros/AddressImportFields";
 import { PositionSetFields } from "../../modules/cadastros/PositionSetFields";
+import { AddressEditFields } from "../../modules/cadastros/AddressEditFields";
+import { EndValidityFields } from "../../modules/cadastros/EndValidityFields";
 import { DamageRegistrationFields } from "../../modules/estoque/DamageRegistrationFields";
 import { ContractConfigurationFields } from "../../modules/financeiro/ContractConfigurationFields";
+import { ServiceFactFields } from "../../modules/financeiro/ServiceFactFields";
+import { CalculationFields } from "../../modules/financeiro/CalculationFields";
+import { ReopenCycleFields } from "../../modules/financeiro/ReopenCycleFields";
+import { InitialLoadFields } from "../../modules/regularizacao/InitialLoadFields";
+import { ContingencyRegistrationFields } from "../../modules/regularizacao/ContingencyRegistrationFields";
 import { automaticCodes } from "../../domain/automaticCodes";
 import { operationContextFields } from "../../domain/operationContextFields";
 import { information } from "../../content/information";
@@ -26,6 +35,12 @@ export function OperationForm({
     fixedFields?: string[];
 }) {
     const addressImport = s.e.id === "ImportacaoEnderecoController.previa";
+    const dispatchOrderCreate = s.e.id === "PedidoSaidaController.criar";
+    const addressEdit = s.e.id === "EnderecoController.alterar";
+    const initialLoadQuery = s.e.id === "CargaInicialController.consultar";
+    const labelQuery = s.e.id === "UnidadeLogisticaController.etiqueta";
+    const serviceSuggestionsQuery =
+        s.e.id === "FatoServicoController.sugestoes";
     const positionSetCreate = s.e.id === "CapacidadeController.criar";
     const tableEdit = s.e.id === "ConfiguracaoCobrancaController.alterar";
     const registryEdit =
@@ -86,14 +101,54 @@ export function OperationForm({
     const hasEditableFields = groups.some((group) =>
         group.fields.some((f) => !fixedFields.includes(f.name)),
     );
+    const paginationFields = s.e.query.some((f) =>
+        ["pagina", "tamanho"].includes(f.name),
+    ) && (
+        <fieldset
+            className="pagination-fields"
+            disabled={s.pending || s.uncertain || s.completed}
+        >
+            <legend>Paginação da consulta</legend>
+            <Fields
+                fields={s.e.query.filter((f) =>
+                    ["pagina", "tamanho"].includes(f.name),
+                )}
+                values={s.query}
+                onChange={s.setQuery}
+                perfil={perfil}
+                schema={s.e.id + ".query"}
+            />
+        </fieldset>
+    );
     return (
         <form
+            className={
+                dispatchOrderCreate
+                    ? "dispatch-order-form"
+                    : initialLoadQuery
+                      ? "initial-load-query"
+                      : labelQuery
+                        ? "label-query"
+                        : serviceSuggestionsQuery
+                          ? "service-suggestions-query"
+                          : undefined
+            }
             onSubmit={(e) => {
                 e.preventDefault();
                 s.submit();
             }}
             noValidate
         >
+            {serviceSuggestionsQuery && (
+                <p className="hint service-suggestions-intro">
+                    {information.serviceSuggestions.description}
+                </p>
+            )}
+            {initialLoadQuery && (
+                <p className="hint initial-load-query-hint">
+                    {information.initialLoadQuery.description}
+                </p>
+            )}
             {tableEdit && (
                 <p className="hint">
                     {information.billingTableEdit.description}
@@ -104,11 +159,19 @@ export function OperationForm({
             )}
             {/^(EnderecoController\.(criar|alterar)|CapacidadeController\.configurar)$/.test(
                 s.e.id,
-            ) && (
-                <p className="hint">
-                    {information.addressCapacity.description}
-                </p>
-            )}
+            ) &&
+                (addressEdit ? (
+                    <details className="address-edit-help">
+                        <summary>{information.addressCapacity.title}</summary>
+                        <p className="hint">
+                            {information.addressCapacity.description}
+                        </p>
+                    </details>
+                ) : (
+                    <p className="hint">
+                        {information.addressCapacity.description}
+                    </p>
+                ))}
             {s.e.id === "PedidoEntradaController.efetivar" && (
                 <p className="hint">
                     {s.withoutReceivingDivergence
@@ -189,11 +252,157 @@ export function OperationForm({
                         disabled={s.pending || s.uncertain || s.completed}
                     >
                         <legend className="sr-only">Dados da operação</legend>
-                        {positionSetCreate ? (
+                        {dispatchOrderCreate ? (
+                            <DispatchOrderFields
+                                groups={groups.map((group) => ({
+                                    ...group,
+                                    fields: group.fields.filter(
+                                        (field) =>
+                                            !fixedFields.includes(field.name),
+                                    ),
+                                }))}
+                                perfil={perfil}
+                                disabled={
+                                    s.pending || s.uncertain || s.completed
+                                }
+                            />
+                        ) : initialLoadQuery ? (
+                            groups.flatMap((group) =>
+                                group.fields
+                                    .filter(
+                                        (field) =>
+                                            !fixedFields.includes(field.name),
+                                    )
+                                    .map((field) => (
+                                        <ScalarField
+                                            key={group.schema + field.name}
+                                            f={field}
+                                            value={group.values[field.name]}
+                                            path=""
+                                            schema={group.schema}
+                                            row={group.values}
+                                            labelOverride={
+                                                field.name === "id"
+                                                    ? "Carga inicial"
+                                                    : undefined
+                                            }
+                                            disabled={
+                                                s.uncertain || s.completed
+                                            }
+                                            onChange={(value) =>
+                                                group.onChange({
+                                                    ...group.values,
+                                                    [field.name]: value,
+                                                })
+                                            }
+                                        />
+                                    )),
+                            )
+                        ) : s.e.id === "ContingenciaController.registrar" ? (
+                            <ContingencyRegistrationFields
+                                groups={groups.map((group) => ({
+                                    ...group,
+                                    fields: group.fields.filter(
+                                        (f) => !fixedFields.includes(f.name),
+                                    ),
+                                }))}
+                                perfil={perfil}
+                                disabled={
+                                    s.pending || s.uncertain || s.completed
+                                }
+                            />
+                        ) : s.e.id === "EncerramentoController.vigencia" ? (
+                            <EndValidityFields
+                                groups={groups.map((group) => ({
+                                    ...group,
+                                    fields: group.fields.filter(
+                                        (field) =>
+                                            !fixedFields.includes(field.name),
+                                    ),
+                                }))}
+                                perfil={perfil}
+                                disabled={
+                                    s.pending || s.uncertain || s.completed
+                                }
+                            />
+                        ) : addressEdit ? (
+                            <AddressEditFields
+                                groups={groups.map((group) => ({
+                                    ...group,
+                                    fields: group.fields.filter(
+                                        (field) =>
+                                            !fixedFields.includes(field.name),
+                                    ),
+                                }))}
+                                perfil={perfil}
+                                disabled={
+                                    s.pending || s.uncertain || s.completed
+                                }
+                            />
+                        ) : positionSetCreate ? (
                             <PositionSetFields state={s} />
+                        ) : s.e.id ===
+                          "FechamentoCobrancaController.reabrir" ? (
+                            <ReopenCycleFields
+                                groups={groups.map((group) => ({
+                                    ...group,
+                                    fields: group.fields.filter(
+                                        (field) =>
+                                            !fixedFields.includes(field.name),
+                                    ),
+                                }))}
+                                perfil={perfil}
+                                disabled={
+                                    s.pending || s.uncertain || s.completed
+                                }
+                            />
+                        ) : s.e.id === "CalculoCobrancaController.calcular" ? (
+                            <CalculationFields
+                                groups={groups.map((group) => ({
+                                    ...group,
+                                    fields: group.fields.filter(
+                                        (field) =>
+                                            !fixedFields.includes(field.name),
+                                    ),
+                                }))}
+                                perfil={perfil}
+                                disabled={
+                                    s.pending || s.uncertain || s.completed
+                                }
+                            />
+                        ) : s.e.id === "FatoServicoController.registrar" ? (
+                            <ServiceFactFields
+                                groups={groups.map((group) => ({
+                                    ...group,
+                                    fields: group.fields.filter(
+                                        (field) =>
+                                            !fixedFields.includes(field.name),
+                                    ),
+                                }))}
+                                perfil={perfil}
+                                disabled={
+                                    s.pending || s.uncertain || s.completed
+                                }
+                            />
                         ) : s.e.id ===
                           "ConfiguracaoCobrancaController.configurar" ? (
                             <ContractConfigurationFields
+                                groups={groups.map((group) => ({
+                                    ...group,
+                                    fields: group.fields.filter(
+                                        (field) =>
+                                            !fixedFields.includes(field.name),
+                                    ),
+                                }))}
+                                perfil={perfil}
+                                disabled={
+                                    s.pending || s.uncertain || s.completed
+                                }
+                            />
+                        ) : /^CargaInicialController\.(criar|revisar)$/.test(
+                              s.e.id,
+                          ) ? (
+                            <InitialLoadFields
                                 groups={groups.map((group) => ({
                                     ...group,
                                     fields: group.fields.filter(
@@ -264,22 +473,13 @@ export function OperationForm({
                         )}
                     </fieldset>
                 )}
-            {s.e.query.some((f) => ["pagina", "tamanho"].includes(f.name)) && (
-                <fieldset
-                    className="pagination-fields"
-                    disabled={s.pending || s.uncertain || s.completed}
-                >
-                    <legend>Paginação da consulta</legend>
-                    <Fields
-                        fields={s.e.query.filter((f) =>
-                            ["pagina", "tamanho"].includes(f.name),
-                        )}
-                        values={s.query}
-                        onChange={s.setQuery}
-                        perfil={perfil}
-                        schema={s.e.id + ".query"}
-                    />
-                </fieldset>
+            {serviceSuggestionsQuery ? (
+                <details className="service-suggestions-pagination">
+                    <summary>Opções de paginação</summary>
+                    {paginationFields}
+                </details>
+            ) : (
+                paginationFields
             )}
             <div className="actions">
                 <button
@@ -304,6 +504,7 @@ export function OperationForm({
                 )}
                 {(s.uncertain || s.completed) && s.canReplay && (
                     <button
+                        className="action-replay"
                         type="button"
                         disabled={s.pending}
                         onClick={() => void s.send(true)}
@@ -312,7 +513,11 @@ export function OperationForm({
                     </button>
                 )}
                 {s.completed && (
-                    <button type="button" onClick={s.startNew}>
+                    <button
+                        type="button"
+                        className="action-add"
+                        onClick={s.startNew}
+                    >
                         Iniciar nova operação
                     </button>
                 )}

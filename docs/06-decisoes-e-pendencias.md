@@ -1,5 +1,45 @@
 # Decisões e pendências do WMS Rodogarcia
 
+## FE06-ETIQUETA-UX01 — apresentação da etiqueta, 16/10/2026
+
+Lucas pediu organizar a consulta/reimpressão. Prévia e ações ficam juntas, com impressão em roxo, ajuda recolhida, acesso ao coletor separado e dados completos disponíveis sob demanda. Formato físico, códigos, UUID e dados recebidos preservados; bloqueio de impressão durante recarga e falha de geração do QR. [Definição e conferência](design-system/etapa-06.md#consulta-e-reimpressão-da-etiqueta--fe06-etiqueta-ux01). Validação frontend fictícia e mídia de impressão, sem teste de impressora, SQL ou atualização da instância ativa.
+
+## FE12-CONTAGEM-CONF01 — apresentação da confirmação de contagem, 16/10/2026
+
+Lucas pediu organizar a confirmação da leitura física no coletor. Resumo específico de `ContagemController.contar`, com referências separadas, quantidade em destaque, justificativa com espaço e dados técnicos recolhidos; cabeçalho e ações acessíveis. Ajuda esclarece a distinção já implementada entre registrar contagem e aplicar ajuste. Comando, cálculo, permissões e confirmação explícita preservados. [Definição e conferência](design-system/etapa-06.md#confirmação-da-contagem--fe12-contagem-conf01). Prova frontend fictícia, sem SQL ou atualização da instância ativa.
+
+## FE04-ENDERECO-EDIT01 — apresentação da edição de endereço, 16/10/2026
+
+Lucas pediu organizar os campos de edição da posição. Implementação de apresentação com seções de identificação/localização, capacidade/dimensões, coleta/unidades e justificativa; rótulos e unidades claros, orientação decimal única e ajuda completa recolhida. Metadados e seleção oficial dos tipos de unidade preservados. Não muda capacidade, validação de uso, permissões ou cálculo dos serviços. [Definição e conferência](design-system/etapa-06.md#edição-de-endereço--fe04-endereco-edit01). Validação frontend fictícia, sem SQL ou atualização da instância ativa.
+
+## FE13-AUDIT-DET01 — apresentação do detalhe de auditoria, 16/10/2026
+
+Lucas pediu organizar visualmente a alteração consultada. Resumo e justificativa separados da comparação Antes/Depois, com JSON formatado, conteúdo original e identificadores acessíveis; celular empilha os painéis. A formatação preserva números exatos e não transforma snapshots em registros operacionais. Tipos físicos e legado continuam distintos; consultas/permissões e conteúdo recebido preservados. [Definição e conferência](design-system/etapa-06.md#detalhe-da-alteração--fe13-audit-det01). Validação frontend fictícia, sem SQL ou atualização da instância ativa.
+
+## FE12-CONTING-FORM01 — apresentação do registro de ocorrência, 15/10/2026
+
+Lucas pediu organizar o formulário com dados de contagem. Implementação de apresentação: seções por assunto, grade de duas colunas, rótulos sem o caminho interno repetido, dependências próprias e distinção entre motivo da contagem e justificativa do registro. Fonte e textos de justificativa ocupam a largura disponível; celular empilha campos e mantém os comandos acessíveis. [Definição e conferência](design-system/etapa-06.md#formulário-de-ocorrência--fe12-conting-form01).
+
+Os dois motivos permanecem nos campos existentes, sem fundir justificativas. Contratos, dados por tipo, permissões e confirmação permanecem nos serviços/fluxos existentes; registrar não cria conciliação automática nem aplica ajuste de contagem. Conferência frontend fictícia, sem SQL ou atualização da instância ativa.
+
+## FE12-CARGA-CONS01 — apresentação da consulta da carga, 15/10/2026
+
+Lucas pediu organizar também Consultar detalhe. Apresentação específica da carga: seletor/Consultar alinhados, título e rótulo claros, correlação recolhida e resultado no mesmo leitor organizado já utilizado nos detalhes. Uma seleção do resultado completo; configuração de unidade não vira registro selecionável. [Definição e conferência](design-system/etapa-06.md#consulta-da-carga-inicial--fe12-carga-cons01).
+
+Consulta GET, contratos, referências/IDs, valores, permissões e regras da carga preservados. Resultado anterior fica identificado durante atualização e sua seleção permanece bloqueada; erro continua visível e permite nova consulta. Fonte validada localmente, sem SQL ou atualização da instância aberta.
+
+## FE12-CARGA-CONF01 — apresentação da confirmação, 15/10/2026
+
+Lucas pediu organizar também a confirmação da carga inicial. Implementação de apresentação: resumo por assunto, etiquetas completas numeradas, hash técnico recolhido, título específico e comandos acessíveis no celular. Corrigido o preenchimento da revisão em preparar/confirmar quando o comando é aberto pela carga consultada: usa o número existente da revisão. [Definição e conferência](design-system/etapa-06.md#confirmação-da-carga-inicial--fe12-carga-conf01).
+
+Permissões, confirmação explícita, IDs/versão/revisão/hash, leitura e etiquetas permanecem nos contratos existentes; nenhuma regra de regularização ou liberação de saída foi alterada. Fonte conferida localmente, sem SQL, publicação ou atualização da instância aberta.
+
+## FE12-CARGA-UX01 — organização da consulta e revisão da carga inicial, 15/10/2026
+
+Lucas pediu melhorar os dois diálogos mostrados nas imagens. Escolha de apresentação: seções por assunto, unidade em cartão único com quatro rótulos curtos, fonte/justificativa separadas, consulta sem ações para selecionar a configuração interna da unidade, etiquetas identificadas e detalhes técnicos da revisão recolhidos. A seleção da carga fica no rodapé e fecha o diálogo; ações operacionais permanecem no menu existente, recolhido inicialmente. [Definição e conferência](design-system/etapa-06.md#carga-inicial-consulta-e-revisão--fe12-carga-ux01).
+
+Não altera etapas, parâmetros, origem, cálculo, capacidade ou permissão. Criar/revisar preservam as ausências; preparar/confirmar continuam comandos próprios, com guardas do backend. Fonte conferida localmente, sem publicação ou nova validação SQL/Dev Tunnel neste pedido.
+
 ## FE12-CONTING-TEXTO01 — texto inicial compacto, 15/10/2026
 
 Lucas pediu melhorar o texto grande da tela Registrar fatos da planilha. Escolha de apresentação: frase curta sobre o registro após recuperar a conexão, ajuda Como funciona com orientações por assunto e ação Registrar ocorrência em destaque. Usa o popup informativo existente, com conteúdo centralizado. [Definição e conferência](design-system/etapa-06.md#apresentação-da-contingência--fe12-conting-texto01).

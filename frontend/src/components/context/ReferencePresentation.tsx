@@ -10,6 +10,7 @@ import { endpoint, isObject, type Values } from "../../contracts/runtime";
 import type { Transport } from "../../api/client";
 import {
     indexRecords,
+    presentationLabel,
     referenceField,
     referenceText,
     scalarText,
@@ -18,6 +19,7 @@ import {
 } from "../../domain/referencePresentation";
 import { FormReferences } from "../FormReferences";
 import { useReferenceCatalog } from "./ReferenceCatalog";
+import { TableCellText } from "../records/TableCellText";
 
 const lookups: Record<string, string> = {
     "ClienteDto.Resposta": "ClienteController.consultar",
@@ -37,7 +39,7 @@ const lookups: Record<string, string> = {
     "ContingenciaDto.Resultado": "ContingenciaController.consultar",
 };
 
-/** Per mounted access scope, exact GETs only, deduplicated and bounded. No global cache. */
+/** Per mounted access scope: exact GETs and names already read by selectors. No global cache. */
 export function createReferenceReader(transport: Transport) {
     let data: ReferenceRecords = {},
         active = 0,
@@ -64,6 +66,23 @@ export function createReferenceReader(transport: Transport) {
             return () => {
                 listeners.delete(fn);
             };
+        },
+        remember(type: string, row: Values) {
+            if (
+                closed ||
+                row.id == null ||
+                !/^\d+$/.test(String(row.id)) ||
+                data[type]?.some((known) => known === row)
+            )
+                return;
+            data = indexRecords(
+                row,
+                type,
+                Object.fromEntries(
+                    Object.entries(data).map(([key, rows]) => [key, [...rows]]),
+                ),
+            );
+            publish();
         },
         read(type: string, id: unknown) {
             const action = lookups[type],
@@ -138,6 +157,7 @@ const ReferenceReader = createContext<ReturnType<
 > | null>(null);
 const ReferenceTransport = createContext<Transport | null>(null);
 export const useReferenceTransport = () => useContext(ReferenceTransport);
+export const useRememberReference = () => useContext(ReferenceReader)?.remember;
 export function ReferencePresentationProvider({
     transport,
     children,
@@ -197,11 +217,13 @@ export function ReferenceValue({
     value,
     row = {},
     type = "unknown",
+    compact = false,
 }: {
     field: string;
     value: unknown;
     row?: Values;
     type?: string;
+    compact?: boolean;
 }) {
     const refs = usePresentationRecords(),
         reader = useContext(ReferenceReader);
@@ -225,5 +247,14 @@ export function ReferenceValue({
         )
             reader?.read("PedidoEntradaDto.Resumo", parent);
     }, [reader, reference, text, target, value, parent, field]);
-    return <>{text ?? "Referência indisponível"}</>;
+    const shown = text ?? "Referência indisponível";
+    return compact ? (
+        <TableCellText
+            key={shown}
+            text={shown}
+            label={presentationLabel(field)}
+        />
+    ) : (
+        <>{shown}</>
+    );
 }

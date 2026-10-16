@@ -1,0 +1,211 @@
+@media screen {
+    .operation form.label-query {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: var(--og-space-3);
+        align-items: end;
+    }
+    .operation .label-query > .operation-fields {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        margin: 0;
+        padding: 0;
+        border: 0;
+    }
+    .label-query .field {
+        margin: 0;
+    }
+    .operation form.label-query > .actions,
+    .record-dialog .dialog-body .label-query > .actions {
+        margin: 0;
+        padding: 0;
+        border: 0;
+        justify-self: end;
+    }
+    .label-reference-lookups {
+        padding: 0;
+        margin: 0 0 var(--og-space-2);
+        border: 0;
+        border-bottom: 1px solid var(--og-border);
+    }
+    .label-reference-lookups > summary {
+        cursor: pointer;
+        padding-block: var(--og-space-2);
+    }
+    .feedback--label-query[role="status"] {
+        padding: var(--og-space-2) 0;
+        margin-block: var(--og-space-2);
+        border: 0;
+        background: transparent;
+    }
+    .label-query-feedback {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--og-space-2) var(--og-space-4);
+        font-size: var(--og-type-caption);
+        color: var(--og-text-muted);
+    }
+    .label-query-feedback > p {
+        margin: 0;
+    }
+    .label-query-feedback > details {
+        margin: 0;
+        padding: 0;
+        border: 0;
+    }
+    .label-query-feedback summary {
+        cursor: pointer;
+        min-height: var(--og-control-height);
+        padding-block: var(--og-space-2);
+    }
+    .label-query-feedback dd {
+        margin: var(--og-space-1) 0 0;
+        overflow-wrap: anywhere;
+    }
+    .label-preview-container {
+        min-width: 0;
+    }
+    .label-preview-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.45fr) minmax(240px, 1fr);
+        gap: var(--og-space-5);
+        align-items: start;
+    }
+    .label-preview-stage {
+        display: grid;
+        justify-items: center;
+        gap: var(--og-space-4);
+        padding: var(--og-space-4);
+        border: 1px solid var(--og-border);
+        border-radius: var(--og-radius-card);
+        background: var(--og-surface-raised);
+        min-width: 0;
+    }
+    .label-preview-caption {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: var(--og-space-1) var(--og-space-3);
+        width: 100%;
+        font-size: var(--og-type-caption);
+    }
+    .label-preview-caption span {
+        color: var(--og-text-muted);
+    }
+    .label-preview-layout .label-print-actions {
+        display: grid;
+        gap: var(--og-space-4);
+        min-width: 0;
+        max-width: none;
+        margin: 0;
+        padding: var(--og-space-5);
+        border: 1px solid var(--og-border);
+        border-radius: var(--og-radius-card);
+        background: var(--og-surface);
+    }
+    .label-print-heading {
+        display: flex;
+        align-items: center;
+        gap: var(--og-space-3);
+    }
+    .label-print-icon {
+        display: grid;
+        place-items: center;
+        padding: var(--og-space-2);
+        border-radius: var(--og-radius-control);
+        background: var(--wms-action-details-bg);
+        color: var(--wms-action-details-text);
+    }
+    .label-print-actions :is(h4, p) {
+        margin: 0;
+    }
+    .label-print-actions p {
+        color: var(--og-text-muted);
+    }
+    .label-print-actions [role="alert"] {
+        color: var(--og-negative-text);
+    }
+    .label-print-actions > button,
+    .label-next-step > button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--og-space-2);
+        width: 100%;
+    }
+    .label-reading-help,
+    .label-query-data {
+        padding: 0;
+        margin: 0;
+        border: 0;
+        background: transparent;
+        min-width: 0;
+    }
+    .label-reading-help summary,
+    .label-query-data > summary {
+        cursor: pointer;
+        padding-block: var(--og-space-2);
+        font-weight: var(--og-font-medium);
+    }
+    .label-reading-help[open] summary {
+        margin-bottom: var(--og-space-2);
+    }
+    .label-next-step {
+        display: grid;
+        gap: var(--og-space-3);
+        padding-top: var(--og-space-4);
+        border-top: 1px solid var(--og-border);
+    }
+    .label-query-data {
+        margin-top: var(--og-space-5);
+        border-top: 1px solid var(--og-border);
+        padding-top: var(--og-space-2);
+    }
+    .label-query-data[open] > summary {
+        margin-bottom: var(--og-space-3);
+    }
+    .record-dialog:has(.label-query) > .dialog-header {
+        position: sticky;
+        top: 0;
+        z-index: var(--og-z-sticky);
+        background: var(--og-surface);
+    }
+    .label-print-actions :is(button, summary),
+    .label-query-data > summary {
+        scroll-margin-block: 88px;
+    }
+}
+@media screen and (max-width: 900px) {
+    .label-preview-layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+@media screen and (max-width: 767px) {
+    .operation form.label-query {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .operation form.label-query > .actions,
+    .record-dialog .dialog-body .label-query > .actions {
+        justify-self: stretch;
+    }
+    .label-query > .actions button {
+        width: 100%;
+    }
+    .label-query :is(input, select, button),
+    .label-query-feedback summary,
+    .label-reference-lookups > summary {
+        min-height: var(--og-touch-height);
+    }
+    .label-preview-stage {
+        padding: var(--og-space-3);
+    }
+    .label-preview-layout .label-print-actions {
+        padding: var(--og-space-4);
+    }
+    .label-print-actions :is(button, summary),
+    .label-query-data > summary {
+        min-height: var(--og-touch-height);
+    }
+}

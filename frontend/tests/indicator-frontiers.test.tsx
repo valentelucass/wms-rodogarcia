@@ -1,5 +1,5 @@
 import { it, expect, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { Operation } from "../src/components/Operation";
 import type { Request, Transport } from "../src/api/client";
 import {
@@ -72,12 +72,18 @@ it.each(["SUPERVISOR", "GESTOR"] as const)(
             pagina: "1",
             tamanho: "2",
         });
-        expect(
-            screen.getAllByText("KG", { exact: true }).length,
-        ).toBeGreaterThan(0);
-        expect(
-            screen.getAllByText("UN", { exact: true }).length,
-        ).toBeGreaterThan(0);
+        fireEvent.click(screen.getByRole("button", { name: "Ver registro 1" }));
+        const kg = within(
+            screen.getByRole("region", { name: "Detalhes do registro 1" }),
+        );
+        expect(kg.getByText("KG", { exact: true })).toBeVisible();
+        expect(kg.getByText("2.123456", { exact: true })).toBeVisible();
+        fireEvent.click(screen.getByRole("button", { name: "Ver registro 2" }));
+        const un = within(
+            screen.getByRole("region", { name: "Detalhes do registro 2" }),
+        );
+        expect(un.getByText("UN", { exact: true })).toBeVisible();
+        expect(un.getByText("3.000000", { exact: true })).toBeVisible();
         expect(
             screen.getAllByText("9007199254740993.123456", { exact: true })
                 .length,

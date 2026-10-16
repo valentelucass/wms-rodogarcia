@@ -3,6 +3,7 @@ const names: Record<string, string> = {
     "FechamentoCobrancaDto.Fechamento": "Fechamentos",
     "FechamentoCobrancaDto.Versao": "Versões do fechamento",
     "PedidoEntradaDto.Resumo": "Pedidos de entrada",
+    "PedidoEntradaDto.Nota": "Notas de mercadoria",
     "PedidoSaidaDto.Detalhe": "Pedidos de saída",
     "PedidoSaidaDto.Reserva": "Reservas do pedido",
     "ExpedicaoDto.DocumentoRegistrado": "Documentos de mercadoria",

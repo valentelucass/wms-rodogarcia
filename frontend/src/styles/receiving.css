@@ -52,6 +52,128 @@
 .nfe-document p {
     margin: 0;
 }
+.nfe-create-dialog > .dialog-header {
+    position: sticky;
+    top: 0;
+    z-index: var(--og-z-sticky);
+    background: var(--og-surface);
+}
+.nfe-create-intro {
+    display: grid;
+    gap: var(--og-space-1);
+}
+.nfe-create-intro p {
+    margin: 0;
+}
+.nfe-file-panel {
+    min-width: 0;
+    padding: var(--og-space-5);
+    border: 1px solid var(--og-border);
+    border-radius: var(--og-radius-card);
+    background: var(--og-surface-raised);
+}
+.nfe-file-panel > header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--og-space-1) var(--og-space-3);
+    margin-bottom: var(--og-space-4);
+}
+.nfe-file-panel h3 {
+    margin: 0;
+    font-size: var(--og-type-body);
+}
+.nfe-file-panel > header p {
+    margin: 0;
+}
+.nfe-file-selection {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: var(--og-space-3);
+    min-width: 0;
+}
+.nfe-file-icon {
+    display: grid;
+    place-items: center;
+    padding: var(--og-space-3);
+    color: var(--og-link);
+    background: var(--og-surface);
+    border: 1px solid var(--og-border);
+    border-radius: var(--og-radius-control);
+}
+.nfe-file-name {
+    display: grid;
+    gap: var(--og-space-1);
+    min-width: 0;
+}
+.nfe-file-name strong {
+    overflow-wrap: anywhere;
+}
+.nfe-file-actions {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--og-space-2);
+    padding-top: var(--og-space-4);
+    border-top: 1px solid var(--og-border);
+}
+.nfe-create button,
+.nfe-create-choices button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--og-space-2);
+}
+.nfe-create button svg,
+.nfe-create-choices button svg {
+    flex-shrink: 0;
+}
+.nfe-create-error {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+    gap: var(--og-space-3);
+    padding: var(--og-space-4);
+    border: 1px solid
+        color-mix(in srgb, var(--og-negative-text) 35%, var(--og-border));
+    border-radius: var(--og-radius-control);
+    background: var(--og-danger-bg);
+    color: var(--og-negative-text);
+    overflow-wrap: anywhere;
+}
+.nfe-create-error p {
+    margin: var(--og-space-2) 0 0;
+    white-space: pre-wrap;
+}
+.nfe-create-status {
+    margin: 0;
+    padding: var(--og-space-3) var(--og-space-4);
+    border: 1px solid var(--og-border);
+    border-radius: var(--og-radius-control);
+    background: var(--og-surface-raised);
+}
+@media (max-width: 640px) {
+    .nfe-file-panel {
+        padding: var(--og-space-4);
+    }
+    .nfe-file-actions {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .nfe-file-actions button {
+        width: 100%;
+        min-height: var(--og-touch-height);
+    }
+    .nfe-create-error {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .nfe-create-error > svg {
+        display: none;
+    }
+}
 @media (max-width: 640px) {
     .nfe-context,
     .nfe-fields {
@@ -94,7 +216,7 @@
     width: 124px;
 }
 .receiving-column-actions {
-    width: 304px;
+    width: 320px;
 }
 .receiving-order-identity {
     display: flex;
@@ -123,6 +245,10 @@
 }
 .receiving-row-actions > button {
     flex: 0 0 auto;
+}
+.receiving-row-actions > .receiving-conference-button {
+    min-width: max-content;
+    padding-block: var(--og-space-1);
 }
 .receiving-more-icon {
     font-size: 24px;

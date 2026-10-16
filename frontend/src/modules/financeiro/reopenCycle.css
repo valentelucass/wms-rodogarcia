@@ -1,0 +1,65 @@
+.reopen-cycle-fields {
+    display: grid;
+    gap: var(--og-space-4);
+    width: 100%;
+    min-width: 0;
+    grid-column: 1 / -1;
+}
+.reopen-cycle-section {
+    display: grid;
+    gap: var(--og-space-3);
+    min-width: 0;
+    padding: var(--og-space-4);
+    border: 1px solid var(--og-border);
+    border-radius: var(--og-radius-control);
+}
+.reopen-cycle-fields :is(h3, p) {
+    margin: 0;
+}
+.reopen-cycle-fields h3 {
+    font-size: var(--og-type-body);
+}
+.reopen-cycle-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 0.65fr) minmax(0, 1.35fr);
+    align-items: start;
+    gap: var(--og-space-4);
+}
+.reopen-cycle-fields .field {
+    min-width: 0;
+    margin: 0;
+}
+.reopen-cycle-fields :is(input, select, textarea) {
+    min-width: 0;
+    width: 100%;
+    scroll-margin-block: 92px;
+}
+.reopen-cycle-fields textarea,
+.record-dialog .operation .reopen-cycle-fields textarea {
+    min-height: 104px;
+    line-height: 1.6;
+}
+.record-dialog--reopen-cycle .dialog-header {
+    position: sticky;
+    top: 0;
+    z-index: var(--og-z-sticky);
+    background: var(--og-surface);
+}
+.record-dialog--reopen-cycle .operation form > .actions {
+    position: sticky;
+    bottom: 0;
+    z-index: var(--og-z-sticky);
+    background: var(--og-surface);
+    padding-block: var(--og-space-3);
+}
+@media (max-width: 600px) {
+    .reopen-cycle-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .reopen-cycle-section {
+        padding: var(--og-space-3);
+    }
+    .reopen-cycle-fields button {
+        min-height: var(--og-touch-height);
+    }
+}

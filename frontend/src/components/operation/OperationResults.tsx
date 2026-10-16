@@ -9,6 +9,7 @@ import {
 import { Result } from "../Result";
 import { LabelPreview } from "../LabelPreview";
 import { CollectorReceipt } from "../../modules/estoque/CollectorReceipt";
+import { BillingApprovalResult } from "../../modules/financeiro/BillingApprovalResult";
 export function OperationResults({
     id,
     receipt,
@@ -29,33 +30,79 @@ export function OperationResults({
     onPage?: (page: number) => void;
 }) {
     const next = dispatchContinuation(id, receipt, nextActions[id]);
+    const labelPreview =
+        id === "UnidadeLogisticaController.etiqueta" && isObject(receipt.data);
+    const billingApproval =
+        id === "FechamentoCobrancaController.aprovar" &&
+        type === "FechamentoCobrancaDto.ConfirmacaoComando" &&
+        isObject(receipt.data) &&
+        isObject(receipt.data.fechamento) &&
+        isObject(receipt.data.versao);
+    const continuation =
+        onContinue &&
+        next &&
+        !receipt.replay &&
+        !(
+            id === "ImportacaoEnderecoController.consultar" &&
+            isObject(receipt.data) &&
+            (receipt.data.situacao === "CONFIRMADA" ||
+                (Array.isArray(receipt.data.erros) &&
+                    receipt.data.erros.length > 0))
+        ) ? (
+            <button
+                type="button"
+                className="primary operation-continue"
+                disabled={(labelPreview || billingApproval) && pending}
+                onClick={() => onContinue(next)}
+            >
+                {next.title}
+            </button>
+        ) : null;
+    const result = billingApproval ? (
+        <BillingApprovalResult
+            data={receipt.data as Values}
+            onSelect={onSelect}
+            pending={pending}
+        />
+    ) : (
+        <Result
+            data={receipt.data}
+            type={type}
+            onSelect={onSelect}
+            onPage={onPage}
+            pending={pending}
+        />
+    );
     return (
         <div className="results">
             <h4 className="results-heading">
                 {pending
                     ? "Resultado anterior · aguardando atualização"
-                    : "Resultado da operação"}
+                    : id === "CargaInicialController.consultar"
+                      ? "Carga consultada"
+                      : labelPreview
+                        ? "Etiqueta consultada"
+                        : "Resultado da operação"}
             </h4>
             {id.startsWith("ImportacaoEnderecoController.") && (
                 <ImportPreview data={receipt.data} />
             )}
-            {collector ? (
+            {labelPreview ? (
+                <LabelPreview
+                    data={receipt.data}
+                    ficticio={receipt.ficticio}
+                    pending={pending}
+                    actions={continuation}
+                    details={result}
+                />
+            ) : collector ? (
                 <CollectorReceipt
                     data={receipt.data}
                     type={type}
                     onSelect={onSelect}
                 />
             ) : (
-                <Result
-                    data={receipt.data}
-                    type={type}
-                    onSelect={onSelect}
-                    onPage={onPage}
-                    pending={pending}
-                />
-            )}
-            {id === "UnidadeLogisticaController.etiqueta" && (
-                <LabelPreview data={receipt.data} ficticio={receipt.ficticio} />
+                result
             )}
             {id === "FechamentoCobrancaController.demonstrativo" && (
                 <button type="button" onClick={() => downloadReceipt(receipt)}>
@@ -68,24 +115,18 @@ export function OperationResults({
                     continuar a jornada.
                 </p>
             )}
-            {onContinue &&
-                next &&
-                !receipt.replay &&
-                !(
-                    id === "ImportacaoEnderecoController.consultar" &&
-                    isObject(receipt.data) &&
-                    (receipt.data.situacao === "CONFIRMADA" ||
-                        (Array.isArray(receipt.data.erros) &&
-                            receipt.data.erros.length > 0))
-                ) && (
-                    <button
-                        type="button"
-                        className="primary"
-                        onClick={() => onContinue(next)}
+            {!labelPreview &&
+                (billingApproval && continuation ? (
+                    <section
+                        className="billing-approval-next"
+                        aria-label="Próximo passo após aprovação"
                     >
-                        {next.title}
-                    </button>
-                )}
+                        <h4>Próximo passo</h4>
+                        {continuation}
+                    </section>
+                ) : (
+                    continuation
+                ))}
         </div>
     );
 }

@@ -61,6 +61,12 @@ export function rowContext(
         (controller === "ConfiguracaoCobrancaController" &&
             type.startsWith("ConfiguracaoCobrancaDto."));
     const values: Values = { ...derived, ...(sameSubject ? root : {}) };
+    if (
+        type === "CargaInicialDto.Resultado" &&
+        /^CargaInicialController\.(preparar|confirmar)$/.test(action) &&
+        isObject(root.revisao)
+    )
+        values.revisao = root.revisao.numero;
     if (sameSubject) {
         // Client/warehouse always belong to the selected subject, including nullable values.
         for (const key of ["clienteId", "armazemId"])

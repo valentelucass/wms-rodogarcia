@@ -1,0 +1,123 @@
+.dispatch-order-fields {
+    display: grid;
+    gap: var(--og-space-5);
+    grid-column: 1 / -1;
+    width: 100%;
+    min-width: 0;
+}
+.dispatch-order-fields :is(h3, h4, p) {
+    margin: 0;
+}
+.dispatch-order-fields h3,
+.dispatch-order-fields h4 {
+    font-size: var(--og-type-body);
+}
+.dispatch-order-context,
+.dispatch-order-items {
+    display: grid;
+    gap: var(--og-space-3);
+    min-width: 0;
+}
+.dispatch-order-context {
+    padding-bottom: var(--og-space-4);
+    border-bottom: 1px solid var(--og-border);
+}
+.dispatch-order-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--og-space-4);
+}
+.dispatch-order-items-heading,
+.dispatch-order-item-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--og-space-3);
+}
+.dispatch-order-items-heading > div {
+    display: grid;
+    gap: var(--og-space-1);
+    flex: 1 1 240px;
+    min-width: 0;
+}
+.dispatch-order-items-heading > button {
+    flex: 0 0 auto;
+}
+.dispatch-order-item-list {
+    display: grid;
+    gap: var(--og-space-3);
+    min-width: 0;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.dispatch-order-item {
+    display: grid;
+    gap: var(--og-space-3);
+    padding: var(--og-space-4);
+    min-width: 0;
+    border: 1px solid var(--og-border);
+    border-radius: var(--og-radius-control);
+    background: color-mix(
+        in srgb,
+        var(--og-surface-raised) 35%,
+        var(--og-surface)
+    );
+}
+.dispatch-order-item-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(180px, 1fr);
+    gap: var(--og-space-4);
+    align-items: start;
+}
+.dispatch-order-item-heading > button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--og-space-1);
+    padding-block: var(--og-space-1);
+}
+.dispatch-order-item-heading svg {
+    width: 16px;
+    height: 16px;
+}
+.dispatch-order-fields .field {
+    min-width: 0;
+    margin: 0;
+}
+.dispatch-order-fields :is(input, select, textarea) {
+    width: 100%;
+    min-width: 0;
+    scroll-margin-block: 100px;
+}
+.dispatch-order-fields textarea,
+.record-dialog .operation .dispatch-order-fields textarea {
+    min-height: 112px;
+    line-height: 1.6;
+}
+.record-dialog--dispatch-create > .dialog-header {
+    position: sticky;
+    top: 0;
+    z-index: var(--og-z-sticky);
+    background: var(--og-surface);
+}
+.record-dialog--dispatch-create .dispatch-order-form > .actions {
+    position: sticky;
+    bottom: 0;
+    z-index: var(--og-z-sticky);
+    background: var(--og-surface);
+    padding-block: var(--og-space-3);
+}
+@media (max-width: 600px) {
+    .dispatch-order-grid,
+    .dispatch-order-item-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .dispatch-order-items-heading > button {
+        width: 100%;
+    }
+    .dispatch-order-item {
+        padding: var(--og-space-3);
+    }
+}

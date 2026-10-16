@@ -1,17 +1,24 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import QRCode from "qrcode";
 import JsBarcode from "jsbarcode";
 import { isObject, type Values } from "../contracts/runtime";
 import { display } from "../domain/labels";
 import { formatProductQuantity } from "../domain/quantityPresentation";
 import { information } from "../content/information";
+import { Icon } from "../design-system/Icon";
 
 export function LabelPreview({
     data,
     ficticio = false,
+    pending = false,
+    actions,
+    details,
 }: {
     data: unknown;
     ficticio?: boolean;
+    pending?: boolean;
+    actions?: ReactNode;
+    details?: ReactNode;
 }) {
     if (!isObject(data)) return null;
     return (
@@ -19,11 +26,26 @@ export function LabelPreview({
             key={String(data.codigoLeitura)}
             data={data}
             ficticio={ficticio}
+            pending={pending}
+            actions={actions}
+            details={details}
         />
     );
 }
 
-function UnitLabel({ data, ficticio }: { data: Values; ficticio: boolean }) {
+function UnitLabel({
+    data,
+    ficticio,
+    pending,
+    actions,
+    details,
+}: {
+    data: Values;
+    ficticio: boolean;
+    pending: boolean;
+    actions?: ReactNode;
+    details?: ReactNode;
+}) {
     const [qr, setQr] = useState("");
     const [qrError, setQrError] = useState(false);
     const code = String(data.codigoLeitura ?? "");
@@ -71,135 +93,189 @@ function UnitLabel({ data, ficticio }: { data: Values; ficticio: boolean }) {
                 ficticio ? "Prévia de etiqueta fictícia" : "Prévia da etiqueta"
             }
         >
-            <div className="label-preview">
-                {ficticio && (
-                    <div className="label-exercise">EXERCÍCIO FICTÍCIO</div>
-                )}
-                <div className="label-product">
-                    <strong className="label-sku">{display(data.sku)}</strong>
-                    <strong className="label-description">
-                        {display(data.descricaoProduto)}
-                    </strong>
-                    <div className="label-client">
-                        {display(data.nomeCliente)}
-                    </div>
-                    <div className="label-notes">
-                        Notas fiscais:{" "}
-                        {notes.length
-                            ? notes
-                                  .map(
-                                      (n) =>
-                                          `${display(n.numero)} (série ${display(n.serie)})`,
-                                  )
-                                  .join(" · ")
-                            : "Não informadas"}
-                    </div>
-                    <div>
-                        Quantidade nas notas:{" "}
-                        {formatProductQuantity(
-                            data.quantidadeProdutoNasNotas,
-                            data.unidadeMedida,
-                        )}{" "}
-                        {display(data.unidadeMedida)}
-                    </div>
-                </div>
-                <div className="label-entry">
-                    <strong className="label-date">{entryDate}</strong>
-                    <strong>
-                        CONFERENTE:{" "}
-                        {data.nomeConferente
-                            ? String(data.nomeConferente)
-                            : "Não identificado no histórico"}
-                    </strong>
-                </div>
-                <div className="label-codes">
-                    {bars && (
-                        <svg
-                            className="label-barcode"
-                            viewBox={`0 0 ${bars.length + 24} 85`}
-                            role="img"
-                            aria-label={`Código de barras do UUID ${code}`}
-                            preserveAspectRatio="none"
-                        >
-                            <rect
-                                width={bars.length + 24}
-                                height={85}
-                                fill="white"
-                            />
-                            {Array.from(bars, (bit, i) =>
-                                bit === "1" ? (
-                                    <rect
-                                        key={i}
-                                        x={i + 12}
-                                        y={5}
-                                        width={1}
-                                        height={75}
-                                        fill="black"
-                                    />
-                                ) : null,
-                            )}
-                        </svg>
-                    )}
-                    <div className="label-uuid">{code}</div>
-                    <div className="label-dun">
-                        <span>DUN: {display(data.codigoDun)}</span>
+            <div className="label-preview-layout">
+                <div className="label-preview-stage">
+                    <div className="no-print label-preview-caption">
+                        <strong>Prévia de impressão</strong>
                         <span>
-                            Produtos por DUN:{" "}
-                            {formatProductQuantity(
-                                data.quantidadeProdutoPorDun,
-                                data.unidadeMedida,
-                            )}
+                            {ficticio
+                                ? "Exercício fictício"
+                                : "Etiqueta da unidade"}
                         </span>
                     </div>
+                    <div className="label-preview">
+                        {ficticio && (
+                            <div className="label-exercise">
+                                EXERCÍCIO FICTÍCIO
+                            </div>
+                        )}
+                        <div className="label-product">
+                            <strong className="label-sku">
+                                {display(data.sku)}
+                            </strong>
+                            <strong className="label-description">
+                                {display(data.descricaoProduto)}
+                            </strong>
+                            <div className="label-client">
+                                {display(data.nomeCliente)}
+                            </div>
+                            <div className="label-notes">
+                                Notas fiscais:{" "}
+                                {notes.length
+                                    ? notes
+                                          .map(
+                                              (n) =>
+                                                  `${display(n.numero)} (série ${display(n.serie)})`,
+                                          )
+                                          .join(" · ")
+                                    : "Não informadas"}
+                            </div>
+                            <div>
+                                Quantidade nas notas:{" "}
+                                {formatProductQuantity(
+                                    data.quantidadeProdutoNasNotas,
+                                    data.unidadeMedida,
+                                )}{" "}
+                                {display(data.unidadeMedida)}
+                            </div>
+                        </div>
+                        <div className="label-entry">
+                            <strong className="label-date">{entryDate}</strong>
+                            <strong>
+                                CONFERENTE:{" "}
+                                {data.nomeConferente
+                                    ? String(data.nomeConferente)
+                                    : "Não identificado no histórico"}
+                            </strong>
+                        </div>
+                        <div className="label-codes">
+                            {bars && (
+                                <svg
+                                    className="label-barcode"
+                                    viewBox={`0 0 ${bars.length + 24} 85`}
+                                    role="img"
+                                    aria-label={`Código de barras do UUID ${code}`}
+                                    preserveAspectRatio="none"
+                                >
+                                    <rect
+                                        width={bars.length + 24}
+                                        height={85}
+                                        fill="white"
+                                    />
+                                    {Array.from(bars, (bit, i) =>
+                                        bit === "1" ? (
+                                            <rect
+                                                key={i}
+                                                x={i + 12}
+                                                y={5}
+                                                width={1}
+                                                height={75}
+                                                fill="black"
+                                            />
+                                        ) : null,
+                                    )}
+                                </svg>
+                            )}
+                            <div className="label-uuid">{code}</div>
+                            <div className="label-dun">
+                                <span>DUN: {display(data.codigoDun)}</span>
+                                <span>
+                                    Produtos por DUN:{" "}
+                                    {formatProductQuantity(
+                                        data.quantidadeProdutoPorDun,
+                                        data.unidadeMedida,
+                                    )}
+                                </span>
+                            </div>
+                        </div>
+                        <div className="label-bottom">
+                            {qr ? (
+                                <img
+                                    className="label-qr"
+                                    src={qr}
+                                    alt={`QR do UUID ${code}`}
+                                    width={128}
+                                    height={128}
+                                />
+                            ) : (
+                                <span className="label-qr">
+                                    {qrError
+                                        ? "Falha ao gerar QR"
+                                        : "Preparando QR"}
+                                </span>
+                            )}
+                            <strong
+                                className="label-sequence"
+                                aria-label="Unidade / total do pedido"
+                            >
+                                {display(data.numeroUnidade)}/
+                                {display(data.totalUnidadesPedido)}
+                            </strong>
+                            <strong className="label-kind">
+                                {data.tipo === "BOBINA"
+                                    ? "BOBINAS"
+                                    : data.tipo === "PALLET"
+                                      ? "PALETES"
+                                      : display(data.tipo)}
+                            </strong>
+                        </div>
+                    </div>
                 </div>
-                <div className="label-bottom">
-                    {qr ? (
-                        <img
-                            className="label-qr"
-                            src={qr}
-                            alt={`QR do UUID ${code}`}
-                            width={128}
-                            height={128}
-                        />
-                    ) : (
-                        <span className="label-qr">
-                            {qrError ? "Falha ao gerar QR" : "Preparando QR"}
-                        </span>
-                    )}
-                    <strong
-                        className="label-sequence"
-                        aria-label="Unidade / total do pedido"
-                    >
-                        {display(data.numeroUnidade)}/
-                        {display(data.totalUnidadesPedido)}
-                    </strong>
-                    <strong className="label-kind">
-                        {data.tipo === "BOBINA"
-                            ? "BOBINAS"
-                            : data.tipo === "PALLET"
-                              ? "PALETES"
-                              : display(data.tipo)}
-                    </strong>
-                </div>
-            </div>
-            <div className="no-print label-print-actions">
-                {!validCode && (
-                    <p role="alert">
-                        UUID inválido. Consulte novamente a unidade antes de
-                        imprimir.
-                    </p>
-                )}
-                <button
-                    type="button"
-                    disabled={!ready}
-                    onClick={() => window.print()}
+                <aside
+                    className="no-print label-print-actions"
+                    aria-label="Impressão da etiqueta"
                 >
-                    {ficticio
-                        ? "Imprimir prévia fictícia"
-                        : "Imprimir etiqueta"}
-                </button>
-                <p>{information.unitLabel.description}</p>
+                    <div className="label-print-heading">
+                        <span className="label-print-icon">
+                            <Icon name="print" />
+                        </span>
+                        <h4>Impressão</h4>
+                    </div>
+                    <p>{information.unitLabelPrint.description}</p>
+                    {!validCode && (
+                        <p role="alert">
+                            UUID inválido. Consulte novamente a unidade antes de
+                            imprimir.
+                        </p>
+                    )}
+                    {validCode && qrError && (
+                        <p role="alert">
+                            Não foi possível gerar o QR. Consulte novamente a
+                            etiqueta antes de imprimir.
+                        </p>
+                    )}
+                    {validCode && !qr && !qrError && (
+                        <p role="status">Preparando os códigos da etiqueta…</p>
+                    )}
+                    <button
+                        type="button"
+                        className="action-details"
+                        disabled={!ready || pending}
+                        onClick={() => window.print()}
+                    >
+                        <Icon name="print" />
+                        {ficticio
+                            ? "Imprimir prévia fictícia"
+                            : "Imprimir etiqueta"}
+                    </button>
+                    <details className="label-reading-help">
+                        <summary>Como ler a etiqueta</summary>
+                        <p>{information.unitLabel.description}</p>
+                    </details>
+                    {actions && (
+                        <div className="label-next-step">
+                            <h4>Próximo passo</h4>
+                            {actions}
+                        </div>
+                    )}
+                </aside>
             </div>
+            {details && (
+                <details className="no-print label-query-data">
+                    <summary>Dados da unidade consultada</summary>
+                    {details}
+                </details>
+            )}
         </section>
     );
 }

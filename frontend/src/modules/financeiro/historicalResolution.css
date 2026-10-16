@@ -1,0 +1,54 @@
+.historical-resolution {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--og-space-4);
+    padding: var(--og-space-4);
+    margin: 0;
+    min-width: 0;
+    border-radius: var(--og-radius-control);
+}
+.historical-resolution-manager {
+    color: var(--og-text-muted);
+    font-size: var(--og-type-caption);
+}
+.historical-resolution h4 {
+    margin: 0;
+    font-size: var(--og-type-body);
+}
+.historical-resolution-fields {
+    display: grid;
+    gap: var(--og-space-3);
+    padding-top: var(--og-space-4);
+    border-top: 1px solid var(--og-border);
+}
+.historical-resolution-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: var(--og-space-4);
+}
+.historical-resolution-actions {
+    display: flex;
+    justify-content: flex-start;
+}
+.historical-resolution-actions > button {
+    flex: 0 1 auto;
+    width: auto;
+    align-self: start;
+    min-height: var(--og-control-height);
+}
+@media (max-width: 600px) {
+    .historical-resolution {
+        padding: var(--og-space-3);
+    }
+    .historical-resolution-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .historical-resolution-actions,
+    .historical-resolution-actions > button {
+        width: 100%;
+    }
+    .historical-resolution button {
+        min-height: var(--og-touch-height);
+    }
+}

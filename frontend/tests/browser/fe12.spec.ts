@@ -305,11 +305,7 @@ test("FE12 CHEGADA consulta modo prova concilia consulta", async ({ page }) => {
     await page
         .getByRole("button", { name: "Registrar fato", exact: true })
         .click();
-    await fill(
-        page,
-        "Identidade do registro de contingência *",
-        "FE12-CHEGADA",
-    );
+    await fill(page, "Identidade do fato *", "FE12-CHEGADA");
     await page.getByLabel("Tipo *", { exact: true }).selectOption("CHEGADA");
     await fill(page, "Instante real do fato *", localInstant);
     await fill(page, "Operador *", "Operador fictício FE12");
@@ -317,41 +313,17 @@ test("FE12 CHEGADA consulta modo prova concilia consulta", async ({ page }) => {
     await page
         .getByLabel("Efeito já registrado no WMS *", { exact: true })
         .selectOption("true");
-    await fill(page, "Pedido (ID) *", "9007199254740993");
-    await fill(
-        page,
-        "Dados do fato de contingência / Dados do fato de contingência / Revisão atual *",
-        "0",
-    );
-    await fill(
-        page,
-        "Dados do fato de contingência / Dados do fato de contingência / Chegada física real *",
-        localInstant,
-    );
-    await fill(
-        page,
-        "Dados do fato de contingência / Dados do fato de contingência / Observacao *",
-        "Chegada fictícia FE12",
-    );
+    await fill(page, "Pedido *", "9007199254740993");
+    await fill(page, "Revisão atual *", "0");
+    await fill(page, "Chegada física real *", localInstant);
+    await fill(page, "Observacao *", "Chegada fictícia FE12");
     await page
         .getByRole("button", { name: "Adicionar Itens", exact: true })
         .click();
-    await fill(
-        page,
-        "Dados do fato de contingência / Dados do fato de contingência / Itens / Item 1 / Item da nota (ID) *",
-        "401",
-    );
-    await fill(
-        page,
-        "Dados do fato de contingência / Dados do fato de contingência / Itens / Item 1 / Quantidade boa recebida *",
-        "8.000001",
-    );
-    await fill(
-        page,
-        "Dados do fato de contingência / Dados do fato de contingência / Itens / Item 1 / Quantidade avariada *",
-        "0",
-    );
-    await fill(page, "Motivo / justificativa *", "Registro fictício FE12");
+    await fill(page, "Itens / Item 1 / Item da nota *", "401");
+    await fill(page, "Itens / Item 1 / Quantidade boa recebida *", "8.000001");
+    await fill(page, "Itens / Item 1 / Quantidade avariada *", "0");
+    await fill(page, "Justificativa do registro *", "Registro fictício FE12");
     await confirm(page);
     const registered = await body(page, "ContingenciaController.registrar");
     expect(exact((registered.dados as Record<string, unknown>).pedidoId)).toBe(

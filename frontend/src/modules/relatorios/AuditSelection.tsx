@@ -62,7 +62,7 @@ export function AuditSelection({
                                 <div className="audit-target-main">
                                     <div className="audit-target-summary">
                                         <span className="audit-target-kind">
-                                            Registro selecionado · {t.label}
+                                            {t.label}
                                         </span>
                                         {name && (
                                             <strong className="audit-target-name">

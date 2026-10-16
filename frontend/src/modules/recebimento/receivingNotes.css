@@ -1,0 +1,183 @@
+.record-dialog:has(.receiving-detail) > .dialog-header {
+    position: sticky;
+    top: 0;
+    z-index: var(--og-z-sticky);
+    background: var(--og-surface);
+}
+.receiving-note-guidance {
+    display: grid;
+    gap: var(--og-space-2);
+    margin-bottom: var(--og-space-5);
+}
+.receiving-note-guidance p,
+.receiving-note-header h3,
+.receiving-note-header p,
+.saved-nfe-header h4,
+.saved-nfe-header p {
+    margin: 0;
+}
+.receiving-detail .receiving-note {
+    display: grid;
+    gap: var(--og-space-4);
+    min-width: 0;
+    margin: 0;
+    padding: var(--og-space-5);
+    background: var(--og-surface);
+}
+.receiving-detail .receiving-note + .receiving-note {
+    margin-top: var(--og-space-5);
+}
+.receiving-note-header,
+.saved-nfe-header {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--og-space-3);
+    min-width: 0;
+}
+.receiving-note-header > div,
+.saved-nfe-header > div:first-child {
+    display: grid;
+    gap: var(--og-space-1);
+    min-width: 0;
+    flex: 1 1 240px;
+}
+.receiving-note-header h3 {
+    font-size: var(--og-type-section);
+    overflow-wrap: anywhere;
+}
+.receiving-note-origin {
+    padding: var(--og-space-1) var(--og-space-2);
+    border-radius: var(--og-radius-badge);
+    color: var(--og-text-muted);
+    background: var(--og-surface-raised);
+    font-size: var(--og-type-caption);
+}
+.receiving-note-meta,
+.nfe-document-participants {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--og-space-4);
+    min-width: 0;
+    margin: 0;
+}
+.receiving-note-meta dt {
+    color: var(--og-text-muted);
+    font-size: var(--og-type-caption);
+}
+.receiving-note-meta dd {
+    margin: var(--og-space-1) 0 0;
+    overflow-wrap: anywhere;
+}
+.receiving-note-items {
+    margin-top: 0;
+    max-width: 100%;
+}
+.receiving-note-items table {
+    min-width: 800px;
+}
+.receiving-note-items tbody th {
+    min-width: 160px;
+}
+.receiving-note-item-identifiers {
+    margin-top: var(--og-space-2);
+    font-size: var(--og-type-caption);
+    font-weight: var(--og-font-regular);
+}
+.receiving-note-item-identifiers > summary {
+    color: var(--og-text-muted);
+    cursor: pointer;
+}
+.receiving-note-items button,
+.saved-nfe-actions button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--og-space-2);
+    white-space: nowrap;
+}
+.receiving-note-items button svg,
+.saved-nfe-actions button svg {
+    width: 16px;
+    height: 16px;
+    flex: 0 0 16px;
+}
+.saved-nfe-document {
+    display: grid;
+    gap: var(--og-space-4);
+    min-width: 0;
+    border-top: 1px solid var(--og-border);
+    padding-top: var(--og-space-4);
+}
+.saved-nfe-actions {
+    display: flex;
+    align-items: start;
+    flex-wrap: wrap;
+    gap: var(--og-space-2);
+    min-width: 0;
+}
+.saved-nfe-content {
+    min-width: 0;
+}
+.nfe-document-heading,
+.nfe-document-section,
+.nfe-document-additional > div {
+    display: grid;
+    gap: var(--og-space-3);
+    min-width: 0;
+}
+.nfe-document-section {
+    border-top: 1px solid var(--og-border);
+    padding-top: var(--og-space-4);
+}
+.nfe-document .nfe-fields > div {
+    min-width: 0;
+}
+.nfe-field-wide {
+    grid-column: 1 / -1;
+}
+.nfe-document-notice {
+    padding: var(--og-space-3) var(--og-space-4);
+    border-left: 3px solid var(--og-warning-text);
+    border-radius: var(--og-radius-control);
+    background: var(--og-warning-bg);
+    color: var(--og-warning-text);
+    font-size: var(--og-type-caption);
+}
+.nfe-document-notice ul {
+    margin: 0;
+    padding-left: var(--og-space-4);
+}
+.nfe-original-items {
+    margin-top: 0;
+    max-width: 100%;
+}
+.nfe-original-items table {
+    min-width: 1000px;
+}
+.nfe-document-additional > summary {
+    cursor: pointer;
+    padding: var(--og-space-3) 0;
+    color: var(--og-link);
+    font-weight: var(--og-font-medium);
+}
+@media (max-width: 600px) {
+    .receiving-detail .receiving-note {
+        padding: var(--og-space-3);
+    }
+    .receiving-note-meta,
+    .nfe-document-participants {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .saved-nfe-actions {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        width: 100%;
+    }
+    .saved-nfe-actions button {
+        width: 100%;
+        white-space: normal;
+        min-height: var(--og-touch-height);
+    }
+}

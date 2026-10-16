@@ -1,17 +1,30 @@
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { call, type Transport } from "../../api/client";
 import { formatProductQuantity } from "../../domain/quantityPresentation";
 import type {
     NfeImportacaoDto_Documento,
     NfeImportacaoDto_DocumentoSalvo,
 } from "../../contracts/types";
+import { information } from "../../content/information";
+import { Icon } from "../../design-system/Icon";
 
 const value = (v: unknown) => (v == null || v === "" ? "—" : String(v));
-function Info({ fields }: { fields: Record<string, unknown> }) {
+function Info({
+    fields,
+    wide = [],
+}: {
+    fields: Record<string, unknown>;
+    wide?: string[];
+}) {
     return (
         <dl className="nfe-fields">
             {Object.entries(fields).map(([label, v]) => (
-                <div key={label}>
+                <div
+                    key={label}
+                    className={
+                        wide.includes(label) ? "nfe-field-wide" : undefined
+                    }
+                >
                     <dt>{label}</dt>
                     <dd>{value(v)}</dd>
                 </div>
@@ -21,25 +34,29 @@ function Info({ fields }: { fields: Record<string, unknown> }) {
 }
 export function NfeDocument({
     documento: d,
+    collapseAdditional = false,
 }: {
     documento: NfeImportacaoDto_Documento;
+    collapseAdditional?: boolean;
 }) {
     return (
         <section
             className="nfe-document"
             aria-label="Documento original da NF-e"
         >
-            <h3>
-                NF-e {d.numero} · série {d.serie}
-            </h3>
-            <p className="hint">
-                {d.formato === "EXPORTACAO_OPERACIONAL"
-                    ? "Exportação operacional · dados originais preservados"
-                    : "NF-e · estrutura conferida pelo esquema local"}
-            </p>
+            <header className="nfe-document-heading">
+                <h3>
+                    NF-e {d.numero} · série {d.serie}
+                </h3>
+                <p className="hint">
+                    {d.formato === "EXPORTACAO_OPERACIONAL"
+                        ? "Exportação operacional · dados originais preservados"
+                        : "NF-e · estrutura conferida pelo esquema local"}
+                </p>
+            </header>
             {Boolean(d.avisos?.length) && (
                 <aside
-                    className="record-feedback"
+                    className="nfe-document-notice"
                     aria-label="Conferência do arquivo"
                 >
                     <ul>
@@ -49,26 +66,69 @@ export function NfeDocument({
                     </ul>
                 </aside>
             )}
-            <Info
-                fields={{
-                    "Chave de acesso": d.chaveAcesso,
-                    "Modelo / versão": `${d.modelo} / ${d.versao}`,
-                    "Emissão informada": d.emitidaEm,
-                    "Natureza da operação": d.naturezaOperacao,
-                    "Operação do emitente":
-                        d.tipoOperacao === "1"
-                            ? "Saída — pode representar entrada no armazém"
-                            : "Entrada",
-                    "Ambiente fiscal":
-                        d.ambiente === "1" ? "Produção" : "Homologação",
-                    "Emitente / proprietário": d.emitente?.nome,
-                    "Documento do emitente": d.emitente?.documento,
-                    "Destinatário original": d.destinatario?.nome,
-                    "Documento do destinatário": d.destinatario?.documento,
-                    "Valor total da nota": d.valorTotal,
-                }}
-            />
-            <div className="table-scroll">
+            <section
+                className="nfe-document-section"
+                aria-label="Identificação do documento"
+            >
+                <h4>Identificação do documento</h4>
+                <Info
+                    wide={["Chave de acesso"]}
+                    fields={{
+                        "Chave de acesso": d.chaveAcesso,
+                        "Modelo / versão": `${value(d.modelo)} / ${value(d.versao)}`,
+                        "Emissão informada": d.emitidaEm,
+                        "Natureza da operação": d.naturezaOperacao,
+                        "Operação do emitente":
+                            d.tipoOperacao === "1"
+                                ? "Saída — pode representar entrada no armazém"
+                                : d.tipoOperacao === "0"
+                                  ? "Entrada"
+                                  : d.tipoOperacao,
+                        "Ambiente fiscal":
+                            d.ambiente === "1"
+                                ? "Produção"
+                                : d.ambiente === "2"
+                                  ? "Homologação"
+                                  : d.ambiente,
+                        "Valor total da nota": d.valorTotal,
+                    }}
+                />
+            </section>
+            <div className="nfe-document-participants">
+                <section
+                    className="nfe-document-section"
+                    aria-label="Emitente / proprietário"
+                >
+                    <h4>Emitente / proprietário</h4>
+                    <Info
+                        wide={["Nome", "Documento do emitente"]}
+                        fields={{
+                            Nome: d.emitente?.nome,
+                            "Documento do emitente": d.emitente?.documento,
+                        }}
+                    />
+                </section>
+                <section
+                    className="nfe-document-section"
+                    aria-label="Destinatário original"
+                >
+                    <h4>Destinatário original</h4>
+                    <Info
+                        wide={["Nome", "Documento do destinatário"]}
+                        fields={{
+                            Nome: d.destinatario?.nome,
+                            "Documento do destinatário":
+                                d.destinatario?.documento,
+                        }}
+                    />
+                </section>
+            </div>
+            <div
+                className="table-scroll nfe-original-items"
+                role="region"
+                aria-label="Itens originais da nota"
+                tabIndex={0}
+            >
                 <table>
                     <caption>Itens originais da nota · sem agrupamento</caption>
                     <thead>
@@ -137,54 +197,89 @@ export function NfeDocument({
                     </tbody>
                 </table>
             </div>
-            <h4>Volumes de transporte</h4>
-            {d.volumes?.length ? (
-                d.volumes.map((v, index) => (
-                    <Info
-                        key={index}
-                        fields={{
-                            "Quantidade de volumes": v.quantidade,
-                            Espécie: v.especie,
-                            "Peso líquido informado (kg)":
-                                formatProductQuantity(v.pesoLiquido, "KG"),
-                            "Peso bruto informado (kg)": formatProductQuantity(
-                                v.pesoBruto,
-                                "KG",
-                            ),
-                        }}
-                    />
-                ))
-            ) : (
-                <p>Não informados.</p>
-            )}
-            <p>
-                Volumes e pesos não definem unidades de estoque, pallets ou
-                posições.
-            </p>
-            <h4>Protocolo informado no arquivo</h4>
-            {d.protocolo ? (
-                <Info
-                    fields={{
-                        Situação: `${d.protocolo.codigoSituacao} · ${d.protocolo.motivo}`,
-                        "Número do protocolo": d.protocolo.numero,
-                        "Recebimento pela SEFAZ": d.protocolo.recebidoEm,
-                        "Chave do protocolo": d.protocolo.chave,
-                        "Ambiente do protocolo": d.protocolo.ambiente,
-                    }}
-                />
-            ) : (
-                <p>Sem protocolo no arquivo.</p>
-            )}
-            <Info
-                fields={{
-                    "Informações complementares": d.informacoesComplementares,
-                    "Informações ao fisco": d.informacoesFisco,
-                }}
-            />
-            <p>
-                A emissão e o protocolo não comprovam chegada física. A leitura
-                local não consulta a situação atual nem verifica a assinatura na
-                SEFAZ.
+            <details
+                className="nfe-document-additional"
+                open={!collapseAdditional}
+            >
+                <summary>
+                    Transporte, protocolo e informações adicionais
+                </summary>
+                <div>
+                    <section
+                        className="nfe-document-section"
+                        aria-label="Volumes de transporte"
+                    >
+                        <h4>Volumes de transporte</h4>
+                        {d.volumes?.length ? (
+                            d.volumes.map((v, index) => (
+                                <Info
+                                    key={index}
+                                    fields={{
+                                        "Quantidade de volumes": v.quantidade,
+                                        Espécie: v.especie,
+                                        "Peso líquido informado (kg)":
+                                            formatProductQuantity(
+                                                v.pesoLiquido,
+                                                "KG",
+                                            ),
+                                        "Peso bruto informado (kg)":
+                                            formatProductQuantity(
+                                                v.pesoBruto,
+                                                "KG",
+                                            ),
+                                    }}
+                                />
+                            ))
+                        ) : (
+                            <p>Não informados.</p>
+                        )}
+                        <p>
+                            Volumes e pesos não definem unidades de estoque,
+                            pallets ou posições.
+                        </p>
+                    </section>
+                    <section
+                        className="nfe-document-section"
+                        aria-label="Protocolo informado no arquivo"
+                    >
+                        <h4>Protocolo informado no arquivo</h4>
+                        {d.protocolo ? (
+                            <Info
+                                fields={{
+                                    Situação: `${d.protocolo.codigoSituacao} · ${d.protocolo.motivo}`,
+                                    "Número do protocolo": d.protocolo.numero,
+                                    "Recebimento pela SEFAZ":
+                                        d.protocolo.recebidoEm,
+                                    "Chave do protocolo": d.protocolo.chave,
+                                    "Ambiente do protocolo":
+                                        d.protocolo.ambiente,
+                                }}
+                            />
+                        ) : (
+                            <p>Sem protocolo no arquivo.</p>
+                        )}
+                    </section>
+                    <section
+                        className="nfe-document-section"
+                        aria-label="Informações adicionais"
+                    >
+                        <h4>Informações adicionais</h4>
+                        <Info
+                            wide={[
+                                "Informações complementares",
+                                "Informações ao fisco",
+                            ]}
+                            fields={{
+                                "Informações complementares":
+                                    d.informacoesComplementares,
+                                "Informações ao fisco": d.informacoesFisco,
+                            }}
+                        />
+                    </section>
+                </div>
+            </details>
+            <p className="hint">
+                {information.receivingOriginalDocument.footer}
             </p>
         </section>
     );
@@ -210,6 +305,7 @@ export function SavedNfeDocument({
     notaId: string;
     disabled: boolean;
 }) {
+    const panelId = useId();
     const [data, setData] = useState<NfeImportacaoDto_DocumentoSalvo>();
     const [open, setOpen] = useState(false),
         [pending, setPending] = useState(false),
@@ -227,7 +323,11 @@ export function SavedNfeDocument({
             {},
             controller.signal,
         )
-            .then(setData)
+            .then((result) => {
+                if (controller.signal.aborted) return;
+                setPending(false);
+                setData(result);
+            })
             .catch((e) => {
                 if (!controller.signal.aborted)
                     setError(
@@ -242,36 +342,60 @@ export function SavedNfeDocument({
         return () => controller.abort();
     }, [transport, pedidoId, notaId, open, data]);
     return (
-        <div>
-            <button
-                type="button"
-                disabled={disabled || pending}
-                onClick={() => setOpen(!open)}
-            >
-                {open ? "Ocultar documento original" : "Ver documento original"}
-            </button>
-            {open && (
-                <>
-                    {pending && <p role="status">Consultando documento…</p>}
-                    {error && <p role="alert">{error}</p>}
-                    {data?.documento && (
-                        <>
-                            <NfeDocument documento={data.documento} />
-                            <button
-                                type="button"
-                                onClick={() =>
-                                    downloadXml(
-                                        data.xmlOriginal ?? "",
-                                        data.documento?.chaveAcesso ?? null,
-                                    )
-                                }
-                            >
-                                Baixar XML original
-                            </button>
-                        </>
+        <div className="saved-nfe-document">
+            <header className="saved-nfe-header">
+                <div>
+                    <h4>Documento original</h4>
+                    <p className="hint">
+                        {information.receivingOriginalDocument.description}
+                    </p>
+                </div>
+                <div className="saved-nfe-actions">
+                    <button
+                        type="button"
+                        className={open ? "action-dismiss" : "action-details"}
+                        aria-expanded={open}
+                        aria-controls={panelId}
+                        disabled={disabled || pending}
+                        onClick={() => setOpen(!open)}
+                    >
+                        <Icon name={open ? "close" : "eye"} />
+                        {open
+                            ? "Ocultar documento original"
+                            : "Ver documento original"}
+                    </button>
+                    {open && data?.documento && (
+                        <button
+                            type="button"
+                            className="action-details"
+                            disabled={disabled || pending}
+                            onClick={() =>
+                                downloadXml(
+                                    data.xmlOriginal ?? "",
+                                    data.documento?.chaveAcesso ?? null,
+                                )
+                            }
+                        >
+                            <Icon name="download" />
+                            Baixar XML original
+                        </button>
                     )}
-                </>
-            )}
+                </div>
+            </header>
+            <div id={panelId} className="saved-nfe-content" hidden={!open}>
+                {open && (
+                    <>
+                        {pending && <p role="status">Consultando documento…</p>}
+                        {error && <p role="alert">{error}</p>}
+                        {data?.documento && (
+                            <NfeDocument
+                                documento={data.documento}
+                                collapseAdditional
+                            />
+                        )}
+                    </>
+                )}
+            </div>
         </div>
     );
 }

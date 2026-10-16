@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import {
     ApiError,
     call,
@@ -20,6 +20,8 @@ import { formatProductQuantity } from "../../domain/quantityPresentation";
 import { NfeDocument, downloadXml } from "./NfeDocument";
 import { XmlProductForm } from "./XmlProductForm";
 import type { Perfil } from "../../contracts/runtime";
+import { information } from "../../content/information";
+import { Icon } from "../../design-system/Icon";
 
 export function ReceivingCreateDialog({
     transport,
@@ -58,6 +60,7 @@ export function ReceivingCreateDialog({
     const lifetime = useRef(new AbortController());
     const lock = useRef(false);
     const fileInput = useRef<HTMLInputElement>(null);
+    const fileHelpId = useId();
     useEffect(() => {
         lifetime.current = new AbortController();
         return () => lifetime.current.abort();
@@ -319,6 +322,8 @@ export function ReceivingCreateDialog({
             onClose={close}
             locked={blocked}
             wide={mode === "xml"}
+            className="nfe-create-dialog"
+            icon={mode === "xml" ? "fiscal" : "entrada"}
         >
             {productSource ? (
                 <XmlProductForm
@@ -351,57 +356,134 @@ export function ReceivingCreateDialog({
                     >
                         Criar manualmente
                     </button>
-                    <button type="button" onClick={() => setMode("xml")}>
+                    <button
+                        type="button"
+                        className="action-details"
+                        onClick={() => setMode("xml")}
+                    >
+                        <Icon name="fiscal" />
                         Importar XML da NF-e
                     </button>
                 </div>
             ) : (
                 <div className="nfe-create">
-                    <p>
-                        Selecione a nota, confira a prévia e associe os
-                        produtos. O pedido só será gravado ao confirmar.
-                    </p>
-                    <label>
-                        Arquivo XML da NF-e
+                    <div className="nfe-create-intro">
+                        <p>{information.receivingXml.description}</p>
+                        <p className="hint">
+                            {information.receivingXml.footer}
+                        </p>
+                    </div>
+                    <section
+                        className="nfe-file-panel"
+                        aria-label="Arquivo da nota"
+                        aria-busy={Boolean(pending)}
+                    >
+                        <header>
+                            <h3>{information.receivingXmlFile.title}</h3>
+                            <p id={fileHelpId} className="hint">
+                                {information.receivingXmlFile.description}
+                            </p>
+                        </header>
                         <input
                             ref={fileInput}
                             type="file"
+                            hidden
+                            aria-label="Arquivo XML da NF-e"
+                            aria-describedby={fileHelpId}
                             accept=".xml,application/xml,text/xml"
                             disabled={blocked}
                             onChange={(e) => {
                                 void read(e.target.files?.[0]);
                             }}
                         />
-                    </label>
-                    {fileName && (
-                        <div className="record-header-actions">
-                            <span>{fileName}</span>
-                            <button
-                                type="button"
-                                disabled={blocked}
-                                onClick={() => {
-                                    clear();
-                                    if (fileInput.current)
-                                        fileInput.current.value = "";
-                                }}
-                            >
-                                Remover arquivo
-                            </button>
-                            <button
-                                type="button"
-                                disabled={blocked || !xml}
-                                onClick={() => void preview()}
-                            >
-                                {previa ? "Atualizar prévia" : "Ler XML"}
-                            </button>
+                        <div className="nfe-file-selection">
+                            <span className="nfe-file-icon">
+                                <Icon name="fiscal" />
+                            </span>
+                            <div className="nfe-file-name">
+                                <span className="hint">
+                                    {fileName
+                                        ? "Arquivo selecionado"
+                                        : "Nenhum arquivo selecionado"}
+                                </span>
+                                {fileName && <strong>{fileName}</strong>}
+                            </div>
+                            <div className="nfe-file-actions">
+                                <button
+                                    type="button"
+                                    className="action-details"
+                                    disabled={blocked}
+                                    aria-describedby={fileHelpId}
+                                    onClick={() => fileInput.current?.click()}
+                                >
+                                    <Icon name="fiscal" />
+                                    {fileName
+                                        ? "Trocar arquivo"
+                                        : "Selecionar XML"}
+                                </button>
+                                {fileName && (
+                                    <>
+                                        <button
+                                            type="button"
+                                            className="action-remove"
+                                            disabled={blocked}
+                                            onClick={() => {
+                                                clear();
+                                                if (fileInput.current)
+                                                    fileInput.current.value =
+                                                        "";
+                                            }}
+                                        >
+                                            <Icon name="close" />
+                                            Remover arquivo
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className={
+                                                previa
+                                                    ? "action-refresh"
+                                                    : "primary"
+                                            }
+                                            disabled={blocked || !xml}
+                                            onClick={() => void preview()}
+                                        >
+                                            <Icon
+                                                name={
+                                                    previa ? "refresh" : "eye"
+                                                }
+                                            />
+                                            {previa
+                                                ? "Atualizar prévia"
+                                                : "Ler XML"}
+                                        </button>
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                    </section>
+                    {pending && (
+                        <p role="status" className="nfe-create-status">
+                            {pending}
+                        </p>
+                    )}
+                    {error && (
+                        <div role="alert" className="nfe-create-error">
+                            <Icon name="contingencia" />
+                            <div>
+                                <strong>
+                                    {unknown
+                                        ? "Resultado da confirmação desconhecido"
+                                        : "Não foi possível concluir esta etapa"}
+                                </strong>
+                                <p>{error}</p>
+                            </div>
                         </div>
                     )}
-                    {pending && <p role="status">{pending}</p>}
-                    {error && <p role="alert">{error}</p>}
                     {unknown && (
                         <div className="record-feedback record-feedback--unknown">
                             <button
                                 type="button"
+                                className="action-refresh"
                                 disabled={Boolean(pending)}
                                 onClick={() => void recover()}
                             >
@@ -409,6 +491,7 @@ export function ReceivingCreateDialog({
                             </button>
                             <button
                                 type="button"
+                                className="action-replay"
                                 disabled={Boolean(pending)}
                                 onClick={() => void confirm(true)}
                             >
@@ -421,6 +504,7 @@ export function ReceivingCreateDialog({
                             <NfeDocument documento={previa.documento} />
                             <button
                                 type="button"
+                                className="action-details"
                                 onClick={() =>
                                     downloadXml(
                                         xml,
@@ -516,6 +600,7 @@ export function ReceivingCreateDialog({
                                                 !mapped?.produtoId && (
                                                     <button
                                                         type="button"
+                                                        className="action-add"
                                                         disabled={
                                                             blocked || !cliente
                                                         }
@@ -579,6 +664,7 @@ export function ReceivingCreateDialog({
                             {previa.pedidoExistenteId && (
                                 <button
                                     type="button"
+                                    className="action-details"
                                     disabled={blocked}
                                     onClick={() =>
                                         onExisting(previa.pedidoExistenteId!)
@@ -596,6 +682,7 @@ export function ReceivingCreateDialog({
                             <div className="record-header-actions">
                                 <button
                                     type="button"
+                                    className="action-refresh"
                                     disabled={blocked}
                                     onClick={() => void preview()}
                                 >

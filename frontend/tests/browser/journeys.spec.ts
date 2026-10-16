@@ -337,21 +337,18 @@ test("Saída integral: pedido → FIFO → reserva → etiqueta → leitura → 
     await page
         .getByRole("button", { name: "Novo registro", exact: true })
         .click();
-    await page.getByLabel("Referência *", { exact: true }).fill("DEMO-SAIDA");
     await page
-        .getByLabel("Motivo / justificativa *", { exact: true })
+        .getByLabel("Justificativa do pedido *", { exact: true })
         .fill("Pedido fictício integral");
     await page
-        .getByRole("button", { name: "Adicionar Itens", exact: true })
+        .getByRole("button", { name: "Adicionar item", exact: true })
         .click();
     await expect(
-        page.getByLabel("Itens / Item 1 / Produto / SKU (ID) *", {
+        page.getByLabel("Produto / SKU *", {
             exact: true,
         }),
     ).toHaveValue("11");
-    await page
-        .getByLabel("Itens / Item 1 / Quantidade *", { exact: true })
-        .fill("10.000000");
+    await page.getByLabel("Quantidade *", { exact: true }).fill("10.000000");
     await confirm(page);
     await continueTo(page, "Consultar FIFO deste pedido integral");
     await expect(

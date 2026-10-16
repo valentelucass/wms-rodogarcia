@@ -39,6 +39,7 @@ const paths: Record<string, string> = {
     refresh: "M20 7v5h-5 M4 17v-5h5 M6 6a8 8 0 0 1 13 3 M18 18a8 8 0 0 1-13-3",
     history: "M3 12a9 9 0 1 0 3-7 M3 3v5h5 M12 7v5l3 2",
     download: "M12 3v12 m-5-5 5 5 5-5 M4 16v5h16v-5",
+    print: "M7 8V3h10v5 M7 17H3V8h18v9h-4 M7 13h10v8H7z M17 10h1",
     "eye-off":
         "m3 3 18 18 M10 5c5-1 10 4 12 7l-3 4 M6 6c-2 2-3 4-4 6 3 5 7 8 12 7l3-1 M10 10a3 3 0 0 0 4 4",
     arrow: "M4 12h16 m-6-6 6 6-6 6",

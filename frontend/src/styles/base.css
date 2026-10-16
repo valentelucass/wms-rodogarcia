@@ -96,6 +96,10 @@ button.action-refresh {
     );
     --action-foreground: var(--wms-action-refresh-text);
 }
+button.action-replay {
+    --action-background: var(--og-warning-bg);
+    --action-foreground: var(--og-warning-text);
+}
 button.action-dismiss,
 button.action-remove,
 button.dialog-close {
@@ -109,6 +113,7 @@ button:is(
     .action-details,
     .action-select,
     .action-refresh,
+    .action-replay,
     .action-dismiss,
     .dialog-close
 ) {
@@ -127,6 +132,7 @@ button:is(
         .action-details,
         .action-select,
         .action-refresh,
+        .action-replay,
         .action-dismiss,
         .dialog-close
     ):hover:not(:disabled) {

@@ -88,6 +88,12 @@ Preparar um pacote não troca o processo já aberto. Depois da preparação apro
 
 ## Verificação
 
+### Vínculos do usuário legíveis — FE03-USUARIO-UX01
+
+Pedido de Lucas em 16/10/2026: corrigir Novo usuário com busca e opções espremidas. A regra de grade em `workspace.css` fica no fieldset direto; seletores internos mantêm uma coluna. `ScopeChoices` separa busca/lista, alinha checkbox e nome, destaca a escolha e informa a quantidade selecionada/exibida. Linhas crescem com o texto, sem compressão por causa da altura máxima da lista; nomes extensos não ficam cortados. Clientes/armazéns empilham em telas menores; segurança mantém espaço e ações ficam acessíveis, com Cancelar vermelho. Orientação em `information.userOperationalAccess`.
+
+Permissões, perfil/administração, senha temporária, revisão e proteção da conta principal não mudam. IDs exatos e vínculos que não vieram no catálogo permanecem preservados; busca não limpa seleção nem concede acesso. 83 testes existentes de autenticação/correções/referências em seis arquivos, tipagem/lint/formatação/build e dez layouts Chrome fictícios claro/escuro em 320/390/768/1024/1440 px aprovados. Conferidos nomes longos, seleção por Space, filtro/contagem, criação com envio único e recusa sem perda, tentativa explícita, edição com vínculo indisponível, redefinição, foco e catálogo carregando/vazio/erro. [Galeria](../orchestracao/.runtime/user-scope-layout-20261016/galeria.html), [recibo](../orchestracao/.runtime/user-scope-layout-20261016/validacao.json). Administração e catálogo fictícios em memória; nenhuma conta real alterada, SQL/backend, reinício operacional ou publicação. Versão ativa não medida.
+
 ### Cores e alinhamento das ações — FE03-AUTH01-COLOR01
 
 Pedido de Lucas em 10/10/2026: Editar usa azul da marca; Redefinir senha usa fundo/borda âmbar com texto contrastante dos tokens de cada tema. Hover e pressionamento têm reforço de cor; foco visível e desabilitação seguem o padrão compartilhado. Complemento: cabeçalho Ações, botões e indicação Conta protegida alinhados à direita, coluna dimensionada pelo conteúdo e rótulos dos botões em uma linha. Ajuste exclusivo de apresentação em `UsersPage.tsx`/`workspace.css`, sem modificar permissões, diálogos ou chamadas de criação/redefinição. Conferência local com API interceptada, sem alterar contas reais: [recibo](../orchestracao/.runtime/user-button-colors/resultado.json).

@@ -5,6 +5,7 @@ import { PageHeader } from "../components/layout/PageHeader";
 import { Dialog } from "../components/layout/Dialog";
 import { Pagination } from "../components/layout/Pagination";
 import { ScopeChoices } from "./ScopeChoices";
+import { information } from "../content/information";
 
 export function UsersPage({
     auth,
@@ -308,13 +309,14 @@ export function UsersPage({
                                                 </select>
                                             </label>
                                             <p>
-                                                Gestor tem acesso operacional a
-                                                todos os clientes e armazéns. Os
-                                                demais perfis usam os vínculos
-                                                abaixo.
+                                                {
+                                                    information
+                                                        .userOperationalAccess
+                                                        .description
+                                                }
                                             </p>
                                         </div>
-                                        <div className="account-fields">
+                                        <div className="account-fields account-scopes">
                                             <ScopeChoices
                                                 kind="clientes"
                                                 selected={selected?.clientes}
@@ -325,9 +327,11 @@ export function UsersPage({
                                             />
                                         </div>
                                         <p>
-                                            Para Operação e Supervisor, deixar
-                                            os vínculos vazios não libera nenhum
-                                            cliente ou armazém.
+                                            {
+                                                information
+                                                    .userOperationalAccess
+                                                    .footer
+                                            }
                                         </p>
                                     </section>
                                 </>
@@ -394,7 +398,11 @@ export function UsersPage({
                                 </div>
                             </section>
                             <div className="actions">
-                                <button type="button" onClick={closeEditor}>
+                                <button
+                                    type="button"
+                                    className="action-dismiss"
+                                    onClick={closeEditor}
+                                >
                                     Cancelar
                                 </button>
                                 <button type="submit" className="primary">

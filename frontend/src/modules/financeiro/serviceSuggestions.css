@@ -1,0 +1,109 @@
+.operation form.service-suggestions-query {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+        "intro intro"
+        "context context"
+        "fields actions"
+        "pagination pagination";
+    gap: var(--og-space-3) var(--og-space-4);
+    align-items: end;
+}
+.service-suggestions-query > .service-suggestions-intro {
+    grid-area: intro;
+    margin: 0;
+}
+.operation .service-suggestions-query > .operation-fixed-fields {
+    grid-area: context;
+    display: block;
+    margin: 0;
+    padding: var(--og-space-3);
+    border-radius: var(--og-radius-control);
+}
+.service-suggestions-query .operation-fixed-fields .record {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.operation .service-suggestions-query > .operation-fields {
+    grid-area: fields;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    margin: 0;
+    padding: 0;
+}
+.service-suggestions-query .operation-fields > .field {
+    margin: 0;
+}
+.operation form.service-suggestions-query > .actions,
+.record-dialog .dialog-body .service-suggestions-query > .actions {
+    grid-area: actions;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    justify-self: end;
+}
+.service-suggestions-query > .service-suggestions-pagination {
+    grid-area: pagination;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-top: 1px solid var(--og-border);
+    border-radius: 0;
+    background: transparent;
+}
+.service-suggestions-pagination > summary {
+    padding-block: var(--og-space-3);
+    cursor: pointer;
+    font-size: var(--og-type-caption);
+    color: var(--og-text-muted);
+}
+.operation .service-suggestions-pagination > .pagination-fields {
+    margin: 0;
+    padding: var(--og-space-3);
+    background: var(--og-surface);
+}
+.record-dialog--service-suggestions .dialog-header {
+    position: sticky;
+    top: 0;
+    z-index: var(--og-z-sticky);
+    background: var(--og-surface);
+}
+.record-dialog--service-suggestions .reference-lookup {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--og-space-2) var(--og-space-4);
+    background: var(--og-surface);
+}
+.record-dialog--service-suggestions .reference-lookup > h2,
+.record-dialog--service-suggestions .reference-lookup > .button-row {
+    margin: 0;
+}
+.record-dialog--service-suggestions .reference-lookup > :is(p, section) {
+    flex: 1 1 100%;
+    min-width: 0;
+}
+.service-suggestions-query :is(input, select, button, summary) {
+    scroll-margin-block: 88px;
+}
+@media (max-width: 600px) {
+    .operation form.service-suggestions-query {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas: "intro" "context" "fields" "actions" "pagination";
+    }
+    .service-suggestions-query .operation-fixed-fields .record {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .operation form.service-suggestions-query > .actions,
+    .record-dialog .dialog-body .service-suggestions-query > .actions {
+        justify-self: stretch;
+    }
+    .service-suggestions-query > .actions > button,
+    .service-suggestions-pagination > summary,
+    .record-dialog--service-suggestions .reference-lookup button {
+        min-height: var(--og-touch-height);
+    }
+    .service-suggestions-query > .actions > button {
+        flex: 1 1 100%;
+    }
+}

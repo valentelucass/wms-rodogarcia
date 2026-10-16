@@ -231,7 +231,11 @@ function FieldControl({
                 )}
                 {f.type === "FechamentoCobrancaDto.Resolucao" &&
                     isObject(value) && (
-                        <ResolutionReferences onChange={onChange} />
+                        <ResolutionReferences
+                            onChange={onChange}
+                            value={value}
+                            disabled={disabled}
+                        />
                     )}
                 {value === null || value === undefined ? (
                     <button
@@ -260,11 +264,7 @@ function FieldControl({
                         {!f.required && (
                             <button
                                 type="button"
-                                className={
-                                    f.name === "resolucao"
-                                        ? "action-remove"
-                                        : undefined
-                                }
+                                className="action-remove"
                                 onClick={() => onChange(null)}
                             >
                                 Remover {label(f.name)}

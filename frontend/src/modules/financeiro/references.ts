@@ -50,7 +50,9 @@ export function billingReferences(
             ctx.unidadeId = suggestion.unidadeId;
             ctx.pedidoSaidaId = suggestion.pedidoSaidaId;
             ctx.produtoId = suggestion.produtoId;
-            ctx.referenciaExecucao = suggestion.chaveFato;
+            // A chave calculada da sugestão não é a referência de uma execução manual.
+            // Entrada/saída exigem referenciaExecucao nula no contrato do serviço.
+            ctx.referenciaExecucao = null;
             ctx.executadoEm = suggestion.executadoEm;
             ctx.quantidade = suggestion.quantidade;
             ctx.categoria = suggestion.categoria;

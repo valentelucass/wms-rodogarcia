@@ -1,0 +1,81 @@
+.calculation-fields {
+    display: grid;
+    gap: var(--og-space-4);
+    width: 100%;
+    min-width: 0;
+    grid-column: 1 / -1;
+}
+.calculation-section {
+    display: grid;
+    gap: var(--og-space-3);
+    min-width: 0;
+    padding: var(--og-space-4);
+    border: 1px solid var(--og-border);
+    border-radius: var(--og-radius-control);
+}
+.calculation-fields :is(h3, h4, p) {
+    margin: 0;
+}
+.calculation-fields :is(h3, h4) {
+    font-size: var(--og-type-body);
+}
+.calculation-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--og-space-4);
+    align-items: start;
+}
+.calculation-fields .field {
+    min-width: 0;
+    margin: 0;
+}
+.calculation-fields :is(input, select, textarea) {
+    width: 100%;
+    min-width: 0;
+    scroll-margin-block: 92px;
+}
+.calculation-fields textarea,
+.record-dialog .operation .calculation-fields textarea {
+    min-height: 104px;
+    line-height: 1.6;
+}
+.record-dialog--calculation .dialog-header {
+    position: sticky;
+    top: 0;
+    z-index: var(--og-z-sticky);
+    background: var(--og-surface);
+}
+.record-dialog--calculation .reference-lookup {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--og-space-2) var(--og-space-4);
+    background: var(--og-surface);
+}
+.record-dialog--calculation .reference-lookup > h2,
+.record-dialog--calculation .reference-lookup > .button-row {
+    margin: 0;
+}
+.record-dialog--calculation .reference-lookup > :is(p, section) {
+    flex: 1 1 100%;
+    min-width: 0;
+}
+.record-dialog--calculation .operation form > .actions {
+    position: sticky;
+    bottom: 0;
+    z-index: var(--og-z-sticky);
+    background: var(--og-surface);
+    padding-block: var(--og-space-3);
+}
+@media (max-width: 600px) {
+    .calculation-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .calculation-section {
+        padding: var(--og-space-3);
+    }
+    .calculation-fields button {
+        min-height: var(--og-touch-height);
+    }
+}

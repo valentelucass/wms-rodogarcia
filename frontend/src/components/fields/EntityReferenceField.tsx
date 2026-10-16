@@ -4,6 +4,7 @@ import { FormReferences } from "../FormReferences";
 import {
     useReferenceTransport,
     usePresentationRecords,
+    useRememberReference,
     ReferenceValue,
 } from "../context/ReferencePresentation";
 import {
@@ -52,7 +53,8 @@ export function EntityReferenceField({
 }) {
     const refs = useContext(FormReferences),
         known = usePresentationRecords(),
-        transport = useReferenceTransport();
+        transport = useReferenceTransport(),
+        rememberReference = useRememberReference();
     const target = typesForReference(field, type, row)[0],
         action = lists[target];
     const [pagination, setPagination] = useState({ context: "", page: 0 }),
@@ -60,6 +62,7 @@ export function EntityReferenceField({
     const [state, setState] = useState<{
         key: string;
         transport?: Transport;
+        scope?: typeof rememberReference;
         rows: Values[];
         pages: number;
         error: string;
@@ -125,6 +128,7 @@ export function EntityReferenceField({
                 setState({
                     key,
                     transport,
+                    scope: rememberReference,
                     rows,
                     pages: isObject(data) ? Number(data.totalPaginas ?? 1) : 1,
                     error: "",
@@ -135,14 +139,25 @@ export function EntityReferenceField({
                     setState({
                         key,
                         transport,
+                        scope: rememberReference,
                         rows: [],
                         pages: 0,
                         error: "Não foi possível consultar as opções. Reabra a seleção para tentar novamente.",
                     });
             });
         return () => abort.abort();
-    }, [shouldRead, transport, action, key]);
-    const current = state.key === key && state.transport === transport;
+    }, [shouldRead, transport, action, key, rememberReference]);
+    const current =
+        state.key === key &&
+        state.transport === transport &&
+        state.scope === rememberReference;
+    useEffect(() => {
+        if (!current) return;
+        const selected = state.rows.find(
+            (row) => String(row.id) === String(value),
+        );
+        if (selected) rememberReference?.(target, selected);
+    }, [current, state.rows, target, value, rememberReference]);
     // A cache used to name references is not a catalog of selectable records for another context.
     const candidates = options.length
         ? options

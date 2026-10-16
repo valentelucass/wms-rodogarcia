@@ -317,6 +317,8 @@ export function recordActionLabel(id: string): string {
         "PedidoSaidaController.criar": "Nova saída",
         "ContagemController.contar": "Nova contagem",
         "CargaInicialController.criar": "Nova carga inicial",
+        "CargaInicialController.consultar": "Consultar carga inicial",
+        "CargaInicialController.confirmar": "Confirmar carga inicial",
         "ContingenciaController.registrar": "Registrar ocorrência",
         "CalculoCobrancaController.calcular": "Calcular serviços",
         "FechamentoCobrancaController.preparar": "Preparar fechamento",

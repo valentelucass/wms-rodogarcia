@@ -1,0 +1,207 @@
+.service-fact-detail,
+.service-fact-detail > section,
+.service-fact-recovery {
+    display: grid;
+    gap: var(--og-space-4);
+    min-width: 0;
+}
+.service-fact-detail :is(h3, h4, p, dl),
+.service-fact-recovery :is(h3, p) {
+    margin: 0;
+}
+.service-fact-detail :is(dt, dd) {
+    margin: 0;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+.service-fact-detail dt {
+    margin-bottom: var(--og-space-1);
+    font-size: var(--og-type-caption);
+    color: var(--og-text-muted);
+}
+.service-fact-detail-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--og-space-4);
+}
+.service-fact-detail-header > div {
+    display: grid;
+    gap: var(--og-space-1);
+    min-width: 0;
+}
+.service-fact-detail-header > div:last-child {
+    flex-shrink: 0;
+    justify-items: end;
+}
+.service-fact-detail h3 {
+    font-size: var(--og-type-section);
+    overflow-wrap: anywhere;
+}
+.service-fact-detail h4,
+.service-fact-recovery h3 {
+    font-size: var(--og-type-body);
+}
+.service-fact-detail-context,
+.service-fact-detail-values {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--og-space-3) var(--og-space-4);
+}
+.service-fact-detail-context {
+    background: var(--og-surface-raised);
+    padding: var(--og-space-3);
+    border-radius: var(--og-radius-control);
+}
+.service-fact-detail > section {
+    padding-block: var(--og-space-4);
+    border-top: 1px solid var(--og-border);
+}
+.service-fact-detail-amounts {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    padding: var(--og-space-3);
+    background: var(--og-surface-raised);
+    border-radius: var(--og-radius-control);
+    font-variant-numeric: tabular-nums;
+}
+.service-fact-detail-text {
+    white-space: pre-wrap;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+.service-fact-detail-shares {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: var(--og-space-2);
+}
+.service-fact-detail-shares > li {
+    padding: var(--og-space-3);
+    border: 1px solid var(--og-border);
+    border-radius: var(--og-radius-control);
+}
+.service-fact-detail-technical {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-top: 1px solid var(--og-border);
+}
+.service-fact-detail-technical > summary {
+    cursor: pointer;
+    padding-block: var(--og-space-3);
+    color: var(--og-text-muted);
+    font-size: var(--og-type-caption);
+}
+.service-fact-recovery-warning {
+    display: grid;
+    gap: var(--og-space-2);
+    padding: var(--og-space-4);
+    border: 1px solid var(--og-warning);
+    border-radius: var(--og-radius-control);
+    background: var(--og-warning-bg);
+    color: var(--og-warning-text);
+}
+.service-fact-recovery-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--og-space-4);
+}
+.service-fact-recovery-toolbar > div {
+    display: grid;
+    gap: var(--og-space-1);
+}
+.service-fact-recovery-toolbar > button {
+    flex-shrink: 0;
+}
+.service-fact-recovery-error {
+    padding: var(--og-space-3);
+    background: var(--og-danger-bg);
+    color: var(--og-negative-text);
+    border-radius: var(--og-radius-control);
+    overflow-wrap: anywhere;
+}
+.service-fact-recovery-result {
+    display: grid;
+    gap: var(--og-space-4);
+    min-width: 0;
+    padding: var(--og-space-4);
+    border: 1px solid var(--og-border);
+    border-radius: var(--og-radius-control);
+}
+.service-fact-recovery-result > header {
+    display: grid;
+    gap: var(--og-space-1);
+    padding-bottom: var(--og-space-3);
+    border-bottom: 1px solid var(--og-border);
+}
+.service-fact-recovery-exit {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--og-space-4);
+    border-top: 1px solid var(--og-border);
+    padding-top: var(--og-space-4);
+}
+.service-fact-recovery-exit p {
+    color: var(--og-text-muted);
+    font-size: var(--og-type-caption);
+}
+.service-fact-recovery-exit > button {
+    flex-shrink: 0;
+}
+.record-dialog--fact-annulment .dialog-header {
+    position: sticky;
+    top: 0;
+    z-index: var(--og-z-sticky);
+    background: var(--og-surface);
+}
+.record-dialog--fact-annulment:has(.service-fact-recovery)
+    > .dialog-body
+    > .record-action-subject {
+    display: none;
+}
+.record-dialog--fact-annulment:has(.service-fact-recovery)
+    .record-dialog-footer {
+    display: none;
+}
+.record-dialog--fact-annulment .reference-lookup {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--og-space-2) var(--og-space-4);
+    background: var(--og-surface);
+}
+.record-dialog--fact-annulment .reference-lookup > h2,
+.record-dialog--fact-annulment .reference-lookup > .button-row {
+    margin: 0;
+}
+.record-dialog--fact-annulment .reference-lookup > :is(p, section) {
+    flex: 1 1 100%;
+    min-width: 0;
+}
+@media (max-width: 600px) {
+    .service-fact-detail-context,
+    .service-fact-detail-values,
+    .service-fact-detail-amounts {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .service-fact-detail-header,
+    .service-fact-recovery-toolbar,
+    .service-fact-recovery-exit {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .service-fact-detail-header > div:last-child {
+        justify-items: start;
+    }
+    .service-fact-recovery-result {
+        padding: var(--og-space-3);
+    }
+    .service-fact-recovery button,
+    .service-fact-detail-technical > summary {
+        min-height: var(--og-touch-height);
+    }
+}

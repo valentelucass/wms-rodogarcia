@@ -1,0 +1,182 @@
+.billing-approval-result,
+.billing-adjustments,
+.billing-adjustment {
+    display: grid;
+    gap: var(--og-space-4);
+    min-width: 0;
+}
+.billing-approval-result :is(h3, h4, h5, p, dl),
+.billing-adjustments :is(h4, h5, p, dl) {
+    margin: 0;
+}
+.billing-approval-result :is(h3, h4),
+.billing-adjustment h4 {
+    font-size: var(--og-type-body);
+}
+.billing-approval-header,
+.billing-approval-section > header,
+.billing-adjustment > header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    gap: var(--og-space-4);
+}
+.billing-approval-header > div {
+    display: grid;
+    gap: var(--og-space-1);
+    min-width: 0;
+}
+.billing-approval-header > div:last-child {
+    justify-items: end;
+    flex-shrink: 0;
+}
+.billing-approval-header h3 {
+    font-size: var(--og-type-section);
+}
+.billing-context,
+.billing-detail-grid,
+.billing-amounts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--og-space-3) var(--og-space-4);
+}
+.billing-context,
+.billing-amounts {
+    padding: var(--og-space-3);
+    border-radius: var(--og-radius-control);
+    background: var(--og-surface-raised);
+}
+:is(.billing-approval-result, .billing-adjustment) :is(dt, dd) {
+    margin: 0;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+:is(.billing-approval-result, .billing-adjustment) dt {
+    color: var(--og-text-muted);
+    font-size: var(--og-type-caption);
+    margin-bottom: var(--og-space-1);
+}
+.billing-amounts {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    font-variant-numeric: tabular-nums;
+}
+.billing-amounts--pair {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.billing-approval-section {
+    display: grid;
+    gap: var(--og-space-4);
+    min-width: 0;
+    padding-top: var(--og-space-4);
+    border-top: 1px solid var(--og-border);
+}
+.billing-adjustment {
+    padding: var(--og-space-4);
+    border: 1px solid var(--og-border);
+    border-radius: var(--og-radius-control);
+}
+.billing-long-text {
+    display: grid;
+    gap: var(--og-space-2);
+    min-width: 0;
+}
+.billing-long-text :is(h4, h5) {
+    font-size: var(--og-type-caption);
+    color: var(--og-text-muted);
+}
+.billing-long-text p {
+    white-space: pre-wrap;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+.billing-detail-wide {
+    grid-column: 1 / -1;
+}
+.billing-technical,
+.billing-history {
+    padding: 0;
+    margin: 0;
+    border: 0;
+    border-top: 1px solid var(--og-border);
+    min-width: 0;
+}
+.billing-technical > summary,
+.billing-history > summary {
+    padding-block: var(--og-space-3);
+    color: var(--og-text-muted);
+    cursor: pointer;
+    font-size: var(--og-type-caption);
+}
+.billing-technical code {
+    font: inherit;
+    font-family: monospace;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+.billing-history > div {
+    display: grid;
+    gap: var(--og-space-4);
+    min-width: 0;
+}
+.billing-history section > h4 {
+    margin-bottom: var(--og-space-3);
+}
+.billing-detail-actions {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: var(--og-space-2);
+    padding-top: var(--og-space-3);
+    border-top: 1px solid var(--og-border);
+}
+.billing-approval-next {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--og-space-4);
+    padding: var(--og-space-4);
+    margin-top: var(--og-space-4);
+    background: var(--og-surface-raised);
+    border-radius: var(--og-radius-control);
+}
+.billing-approval-next h4 {
+    margin: 0;
+    font-size: var(--og-type-body);
+}
+.record-dialog--billing-approval .dialog-header {
+    position: sticky;
+    top: 0;
+    z-index: var(--og-z-sticky);
+    background: var(--og-surface);
+}
+.record-dialog--billing-approval:has(.billing-approval-result)
+    .record-action-subject {
+    display: none;
+}
+@media (max-width: 600px) {
+    .billing-context,
+    .billing-detail-grid,
+    .billing-amounts {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .billing-adjustment {
+        padding: var(--og-space-3);
+    }
+    .billing-approval-header,
+    .billing-approval-next {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .billing-approval-header > div:last-child {
+        justify-items: start;
+    }
+    .billing-detail-actions {
+        flex-direction: column;
+    }
+    :is(.billing-approval-result, .billing-adjustments, .billing-approval-next)
+        button,
+    .billing-technical > summary,
+    .billing-history > summary {
+        min-height: var(--og-touch-height);
+    }
+}

@@ -1,0 +1,135 @@
+.service-fact-confirmation-dialog {
+    width: min(900px, calc(100vw - 32px));
+}
+.service-fact-confirmation-dialog .dialog-header {
+    position: sticky;
+    top: 0;
+    z-index: var(--og-z-sticky);
+    background: var(--og-surface);
+}
+.service-fact-confirmation {
+    display: grid;
+    gap: var(--og-space-4);
+    min-width: 0;
+    font-weight: var(--og-font-regular);
+}
+.service-fact-confirmation :is(p, h3, h4, dl) {
+    margin: 0;
+}
+.service-fact-confirmation-intro {
+    color: var(--og-text-muted);
+}
+.service-fact-confirmation-context,
+.service-fact-confirmation-values {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--og-space-3) var(--og-space-4);
+}
+.service-fact-confirmation-context {
+    padding: var(--og-space-4);
+    border-radius: var(--og-radius-control);
+    background: var(--og-surface-raised);
+}
+.service-fact-confirmation :is(dt, dd) {
+    margin: 0;
+    min-width: 0;
+}
+.service-fact-confirmation dt {
+    margin-bottom: var(--og-space-1);
+    font-size: var(--og-type-caption);
+    color: var(--og-text-muted);
+}
+.service-fact-confirmation dd,
+.service-fact-confirmation-text {
+    overflow-wrap: anywhere;
+}
+.service-fact-confirmation-section {
+    display: grid;
+    gap: var(--og-space-3);
+    min-width: 0;
+    padding: var(--og-space-4);
+    border: 1px solid var(--og-border);
+    border-radius: var(--og-radius-control);
+}
+.service-fact-confirmation :is(h3, h4) {
+    font-size: var(--og-type-body);
+}
+.service-fact-confirmation-wide {
+    grid-column: 1 / -1;
+}
+.service-fact-confirmation-service {
+    font-size: var(--og-type-section);
+    font-weight: var(--og-font-semibold);
+}
+.service-fact-confirmation-origin {
+    display: inline-flex;
+    padding: var(--og-space-1) var(--og-space-2);
+    border-radius: var(--og-radius-badge);
+    background: var(--og-selection);
+    color: var(--og-selection-text);
+    font-size: var(--og-type-caption);
+}
+.service-fact-confirmation-amounts {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.service-fact-confirmation-amounts dd {
+    font-variant-numeric: tabular-nums;
+}
+.service-fact-confirmation-text {
+    white-space: pre-wrap;
+    line-height: 1.6;
+}
+.service-fact-confirmation-reason {
+    border-left: 3px solid var(--og-border-strong);
+    background: var(--og-surface-raised);
+}
+.service-fact-confirmation-shares {
+    display: grid;
+    gap: var(--og-space-2);
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+.service-fact-confirmation-shares > li {
+    padding: var(--og-space-3);
+    border-radius: var(--og-radius-control);
+    background: var(--og-surface-raised);
+}
+.service-fact-confirmation-technical {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-top: 1px solid var(--og-border);
+}
+.service-fact-confirmation-technical > summary {
+    padding-block: var(--og-space-3);
+    cursor: pointer;
+    font-size: var(--og-type-caption);
+    color: var(--og-text-muted);
+}
+.confirmation--service-fact > .actions {
+    position: sticky;
+    bottom: 0;
+    z-index: var(--og-z-sticky);
+    padding-block: var(--og-space-3);
+    background: var(--og-surface);
+}
+.record-dialog:has(.service-fact-confirmation)
+    :is(.record-action-subject, .reference-lookup) {
+    display: none;
+}
+@media (max-width: 600px) {
+    .service-fact-confirmation-context,
+    .service-fact-confirmation-values,
+    .service-fact-confirmation-amounts {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .service-fact-confirmation-section,
+    .service-fact-confirmation-context {
+        padding: var(--og-space-3);
+    }
+    .service-fact-confirmation-technical > summary,
+    .confirmation--service-fact > .actions > button {
+        min-height: var(--og-touch-height);
+    }
+}

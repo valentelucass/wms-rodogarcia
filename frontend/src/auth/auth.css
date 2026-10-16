@@ -455,6 +455,24 @@
 .account-profile p {
     margin: 0;
 }
+.account-scopes {
+    align-items: start;
+}
+.account-permission {
+    min-width: 0;
+}
+.account-dialog .user-form > fieldset > .actions {
+    position: sticky;
+    bottom: 0;
+    z-index: 1;
+    padding-block: var(--og-space-4);
+    background: var(--wms-account-surface);
+}
+@media (max-width: 760px) {
+    .account-scopes {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
 .account-fields > :only-child {
     grid-column: 1 / -1;
 }

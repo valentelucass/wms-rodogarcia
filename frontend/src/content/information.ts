@@ -10,6 +10,178 @@ export type Information = {
 };
 
 export const information = {
+    operationErrorDetails: {
+        title: "Detalhes técnicos",
+        description:
+            "Se precisar de suporte, informe o código e a correlação abaixo.",
+    },
+    dispatchOrder: {
+        title: "Itens do pedido de saída",
+        description:
+            "Adicione os produtos e as quantidades solicitadas. O pedido de saída será atendido integralmente.",
+    },
+    dispatchOrderQuantity: {
+        title: "Quantidades solicitadas",
+        description:
+            "Informe a quantidade na unidade cadastrada do produto. Use ponto para decimais.",
+    },
+    tableCellText: {
+        title: "Conteúdo completo",
+        description: "Você pode selecionar e copiar o texto abaixo.",
+    },
+    receivingNotes: {
+        title: "Notas e itens do pedido",
+        description:
+            "Selecione o item que será conferido. O produto e sua origem permanecem vinculados ao pedido; o XML não confirma chegada física.",
+        footer: "A previsão está congelada. O XML só pode ser vinculado a uma nota existente e compatível, sem alterar as quantidades físicas.",
+    },
+    receivingOriginalDocument: {
+        title: "Documento original da nota",
+        description:
+            "Os dados do arquivo ficam separados dos itens e das quantidades conferidas no pedido.",
+        footer: "A emissão e o protocolo não comprovam chegada física. A leitura local não consulta a situação atual nem verifica a assinatura na SEFAZ.",
+    },
+    userOperationalAccess: {
+        title: "Acesso operacional do usuário",
+        description:
+            "O Gestor acessa todos os clientes e armazéns. Os demais perfis usam os vínculos selecionados abaixo.",
+        footer: "Para Operação e Supervisor, vínculos vazios não liberam acesso a clientes ou armazéns.",
+    },
+    billingApprovalResult: {
+        title: "Dados retornados da aprovação",
+        description:
+            "Confira a versão e os ajustes retornados antes de continuar.",
+    },
+    billingAdjustments: {
+        title: "Ajustes da versão",
+        description: "Confira a origem, o destino e os valores de cada ajuste.",
+    },
+    reopenCycle: {
+        title: "Reabrir ciclo",
+        description:
+            "Confira a versão atual e selecione o cálculo de referência para a reabertura.",
+    },
+    serviceCalculation: {
+        title: "Período do cálculo",
+        description:
+            "Informe o início e o fim do período. A data final é exclusiva e não entra no cálculo.",
+    },
+    serviceFactRecovery: {
+        title: "Resultado da anulação ainda não confirmado",
+        description:
+            "Consulte o fato para conferir sua situação. Essa consulta não repete a alteração nem declara sucesso da anulação.",
+    },
+    serviceFactConfirmation: {
+        title: "Confirmar fato de serviço",
+        description:
+            "Confira a execução, os vínculos e a justificativa antes de confirmar o registro.",
+    },
+    serviceFact: {
+        title: "Registrar fato de serviço",
+        description:
+            "Confira o serviço, a execução e os vínculos de origem antes de confirmar o registro.",
+    },
+    serviceFactValues: {
+        title: "Quantidade e valor do fato",
+        description:
+            "Use ponto nos campos decimais e mantenha a precisão dos dados informados. Confira a cobrança na etapa de cálculo.",
+    },
+    serviceSuggestions: {
+        title: "Consultar sugestões de serviço",
+        description:
+            "Escolha o serviço e consulte as sugestões. O registro da execução é feito em uma ação separada.",
+    },
+    dispatchReservations: {
+        title: "Reservas do pedido",
+        description:
+            "Confira a quantidade, a nota de origem e o identificador da unidade antes de selecionar a reserva. A escolha prepara a leitura da etiqueta ou o registro do destino; quantidades e situações são as retornadas na consulta.",
+    },
+    endValidity: {
+        title: "Encerrar vigência identificada",
+        description:
+            "Informe a data de corte e identifique o compromisso financeiro relacionado à vigência.",
+    },
+    resolutionReferences: {
+        title: "Compromissos consultados",
+        description:
+            "Escolha um compromisso consultado ou informe sua identificação abaixo. O servidor verifica o vínculo histórico e a autorização do Gestor.",
+        footer: "Nenhum compromisso consultado disponível. Consulte os registros relacionados para carregar as referências.",
+    },
+    receivingXml: {
+        title: "Importar XML da NF-e",
+        description:
+            "Selecione o XML para conferir a nota e associar os produtos.",
+        footer: "O pedido só será gravado ao confirmar.",
+    },
+    receivingXmlFile: {
+        title: "Arquivo da NF-e",
+        description: "Arquivo .xml em UTF-8, até 1 MB.",
+    },
+    countConfirmation: {
+        title: "Confirmar contagem física",
+        description:
+            "Confira a unidade, a quantidade observada e o instante da contagem antes de confirmar.",
+        footer: "Registrar a contagem não aplica ajuste de estoque.",
+    },
+    contingencyCount: {
+        title: "Contagem levantada na planilha",
+        description:
+            "Informe a unidade, sua versão, a quantidade e o instante observados. Registrar uma contagem não aplica ajuste de estoque.",
+    },
+    contingencyDependencies: {
+        title: "Dependências do fato",
+        description:
+            "Informe as identidades dos outros fatos dos quais este registro depende. Use a identidade da planilha, sem substituir pelo ID de um cadastro.",
+    },
+    contingencyRegistrationReason: {
+        title: "Justificativa do registro",
+        description:
+            "Explique o registro desta ocorrência no WMS. O motivo da contagem, quando aplicável, pertence aos dados do fato e é informado separadamente.",
+    },
+    contingencyCommand: {
+        title: "Dados do fato da planilha",
+        description:
+            "Informe as referências e os dados do fato levantado. O registro não executa a conciliação automaticamente.",
+    },
+    initialLoadQuery: {
+        title: "Consultar carga inicial",
+        description:
+            "Selecione a carga pela referência para consultar os dados e a revisão atual.",
+    },
+    initialLoadConfirmation: {
+        title: "Confirmação da carga inicial",
+        description:
+            "Confira a leitura da etiqueta fornecida e todas as etiquetas das unidades antes de confirmar.",
+    },
+    initialLoadConfirmationTechnical: {
+        title: "Dados técnicos da revisão",
+        description:
+            "A versão, a revisão e o hash identificam os dados enviados. O sistema revalida essas informações ao confirmar.",
+    },
+    initialLoadOrigin: {
+        title: "Origem da carga inicial",
+        description:
+            "Informe somente os dados comprovados da origem. Não invente nota, chegada ou data FIFO para completar o cadastro.",
+    },
+    initialLoadDates: {
+        title: "Datas e lote da carga",
+        description:
+            "Chegada real e data FIFO são informações distintas. Preserve os dados levantados e deixe explícito o que ainda não foi informado.",
+    },
+    initialLoadQuantities: {
+        title: "Quantidades levantadas",
+        description:
+            "Use ponto para separar as casas decimais. Quantidade boa, quantidade avariada e quantidade de cada unidade são informações distintas.",
+    },
+    initialLoadUnits: {
+        title: "Unidades da carga inicial",
+        description:
+            "Informe embalagem, tipo, condição e quantidade de cada unidade levantada. A revisão não regulariza a carga automaticamente.",
+    },
+    initialLoadUnitsEmpty: {
+        title: "Unidades informadas",
+        description: "Nenhuma unidade informada.",
+    },
     contingencyRegistration: {
         title: "Registro manual da planilha",
         description:
@@ -36,12 +208,22 @@ export const information = {
     auditHistory: {
         title: "Histórico de alterações",
         description:
-            "Consulte as alterações do registro indicado. Essa consulta não modifica os dados.",
+            "Escolha um registro selecionado para ver suas alterações. Essa consulta não modifica os dados.",
     },
     auditHistoryLegacy: {
         title: "Legado não atribuído",
         description:
             "O histórico confirmado usa o vínculo selecionado. Candidatos legados ambíguos não são histórico confirmado deste vínculo. Coincidência de ID não comprova que o registro pertence ao vínculo.",
+    },
+    auditSnapshots: {
+        title: "Dados da alteração",
+        description:
+            "Compare os dados registrados antes e depois. Cada painel permite consultar o conteúdo JSON original.",
+    },
+    auditSnapshotText: {
+        title: "Conteúdo original",
+        description:
+            "Este conteúdo não está em formato JSON válido. O texto original está preservado abaixo.",
     },
     contractConfiguration: {
         title: "Parâmetros do contrato",
@@ -109,6 +291,11 @@ export const information = {
         description:
             "Informe as medidas físicas da mercadoria. Para uma unidade em uma posição, indique uma posição necessária e deixe o conjunto vazio. Somente para duas posições, informe o conjunto cadastrado e acrescente o segundo destino.",
     },
+    addressCapacityValues: {
+        title: "Peso e dimensões da posição",
+        description:
+            "Peso em quilogramas e dimensões em metros. Use ponto para separar as casas decimais.",
+    },
     addressCapacity: {
         title: "Capacidade da posição",
         description:
@@ -139,6 +326,11 @@ export const information = {
         title: "Correção de cadastro",
         description:
             "Gestor pode corrigir os dados com justificativa e revisão atual. Identidades e vínculos de proprietário permanecem preservados. Alterações de medida, conversão e estrutura física são conferidas pelo sistema para proteger operações existentes.",
+    },
+    unitLabelPrint: {
+        title: "Impressão da etiqueta",
+        description:
+            "Confira a prévia e o tamanho na impressora. Reimprimir mantém a mesma identificação e não cria estoque.",
     },
     unitLabel: {
         title: "Etiqueta da unidade",
@@ -285,6 +477,7 @@ export const shortcutInformation: Record<string, InformationKey> = {
     fechamento: "closingShortcut",
 };
 export const informationLabels = {
+    fullText: (field: string) => `Ler conteúdo completo de ${field}`,
     help: (title: string) => `Informações sobre ${title}`,
     currentValue: "Valor exibido",
     currentContext: "Situação desta consulta",

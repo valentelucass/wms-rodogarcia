@@ -1,3 +1,6 @@
+.results > .operation-continue {
+    margin-top: var(--og-space-4);
+}
 .record {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr));
@@ -220,6 +223,115 @@ caption {
     word-break: normal;
     font-variant-numeric: tabular-nums;
 }
+td.result-row-actions {
+    width: 180px;
+    min-width: 180px;
+    vertical-align: middle;
+}
+.note-results td.note-result-actions {
+    width: 160px;
+    min-width: 160px;
+    vertical-align: middle;
+}
+.result-row-actions > .result-detail-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--og-space-2);
+    width: 100%;
+    white-space: nowrap;
+}
+.result-row-actions > .action-select {
+    width: 100%;
+    margin-top: var(--og-space-2);
+    white-space: nowrap;
+}
+.result-table-scroll {
+    container-type: inline-size;
+}
+.result-data-row > td:not(.result-row-actions) {
+    vertical-align: middle;
+}
+.table-cell-text {
+    display: block;
+    min-width: 0;
+    max-width: 18rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.table-cell-text[role="button"] {
+    min-height: var(--og-control-height);
+    line-height: var(--og-control-height);
+    cursor: pointer;
+    text-decoration: underline dotted var(--og-text-muted);
+    text-underline-offset: 3px;
+}
+.workspace-dialog.table-text-dialog {
+    width: min(640px, calc(100vw - 32px));
+}
+.table-text-dialog > .dialog-header {
+    position: sticky;
+    top: 0;
+    z-index: var(--og-z-sticky);
+    background: var(--og-surface);
+}
+.table-text-content {
+    min-width: 0;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    line-height: var(--og-leading-section);
+    user-select: text;
+}
+.readable-results > table > tbody > .result-detail-row > td {
+    padding: var(--og-space-4);
+    background: var(--og-surface);
+}
+.result-row-detail {
+    position: sticky;
+    left: var(--og-space-4);
+    width: calc(100cqw - var(--og-space-4) - var(--og-space-4));
+    max-width: 100%;
+    min-width: 0;
+}
+.result-row-detail-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--og-space-3);
+    margin-bottom: var(--og-space-4);
+}
+.result-row-detail-header h4 {
+    margin: 0;
+}
+.result-row-detail-header > button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--og-space-2);
+}
+.result-detail-toggle,
+.result-row-detail-header > button {
+    scroll-margin-block: 88px;
+}
+.record-dialog:has(.result-row-detail) > .dialog-header {
+    position: sticky;
+    top: 0;
+    z-index: var(--og-z-sticky);
+    background: var(--og-surface);
+}
+@media (max-width: 767px) {
+    .table-cell-text[role="button"] {
+        min-height: var(--og-touch-height);
+        line-height: var(--og-touch-height);
+    }
+    .result-row-actions > .result-detail-toggle,
+    .result-row-actions > .action-select,
+    .result-row-detail-header > button {
+        min-height: var(--og-touch-height);
+    }
+}
 .reference-readonly {
     padding-block: var(--og-space-2);
     font-weight: var(--og-font-semibold);
@@ -235,20 +347,72 @@ caption {
 .scope-choices {
     min-width: 0;
     margin: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--og-space-3);
+    align-content: start;
+}
+.user-form fieldset.scope-choices {
+    grid-template-columns: minmax(0, 1fr);
+}
+.scope-choices > legend {
+    padding: 0 0 var(--og-space-2);
+    font-size: var(--og-type-body);
+}
+.scope-choices > input:not([type="hidden"]) {
+    width: 100%;
+    min-width: 0;
 }
 .scope-options {
     display: grid;
+    grid-auto-rows: max-content;
     gap: var(--og-space-2);
     max-height: 220px;
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-width: 0;
+    align-content: start;
+    overscroll-behavior: contain;
+    padding: var(--og-space-1);
+    border: 1px solid var(--og-border);
+    border-radius: var(--og-radius-control);
+    background: var(--og-surface);
 }
-.scope-options label {
-    display: flex;
-    align-items: center;
+.scope-choices .scope-options > label {
+    display: grid;
+    grid-template-columns: 18px minmax(0, 1fr);
+    align-items: start;
     gap: var(--og-space-2);
     min-height: 44px;
+    min-width: 0;
+    padding: var(--og-space-2);
+    margin: 0;
+    border: 1px solid transparent;
+    border-radius: var(--og-radius-control);
+    cursor: pointer;
+}
+.scope-options > label > span {
+    overflow-wrap: anywhere;
+    line-height: 1.5;
+}
+.scope-options > label:has(input:checked) {
+    background: var(--og-selection);
+    border-color: var(--og-focus-ring);
+    color: var(--og-selection-text);
+}
+.scope-options > label:focus-within {
+    outline: 2px solid var(--og-focus-ring);
+    outline-offset: -2px;
 }
 .scope-options input[type="checkbox"] {
-    width: auto;
+    width: 18px;
+    height: 18px;
+    min-height: 18px;
+    margin: 2px 0 0;
     flex: 0 0 auto;
+}
+.scope-choices .scope-summary {
+    margin: 0;
+    color: var(--og-text-muted);
+    font-size: var(--og-type-caption);
 }

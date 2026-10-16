@@ -1,0 +1,98 @@
+.feedback.feedback--error {
+    --feedback-accent: var(--og-negative-text);
+    color: var(--og-text);
+    background: color-mix(in srgb, var(--og-danger-bg) 12%, var(--og-surface));
+    border: 1px solid var(--og-border);
+    border-left: 3px solid var(--feedback-accent);
+    border-radius: var(--og-radius-control);
+    padding: var(--og-space-4);
+    min-width: 0;
+}
+.feedback.feedback--uncertain {
+    --feedback-accent: var(--og-warning-text);
+    background: color-mix(in srgb, var(--og-warning-bg) 12%, var(--og-surface));
+}
+.feedback.feedback--error:focus:not(:focus-visible) {
+    outline: none;
+}
+.operation-error {
+    display: grid;
+    grid-template-columns: 32px minmax(0, 1fr);
+    gap: var(--og-space-3);
+    align-items: start;
+}
+.operation-error-icon {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--og-radius-control);
+    color: var(--feedback-accent);
+    background: color-mix(in srgb, var(--feedback-accent) 10%, transparent);
+}
+.operation-error-content {
+    display: grid;
+    gap: var(--og-space-2);
+    min-width: 0;
+    padding-top: var(--og-space-1);
+}
+.operation-error-content p {
+    margin: 0;
+    line-height: 1.6;
+}
+.operation-error-message {
+    font-weight: var(--og-font-medium);
+}
+.operation-error-details {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+}
+.operation-error-details summary {
+    min-height: var(--og-control-height);
+    padding: var(--og-space-2) 0;
+    color: var(--og-text-muted);
+    font-weight: var(--og-font-regular);
+    width: fit-content;
+    max-width: 100%;
+}
+.operation-error-details[open] > summary {
+    border-bottom: 0;
+    margin-bottom: var(--og-space-1);
+}
+.operation-error-details dl {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--og-space-3);
+    margin: var(--og-space-3) 0 0;
+}
+.operation-error-details dt {
+    color: var(--og-text-muted);
+    font-size: var(--og-type-caption);
+    margin-bottom: var(--og-space-1);
+}
+.operation-error-details dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+    user-select: text;
+}
+.operation-error-details code {
+    font-size: var(--og-type-caption);
+}
+@media (max-width: 600px) {
+    .feedback.feedback--error {
+        padding: var(--og-space-3);
+    }
+    .operation-error {
+        gap: var(--og-space-2);
+    }
+    .operation-error-details dl {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+@media (pointer: coarse), (max-width: 767px) {
+    .operation-error-details summary {
+        min-height: var(--og-touch-height);
+    }
+}

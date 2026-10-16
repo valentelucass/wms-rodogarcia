@@ -2,6 +2,9 @@ import type { Values } from "../../contracts/runtime";
 import { referenceCatalog, type Workflow } from "../../domain/workflow";
 import { ReferenceValue } from "../../components/context/ReferencePresentation";
 import { formatProductQuantity } from "../../domain/quantityPresentation";
+import { information } from "../../content/information";
+import { StatusBadge } from "../../design-system/StatusBadge";
+import { Icon } from "../../design-system/Icon";
 export function DispatchReservations({
     workflow,
     onSelect,
@@ -15,42 +18,105 @@ export function DispatchReservations({
         reserves = referenceCatalog(workflow, "PedidoSaidaDto.Reserva");
     if (!order || reserves.length === 0) return null;
     return (
-        <section aria-label="Reservas atuais do pedido">
-            <h2>
-                Reservas do pedido {String(order.referencia ?? "selecionado")}
-            </h2>
-            <p>
-                Selecione a reserva antes de ler a etiqueta ou registrar o
-                destino. As quantidades e condições são as consultadas.
+        <section
+            className="dispatch-reservations"
+            aria-label="Reservas atuais do pedido"
+        >
+            <header className="dispatch-reservations-heading">
+                <h2>{information.dispatchReservations.title}</h2>
+                <span className="dispatch-reservations-order">
+                    {String(order.referencia ?? "Pedido selecionado")}
+                </span>
+            </header>
+            <p className="hint">
+                {information.dispatchReservations.description}
             </p>
-            <ul>
-                {reserves.map((r) => (
-                    <li key={String(r.id)}>
-                        Nota de origem{" "}
-                        <ReferenceValue
-                            field="notaOrigemId"
-                            value={r.notaOrigemId}
-                            row={r}
-                        />{" "}
-                        · quantidade{" "}
-                        {formatProductQuantity(r.quantidade, r.unidadeMedida)} ·{" "}
-                        {String(r.situacao)} · unidade {String(r.codigoUnidade)}{" "}
-                        <button
-                            type="button"
-                            disabled={disabled}
-                            aria-pressed={
-                                workflow.selected["PedidoSaidaDto.Reserva"]
-                                    ?.id === r.id
-                            }
-                            onClick={() =>
-                                onSelect(r, "PedidoSaidaDto.Reserva")
-                            }
+            <ul className="dispatch-reservations-list">
+                {reserves.map((r, index) => {
+                    const selected =
+                        workflow.selected["PedidoSaidaDto.Reserva"]?.id ===
+                        r.id;
+                    const unit = r.codigoUnidade
+                        ? String(r.codigoUnidade)
+                        : null;
+                    return (
+                        <li
+                            className="dispatch-reservation"
+                            key={String(r.id)}
+                            data-selected={selected}
                         >
-                            Selecionar reserva da unidade{" "}
-                            {String(r.codigoUnidade)}
-                        </button>
-                    </li>
-                ))}
+                            <div className="dispatch-reservation-body">
+                                <div className="dispatch-reservation-heading">
+                                    <h3>Reserva {index + 1}</h3>
+                                    <StatusBadge value={r.situacao} />
+                                    {selected && (
+                                        <span className="dispatch-reservation-selected">
+                                            <Icon name="bookmark" />
+                                            Reserva selecionada
+                                        </span>
+                                    )}
+                                </div>
+                                <dl className="dispatch-reservation-fields">
+                                    <div className="dispatch-reservation-quantity">
+                                        <dt>Quantidade reservada</dt>
+                                        <dd>
+                                            <strong>
+                                                {formatProductQuantity(
+                                                    r.quantidade,
+                                                    r.unidadeMedida,
+                                                )}
+                                            </strong>
+                                            {r.unidadeMedida != null && (
+                                                <span>
+                                                    {String(r.unidadeMedida)}
+                                                </span>
+                                            )}
+                                        </dd>
+                                    </div>
+                                    <div>
+                                        <dt>Nota de origem</dt>
+                                        <dd>
+                                            <ReferenceValue
+                                                field="notaOrigemId"
+                                                value={r.notaOrigemId}
+                                                row={r}
+                                            />
+                                        </dd>
+                                    </div>
+                                    <div className="dispatch-reservation-unit">
+                                        <dt>Identificador da unidade</dt>
+                                        <dd>
+                                            {unit ? (
+                                                <code>{unit}</code>
+                                            ) : (
+                                                "Não informado"
+                                            )}
+                                        </dd>
+                                    </div>
+                                </dl>
+                            </div>
+                            <div className="dispatch-reservation-actions">
+                                <button
+                                    type="button"
+                                    className="action-select"
+                                    disabled={disabled}
+                                    aria-label={
+                                        unit
+                                            ? `Selecionar reserva da unidade ${unit}`
+                                            : `Selecionar reserva ${index + 1}`
+                                    }
+                                    aria-pressed={selected}
+                                    onClick={() =>
+                                        onSelect(r, "PedidoSaidaDto.Reserva")
+                                    }
+                                >
+                                    <Icon name="bookmark" />
+                                    Selecionar reserva
+                                </button>
+                            </div>
+                        </li>
+                    );
+                })}
             </ul>
         </section>
     );

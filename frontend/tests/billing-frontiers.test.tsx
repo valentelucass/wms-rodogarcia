@@ -99,11 +99,11 @@ it("FE11 Gestor escolhe compromisso consultado na resolução explícita do fato
     await click("Consultar serviços para o fato");
     await screen.findByRole("button", { name: "Selecionar registro 1" });
     await click("Selecionar registro 1");
-    fill("Origem *", "MANUAL");
+    fill("Origem do registro *", "MANUAL");
     fill("Quantidade", "2.123456");
     fill("Categoria *", "");
-    fill("Referencia Execucao", "EXEC-FICT-RESOLUCAO");
-    fill("Criterio Rateio *", "Unidade e execução fictícia identificadas");
+    fill("Referência da execução", "EXEC-FICT-RESOLUCAO");
+    fill("Critério de rateio *", "Unidade e execução fictícia identificadas");
     fill(
         "Motivo / justificativa *",
         "Regularização histórica fictícia pelo Gestor",

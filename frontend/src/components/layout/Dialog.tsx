@@ -53,6 +53,7 @@ export function Dialog({
             aria-labelledby={titleId}
             onCancel={(event) => {
                 event.preventDefault();
+                event.stopPropagation();
                 if (!locked) onClose();
             }}
             onKeyDown={(event) => {

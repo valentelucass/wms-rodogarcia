@@ -1,0 +1,105 @@
+.contingency-registration-fields {
+    display: grid;
+    gap: var(--og-space-5);
+    min-width: 0;
+}
+.contingency-form-section,
+.contingency-data-fields {
+    display: grid;
+    gap: var(--og-space-3);
+    min-width: 0;
+}
+.contingency-form-section + .contingency-form-section,
+.contingency-registration-fields > .contingency-data-fields,
+.contingency-data-fields + .contingency-form-section {
+    padding-top: var(--og-space-4);
+    border-top: 1px solid var(--og-border);
+}
+.contingency-registration-fields :is(h3, p) {
+    margin: 0;
+}
+.contingency-registration-fields h3 {
+    font-size: var(--og-type-body);
+}
+.contingency-form-section > header {
+    display: flex;
+    align-items: center;
+    gap: var(--og-space-2);
+}
+.contingency-field-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: var(--og-space-3) var(--og-space-4);
+    min-width: 0;
+}
+.contingency-field-grid > .field,
+.contingency-field-wide > .field,
+.contingency-dependency > .field,
+.contingency-form-section--reason > .field {
+    margin: 0;
+}
+.contingency-field-grid > fieldset,
+.contingency-field-wide,
+.contingency-field-grid > .field:has(textarea) {
+    grid-column: 1 / -1;
+}
+.contingency-data-fields {
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+.operation .contingency-data-fields {
+    margin-block: 0;
+}
+.contingency-data-fields > legend {
+    padding: 0;
+    margin-bottom: var(--og-space-3);
+}
+.contingency-dependency {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: var(--og-space-3);
+}
+.contingency-dependency-actions {
+    display: flex;
+    justify-content: flex-start;
+}
+.record-dialog:has(.contingency-registration-fields) .dialog-header {
+    position: sticky;
+    top: 0;
+    z-index: var(--og-z-sticky);
+    background: var(--og-surface);
+}
+.record-dialog:has(.contingency-registration-fields)
+    .operation
+    form
+    > .actions {
+    position: sticky;
+    bottom: 0;
+    z-index: var(--og-z-sticky);
+    background: var(--og-surface);
+    padding-block: var(--og-space-3);
+    margin-bottom: 0;
+}
+.contingency-registration-fields :is(input, select, textarea, button) {
+    scroll-margin-block: 80px;
+}
+@media (max-width: 767px) {
+    .contingency-field-grid,
+    .contingency-dependency {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .contingency-dependency > button,
+    .contingency-dependency-actions > button {
+        width: 100%;
+    }
+    .contingency-registration-fields .information-hint {
+        min-height: var(--og-touch-height);
+        width: var(--og-touch-height);
+    }
+    .operation .contingency-registration-fields :is(input, select, button) {
+        min-height: var(--og-touch-height);
+    }
+}

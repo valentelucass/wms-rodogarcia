@@ -65,6 +65,7 @@ function harness(
     options: {
         uncertain?: boolean;
         pending?: boolean;
+        previewError?: boolean;
         previa?: typeof nfePreview;
         gestor?: boolean;
     } = {},
@@ -80,6 +81,20 @@ function harness(
             switch (request.endpoint.id) {
                 case "PedidoEntradaXmlController.previa":
                     if (options.pending) return new Promise<Receipt>(() => {});
+                    if (
+                        options.previewError &&
+                        requests.filter(
+                            (r) =>
+                                r.endpoint.id ===
+                                "PedidoEntradaXmlController.previa",
+                        ).length === 1
+                    )
+                        throw new ApiError(
+                            "XML não corresponde à NF-e 4.00/modelo 55 e ao esquema suportado, ou sua identificação/protocolo é inconsistente. Selecione o arquivo completo da nota.",
+                            400,
+                            "XML_INVALIDO",
+                            "XML01-ficticio-erro",
+                        );
                     return receipt(
                         structuredClone(options.previa ?? nfePreview),
                     );
@@ -162,6 +177,70 @@ async function preview() {
     await screen.findByText("TIGRE FERRAMENTAS PARA CONSTRUCAO C");
 }
 describe("FE05-XML01", () => {
+    it("abre a seleção nativa pelo botão e remove o arquivo sem gravar, permitindo selecionar o mesmo XML novamente", async () => {
+        const h = harness();
+        await file();
+        const input = screen.getByLabelText(
+            "Arquivo XML da NF-e",
+        ) as HTMLInputElement;
+        const nativeClick = vi
+            .spyOn(input, "click")
+            .mockImplementation(() => {});
+        fireEvent.click(screen.getByRole("button", { name: "Trocar arquivo" }));
+        expect(nativeClick).toHaveBeenCalledOnce();
+        expect(screen.getAllByText("exemplo.xml")).toHaveLength(1);
+        fireEvent.click(
+            screen.getByRole("button", { name: "Remover arquivo" }),
+        );
+        expect(screen.queryByText("exemplo.xml")).toBeNull();
+        expect(screen.queryByRole("button", { name: "Ler XML" })).toBeNull();
+        expect(screen.getByText("Nenhum arquivo selecionado")).toBeVisible();
+        fireEvent.click(screen.getByRole("button", { name: "Selecionar XML" }));
+        expect(nativeClick).toHaveBeenCalledTimes(2);
+        expect(h.requests).toHaveLength(0);
+        const text = " <NFe>fictício preservado</NFe>\n";
+        const selected = new File([text], "exemplo.xml", {
+            type: "application/xml",
+        });
+        Object.defineProperty(selected, "arrayBuffer", {
+            value: async () => new TextEncoder().encode(text).buffer,
+        });
+        fireEvent.change(input, { target: { files: [selected] } });
+        await screen.findByRole("button", { name: "Ler XML" });
+        fireEvent.click(screen.getByRole("button", { name: "Ler XML" }));
+        await screen.findByText("TIGRE FERRAMENTAS PARA CONSTRUCAO C");
+        expect(h.requests[0].body).toMatchObject({ xml: text });
+        nativeClick.mockRestore();
+    });
+    it("preserva a mensagem da prévia recusada e o arquivo selecionado, permitindo nova leitura sem confirmar", async () => {
+        const h = harness({ previewError: true });
+        await file();
+        fireEvent.click(screen.getByRole("button", { name: "Ler XML" }));
+        const alert = await screen.findByRole("alert");
+        expect(alert).toHaveTextContent("Não foi possível concluir esta etapa");
+        expect(alert).toHaveTextContent(
+            "XML não corresponde à NF-e 4.00/modelo 55",
+        );
+        expect(screen.getByText("exemplo.xml")).toBeVisible();
+        expect(
+            screen.queryByRole("button", {
+                name: "Confirmar pedido de entrada",
+            }),
+        ).toBeNull();
+        fireEvent.click(screen.getByRole("button", { name: "Ler XML" }));
+        await screen.findByText("TIGRE FERRAMENTAS PARA CONSTRUCAO C");
+        expect(screen.queryByRole("alert")).toBeNull();
+        expect(
+            h.requests.filter(
+                (r) => r.endpoint.id === "PedidoEntradaXmlController.previa",
+            ),
+        ).toHaveLength(2);
+        expect(
+            h.requests.some(
+                (r) => r.endpoint.id === "PedidoEntradaXmlController.confirmar",
+            ),
+        ).toBe(false);
+    });
     it("cadastra SKU pela nota e exige nova previa sem perder o XML", async () => {
         const p = structuredClone(nfePreview);
         p.documento!.itens![0].unidadeComercial = "TO";
@@ -289,6 +368,11 @@ describe("FE05-XML01", () => {
             screen.getByRole("button", { name: "Confirmar pedido de entrada" }),
         );
         await screen.findByRole("button", { name: "Consultar confirmação" });
+        expect(
+            screen.getByText("Resultado da confirmação desconhecido", {
+                exact: true,
+            }),
+        ).toBeVisible();
         expect(canLeavePage()).toBe(false);
         const posts = h.requests.filter(
             (r) => r.endpoint.id === "PedidoEntradaXmlController.confirmar",

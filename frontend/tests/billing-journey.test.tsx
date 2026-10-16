@@ -82,7 +82,7 @@ it("FE04 FE11 serviço tabela vigência vínculo sugestão fato e cálculo com r
     selected("Pedido de saída", "601");
     selected("Quantidade", "2.123456");
     fill(
-        "Criterio Rateio *",
+        "Critério de rateio *",
         "Execução fictícia vinculada à unidade e ao pedido consultados",
     );
     fill(
@@ -168,7 +168,7 @@ it("FE11 reabertura nova versão ajuste conserva origem histórica e consulta id
     await click("2. Decisão integral do Gestor");
     await click("Reabrir ciclo");
     selected("Identificador *", "901");
-    selected("Calculo Id *", "801");
+    selected("Cálculo de referência *", "801");
     fill(
         "Motivo / justificativa *",
         "Reabertura fictícia para correção identificada",

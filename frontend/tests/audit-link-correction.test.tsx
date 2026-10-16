@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import {
+    render,
+    screen,
+    fireEvent,
+    waitFor,
+    within,
+} from "@testing-library/react";
 import { AuditSelection } from "../src/modules/relatorios/AuditSelection";
 import {
     absorb,
@@ -119,9 +125,14 @@ describe("005 vínculo lógico e legado separado", () => {
             expect(calls.at(-1)?.query.tipo).toBe("VINCULO_COBRANCA_LEGADO"),
         );
         await screen.findByRole("cell", { name: "LEGADO_NAO_ATRIBUIDO" });
+        fireEvent.click(screen.getByText("Ver registro 1"));
         expect(
-            screen.getByText(/não são histórico confirmado deste vínculo/),
-        ).toBeInTheDocument();
+            within(
+                screen.getByRole("complementary", {
+                    name: "Legado não atribuído",
+                }),
+            ).getByText(/não são histórico confirmado deste vínculo/),
+        ).toBeVisible();
         expect(calls).toHaveLength(4);
     });
     it("005 seleção inválida/legado de outra entidade não troca o alvo", () => {

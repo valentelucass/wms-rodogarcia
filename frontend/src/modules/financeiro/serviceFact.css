@@ -1,0 +1,115 @@
+.service-fact-fields {
+    display: grid;
+    gap: var(--og-space-4);
+    min-width: 0;
+}
+.service-fact-intro,
+.service-fact-section-help {
+    margin: 0;
+}
+.service-fact-fields > .service-fact-section {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: var(--og-space-4);
+    margin: 0;
+    padding: var(--og-space-4);
+    border-radius: var(--og-radius-control);
+}
+.service-fact-section > legend {
+    font-size: var(--og-type-body);
+}
+.service-fact-field,
+.service-fact-field > .field {
+    min-width: 0;
+    margin: 0;
+}
+.service-fact-field--wide,
+.service-fact-section-help {
+    grid-column: 1 / -1;
+}
+.service-fact-field :is(input, select, textarea) {
+    width: 100%;
+    min-width: 0;
+}
+.service-fact-field > :is(.structured-list, .structured-fields) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--og-space-3);
+    margin: 0;
+    padding: var(--og-space-3);
+    border-radius: var(--og-radius-control);
+}
+.service-fact-field > .structured-list > :is(button, p),
+.service-fact-field > .structured-fields > button {
+    justify-self: start;
+    margin: 0;
+}
+.service-fact-field .structured-list .list-item {
+    margin: 0;
+}
+.service-fact-field .structured-list .structured-fields,
+.service-fact-field > .structured-fields:has(> .field) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--og-space-3);
+}
+.service-fact-field .structured-fields > :not(.field) {
+    grid-column: 1 / -1;
+}
+.service-fact-field .structured-fields > .field {
+    margin: 0;
+}
+.service-fact-field .structured-fields > .field > label {
+    min-height: 3em;
+    justify-content: flex-end;
+}
+.record-dialog--service-fact .dialog-header {
+    position: sticky;
+    top: 0;
+    z-index: var(--og-z-sticky);
+    background: var(--og-surface);
+}
+.record-dialog--service-fact .reference-lookup {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--og-space-2) var(--og-space-4);
+    background: var(--og-surface);
+}
+.record-dialog--service-fact .reference-lookup > h2,
+.record-dialog--service-fact .reference-lookup > .button-row {
+    margin: 0;
+}
+.record-dialog--service-fact .reference-lookup > :is(p, section) {
+    flex: 1 1 100%;
+    min-width: 0;
+}
+.record-dialog--service-fact .operation form > .actions {
+    position: sticky;
+    bottom: 0;
+    z-index: var(--og-z-sticky);
+    padding-block: var(--og-space-3);
+    background: var(--og-surface);
+}
+.service-fact-fields :is(input, select, textarea, button) {
+    scroll-margin-block: 88px;
+}
+@media (max-width: 600px) {
+    .service-fact-fields > .service-fact-section,
+    .service-fact-field .structured-list .structured-fields,
+    .service-fact-field > .structured-fields:has(> .field) {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .service-fact-fields > .service-fact-section {
+        padding: var(--og-space-3);
+    }
+    .service-fact-field .structured-fields > .field > label {
+        min-height: auto;
+    }
+    .service-fact-field button,
+    .record-dialog--service-fact .reference-lookup button {
+        min-height: var(--og-touch-height);
+    }
+}

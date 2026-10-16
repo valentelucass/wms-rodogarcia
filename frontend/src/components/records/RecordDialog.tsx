@@ -29,12 +29,15 @@ import { ReferenceLookup } from "../ReferenceLookup";
 import { DispatchReservations } from "../../modules/saida/DispatchReservations";
 import { AdjustmentOrigin } from "../../modules/financeiro/AdjustmentOrigin";
 import { ServiceDetail } from "../../modules/financeiro/ServiceDetail";
+import { ServiceFactRecovery } from "../../modules/financeiro/ServiceFactRecovery";
+import { InitialLoadDetail } from "../../modules/regularizacao/InitialLoadDetail";
 import { AuditSelection } from "../../modules/relatorios/AuditSelection";
 import { useRecordQuery } from "../../hooks/useRecordQuery";
 import { ReceivingDetail } from "../../modules/recebimento/ReceivingDetail";
 import { ClosureDetail } from "../../modules/cadastros/ClosureDetail";
 import { Icon } from "../../design-system/Icon";
 import { WorkflowReferences } from "../context/WorkflowReferences";
+import { businessTitle } from "../../domain/referencePresentation";
 import {
     receivingSection,
     type ReceivingSection,
@@ -498,7 +501,35 @@ export function RecordDialog({
             <Dialog
                 className={
                     "record-dialog" +
+                    (action === "PedidoSaidaController.criar"
+                        ? " record-dialog--dispatch-create"
+                        : "") +
+                    (recordType === "CargaInicialDto.Resultado" ||
+                    action.startsWith("CargaInicialController.")
+                        ? " record-dialog--initial-load"
+                        : "") +
                     (serviceDetail ? " record-dialog--service" : "") +
+                    (action === "FatoServicoController.sugestoes"
+                        ? " record-dialog--service-suggestions"
+                        : "") +
+                    (action === "FatoServicoController.registrar"
+                        ? " record-dialog--service-fact"
+                        : "") +
+                    (action === "FatoServicoController.anular"
+                        ? " record-dialog--fact-annulment"
+                        : "") +
+                    (action === "CalculoCobrancaController.calcular"
+                        ? " record-dialog--calculation"
+                        : "") +
+                    (action === "FechamentoCobrancaController.reabrir"
+                        ? " record-dialog--reopen-cycle"
+                        : "") +
+                    (action === "FechamentoCobrancaController.aprovar"
+                        ? " record-dialog--billing-approval"
+                        : "") +
+                    (recordType === "AuditoriaResponse"
+                        ? " record-dialog--audit"
+                        : "") +
                     (recordType === "EncerramentoDto.Resultado"
                         ? " record-dialog--closure"
                         : "") +
@@ -513,17 +544,36 @@ export function RecordDialog({
                         ? recordActionLabel(action)
                         : serviceDetail
                           ? "Detalhes do serviço"
-                          : recordType === "EncerramentoDto.Resultado"
-                            ? "Encerramento do cadastro"
-                            : subjectTitle
+                          : recordType === "AuditoriaResponse"
+                            ? "Detalhes da alteração"
+                            : recordType === "CargaInicialDto.Resultado"
+                              ? "Carga inicial"
+                              : recordType === "EncerramentoDto.Resultado"
+                                ? "Encerramento do cadastro"
+                                : subjectTitle
                 }
                 wide
                 icon={
-                    serviceDetail
+                    serviceDetail ||
+                    /^FatoServicoController\.(sugestoes|registrar|anular)$/.test(
+                        action,
+                    )
                         ? "servicos"
-                        : journey.id === "entrada"
-                          ? "entrada"
-                          : "cadastros"
+                        : action === "CalculoCobrancaController.calcular"
+                          ? "cobranca"
+                          : [
+                                  "FechamentoCobrancaController.reabrir",
+                                  "FechamentoCobrancaController.aprovar",
+                              ].includes(action)
+                            ? "fechamento"
+                            : recordType === "AuditoriaResponse"
+                              ? "history"
+                              : recordType === "CargaInicialDto.Resultado" ||
+                                  action.startsWith("CargaInicialController.")
+                                ? "unidades"
+                                : journey.id === "entrada"
+                                  ? "entrada"
+                                  : "cadastros"
                 }
                 locked={locked}
                 onClose={() => {
@@ -544,24 +594,45 @@ export function RecordDialog({
                     </div>
                 ) : (
                     <>
-                        {record && action && (
-                            <section
-                                className="record-action-subject"
-                                aria-label="Registro da operação"
-                            >
-                                <div>
-                                    <span className="hint">
-                                        Registro selecionado
-                                    </span>
-                                    <strong>{subjectTitle}</strong>
-                                </div>
-                                {recordRoot(record).situacao != null && (
-                                    <StatusBadge
-                                        value={recordRoot(record).situacao}
-                                    />
-                                )}
-                            </section>
-                        )}
+                        {record &&
+                            action &&
+                            action !== "FatoServicoController.sugestoes" && (
+                                <section
+                                    className="record-action-subject"
+                                    aria-label="Registro da operação"
+                                >
+                                    <div>
+                                        <span className="hint">
+                                            {action ===
+                                            "FechamentoCobrancaController.reabrir"
+                                                ? "Ciclo selecionado"
+                                                : "Registro selecionado"}
+                                        </span>
+                                        <strong>
+                                            {action ===
+                                            "FechamentoCobrancaController.reabrir"
+                                                ? (businessTitle(
+                                                      recordRoot(record),
+                                                      recordType,
+                                                  ) ?? subjectTitle)
+                                                : subjectTitle}
+                                        </strong>
+                                    </div>
+                                    {recordRoot(record).situacao != null && (
+                                        <StatusBadge
+                                            value={recordRoot(record).situacao}
+                                            label={
+                                                action ===
+                                                    "FechamentoCobrancaController.reabrir" &&
+                                                recordRoot(record).situacao ===
+                                                    "EM_REVISAO"
+                                                    ? "Em revisão"
+                                                    : undefined
+                                            }
+                                        />
+                                    )}
+                                </section>
+                            )}
                         {refreshing && (
                             <p role="status">
                                 Atualizando notas, itens e conferência deste
@@ -583,15 +654,31 @@ export function RecordDialog({
                         )}
                         {action && (
                             <>
-                                <ReferenceLookup
-                                    inline
-                                    journey={journey}
-                                    context={derived}
-                                    transport={transport}
-                                    onRecord={selectRecord}
-                                    selectionLocked={locked}
-                                    onReceipt={commandReceipt}
-                                />
+                                {action ===
+                                "UnidadeLogisticaController.etiqueta" ? (
+                                    <details className="label-reference-lookups">
+                                        <summary>Consultar referências</summary>
+                                        <ReferenceLookup
+                                            inline
+                                            journey={journey}
+                                            context={derived}
+                                            transport={transport}
+                                            onRecord={selectRecord}
+                                            selectionLocked={locked}
+                                            onReceipt={commandReceipt}
+                                        />
+                                    </details>
+                                ) : (
+                                    <ReferenceLookup
+                                        inline
+                                        journey={journey}
+                                        context={derived}
+                                        transport={transport}
+                                        onRecord={selectRecord}
+                                        selectionLocked={locked}
+                                        onReceipt={commandReceipt}
+                                    />
+                                )}
                                 {["saida", "fiscal"].includes(journey.id) && (
                                     <DispatchReservations
                                         workflow={workingWorkflow.current}
@@ -643,6 +730,9 @@ export function RecordDialog({
                             >
                                 {serviceDetail ? (
                                     <ServiceDetail data={record} />
+                                ) : recordType ===
+                                  "CargaInicialDto.Resultado" ? (
+                                    <InitialLoadDetail data={record} />
                                 ) : recordType ===
                                   "EncerramentoDto.Resultado" ? (
                                     <ClosureDetail
@@ -753,57 +843,88 @@ export function RecordDialog({
                                     }}
                                 />
                             )}
-                        {uncertain && (
-                            <section aria-label="Recuperação da operação">
-                                <p>
-                                    A resposta da operação é desconhecida.
-                                    Consulte o estado atual; a consulta não
-                                    confirma o resultado nem repete a alteração.
-                                    A repetição mantém o mesmo conteúdo e
-                                    identificador de operação.
-                                </p>
-                                <button
-                                    type="button"
-                                    className="action-refresh"
-                                    disabled={verifying}
-                                    onClick={() => void verify()}
+                        {uncertain &&
+                            action === "FatoServicoController.anular" && (
+                                <ServiceFactRecovery
+                                    verifying={verifying}
+                                    error={verificationError}
+                                    hasVerification={Boolean(verification)}
+                                    onVerify={() => void verify()}
+                                    onExit={() => {
+                                        if (
+                                            window.confirm(
+                                                "Encerrar o acompanhamento sem declarar sucesso? O resultado da alteração permanece desconhecido; consulte o registro antes de iniciar outra ação.",
+                                            )
+                                        )
+                                            onUnknownClose();
+                                    }}
                                 >
-                                    Consultar estado atual sem repetir
-                                </button>
-                                {verificationError && (
-                                    <p role="alert">{verificationError}</p>
-                                )}
-                                {verification && (
-                                    <Result
-                                        data={verification.data}
-                                        type={
-                                            endpoint(
-                                                record && page.detail
-                                                    ? page.detail
-                                                    : page.source,
-                                            ).response
-                                        }
-                                    />
-                                )}
-                                {verification && (
+                                    {verification && (
+                                        <Result
+                                            data={verification.data}
+                                            type={
+                                                endpoint(
+                                                    record && page.detail
+                                                        ? page.detail
+                                                        : page.source,
+                                                ).response
+                                            }
+                                        />
+                                    )}
+                                </ServiceFactRecovery>
+                            )}
+                        {uncertain &&
+                            action !== "FatoServicoController.anular" && (
+                                <section aria-label="Recuperação da operação">
+                                    <p>
+                                        A resposta da operação é desconhecida.
+                                        Consulte o estado atual; a consulta não
+                                        confirma o resultado nem repete a
+                                        alteração. A repetição mantém o mesmo
+                                        conteúdo e identificador de operação.
+                                    </p>
                                     <button
                                         type="button"
-                                        className="action-dismiss"
-                                        onClick={() => {
-                                            if (
-                                                window.confirm(
-                                                    "Encerrar o acompanhamento sem declarar sucesso? O resultado da alteração permanece desconhecido; consulte o registro antes de iniciar outra ação.",
-                                                )
-                                            )
-                                                onUnknownClose();
-                                        }}
+                                        className="action-refresh"
+                                        disabled={verifying}
+                                        onClick={() => void verify()}
                                     >
-                                        Voltar à lista mantendo resultado
-                                        desconhecido
+                                        Consultar estado atual sem repetir
                                     </button>
-                                )}
-                            </section>
-                        )}
+                                    {verificationError && (
+                                        <p role="alert">{verificationError}</p>
+                                    )}
+                                    {verification && (
+                                        <Result
+                                            data={verification.data}
+                                            type={
+                                                endpoint(
+                                                    record && page.detail
+                                                        ? page.detail
+                                                        : page.source,
+                                                ).response
+                                            }
+                                        />
+                                    )}
+                                    {verification && (
+                                        <button
+                                            type="button"
+                                            className="action-dismiss"
+                                            onClick={() => {
+                                                if (
+                                                    window.confirm(
+                                                        "Encerrar o acompanhamento sem declarar sucesso? O resultado da alteração permanece desconhecido; consulte o registro antes de iniciar outra ação.",
+                                                    )
+                                                )
+                                                    onUnknownClose();
+                                            }}
+                                        >
+                                            Voltar à lista mantendo resultado
+                                            desconhecido
+                                        </button>
+                                    )}
+                                </section>
+                            )}
                         {action &&
                             opening.row &&
                             !available.includes(action) &&
@@ -820,7 +941,9 @@ export function RecordDialog({
                                 className="record-other-operations"
                                 open={
                                     !action &&
-                                    recordType !== "EncerramentoDto.Resultado"
+                                    recordType !==
+                                        "EncerramentoDto.Resultado" &&
+                                    recordType !== "CargaInicialDto.Resultado"
                                 }
                             >
                                 <summary>
@@ -881,20 +1004,27 @@ export function RecordDialog({
                             >
                                 {action ? "Voltar à lista" : "Fechar detalhes"}
                             </button>
-                            {serviceDetail && record?.id !== undefined && (
-                                <button
-                                    type="button"
-                                    className="action-select"
-                                    disabled={locked}
-                                    onClick={() => {
-                                        if (!canClose()) return;
-                                        selectRecord(record, recordType);
-                                        onClose();
-                                    }}
-                                >
-                                    Selecionar este registro
-                                </button>
-                            )}
+                            {(serviceDetail ||
+                                (!action &&
+                                    recordType ===
+                                        "CargaInicialDto.Resultado")) &&
+                                record?.id !== undefined && (
+                                    <button
+                                        type="button"
+                                        className="action-select"
+                                        disabled={locked}
+                                        onClick={() => {
+                                            if (!canClose()) return;
+                                            selectRecord(record, recordType);
+                                            onClose();
+                                        }}
+                                    >
+                                        {recordType ===
+                                        "CargaInicialDto.Resultado"
+                                            ? "Selecionar esta carga"
+                                            : "Selecionar este registro"}
+                                    </button>
+                                )}
                             {record && action && (
                                 <button
                                     type="button"

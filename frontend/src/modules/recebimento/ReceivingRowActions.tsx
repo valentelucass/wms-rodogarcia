@@ -63,11 +63,12 @@ export function ReceivingRowActions({
         <div className="record-row-actions receiving-row-actions">
             {primary && (
                 <button
-                    className="primary"
+                    className="receiving-conference-button"
                     type="button"
                     disabled={pending}
                     onClick={() => onOpen(primary)}
                 >
+                    <Icon name="contagem" />
                     {primary.endsWith(".iniciar")
                         ? "Iniciar conferência"
                         : "Continuar conferência"}

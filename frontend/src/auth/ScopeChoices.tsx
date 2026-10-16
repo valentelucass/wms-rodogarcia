@@ -17,6 +17,11 @@ export function ScopeChoices({
     const unavailable = values.filter(
         (id) => !options.some((o) => o.id === id),
     );
+    const filtered = options.filter((o) =>
+        `${o.nome} ${o.codigo}`
+            .toLocaleLowerCase("pt-BR")
+            .includes(search.toLocaleLowerCase("pt-BR")),
+    );
     return (
         <fieldset className="scope-choices">
             <legend>{title}</legend>
@@ -29,30 +34,39 @@ export function ScopeChoices({
             />
             {catalog?.loading && <p role="status">Carregando opções…</p>}
             {catalog?.error && <p role="alert">{catalog.error}</p>}
-            <div className="scope-options">
-                {options
-                    .filter((o) =>
-                        `${o.nome} ${o.codigo}`
-                            .toLocaleLowerCase("pt-BR")
-                            .includes(search.toLocaleLowerCase("pt-BR")),
-                    )
-                    .map((o) => (
-                        <label key={o.id}>
-                            <input
-                                type="checkbox"
-                                checked={values.includes(o.id)}
-                                onChange={(e) =>
-                                    setValues((old) =>
-                                        e.target.checked
-                                            ? [...old, o.id]
-                                            : old.filter((id) => id !== o.id),
-                                    )
-                                }
-                            />
+            <div
+                className="scope-options"
+                role="group"
+                aria-label={`Opções de ${title.toLowerCase()}`}
+            >
+                {filtered.map((o) => (
+                    <label key={o.id}>
+                        <input
+                            type="checkbox"
+                            checked={values.includes(o.id)}
+                            onChange={(e) =>
+                                setValues((old) =>
+                                    e.target.checked
+                                        ? [...old, o.id]
+                                        : old.filter((id) => id !== o.id),
+                                )
+                            }
+                        />
+                        <span>
                             {o.nome} · {o.codigo}
-                        </label>
-                    ))}
+                        </span>
+                    </label>
+                ))}
             </div>
+            <p className="scope-summary" aria-live="polite">
+                {values.length}{" "}
+                {values.length === 1 ? "selecionado" : "selecionados"} ·{" "}
+                {filtered.length}{" "}
+                {filtered.length === 1 ? "opção exibida" : "opções exibidas"}
+            </p>
+            {options.length > 0 && filtered.length === 0 && (
+                <p className="hint">Nenhuma opção corresponde à busca.</p>
+            )}
             {unavailable.length > 0 && (
                 <p className="hint">
                     {unavailable.length} vínculo(s) existente(s) preservado(s),

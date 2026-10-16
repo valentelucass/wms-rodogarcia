@@ -15,10 +15,9 @@
     background: var(--og-success-bg);
 }
 .audit-selection-actions {
-    display: flex;
-    align-items: flex-start;
-    flex-wrap: wrap;
-    gap: var(--og-space-2);
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
+    gap: var(--og-space-3);
 }
 .audit-selection-target {
     min-width: 0;
@@ -30,7 +29,7 @@
     overflow-wrap: anywhere;
 }
 .audit-selection-target--legacy {
-    flex-basis: 100%;
+    grid-column: 1 / -1;
 }
 .record-view-picker {
     display: grid;
@@ -55,7 +54,7 @@
 }
 .audit-selection {
     display: grid;
-    grid-template-columns: minmax(220px, 320px) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
     align-items: start;
     gap: var(--og-space-4);
     min-width: 0;
@@ -70,29 +69,28 @@
 .audit-selection-heading p,
 .audit-selection > p {
     margin: 0;
+    color: var(--og-text-muted);
 }
 .audit-selection .audit-selection-actions {
     margin: 0;
     min-width: 0;
 }
 .audit-selection .audit-selection-target {
-    flex: 1 1 360px;
-    max-width: 720px;
+    display: flex;
+    flex-direction: column;
     min-width: 0;
-    padding: var(--og-space-3);
+    padding: var(--og-space-4);
     border: 1px solid var(--og-border);
     border-radius: var(--og-radius-control);
     background: var(--og-surface);
 }
-.audit-selection .audit-selection-target--legacy {
-    flex-basis: 100%;
-    max-width: none;
-}
 .audit-target-main {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: center;
-    gap: var(--og-space-3);
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: 1fr auto;
+    align-items: start;
+    gap: var(--og-space-4);
+    flex: 1;
 }
 .audit-target-summary {
     display: grid;
@@ -104,6 +102,8 @@
     align-items: center;
     justify-content: center;
     gap: var(--og-space-2);
+    justify-self: start;
+    white-space: nowrap;
 }
 .audit-target-kind {
     font-size: var(--og-type-caption);
@@ -140,8 +140,8 @@
     margin: 0;
 }
 @media (max-width: 767px) {
-    .audit-target-main {
-        grid-template-columns: minmax(0, 1fr);
+    .audit-target-main > button {
+        width: 100%;
     }
     .audit-selection-target button {
         min-height: var(--og-touch-height);
@@ -159,11 +159,6 @@
     .record-filter-actions {
     padding-top: 0;
     flex-wrap: nowrap;
-}
-@media (max-width: 1100px) {
-    .audit-selection {
-        grid-template-columns: minmax(0, 1fr);
-    }
 }
 @media (max-width: 767px) {
     .record-workspace[data-record-source="ConfiguracaoCobrancaController.tabelas"]

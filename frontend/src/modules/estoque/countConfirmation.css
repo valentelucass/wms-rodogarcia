@@ -1,0 +1,97 @@
+.count-confirmation-dialog {
+    width: min(720px, calc(100vw - 32px));
+}
+.count-confirmation-dialog .dialog-header {
+    position: sticky;
+    top: 0;
+    z-index: var(--og-z-sticky);
+    background: var(--og-surface);
+}
+.count-confirmation {
+    display: grid;
+    gap: var(--og-space-4);
+    min-width: 0;
+    font-weight: var(--og-font-regular);
+}
+.count-confirmation p,
+.count-confirmation h3 {
+    margin: 0;
+}
+.count-confirmation-intro,
+.count-confirmation-notice {
+    color: var(--og-text-muted);
+}
+.count-confirmation-context,
+.count-confirmation-reading {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--og-space-4);
+    margin: 0;
+}
+.count-confirmation :is(dt, dd) {
+    margin: 0;
+}
+.count-confirmation dt {
+    margin-bottom: var(--og-space-1);
+    color: var(--og-text-muted);
+    font-size: var(--og-type-caption);
+}
+.count-confirmation dd,
+.count-confirmation-reason p {
+    overflow-wrap: anywhere;
+}
+.count-confirmation-reading {
+    align-items: start;
+    padding: var(--og-space-4);
+    border: 1px solid var(--og-border);
+    border-radius: var(--og-radius-control);
+    background: var(--og-surface-raised);
+}
+.count-confirmation-quantity {
+    font-size: 24px;
+    line-height: 1.3;
+    font-weight: var(--og-font-semibold);
+    font-variant-numeric: tabular-nums;
+}
+.count-confirmation-unit {
+    grid-column: 1 / -1;
+    min-width: 0;
+}
+.count-confirmation-reading .count-confirmation-unit {
+    padding-top: var(--og-space-3);
+    border-top: 1px solid var(--og-border);
+}
+.count-confirmation-reason {
+    display: grid;
+    gap: var(--og-space-2);
+    padding: var(--og-space-3) var(--og-space-4);
+    border-left: 3px solid var(--og-border-strong);
+    border-radius: var(--og-radius-control);
+    background: var(--og-surface-raised);
+}
+.count-confirmation-reason p {
+    white-space: pre-wrap;
+    line-height: 1.6;
+}
+.count-confirmation-notice {
+    font-size: var(--og-type-caption);
+}
+.count-confirmation-technical {
+    margin: 0;
+}
+.count-confirmation-technical > dl {
+    padding-bottom: var(--og-space-3);
+}
+.confirmation--count > .actions {
+    position: sticky;
+    bottom: 0;
+    z-index: var(--og-z-sticky);
+    background: var(--og-surface);
+    padding-block: var(--og-space-3);
+}
+@media (max-width: 767px) {
+    .count-confirmation-context,
+    .count-confirmation-reading {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
