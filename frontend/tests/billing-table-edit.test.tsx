@@ -124,29 +124,29 @@ it("abre editor com valores exatos, permite trocar preço, remover/adicionar ser
         />,
     );
     const dialog = within(await screen.findByRole("dialog"));
+    const service = (index: number) =>
+        within(dialog.getByRole("group", { name: `Serviço ${index}` }));
     await waitFor(() =>
-        expect(dialog.getByLabelText("Itens / Item 1 / Preco")).toHaveValue(
-            "2.500000",
-        ),
+        expect(service(1).getByLabelText("Preço")).toHaveValue("2.500000"),
     );
-    expect(dialog.getByLabelText("Descricao *")).toHaveValue(
+    expect(dialog.getByLabelText("Descrição *")).toHaveValue(
         "Tabela do cliente",
     );
     expect(dialog.getByLabelText("Armazém *")).not.toBeDisabled();
     expect(dialog.getByLabelText("Cliente")).not.toBeDisabled();
-    expect(dialog.getByLabelText("Vigencia Inicio *")).toHaveValue(
+    expect(dialog.getByLabelText("Início da vigência *")).toHaveValue(
         "2026-10-01",
     );
-    fireEvent.change(dialog.getByLabelText("Itens / Item 1 / Preco"), {
+    fireEvent.change(service(1).getByLabelText("Preço"), {
         target: { value: "3.123456" },
     });
     const remove = dialog.getAllByRole("button", { name: /Remover/ });
     fireEvent.click(remove[1]);
-    fireEvent.click(dialog.getByRole("button", { name: "Adicionar Itens" }));
-    fireEvent.change(dialog.getByLabelText("Itens / Item 2 / Serviço *"), {
+    fireEvent.click(dialog.getByRole("button", { name: "Adicionar serviço" }));
+    fireEvent.change(service(2).getByLabelText("Serviço *"), {
         target: { value: "4" },
     });
-    fireEvent.change(dialog.getByLabelText("Itens / Item 2 / Preco"), {
+    fireEvent.change(service(2).getByLabelText("Preço"), {
         target: { value: "0.000000" },
     });
     fireEvent.change(dialog.getByLabelText("Motivo / justificativa *"), {

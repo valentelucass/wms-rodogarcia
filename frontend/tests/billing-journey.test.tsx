@@ -36,14 +36,14 @@ it("FE04 FE11 serviço tabela vigência vínculo sugestão fato e cálculo com r
     await confirm();
     await click("Configurar tabela com este serviço fictício");
     expect(screen.queryByLabelText("Código *")).toBeNull();
-    fill("Descricao *", "Tabela fictícia de exercício");
+    fill("Descrição *", "Tabela fictícia de exercício");
     fill("Tipo *", "ESPECIFICA");
-    fill("Vigencia Inicio *", "2026-10-01");
-    await click("Adicionar Itens");
-    selected("Itens / Item 1 / Serviço *", "2501");
-    fill("Itens / Item 1 / Categoria *", "");
-    fill("Itens / Item 1 / Preco", "2.500000");
-    selected("Itens / Item 1 / Percentual", "");
+    fill("Início da vigência *", "2026-10-01");
+    await click("Adicionar serviço");
+    selected("Serviço *", "2501");
+    fill("Categoria *", "");
+    fill("Preço", "2.500000");
+    selected("Percentual (%)", "");
     fill("Motivo / justificativa *", "Preço fictício informado sem percentual");
     await confirm();
     expect(

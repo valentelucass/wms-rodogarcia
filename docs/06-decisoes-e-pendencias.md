@@ -1,5 +1,15 @@
 # Decisões e pendências do WMS Rodogarcia
 
+## FE04-TABELA-UX01 — organização de Nova tabela, 20/10/2026
+
+Pedido expresso de Lucas para reorganizar o formulário e a inclusão de itens. Escolha de apresentação: identificação/vigência em bloco, serviços sem títulos repetidos e resolução histórica recolhida, com indicação quando informada. Mesma organização na edição. Preservados DTO, limites, IDs, decimais, motivo, revisão, confirmação, repetição e autorização do Gestor. A interface explica as regras já presentes em ConfiguracaoCobrancaService: padrão sem proprietário, específica com cliente e preço ou percentual conforme a unidade do serviço; a validação continua no backend. Não autoriza alterar tarifas, resolver pendências comerciais ou cadastrar tabelas reais. [Conferência e limites](../orchestracao/.runtime/billing-table-layout-20261020/validacao.json).
+
+## FE02-KPI-UX01 — indicadores e valor conhecido do estoque, 20/10/2026
+
+Lucas pediu refazer o layout e verificar regras/atributos de todos os KPIs, inclusive investigar o cartão sem valor. Escolha de apresentação: oito operacionais uniformes e linha própria para os dois financeiros. Verificação de regra usa serviços/repositórios atuais, Q04.e/Q18 e AC08, sem promover propostas AC04–AC08 a aprovação comercial.
+
+A consulta já apurava contribuições de valor, mas devolvia apenas null se qualquer parcela estivesse incompleta. O GET preserva esse total legado e acrescenta subtotal conhecido, contadores de cobertura e motivos agrupados. A interface só o destaca como parcial quando existe ao menos uma contribuição valorada; sem acesso ou sem contribuição, não inventa valor zero. Não inclui avaria, não duplica entrada unitizada e não altera nota, estoque, contrato ou cobrança. Entrada composta somente de mercadoria avariada demonstra zero sem exigir preço da parte excluída. Casos puros e leituras reais conferidos em [validação e limites](../orchestracao/.runtime/kpi-layout-20261020/validacao.json); números observados não são aceite comercial.
+
 ## BE14-FAT-AUTO01 / FE02-FAT-AUTO01 / FE06-LOTE01 — correção autorizada do faturamento e lote, 20/10/2026
 
 Lucas esclareceu que espera acompanhar o valor gerado pelas entradas/saídas, armazenagem e GRIS conforme as tabelas/contratos dos clientes, e autorizou verificar, testar e corrigir; depois, incluir o número do LOTE na etiqueta. A implementação anterior limitada às NFS-e não atende a essa expectativa. Essa limitação era uma escolha técnica documentada, não aprovação expressa localizada do usuário para a fórmula fiscal.

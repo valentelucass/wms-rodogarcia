@@ -10,6 +10,7 @@ import { AddressEditFields } from "../../modules/cadastros/AddressEditFields";
 import { EndValidityFields } from "../../modules/cadastros/EndValidityFields";
 import { DamageRegistrationFields } from "../../modules/estoque/DamageRegistrationFields";
 import { ContractConfigurationFields } from "../../modules/financeiro/ContractConfigurationFields";
+import { BillingTableFields } from "../../modules/financeiro/BillingTableFields";
 import { ServiceFactFields } from "../../modules/financeiro/ServiceFactFields";
 import { CalculationFields } from "../../modules/financeiro/CalculationFields";
 import { ReopenCycleFields } from "../../modules/financeiro/ReopenCycleFields";
@@ -372,6 +373,22 @@ export function OperationForm({
                             />
                         ) : s.e.id === "FatoServicoController.registrar" ? (
                             <ServiceFactFields
+                                groups={groups.map((group) => ({
+                                    ...group,
+                                    fields: group.fields.filter(
+                                        (field) =>
+                                            !fixedFields.includes(field.name),
+                                    ),
+                                }))}
+                                perfil={perfil}
+                                disabled={
+                                    s.pending || s.uncertain || s.completed
+                                }
+                            />
+                        ) : /^ConfiguracaoCobrancaController\.(criarTabela|alterar)$/.test(
+                              s.e.id,
+                          ) ? (
+                            <BillingTableFields
                                 groups={groups.map((group) => ({
                                     ...group,
                                     fields: group.fields.filter(

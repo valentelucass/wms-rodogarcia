@@ -22,7 +22,36 @@ Todos os clientes e Todos os armazéns significam todos os registros permitidos 
 
 O ajuste visual CTX01-A01 conserva seus critérios em [etapa-03.md](etapa-03.md#espaço-dos-seletores--fe02-ctx01-a01).
 
+## Formulário de tabela de cobrança — FE04-TABELA-UX01, 20/10/2026
+
+Criar/editar usam o mesmo bloco de dados gerais com descrição de uma linha, tipo e vigência. Início e fim permanecem alinhados no desktop e empilhados no celular. Serviços têm contador, ação de adicionar e um grupo por item, com Serviço, Categoria, Preço e Percentual; a seleção por nome/código e sua paginação são mantidas. Não há fieldsets sucessivos Itens/Itens 1/1 nem instrução técnica repetida por decimal. O motivo permanece obrigatório. Resolução histórica é uma área expansível com indicação Informada quando há conteúdo; recolher não remove o compromisso. Remoção exige ação própria. A confirmação acompanha a rolagem e a margem de foco protege os campos do rodapé.
+
+Textos em information.ts refletem as regras atuais do serviço, sem duplicar validação financeira ou aplicar preços no navegador. Conferência preserva IDs longos e seis casas decimais, zero distinto de ausência, revisão da edição e idempotência após conflito. 232 testes frontend/contratos, checagens estáticas/build próprios e navegador isolado com dados fictícios; antes/depois, temas, larguras e limites em [validacao.json](../../orchestracao/.runtime/billing-table-layout-20261020/validacao.json). Nenhuma integração SQL nova nesta mudança de apresentação.
+
 ## Indicadores do Início
+
+### KPIs compactos e atributos conferidos — FE02-KPI-UX01, 20/10/2026
+
+Pedido de Lucas: refazer a composição dos KPIs e conferir regras, atributos e ausência de valor. Oito indicadores operacionais passam a ter grade uniforme de quatro colunas; em telas estreitas, duas. A linha financeira contém Valor armazenado e a previsão mais larga, com valor/status, contexto e detalhes separados dentro do cartão. A altura financeira deixa de dimensionar os operacionais. Ordem de leitura e teclado acompanha a ordem visual, com os dois financeiros no fim. Temas, valores completos, ajuda, atualização global e permissões são preservados.
+
+| KPI | Atributos e regra efetiva do backend | Alcance e ausência |
+| --- | --- | --- |
+| Ocupação | `ocupacao = posicoesOcupadas / capacidade × 100`, arredondado HALF_UP para inteiro; capacidade zero retorna zero | Endereços de armazenagem e armazéns ativos; independe do cliente e do filtro/página do mapa |
+| Posições ocupadas | `posicoesOcupadas`: endereços da capacidade com unidade vinculada em OcupacaoEndereco | Conta posições físicas; unidade com várias posições não se confunde com várias unidades |
+| Posições livres | `posicoesLivres`: endereços da capacidade sem unidade vinculada | Livre não garante adequação à carga; capacidade e permissão continuam revalidadas na operação |
+| Unidades armazenadas | `unidadesArmazenadas`: unidades logísticas ativas | Cliente/armazéns autorizados; inclui triagem, quarentena e separação; exclui conferido ainda não unitizado |
+| Em quarentena | `emQuarentena`: unidades ativas com `tipoLocalizacao=QUARENTENA` | Conta unidades, não produtos; não inclui itens ainda não unitizados |
+| Reservas ativas | `reservasAtivas`: registros `ReservaSaida.situacao=ATIVA` | Conta reservas de unidades, não pedidos ou quantidade; sem vencimento automático |
+| Entradas abertas | `entradasAbertas`: pedidos exceto EFETIVADO/CANCELADO | Conta pedidos; RASCUNHO, EM_CONFERENCIA e QUARENTENA |
+| Saídas abertas | `saidasAbertas`: RASCUNHO/RESERVADO/EM_SEPARACAO/SEPARADO | Conta pedidos; exclui RETIRADO/CANCELADO |
+| Valor armazenado | `valorArmazenado` continua total completo ou null; `valoracao` contém conhecido, total, contadores de unidades/itens de entrada valorados e pendentes e motivos agrupados por código | Supervisor/Gestor e alcance autorizado; nota de origem proporcional ao saldo, reservas incluídas, avaria excluída; conhecido sem nenhum item apurável não vira zero exibido |
+| Faturamento previsto do mês | DTO próprio `PrevisaoFaturamento`: competência, referência, moeda, completo, conhecido, total, períodos e pendências | Supervisor/Gestor; ciclos/tarifas/mínimo/GRIS no backend; parcial não equivale a total nem a NFS-e emitida |
+
+Fontes efetivas: `VisaoOperacaoService`, `VisaoOperacaoRepository`, `IndicadorEstoqueService`, `CalculoCobrancaService`, `PrevisaoFaturamentoService` e os três enums de situação dos pedidos/reservas. Base de negócio: Q04.e/Q18 e AC08 para valor/avaria; AC03 para recebimento; AC04–AC08 continuam identificadas como propostas. A revisão da ajuda central explicita escopo físico, unidade de contagem e estados dos pedidos.
+
+O total armazenado antes desaparecia quando uma única contribuição era desconhecida. A consulta agora preserva o subtotal apurável sem alterar o total legado: `valoracao.total=null` enquanto houver unidade/item pendente. O frontend recebe esse subtotal e seus motivos, sem recalcular mercadoria ou tarifa. Não há consulta adicional por cartão/unidade. Os históricos continuam carregados em lotes pelo motor existente. Na conferência de entrada, `quantidadeQuarentena` corresponde à parte avariada e fica excluída da valoração; a parte boa usa `quantidadeTriagem`. Quantidade boa zero vale zero mesmo sem preço de nota, corrigindo uma pendência indevida, e denominador de origem não positivo não provoca divisão inválida. Após unitização, o item de entrada não é contado de novo. Avaria física e responsabilidade pela cobrança continuam distintas.
+
+Evidências desta rodada em [validação](../../orchestracao/.runtime/kpi-layout-20261020/validacao.json), [atributos/fatos](../../orchestracao/.runtime/kpi-layout-20261020/auditoria-kpis.json) e [comparação visual](../../orchestracao/.runtime/kpi-layout-20261020/visual.json). A validação real, o replay visual e os testes puros devem ser lidos separadamente; nenhum parâmetro comercial foi criado ou alterado.
 
 **Correção em 20/10/2026 — BE14-FAT-AUTO01/FE02-FAT-AUTO01:** Lucas esclareceu e autorizou acompanhar automaticamente a operação conforme tabelas e contratos. A fonte frontend mostra essa prévia, com consulta financeira independente do mapa. Testes/builds locais aprovados; login e cinco GETs SQL reais 200, com card Todos conferido no AuthApp. O auxiliar não concluiu a seleção de contexto, nem a comparação financeira depois. Versão habitual não reiniciada; [estado e limites](../../STATES.md#be14-fat-auto01--fe02-fat-auto01--fe06-lote01--previsão-de-faturamento-e-lote-na-etiqueta-20102026).
 

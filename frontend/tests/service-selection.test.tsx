@@ -126,10 +126,8 @@ it("só seleciona ao confirmar, fecha os detalhes, informa o resultado e usa o s
     );
     fireEvent.click(await screen.findByRole("button", { name: "Nova tabela" }));
     const dialog = within(screen.getByRole("dialog"));
-    fireEvent.click(dialog.getByRole("button", { name: "Adicionar Itens" }));
-    expect(dialog.getByLabelText("Itens / Item 1 / Serviço *")).toHaveValue(
-        alpha.id,
-    );
+    fireEvent.click(dialog.getByRole("button", { name: "Adicionar serviço" }));
+    expect(dialog.getByLabelText("Serviço *")).toHaveValue(alpha.id);
     expect(requests.every((r) => r.endpoint.method === "GET")).toBe(true);
 });
 

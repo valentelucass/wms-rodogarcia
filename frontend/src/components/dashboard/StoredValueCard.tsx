@@ -1,12 +1,26 @@
 import type { VisaoOperacaoDto_Resumo } from "../../contracts/types";
-import { information, metricInformation } from "../../content/information";
+import type { Perfil } from "../../contracts/runtime";
+import {
+    information,
+    metricInformation,
+    storedValueReasons,
+    unknownStoredValueReason,
+} from "../../content/information";
 import { Icon } from "../../design-system/Icon";
 import { InformationCard } from "../information/InformationPopup";
 import { formatQuantity } from "./OperationDashboard";
 import { overviewMoney } from "./overviewFormatting";
 
-export function StoredValueCard({ data }: { data?: VisaoOperacaoDto_Resumo }) {
-    const allowed = data?.financeiroPermitido === true;
+export function StoredValueCard({
+    data,
+    perfil = "OPERACAO",
+}: {
+    data?: VisaoOperacaoDto_Resumo;
+    perfil?: Perfil;
+}) {
+    const allowed =
+        (perfil === "SUPERVISOR" || perfil === "GESTOR") &&
+        data?.financeiroPermitido === true;
     const valuation = allowed ? data.valoracao : null;
     const hasKnown =
         valuation?.conhecido != null &&
@@ -44,17 +58,22 @@ export function StoredValueCard({ data }: { data?: VisaoOperacaoDto_Resumo }) {
                 value: formatQuantity(valuation.unidadesPendentes),
             },
             {
-                label: "Entradas não unitizadas valoradas",
+                label: "Itens de entrada não unitizados valorados",
                 value: formatQuantity(valuation.entradasValoradas),
             },
             {
-                label: "Entradas não unitizadas sem valoração",
+                label: "Itens de entrada não unitizados sem valoração",
                 value: formatQuantity(valuation.entradasPendentes),
             },
-            ...valuation.pendencias.map((pending) => ({
-                label: `${pending.codigo} · ${formatQuantity(pending.ocorrencias)}`,
-                value: pending.detalhe,
-            })),
+            ...valuation.pendencias.map((pending) => {
+                const reason =
+                    storedValueReasons[pending.codigo] ??
+                    unknownStoredValueReason;
+                return {
+                    label: `${reason.label} · ${formatQuantity(pending.ocorrencias)}`,
+                    value: reason.description,
+                };
+            }),
         );
     }
     return (
@@ -71,8 +90,13 @@ export function StoredValueCard({ data }: { data?: VisaoOperacaoDto_Resumo }) {
             {valuation && !data?.valorCompleto && (
                 <small>
                     Sem valoração: {formatQuantity(valuation.unidadesPendentes)}{" "}
-                    unidades · {formatQuantity(valuation.entradasPendentes)}{" "}
-                    entradas
+                    {valuation.unidadesPendentes === "1"
+                        ? "unidade"
+                        : "unidades"}{" "}
+                    · {formatQuantity(valuation.entradasPendentes)}{" "}
+                    {valuation.entradasPendentes === "1"
+                        ? "item de entrada"
+                        : "itens de entrada"}
                 </small>
             )}
         </InformationCard>

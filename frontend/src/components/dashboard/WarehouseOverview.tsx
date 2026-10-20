@@ -278,7 +278,7 @@ function Overview({
                     role="group"
                     aria-label="Indicadores financeiros"
                 >
-                    <StoredValueCard data={data} />
+                    <StoredValueCard data={data} perfil={perfil} />
                     <BillingPreviewCard
                         transport={transport}
                         context={context}

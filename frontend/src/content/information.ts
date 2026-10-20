@@ -9,6 +9,53 @@ export type Information = {
     footer?: string;
 };
 
+export const storedValueReasons: Record<
+    string,
+    { label: string; description: string }
+> = {
+    VALOR_NOTA_AUSENTE: {
+        label: "Valor de origem ausente",
+        description:
+            "Confira o valor fixo e a quantidade do item na nota de entrada.",
+    },
+    AVARIA_BE08_SEM_DETALHE: {
+        label: "Avaria sem detalhamento",
+        description:
+            "Falta comprovar a quantidade e o período afetados para valorar a mercadoria.",
+    },
+    ORIGEM_AVARIA_VALOR_INSUFICIENTE: {
+        label: "Origem da parte avariada",
+        description:
+            "Há preços diferentes nas origens; falta identificar a origem da parte avariada.",
+    },
+    ORIGEM_VALOR_HISTORICA_INSUFICIENTE: {
+        label: "Origem não reconciliada",
+        description:
+            "As quantidades de origem ainda não reconciliam com o histórico da unidade.",
+    },
+    HISTORICO_QUANTIDADE_INSUFICIENTE: {
+        label: "Histórico de quantidade incompleto",
+        description:
+            "Falta comprovar a quantidade física no histórico da mercadoria.",
+    },
+    AVARIAS_HISTORICAS_INCONSISTENTES: {
+        label: "Histórico de avaria inconsistente",
+        description:
+            "As quantidades avariadas registradas precisam ser conciliadas com o saldo físico.",
+    },
+    QUANTIDADE_ORIGEM_INVALIDA: {
+        label: "Quantidade de origem inválida",
+        description:
+            "A quantidade do item na nota precisa ser válida para apurar o valor proporcional.",
+    },
+};
+
+export const unknownStoredValueReason = {
+    label: "Valoração pendente",
+    description:
+        "Confira as origens e o histórico desta mercadoria para concluir a valoração.",
+};
+
 export const information = {
     operationErrorDetails: {
         title: "Detalhes técnicos",
@@ -290,6 +337,16 @@ export const information = {
         description:
             "Altere os dados, ajuste valores e adicione ou remova serviços, informando o motivo. As tarifas anteriores e os cálculos já registrados ficam preservados; salvar não recalcula nem altera fechamentos. Cliente, armazém, tipo e vigência são conferidos para proteger vínculos e histórico existentes.",
     },
+    billingTableScope: {
+        title: "Tipo da tabela",
+        description:
+            "A tabela padrão não possui cliente proprietário. Para uma tabela específica, informe o cliente.",
+    },
+    billingTableItems: {
+        title: "Valores dos serviços",
+        description:
+            "Informe preço ou percentual, conforme a unidade do serviço. Use ponto para decimais. Para armazenagem, a categoria pode ficar vazia ou ser PALLET ou BOBINA.",
+    },
     collectorMeasures: {
         title: "Medidas da unidade e destino",
         description:
@@ -399,7 +456,7 @@ export const information = {
     quarantine: {
         title: "Em quarentena",
         description:
-            "Unidades localizadas na área de quarentena. Esse estoque não atende pedidos de saída enquanto permanecer nessa condição.",
+            "Unidades logísticas ativas localizadas na área de quarentena, no cliente e nos armazéns permitidos. Conta unidades, não quantidade de produtos. Não inclui mercadoria ainda não unitizada. Esse estoque não atende pedidos de saída enquanto permanecer nessa condição.",
     },
     reservations: {
         title: "Reservas ativas",
@@ -414,7 +471,7 @@ export const information = {
     outbound: {
         title: "Saídas abertas",
         description:
-            "Pedidos de saída que ainda aguardam conclusão. Inclui etapas de elaboração, reserva e preparação; não representa somente pedidos prontos para retirada.",
+            "Pedidos de saída do cliente e dos armazéns permitidos nas situações Rascunho, Reservado, Em separação ou Separado. Exclui os retirados e os cancelados. Conta pedidos, não reservas, notas nem unidades; não representa somente pedidos prontos para retirada.",
     },
     billing: {
         title: "Faturamento previsto do mês",

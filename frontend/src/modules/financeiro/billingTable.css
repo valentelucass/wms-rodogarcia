@@ -1,0 +1,172 @@
+.billing-table-fields {
+    display: grid;
+    gap: var(--og-space-4);
+    min-width: 0;
+}
+.billing-table-fields h3,
+.billing-table-fields h4 {
+    margin: 0;
+    font-size: var(--og-type-body);
+}
+.billing-table-section,
+.billing-table-services {
+    display: grid;
+    gap: var(--og-space-3);
+    min-width: 0;
+}
+.billing-table-fields > :not(:first-child) {
+    padding-top: var(--og-space-3);
+    border-top: 1px solid var(--og-border);
+}
+.billing-table-context {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    align-items: start;
+    gap: var(--og-space-3) var(--og-space-4);
+}
+.billing-table-context > .billing-table-field {
+    grid-column: span 3;
+}
+.billing-table-context > .billing-table-field--descricao {
+    grid-column: span 4;
+}
+.billing-table-context > .billing-table-field--tipo {
+    grid-column: span 2;
+}
+.billing-table-dates {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--og-space-4);
+}
+.billing-table-fields .field,
+.billing-table-fields .hint {
+    margin: 0;
+}
+.billing-table-fields p {
+    max-width: none;
+}
+.billing-table-fields :is(input, select, textarea) {
+    width: 100%;
+    min-width: 0;
+}
+.billing-table-section-heading,
+.billing-table-item-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--og-space-3);
+}
+.billing-table-section-heading h3 {
+    display: flex;
+    gap: var(--og-space-2);
+    align-items: center;
+}
+.billing-table-count {
+    display: inline-grid;
+    place-items: center;
+    min-width: 24px;
+    padding: var(--og-space-1) var(--og-space-2);
+    border-radius: var(--og-radius-badge);
+    background: var(--og-surface-raised);
+    color: var(--og-text-muted);
+    font-size: var(--og-type-caption);
+    font-variant-numeric: tabular-nums;
+}
+.billing-table-empty {
+    margin: 0;
+    padding: var(--og-space-3) var(--og-space-4);
+    border: 1px dashed var(--og-border-strong);
+    border-radius: var(--og-radius-control);
+    color: var(--og-text-muted);
+    font-size: var(--og-type-body);
+}
+.billing-table-item {
+    display: grid;
+    gap: var(--og-space-3);
+    min-width: 0;
+    border: 1px solid var(--og-border);
+    border-radius: var(--og-radius-control);
+    padding: var(--og-space-4);
+    background: var(--og-surface-raised);
+}
+.billing-table-item-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) repeat(3, minmax(0, 1fr));
+    align-items: start;
+    gap: var(--og-space-3);
+}
+.billing-table-item-heading > .billing-table-remove {
+    color: var(--og-negative-text);
+    background: transparent;
+    border-color: transparent;
+}
+.billing-table-item-heading > .billing-table-remove:hover {
+    background: var(--og-danger-bg);
+    border-color: var(--og-negative-text);
+}
+.billing-table-history {
+    margin: 0;
+    padding-inline: 0;
+    border: 0;
+    border-radius: 0;
+}
+.billing-table-history > summary {
+    cursor: pointer;
+    font-weight: var(--og-font-medium);
+    overflow-wrap: anywhere;
+}
+.billing-table-history > summary > span {
+    display: inline-block;
+    margin-left: var(--og-space-2);
+    font-size: var(--og-type-caption);
+    color: var(--og-text-muted);
+    font-weight: var(--og-font-regular);
+}
+.billing-table-history[open] > .hint {
+    margin-block: var(--og-space-3);
+}
+.record-dialog:has(.billing-table-fields) .operation form > .actions {
+    position: sticky;
+    bottom: 0;
+    z-index: var(--og-z-sticky);
+    background: var(--og-surface);
+    border-top: 1px solid var(--og-border);
+    padding-block: var(--og-space-3);
+    margin-bottom: 0;
+}
+.record-dialog:has(.billing-table-fields) {
+    scroll-padding-block: 88px;
+}
+.billing-table-fields :is(input, select, textarea, button, summary) {
+    scroll-margin-block: 88px;
+}
+@media (max-width: 800px) {
+    .billing-table-item-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .billing-table-item-grid > .entity-reference-field {
+        grid-column: 1 / -1;
+    }
+}
+@media (max-width: 600px) {
+    .billing-table-context,
+    .billing-table-dates,
+    .billing-table-item-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .billing-table-context > .billing-table-field {
+        grid-column: auto;
+    }
+    .billing-table-item {
+        padding: var(--og-space-3);
+    }
+    .billing-table-section-heading {
+        flex-wrap: wrap;
+    }
+    .billing-table-section-heading > button {
+        width: 100%;
+    }
+    .billing-table-fields :is(input, select, button, summary) {
+        min-height: var(--og-touch-height);
+    }
+}

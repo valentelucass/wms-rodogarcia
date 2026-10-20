@@ -31,5 +31,6 @@
 @import "./modules/relatorios/auditFilters.css";
 @import "./modules/relatorios/auditDetail.css";
 @import "./modules/financeiro/contractConfiguration.css";
+@import "./modules/financeiro/billingTable.css";
 @import "./modules/regularizacao/initialLoad.css";
 @import "./modules/regularizacao/contingencyRegistration.css";
