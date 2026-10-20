@@ -11381,6 +11381,82 @@
         "type": "PaginaResponse<VisaoOperacaoDto.Posicao>",
         "required": true,
         "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "valoracao",
+        "type": "VisaoOperacaoDto.ValorArmazenado",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      }
+    ],
+    "VisaoOperacaoDto.ValorArmazenado": [
+      {
+        "name": "conhecido",
+        "type": "BigDecimal",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "total",
+        "type": "BigDecimal",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "unidadesValoradas",
+        "type": "long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "unidadesPendentes",
+        "type": "long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "entradasValoradas",
+        "type": "long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "entradasPendentes",
+        "type": "long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "pendencias",
+        "type": "List<VisaoOperacaoDto.PendenciaValor>",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java",
+        "element": {
+          "name": "element",
+          "type": "VisaoOperacaoDto.PendenciaValor",
+          "required": false,
+          "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+        }
+      }
+    ],
+    "VisaoOperacaoDto.PendenciaValor": [
+      {
+        "name": "codigo",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "ocorrencias",
+        "type": "long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "detalhe",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
       }
     ],
     "VisaoOperacaoDto.PrevisaoFaturamento": [

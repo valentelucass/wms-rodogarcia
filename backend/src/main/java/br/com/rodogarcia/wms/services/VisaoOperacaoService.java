@@ -116,13 +116,9 @@ public class VisaoOperacaoService {
                         : BigDecimal.valueOf(ocupadas)
                                 .multiply(BigDecimal.valueOf(100))
                                 .divide(BigDecimal.valueOf(capacidade), 0, RoundingMode.HALF_UP);
-        BigDecimal valor = financeiro ? BigDecimal.ZERO : null;
-        boolean completo = financeiro;
-        if (financeiro && !vazio) {
-            valor = indicadores.valorArmazenado(cs, as, agora, zona);
-            completo = valor != null;
-        }
-        if (!completo) valor = null;
+        var valoracao = financeiro ? indicadores.valoracaoArmazenada(cs, as, agora, zona) : null;
+        BigDecimal valor = valoracao == null ? null : valoracao.total();
+        boolean completo = financeiro && valor != null;
         BigDecimal faturamento = financeiro ? BigDecimal.ZERO : null;
         if (financeiro && !vazio) {
             var total =
@@ -197,7 +193,8 @@ public class VisaoOperacaoService {
                         pagina,
                         tamanho,
                         total,
-                        Math.toIntExact((total + tamanho - 1) / tamanho)));
+                        Math.toIntExact((total + tamanho - 1) / tamanho)),
+                valoracao);
     }
 
     /** Consulta independente do mapa: custo/erro da prévia não bloqueia os indicadores físicos. */

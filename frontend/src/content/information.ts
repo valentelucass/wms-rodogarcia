@@ -374,12 +374,12 @@ export const information = {
     occupancy: {
         title: "Ocupação",
         description:
-            "Percentual de posições de armazenagem ocupadas em relação à capacidade ativa informada na consulta. Posições físicas e quantidade de produtos são medidas diferentes.",
+            "Percentual de posições de armazenagem ocupadas em relação à capacidade ativa, arredondado para o inteiro mais próximo. Considera o espaço físico dos armazéns permitidos, inclusive posições ocupadas por outros clientes; o filtro de cliente não reduz a capacidade física. Posições físicas e quantidade de produtos são medidas diferentes.",
     },
     occupied: {
         title: "Posições ocupadas",
         description:
-            "Endereços físicos ocupados no contexto consultado. Observe a área indicada no cartão. Uma posição recebe uma única unidade logística. Uma unidade pode ocupar várias posições conforme a regra de capacidade.",
+            "Posições de armazenagem ativas e ocupadas nos armazéns permitidos, independentemente do cliente da mercadoria. Áreas de triagem, quarentena e separação não entram neste número. Uma posição recebe uma única unidade logística. Uma unidade pode ocupar várias posições conforme a regra de capacidade.",
     },
     free: {
         title: "Posições livres",
@@ -389,12 +389,12 @@ export const information = {
     stored: {
         title: "Unidades armazenadas",
         description:
-            "Unidades logísticas ativas no contexto consultado. Não representa a quantidade de produtos dentro dessas unidades nem somente o estoque disponível para saída.",
+            "Unidades logísticas ativas do cliente e dos armazéns permitidos, inclusive nas áreas de triagem, quarentena e separação. Uma unidade com várias posições é contada uma vez. Mercadoria conferida ainda não unitizada não entra neste número. Não representa quantidade de produtos nem somente estoque disponível para saída.",
     },
     storedValue: {
         title: "Valor armazenado",
         description:
-            "Valoração do estoque confirmado, conforme os dados disponíveis na consulta. Um valor pendente ou acesso restrito não significa estoque de valor zero. Não representa cobrança de armazenagem.",
+            "Valor da mercadoria confirmado pelas notas de origem, proporcional à quantidade física restante. Inclui mercadoria reservada e em quarentena quando não avariada; exclui a parte avariada. Inclui a mercadoria boa conferida ainda não unitizada, sem duplicá-la após a unitização. Quando faltam origens, valores ou histórico, o montante apurável aparece como parcial, com quantidades pendentes e motivos nesta ajuda. Sem parcela apurável, o valor fica indisponível. Acesso financeiro é restrito a Supervisor e Gestor. Não representa cobrança de armazenagem.",
     },
     quarantine: {
         title: "Em quarentena",
@@ -404,12 +404,12 @@ export const information = {
     reservations: {
         title: "Reservas ativas",
         description:
-            "Reservas ainda não encerradas no contexto consultado. Reserva não é retirada física e não expira automaticamente.",
+            "Registros de reserva ATIVA do cliente e dos armazéns permitidos. Conta reservas de unidades, não pedidos nem quantidade de produtos reservados. Reserva não é retirada física e não expira automaticamente.",
     },
     inbound: {
         title: "Entradas abertas",
         description:
-            "Pedidos de entrada ainda não efetivados. Documentos registrados e conferência física são etapas distintas; o pedido aberto não comprova estoque disponível.",
+            "Pedidos de entrada do cliente e dos armazéns permitidos, excluindo os efetivados e os cancelados. Conta pedidos, não notas nem unidades. Documentos registrados e conferência física são etapas distintas; o pedido aberto não comprova estoque disponível.",
     },
     outbound: {
         title: "Saídas abertas",
@@ -419,8 +419,8 @@ export const information = {
     billing: {
         title: "Faturamento previsto do mês",
         description:
-            "Prévia automática dos serviços e da ocupação apurados pelo WMS, com as tabelas e os ciclos contratados de cada cliente. A competência é o mês do último dia incluído no ciclo. O período aberto considera o que foi apurado até a referência da consulta. Pendências deixam o total indisponível; o valor conhecido é parcial. Mínimo e GRIS seguem cada ciclo contratado. Em caso de falha na consulta, use Atualizar visão. A consulta não fecha cobranças nem emite NFS-e.",
-        footer: "Valores estimados até o fechamento. Na prévia incompleta, o valor conhecido reúne somente os subtotais apurados; tarifas pendentes e ajustes do ciclo podem alterar o total.",
+            "Prévia automática dos serviços e da ocupação apurados pelo WMS, com as tabelas e os ciclos contratados de cada cliente. A competência é o mês do último dia incluído no ciclo. O período aberto considera o que foi apurado até a referência da consulta. Com cálculo incompleto e moeda única, o card destaca o valor conhecido como parcial; o total previsto continua indisponível. Sem valor conhecido ou moeda única, aparece —. A contagem de pendências representa ocorrências da apuração. Mínimo e GRIS seguem cada ciclo contratado. Em caso de falha na consulta, use Atualizar visão. A consulta não fecha cobranças nem emite NFS-e.",
+        footer: "Valores estimados até o fechamento. O valor parcial reúne somente os subtotais conhecidos; tarifas pendentes e ajustes do ciclo podem alterar o total. Consulte os períodos e as pendências para conferir o que falta apurar.",
     },
     availableUnits: {
         title: "Unidades disponíveis",

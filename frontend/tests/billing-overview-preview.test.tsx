@@ -145,39 +145,48 @@ it("detalha ciclo, período apurado e valores recebidos sem recalcular mínimo o
 });
 
 it.each([
-    ["123.456", "R$ 123,46"],
-    ["0.00", "R$ 0,00"],
+    ["1143.20", "R$ 1.143,20", 236],
+    ["123.456", "R$ 123,46", 1],
+    ["0.00", "R$ 0,00", 1],
 ])(
-    "mantém o total indisponível com pendência e subtotal conhecido %s",
-    async (known, formatted) => {
+    "destaca o conhecido %s como parcial e mantém o total incompleto indisponível",
+    async (known, formatted, pendingCount) => {
         setup({
             ...preview,
             completo: false,
             conhecido: known,
             total: null,
             periodos: [{ ...period, total: null, minimoCalculado: null }],
-            pendencias: [
-                {
-                    clienteId: period.clienteId,
-                    armazemId: period.armazemId,
-                    codigo: "PRECO_AUSENTE",
-                    data: "2026-10-20",
-                    unidadeId: null,
-                    fatoId: "9007199254741009",
-                    detalhe:
-                        "Preço do serviço não informado na tabela do cliente.",
-                },
-            ],
+            pendencias: Array.from({ length: pendingCount }, () => ({
+                clienteId: period.clienteId,
+                armazemId: period.armazemId,
+                codigo: "PRECO_AUSENTE",
+                data: "2026-10-20",
+                unidadeId: null,
+                fatoId: "9007199254741009",
+                detalhe: "Preço do serviço não informado na tabela do cliente.",
+            })),
         });
-        await within(card()).findByText(`Valor conhecido: ${formatted}`);
-        expect(card().querySelector("strong")).toHaveTextContent("—");
-        expect(card()).toHaveTextContent("Prévia incompleta · 1 pendência");
+        await within(card()).findByText("Parcial — cálculo incompleto");
+        expect(card().querySelector("strong")).toHaveTextContent(formatted);
+        expect(card()).toHaveTextContent(
+            `${pendingCount} ${pendingCount === 1 ? "pendência" : "pendências"}`,
+        );
         fireEvent.click(
             within(card()).getByRole("button", {
                 name: "Ver períodos e pendências",
             }),
         );
         const dialog = screen.getByRole("dialog");
+        const mainValue = dialog.querySelector(
+            ".billing-preview-details > dl > div",
+        )!;
+        expect(mainValue).toHaveTextContent("Valor conhecido (parcial)");
+        expect(mainValue).toHaveTextContent(formatted);
+        expect(
+            within(dialog).getByText("Total previsto", { exact: true })
+                .parentElement,
+        ).toHaveTextContent("Indisponível até concluir o cálculo");
         expect(dialog).toHaveTextContent(
             "Preço do serviço não informado na tabela do cliente.",
         );
@@ -205,30 +214,53 @@ it.each([
     },
 );
 
-it("respeita moeda por período e não converte agregação de moedas divergentes em zero", async () => {
-    setup({
-        ...preview,
-        completo: false,
-        moeda: null,
-        conhecido: null,
-        total: null,
-        periodos: [
-            period,
-            { ...period, moeda: "USD", contratoId: "9007199254741004" },
-        ],
-        pendencias: [
-            {
-                clienteId: period.clienteId,
-                armazemId: period.armazemId,
-                codigo: "MOEDAS_DIVERGENTES",
-                data: null,
-                unidadeId: null,
-                fatoId: null,
-                detalhe: "Os períodos consultados têm moedas diferentes.",
-            },
-        ],
-    });
-    await within(card()).findByText("Prévia incompleta · 1 pendência");
+it.each([null, "123.45"])(
+    "mantém agregado sem moeda única indisponível mesmo com conhecido %s",
+    async (known) => {
+        setup({
+            ...preview,
+            completo: false,
+            moeda: null,
+            conhecido: known,
+            total: null,
+            periodos: [
+                period,
+                { ...period, moeda: "USD", contratoId: "9007199254741004" },
+            ],
+            pendencias: [
+                {
+                    clienteId: period.clienteId,
+                    armazemId: period.armazemId,
+                    codigo: "MOEDAS_DIVERGENTES",
+                    data: null,
+                    unidadeId: null,
+                    fatoId: null,
+                    detalhe: "Os períodos consultados têm moedas diferentes.",
+                },
+            ],
+        });
+        await within(card()).findByText("Prévia incompleta");
+        expect(card().querySelector("strong")).toHaveTextContent("—");
+        expect(card()).not.toHaveTextContent("R$ 0,00");
+        fireEvent.click(
+            within(card()).getByRole("button", {
+                name: "Ver períodos e pendências",
+            }),
+        );
+        const dialog = screen.getByRole("dialog");
+        expect(dialog).toHaveTextContent("USD 2.345,67");
+        expect(dialog).toHaveTextContent(
+            "Os períodos consultados têm moedas diferentes.",
+        );
+        expect(
+            dialog.querySelector(".billing-preview-details > dl > div"),
+        ).toHaveTextContent("Valor conhecido (parcial)—");
+    },
+);
+
+it("não inventa parcial quando a moeda é conhecida mas o subtotal não foi informado", async () => {
+    setup({ ...preview, completo: false, conhecido: null, total: null });
+    await within(card()).findByText("Prévia incompleta");
     expect(card().querySelector("strong")).toHaveTextContent("—");
     expect(card()).not.toHaveTextContent("R$ 0,00");
     fireEvent.click(
@@ -236,17 +268,41 @@ it("respeita moeda por período e não converte agregação de moedas divergente
             name: "Ver períodos e pendências",
         }),
     );
-    const dialog = screen.getByRole("dialog");
-    expect(dialog).toHaveTextContent("USD 2.345,67");
-    expect(dialog).toHaveTextContent(
-        "Os períodos consultados têm moedas diferentes.",
-    );
+    const aggregate = screen
+        .getByRole("dialog")
+        .querySelector(".billing-preview-details > dl > div");
+    expect(aggregate).toHaveTextContent("Valor conhecido (parcial)—");
 });
 
 it("exibe zero somente quando a prévia completa confirma total zero", async () => {
     setup({ ...preview, total: "0.00", conhecido: "0.00", periodos: [] });
     await within(card()).findByText("R$ 0,00");
     expect(card()).toHaveTextContent("Prévia automática · 2026-10");
+});
+
+it("explica a ausência de moeda única mesmo em prévia completa sem períodos", async () => {
+    setup({
+        ...preview,
+        moeda: null,
+        total: "0.00",
+        conhecido: "0.00",
+        periodos: [],
+    });
+    await within(card()).findByText("Sem moeda única informada");
+    expect(card().querySelector("strong")).toHaveTextContent("—");
+    expect(card()).not.toHaveTextContent("0,00");
+    fireEvent.click(
+        within(card()).getByRole("button", {
+            name: "Ver períodos e pendências",
+        }),
+    );
+    const aggregate = screen
+        .getByRole("dialog")
+        .querySelector(".billing-preview-details > dl > div");
+    expect(aggregate).toHaveTextContent("Total previsto—");
+    expect(screen.getByRole("dialog")).toHaveTextContent(
+        "Sem moeda única informada",
+    );
 });
 
 it("espera a consulta e remove a previsão anterior após falha de atualização", async () => {

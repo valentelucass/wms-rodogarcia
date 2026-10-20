@@ -31,7 +31,7 @@ import { MapStreetLayout } from "./MapStreetLayout";
 import { MapPosition } from "./MapPosition";
 import { permittedUnitTypesLabel } from "../../domain/unitTypes";
 import { BillingPreviewCard } from "./BillingPreviewCard";
-import { overviewMoney } from "./overviewFormatting";
+import { StoredValueCard } from "./StoredValueCard";
 export { overviewMoney } from "./overviewFormatting";
 
 export const positionState = (p: VisaoOperacaoDto_Posicao) =>
@@ -47,7 +47,6 @@ export const positionState = (p: VisaoOperacaoDto_Posicao) =>
             }[p.estado] ?? "Indisponível");
 const quantity = (v: string | null | undefined) =>
     v == null ? "—" : formatQuantity(v);
-const money = overviewMoney;
 type Props = {
     transport: Transport;
     context: Values;
@@ -173,17 +172,6 @@ function Overview({
             "unidades",
         ],
         [
-            "storedValue",
-            "Valor armazenado",
-            money(data?.valorArmazenado),
-            data && !data.financeiroPermitido
-                ? "Disponível para Supervisor e Gestor"
-                : data && !data.valorCompleto
-                  ? "Valoração pendente de informações"
-                  : "Valoração atual do estoque confirmado",
-            "servicos",
-        ],
-        [
             "quarantine",
             "Em quarentena",
             quantity(data?.emQuarentena),
@@ -212,6 +200,23 @@ function Overview({
             "saida",
         ],
     ];
+    const renderMeasure = (
+        [topic, label, value, note, icon]: (typeof measures)[number],
+        index: number,
+    ) => (
+        <InformationCard
+            content={metricInformation(topic, value, note)}
+            key={label}
+            className={`overview-metric overview-metric--${index}`}
+        >
+            <div className="overview-metric-heading">
+                <span>{label}</span>
+                <Icon name={icon} />
+            </div>
+            <strong>{value}</strong>
+            <small>{note}</small>
+        </InformationCard>
+    );
     return (
         <section
             className="warehouse-overview"
@@ -259,26 +264,28 @@ function Overview({
                 </p>
             )}
             <div className="overview-metrics">
-                {measures.map(([topic, label, value, note, icon], i) => (
-                    <InformationCard
-                        content={metricInformation(topic, value, note)}
-                        key={label}
-                        className={`overview-metric overview-metric--${i}`}
-                    >
-                        <div>
-                            <span>{label}</span>
-                            <Icon name={icon} />
-                        </div>
-                        <strong>{value}</strong>
-                        <small>{note}</small>
-                    </InformationCard>
-                ))}
-                <BillingPreviewCard
-                    transport={transport}
-                    context={context}
-                    perfil={perfil}
-                    revision={revision}
-                />
+                <div
+                    className="overview-operational-metrics"
+                    role="group"
+                    aria-label="Indicadores operacionais"
+                >
+                    {measures.map((measure, index) =>
+                        renderMeasure(measure, index < 4 ? index : index + 1),
+                    )}
+                </div>
+                <div
+                    className="overview-financial-metrics"
+                    role="group"
+                    aria-label="Indicadores financeiros"
+                >
+                    <StoredValueCard data={data} />
+                    <BillingPreviewCard
+                        transport={transport}
+                        context={context}
+                        perfil={perfil}
+                        revision={revision}
+                    />
+                </div>
             </div>
             {children}
             <section

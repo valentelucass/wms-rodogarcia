@@ -32,7 +32,20 @@ public final class VisaoOperacaoDto {
             boolean faturamentoParcial,
             boolean financeiroPermitido,
             @NotNull String competencia,
-            @NotNull PaginaResponse<Posicao> mapa) {}
+            @NotNull PaginaResponse<Posicao> mapa,
+            ValorArmazenado valoracao) {}
+
+    public record ValorArmazenado(
+            BigDecimal conhecido,
+            BigDecimal total,
+            long unidadesValoradas,
+            long unidadesPendentes,
+            long entradasValoradas,
+            long entradasPendentes,
+            @NotNull List<PendenciaValor> pendencias) {}
+
+    public record PendenciaValor(
+            @NotNull String codigo, long ocorrencias, @NotNull String detalhe) {}
 
     public record PrevisaoFaturamento(
             @NotNull String competencia,

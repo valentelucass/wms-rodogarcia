@@ -99,6 +99,12 @@ export function BillingPreviewCard({
     ]);
     const preview = permitted && !loading && !error ? result.preview : null;
     const pending = preview?.pendencias?.length ?? 0;
+    const amount = preview?.moeda
+        ? preview.completo
+            ? preview.total
+            : preview.conhecido
+        : null;
+    const partial = !!preview && !preview.completo && amount != null;
     const note = loading
         ? "Consultando prévia…"
         : error
@@ -109,43 +115,56 @@ export function BillingPreviewCard({
               ? "Prévia indisponível"
               : preview.completo
                 ? `Prévia automática · ${preview.competencia}`
-                : `Prévia incompleta · ${pending ? `${pending} ${pending === 1 ? "pendência" : "pendências"}` : "consulte os períodos"}`;
+                : partial
+                  ? "Parcial — cálculo incompleto"
+                  : "Prévia incompleta";
     return (
         <>
             <article
-                className="overview-metric overview-metric--9 overview-billing"
+                className={`overview-metric overview-metric--9 overview-billing${partial ? " overview-billing--partial" : ""}`}
                 aria-label={information.billing.title}
                 aria-busy={loading}
             >
-                <div>
+                <div className="overview-metric-heading">
                     <span>{information.billing.title}</span>
                     <InformationHint topic="billing" />
                 </div>
-                <strong>
-                    {preview?.completo
-                        ? previewMoney(preview.total, preview.moeda)
-                        : "—"}
-                </strong>
-                <small>{note}</small>
-                {error && <small role="alert">{error}</small>}
-                {preview && !preview.completo && (
-                    <>
-                        <small>
-                            Competência dos ciclos: {preview.competencia}
-                        </small>
-                        {preview.conhecido != null && (
-                            <small>
-                                Valor conhecido:{" "}
-                                {previewMoney(preview.conhecido, preview.moeda)}
-                            </small>
+                <div className="billing-preview-summary">
+                    <div className="billing-preview-amount">
+                        <strong>
+                            {previewMoney(amount, preview?.moeda ?? null)}
+                        </strong>
+                        <small className="billing-preview-status">{note}</small>
+                    </div>
+                    <div className="billing-preview-context">
+                        {preview && !preview.completo && (
+                            <>
+                                <small>
+                                    {pending
+                                        ? `${pending} ${pending === 1 ? "pendência" : "pendências"}`
+                                        : "Consulte os períodos"}
+                                </small>
+                                <small>
+                                    Competência dos ciclos:{" "}
+                                    {preview.competencia}
+                                </small>
+                            </>
                         )}
-                    </>
-                )}
-                {preview && (
-                    <button type="button" onClick={() => setDetailsOpen(true)}>
-                        Ver períodos e pendências
-                    </button>
-                )}
+                        {preview && !preview.moeda && (
+                            <small>Sem moeda única informada</small>
+                        )}
+                    </div>
+                    {preview && (
+                        <button
+                            className="billing-preview-action"
+                            type="button"
+                            onClick={() => setDetailsOpen(true)}
+                        >
+                            Ver períodos e pendências
+                        </button>
+                    )}
+                </div>
+                {error && <small role="alert">{error}</small>}
             </article>
             {detailsOpen && preview && (
                 <Dialog
@@ -185,6 +204,41 @@ function PreviewDetails({
             <p className="muted">{information.billing.footer}</p>
             <dl className="record">
                 <div>
+                    <dt>
+                        {preview.completo
+                            ? "Total previsto"
+                            : "Valor conhecido (parcial)"}
+                    </dt>
+                    <dd>
+                        {previewMoney(
+                            preview.moeda
+                                ? preview.completo
+                                    ? preview.total
+                                    : preview.conhecido
+                                : null,
+                            preview.moeda,
+                        )}
+                    </dd>
+                </div>
+                <div>
+                    <dt>Situação</dt>
+                    <dd>
+                        {preview.completo
+                            ? "Prévia completa até a referência"
+                            : "Parcial — cálculo incompleto"}
+                    </dd>
+                </div>
+                {!preview.completo && (
+                    <div>
+                        <dt>Total previsto</dt>
+                        <dd>Indisponível até concluir o cálculo</dd>
+                    </div>
+                )}
+                <div>
+                    <dt>Pendências</dt>
+                    <dd>{preview.pendencias?.length ?? 0}</dd>
+                </div>
+                <div>
                     <dt>Competência dos ciclos</dt>
                     <dd>{preview.competencia}</dd>
                 </div>
@@ -194,31 +248,6 @@ function PreviewDetails({
                         {moment(preview.referenciaEm, timeZone)} · {timeZone}
                     </dd>
                 </div>
-                <div>
-                    <dt>Situação</dt>
-                    <dd>
-                        {preview.completo
-                            ? "Prévia completa até a referência"
-                            : "Prévia incompleta"}
-                    </dd>
-                </div>
-                <div>
-                    <dt>Total previsto</dt>
-                    <dd>
-                        {previewMoney(
-                            preview.completo ? preview.total : null,
-                            preview.moeda,
-                        )}
-                    </dd>
-                </div>
-                {!preview.completo && (
-                    <div>
-                        <dt>Valor conhecido (parcial)</dt>
-                        <dd>
-                            {previewMoney(preview.conhecido, preview.moeda)}
-                        </dd>
-                    </div>
-                )}
                 {!preview.moeda && (
                     <div>
                         <dt>Moeda do agregado</dt>

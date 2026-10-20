@@ -1,5 +1,11 @@
 # Estado e trilha de implementação do WMS Rodogarcia
 
+## FE02-FAT-AUTO01 — destaque do valor parcial, 20/10/2026
+
+Lucas apontou o traço no card apesar de haver R$ 1.143,20 conhecidos. Ajustada a apresentação: o conhecido passa a ser o número principal com Parcial — cálculo incompleto e contagem de ocorrências; no diálogo, aparece antes do total identificado como indisponível. Total completo continua distinto. Agregado sem moeda única ou sem valor permanece —, com explicação de moeda quando aplicável. Ajuda central revisada; nenhum cálculo ou dado de negócio alterado.
+
+18 testes focais e 24 de contexto/ajuda/performance frontend, tipagem, lint, formatação e build próprio aprovados. Chrome local reproduz o DTO real já consultado: mesmos R$ 1.143,20/236 ocorrências, antes/depois, claro/escuro e 390/1440 px, sem overflow, com Enter/Escape e foco restaurado. Não é uma nova consulta integrada. As ocorrências incluem 125 de tarifa de armazenagem ausente e 27 de contrato ausente; repetem-se por contexto/período/unidade, não são 236 cadastros. Configuração e histórico continuam pendentes, sem inventar preços. [Diagnóstico](orchestracao/.runtime/faturamento-parcial-20261020/diagnostico.json), [validação](orchestracao/.runtime/faturamento-parcial-20261020/validacao.json), [antes](orchestracao/.runtime/faturamento-parcial-20261020/before-dark-1440.png) e [depois](orchestracao/.runtime/faturamento-parcial-20261020/after-dark-1440.png). Previews próprios encerrados; BAT/DEV habitual preservado, sem nova API/SQL, login ou reinício. A conferência visual não mede a fonte servida pelo DEV habitual.
+
 ## BE02-DEV-FONTE01 — fonte estável e DEV iniciado, 20/10/2026
 
 O BAT do usuário `7b5ce937` terminou em DEV_CURRENT_SOURCE_CHANGED porque a limpeza Java de `CalculoCobrancaService` ocorreu depois do build, durante a preparação do banco. Único fingerprint divergente; guarda 26/26 aprovada e nenhum processo encerrado. Causa da sobreposição assumida pelo agente; proteção/launcher/migrations não foram alterados para contorná-la.

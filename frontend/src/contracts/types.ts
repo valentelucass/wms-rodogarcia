@@ -2055,6 +2055,21 @@ export interface VisaoOperacaoDto_Resumo {
   financeiroPermitido: boolean;
   competencia: string;
   mapa: PaginaResponse<VisaoOperacaoDto_Posicao>;
+  valoracao: VisaoOperacaoDto_ValorArmazenado | null;
+}
+export interface VisaoOperacaoDto_ValorArmazenado {
+  conhecido: string | null;
+  total: string | null;
+  unidadesValoradas: string;
+  unidadesPendentes: string;
+  entradasValoradas: string;
+  entradasPendentes: string;
+  pendencias: Array<VisaoOperacaoDto_PendenciaValor>;
+}
+export interface VisaoOperacaoDto_PendenciaValor {
+  codigo: string;
+  ocorrencias: string;
+  detalhe: string;
 }
 export interface VisaoOperacaoDto_PrevisaoFaturamento {
   competencia: string;

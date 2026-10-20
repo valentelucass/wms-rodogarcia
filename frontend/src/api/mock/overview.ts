@@ -112,6 +112,7 @@ export function overviewExample(
                 : "0.00"
             : null,
         valorCompleto: financial,
+        valoracao: null,
         emQuarentena: "0",
         reservasAtivas: own && occupied ? "1" : "0",
         entradasAbertas: empty ? "0" : "2",

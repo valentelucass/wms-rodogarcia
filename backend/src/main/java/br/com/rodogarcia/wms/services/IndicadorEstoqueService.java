@@ -2,6 +2,7 @@ package br.com.rodogarcia.wms.services;
 
 import br.com.rodogarcia.wms.dto.IndicadorEstoqueDto;
 import br.com.rodogarcia.wms.dto.PaginaResponse;
+import br.com.rodogarcia.wms.dto.VisaoOperacaoDto;
 import br.com.rodogarcia.wms.exceptions.RegraNegocioException;
 import br.com.rodogarcia.wms.models.CargaInicial;
 import br.com.rodogarcia.wms.models.ConfiguracaoAvisoValidade;
@@ -306,30 +307,86 @@ public class IndicadorEstoqueService {
     @Transactional(readOnly = true, isolation = Isolation.SERIALIZABLE)
     public BigDecimal valorArmazenado(
             List<Long> clientes, List<Long> armazens, Instant instante, ZoneId zona) {
+        return valoracaoArmazenada(clientes, armazens, instante, zona).total();
+    }
+
+    @Transactional(readOnly = true, isolation = Isolation.SERIALIZABLE)
+    public VisaoOperacaoDto.ValorArmazenado valoracaoArmazenada(
+            List<Long> clientes, List<Long> armazens, Instant instante, ZoneId zona) {
         acesso.exigirSupervisor();
         clientes.forEach(acesso::cliente);
         armazens.forEach(acesso::armazem);
-        if (clientes.isEmpty() || armazens.isEmpty()) return BigDecimal.ZERO;
         BigDecimal total = BigDecimal.ZERO;
-        boolean completo = true;
+        long unidadesValoradas = 0,
+                unidadesPendentes = 0,
+                entradasValoradas = 0,
+                entradasPendentes = 0;
+        var ocorrencias = new java.util.LinkedHashMap<String, Long>();
+        var detalhes = new java.util.LinkedHashMap<String, String>();
+        if (clientes.isEmpty() || armazens.isEmpty())
+            return new VisaoOperacaoDto.ValorArmazenado(total, total, 0, 0, 0, 0, List.of());
         for (var resultado :
                 calculos.indicadoresUnidades(
                         unidades.ativasParaIndicador(clientes, armazens), instante, zona)) {
             var valor = resultado.unidade().valorEstoque();
-            if (valor == null) completo = false;
-            else total = total.add(valor);
+            if (valor == null) {
+                unidadesPendentes++;
+                var codigos = new LinkedHashSet<String>();
+                for (var p : resultado.pendencias())
+                    if (codigos.add(p.codigo())) {
+                        ocorrencias.merge(p.codigo(), 1L, Long::sum);
+                        detalhes.putIfAbsent(p.codigo(), p.detalhe());
+                    }
+                if (codigos.isEmpty()) {
+                    ocorrencias.merge("VALOR_UNIDADE_INDETERMINADO", 1L, Long::sum);
+                    detalhes.putIfAbsent(
+                            "VALOR_UNIDADE_INDETERMINADO",
+                            "Não foi possível valorar a unidade com as origens e o histórico disponíveis.");
+                }
+            } else {
+                unidadesValoradas++;
+                total = total.add(valor);
+            }
         }
         for (var e : entradas.pendentesParaIndicador(clientes, armazens)) {
             var valor = valorTriagem(e);
-            if (valor == null) completo = false;
-            else total = total.add(valor);
+            if (valor == null) {
+                entradasPendentes++;
+                String codigo =
+                        e.getItemChegada().getItemNota().getQuantidadePrevista().signum() <= 0
+                                ? "QUANTIDADE_ORIGEM_INVALIDA"
+                                : "VALOR_NOTA_AUSENTE";
+                ocorrencias.merge(codigo, 1L, Long::sum);
+                detalhes.putIfAbsent(
+                        codigo,
+                        "Valor e quantidade da nota de origem necessários para valorar a mercadoria boa ainda não unitizada.");
+            } else {
+                entradasValoradas++;
+                total = total.add(valor);
+            }
         }
-        return completo ? total : null;
+        var pendencias =
+                ocorrencias.entrySet().stream()
+                        .map(
+                                p ->
+                                        new VisaoOperacaoDto.PendenciaValor(
+                                                p.getKey(), p.getValue(), detalhes.get(p.getKey())))
+                        .toList();
+        return new VisaoOperacaoDto.ValorArmazenado(
+                total,
+                unidadesPendentes == 0 && entradasPendentes == 0 ? total : null,
+                unidadesValoradas,
+                unidadesPendentes,
+                entradasValoradas,
+                entradasPendentes,
+                pendencias);
     }
 
     private BigDecimal valorTriagem(br.com.rodogarcia.wms.models.EntradaConferida e) {
+        // A quarentena desta conferência contém as quantidades avariadas, excluídas do valor.
+        if (e.getQuantidadeTriagem().signum() == 0) return BigDecimal.ZERO;
         var item = e.getItemChegada().getItemNota();
-        return item.getValorMercadoria() == null
+        return item.getValorMercadoria() == null || item.getQuantidadePrevista().signum() <= 0
                 ? null
                 : item.getValorMercadoria()
                         .multiply(e.getQuantidadeTriagem())
