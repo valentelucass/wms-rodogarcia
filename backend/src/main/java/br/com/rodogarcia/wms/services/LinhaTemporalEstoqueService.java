@@ -89,6 +89,23 @@ public class LinhaTemporalEstoqueService {
                 ultimaTransformacao(u, transformacoesCarregadas));
     }
 
+    @Transactional(
+            propagation = Propagation.MANDATORY,
+            readOnly = true,
+            noRollbackFor = RegraNegocioException.class)
+    public Base noInstante(
+            UnidadeLogistica u,
+            Instant instante,
+            List<br.com.rodogarcia.wms.models.FatoPermanencia> fatosCarregados,
+            List<br.com.rodogarcia.wms.models.OperacaoUnidade> transformacoesCarregadas) {
+        return reconstruir(
+                u,
+                instante,
+                false,
+                fatosCarregados,
+                ultimaTransformacao(u, transformacoesCarregadas));
+    }
+
     @Transactional(propagation = Propagation.MANDATORY, readOnly = true)
     public java.util.Map<Long, List<br.com.rodogarcia.wms.models.OperacaoUnidade>>
             transformacoesParaIndicador(List<Long> pedidos) {

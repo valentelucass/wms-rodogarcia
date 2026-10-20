@@ -11,10 +11,16 @@ import static org.mockito.Mockito.when;
 
 import br.com.rodogarcia.wms.dto.CalculoCobrancaDto;
 import br.com.rodogarcia.wms.exceptions.RegraNegocioException;
+import br.com.rodogarcia.wms.models.CondicaoMercadoria;
+import br.com.rodogarcia.wms.models.ConteudoUnidade;
 import br.com.rodogarcia.wms.models.ContratoCobranca;
+import br.com.rodogarcia.wms.models.EntradaConferida;
 import br.com.rodogarcia.wms.models.FatoServico;
+import br.com.rodogarcia.wms.models.ItemChegada;
+import br.com.rodogarcia.wms.models.ItemNotaEntrada;
 import br.com.rodogarcia.wms.models.ItemTabelaCobranca;
 import br.com.rodogarcia.wms.models.NotaEntrada;
+import br.com.rodogarcia.wms.models.PedidoEntrada;
 import br.com.rodogarcia.wms.models.RateioFatoServico;
 import br.com.rodogarcia.wms.models.ServicoCobranca;
 import br.com.rodogarcia.wms.models.ServicoMinimoContrato;
@@ -71,6 +77,17 @@ class PrevisaoMotorTest {
     private final AuditoriaService auditoria = mock(AuditoriaService.class);
     private final FontesPrevisaoServicoService fontes = mock(FontesPrevisaoServicoService.class);
     private final ContextoCobrancaService contextos = mock(ContextoCobrancaService.class);
+    private final UnidadeLogisticaRepository unidades = mock(UnidadeLogisticaRepository.class);
+    private final ConteudoUnidadeRepository conteudos = mock(ConteudoUnidadeRepository.class);
+    private final BaixaSaidaRepository baixas = mock(BaixaSaidaRepository.class);
+    private final FatoPermanenciaRepository permanencias = mock(FatoPermanenciaRepository.class);
+    private final AvariaEstoqueRepository avarias = mock(AvariaEstoqueRepository.class);
+    private final MarcoFinanceiroAvariaRepository marcos =
+            mock(MarcoFinanceiroAvariaRepository.class);
+    private final MovimentoEstoqueRepository movimentos = mock(MovimentoEstoqueRepository.class);
+    private final LinhaTemporalEstoqueService temporal = mock(LinhaTemporalEstoqueService.class);
+    private final RevisaoContagemRepository contagens = mock(RevisaoContagemRepository.class);
+    private final EntradaConferidaRepository entradas = mock(EntradaConferidaRepository.class);
     private final ContratoCobranca contrato = mock(ContratoCobranca.class);
     private final ServicoCobranca entrada = mock(ServicoCobranca.class);
     private final TabelaCobranca tabela = mock(TabelaCobranca.class);
@@ -84,24 +101,24 @@ class PrevisaoMotorTest {
                     mock(TabelaCobrancaRepository.class),
                     fatos,
                     rateios,
-                    mock(UnidadeLogisticaRepository.class),
-                    mock(ConteudoUnidadeRepository.class),
-                    mock(BaixaSaidaRepository.class),
-                    mock(FatoPermanenciaRepository.class),
-                    mock(AvariaEstoqueRepository.class),
-                    mock(MarcoFinanceiroAvariaRepository.class),
-                    mock(MovimentoEstoqueRepository.class),
+                    unidades,
+                    conteudos,
+                    baixas,
+                    permanencias,
+                    avarias,
+                    marcos,
+                    movimentos,
                     diarias,
                     memorias,
                     contextos,
                     operacoes,
                     auditoria,
-                    mock(LinhaTemporalEstoqueService.class),
+                    temporal,
                     mock(AcessoService.class),
                     JsonMapper.builder().findAndAddModules().build(),
                     Clock.fixed(AGORA, ZoneOffset.UTC),
-                    mock(RevisaoContagemRepository.class),
-                    mock(EntradaConferidaRepository.class),
+                    contagens,
+                    entradas,
                     mock(ResolucaoFinanceiraCadastroService.class),
                     fontes);
 
@@ -244,6 +261,101 @@ class PrevisaoMotorTest {
         verify(fatos).paraPrevisao(1L, 2L, AGORA);
         verify(fatos, never()).findByClienteIdAndArmazemIdOrderByExecutadoEmAscIdAsc(any(), any());
         verify(rateios, never()).findByFatoIdOrderByNotaIdAsc(any());
+    }
+
+    @Test
+    void tresDiasReutilizamUmLoteDeHistoricosEOrigensPreservandoDiariaEValor() {
+        configurar();
+        when(fontes.eventos(eq(1L), eq(2L), any(), any(), any(), eq(AGORA), anyList()))
+                .thenReturn(List.of());
+        var armazenamento = mock(ServicoCobranca.class);
+        when(armazenamento.getId()).thenReturn(11L);
+        when(armazenamento.getTipo()).thenReturn("ARMAZENAGEM");
+        when(itens.findByTabelaIdOrderByIdAsc(20L))
+                .thenReturn(
+                        List.of(
+                                new ItemTabelaCobranca(
+                                        tabela, armazenamento, "", new BigDecimal("5"), null)));
+        var unidade = mock(UnidadeLogistica.class);
+        var pedido = mock(PedidoEntrada.class);
+        when(pedido.getId()).thenReturn(50L);
+        when(unidade.getId()).thenReturn(30L);
+        when(unidade.getPedido()).thenReturn(pedido);
+        when(unidade.getTipo()).thenReturn(TipoUnidadeLogistica.BOBINA);
+        when(unidade.getCondicao()).thenReturn(CondicaoMercadoria.BOA);
+        when(unidade.isAtiva()).thenReturn(true);
+        var inicio = Instant.parse("2026-10-18T03:00:00Z");
+        when(unidade.getCriadaEm()).thenReturn(inicio);
+        when(unidade.getInicioArmazenagemEm()).thenReturn(inicio);
+        when(unidades.paraPrevisao(1L, 2L, inicio, AGORA)).thenReturn(List.of(unidade));
+        var nota = mock(NotaEntrada.class);
+        when(nota.getId()).thenReturn(60L);
+        var item = mock(ItemNotaEntrada.class);
+        when(item.getId()).thenReturn(61L);
+        when(item.getNota()).thenReturn(nota);
+        when(item.getQuantidadePrevista()).thenReturn(new BigDecimal("3"));
+        when(item.getValorMercadoria()).thenReturn(new BigDecimal("10000"));
+        var chegada = mock(ItemChegada.class);
+        when(chegada.getItemNota()).thenReturn(item);
+        var entrada = mock(EntradaConferida.class);
+        when(entrada.getId()).thenReturn(62L);
+        when(entrada.getItemChegada()).thenReturn(chegada);
+        when(entrada.getUnitizadaEm()).thenReturn(inicio);
+        var origem = mock(ConteudoUnidade.class);
+        when(origem.getUnidade()).thenReturn(unidade);
+        when(origem.getEntrada()).thenReturn(entrada);
+        when(origem.getQuantidade()).thenReturn(new BigDecimal("3"));
+        when(conteudos.buscarParaIndicador(List.of(30L))).thenReturn(List.of(origem));
+        var base = new LinhaTemporalEstoqueService.Base(new BigDecimal("3"), new BigDecimal("2"));
+        when(temporal.noInstante(eq(unidade), any(), anyList(), anyList())).thenReturn(base);
+        when(temporal.fisicoNoInstante(eq(unidade), any(), anyList(), anyList())).thenReturn(base);
+        var r =
+                motor.prever(
+                        1L,
+                        2L,
+                        LocalDate.parse("2026-10-18"),
+                        LocalDate.parse("2026-10-21"),
+                        AGORA);
+        // Dois lugares x três dias x cinco, com a mesma origem conhecida de R$10.000.
+        assertThat(r.total()).isEqualByComparingTo("30.00");
+        assertThat(r.pendencias()).isEmpty();
+        verify(permanencias).buscarParaIndicador(List.of(30L));
+        verify(avarias).buscarParaIndicador(List.of(30L));
+        verify(movimentos).buscarParaIndicador(List.of(30L));
+        verify(conteudos).buscarParaIndicador(List.of(30L));
+        verify(contagens).buscarParaIndicador(List.of(30L));
+        verify(baixas).buscarParaIndicador(List.of(30L));
+        verify(marcos).buscarParaIndicador(List.of(30L));
+        verify(entradas).paraPrevisao(1L, 2L, inicio, AGORA);
+        verify(permanencias, never()).findByUnidadeIdOrderByOcorridaEmAscIdAsc(any());
+        verify(conteudos, never()).buscarOrigens(any());
+        verify(entradas, never()).historicoCobranca(any(), any());
+        verify(temporal, never()).noInstante(any(), any());
+        verify(temporal, never()).fisicoNoInstante(any(), any());
+        verify(unidades, never()).historicoCobranca(any(), any());
+    }
+
+    @Test
+    void inativaAntigaSemFimComprovadoContinuaPendenteEmVezDeDesaparecerDaPrevia() {
+        configurar();
+        when(fontes.eventos(eq(1L), eq(2L), any(), any(), any(), eq(AGORA), anyList()))
+                .thenReturn(List.of());
+        var unidade = mock(UnidadeLogistica.class);
+        var pedido = mock(PedidoEntrada.class);
+        when(pedido.getId()).thenReturn(50L);
+        when(unidade.getPedido()).thenReturn(pedido);
+        when(unidade.getId()).thenReturn(30L);
+        when(unidade.getTipo()).thenReturn(TipoUnidadeLogistica.BOBINA);
+        when(unidade.getCriadaEm()).thenReturn(Instant.parse("2026-09-01T03:00:00Z"));
+        when(unidade.getInicioArmazenagemEm()).thenReturn(Instant.parse("2026-09-01T03:00:00Z"));
+        when(unidades.paraPrevisao(eq(1L), eq(2L), any(), eq(AGORA))).thenReturn(List.of(unidade));
+        when(temporal.fisicoNoInstante(eq(unidade), any(), anyList(), anyList()))
+                .thenReturn(new LinhaTemporalEstoqueService.Base(BigDecimal.ZERO, BigDecimal.ZERO));
+        var r = prever();
+        assertThat(r.total()).isNull();
+        assertThat(r.pendencias())
+                .extracting(p -> p.codigo())
+                .contains("FIM_PERMANENCIA_INSUFICIENTE");
     }
 
     @Test

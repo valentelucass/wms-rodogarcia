@@ -45,7 +45,6 @@ export function BillingPreviewCard({
     revision: number;
 }) {
     const [detailsOpen, setDetailsOpen] = useState(false);
-    const [refresh, setRefresh] = useState(0);
     const [result, setResult] = useState<{
         key: string;
         preview?: Preview | null;
@@ -53,7 +52,7 @@ export function BillingPreviewCard({
     }>({ key: "" });
     const permitted = perfil === "SUPERVISOR" || perfil === "GESTOR";
     const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const key = `${revision}/${refresh}/${context.clienteId ?? ""}/${context.armazemId ?? ""}/${perfil}/${timeZone}`;
+    const key = `${revision}/${context.clienteId ?? ""}/${context.armazemId ?? ""}/${perfil}/${timeZone}`;
     const loading = permitted && result.key !== key;
     const error = result.key === key ? result.error : undefined;
     useEffect(() => {
@@ -83,7 +82,7 @@ export function BillingPreviewCard({
                         error:
                             error instanceof ApiError && error.status === 403
                                 ? "Seu acesso não permite consultar a previsão deste contexto."
-                                : "Não foi possível consultar a previsão de faturamento. Atualize para tentar novamente.",
+                                : "Não foi possível consultar a previsão de faturamento. Use Atualizar visão para tentar novamente.",
                     });
             });
         return () => {
@@ -145,14 +144,6 @@ export function BillingPreviewCard({
                 {preview && (
                     <button type="button" onClick={() => setDetailsOpen(true)}>
                         Ver períodos e pendências
-                    </button>
-                )}
-                {permitted && error && (
-                    <button
-                        type="button"
-                        onClick={() => setRefresh((value) => value + 1)}
-                    >
-                        Atualizar previsão
                     </button>
                 )}
             </article>

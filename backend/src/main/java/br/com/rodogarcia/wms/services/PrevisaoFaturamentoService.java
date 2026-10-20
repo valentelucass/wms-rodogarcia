@@ -80,21 +80,39 @@ public class PrevisaoFaturamentoService {
                         .map(VisaoOperacaoRepository.AtividadeFinanceira::contexto)
                         .distinct()
                         .toList();
+        for (var contextoAmbiguo :
+                atividades.stream()
+                        .filter(VisaoOperacaoRepository.AtividadeFinanceira::historicoAmbiguo)
+                        .map(VisaoOperacaoRepository.AtividadeFinanceira::contexto)
+                        .distinct()
+                        .toList())
+            pendencias.add(
+                    new VisaoOperacaoDto.PendenciaPrevisao(
+                            contextoAmbiguo.clienteId(),
+                            contextoAmbiguo.armazemId(),
+                            "HISTORICO_OPERACIONAL_INSUFICIENTE",
+                            null,
+                            null,
+                            null,
+                            "Identidade física inativa sem fim cobrável datado comprovado. "
+                                    + "Reconcilie o histórico antes de concluir a prévia."));
         for (var fonte : ativos) porContexto.computeIfAbsent(fonte, k -> new ArrayList<>());
         for (var contexto : porContexto.entrySet()) {
             var chave = contexto.getKey();
             // Revalidar também quando chamado por outro consumidor além do painel.
             contextos.autorizar(chave.clienteId(), chave.armazemId());
             if (contexto.getValue().isEmpty()) {
-                pendencias.add(
-                        new VisaoOperacaoDto.PendenciaPrevisao(
-                                chave.clienteId(),
-                                chave.armazemId(),
-                                "CONTRATO_AUSENTE",
-                                null,
-                                null,
-                                null,
-                                "Há atividade comprovada, mas contrato, fuso, mínimo e GRIS não estão configurados."));
+                if (atividades.stream()
+                        .anyMatch(a -> a.contexto().equals(chave) && !a.historicoAmbiguo()))
+                    pendencias.add(
+                            new VisaoOperacaoDto.PendenciaPrevisao(
+                                    chave.clienteId(),
+                                    chave.armazemId(),
+                                    "CONTRATO_AUSENTE",
+                                    null,
+                                    null,
+                                    null,
+                                    "Há atividade comprovada, mas contrato, fuso, mínimo e GRIS não estão configurados."));
                 continue;
             }
             conferirCobertura(
@@ -170,7 +188,7 @@ public class PrevisaoFaturamentoService {
                         .toList();
         var inicioMes = competencia.atDay(1).atStartOfDay(zonaPainel).toInstant();
         for (var fonte : atividades) {
-            if (!fonte.contexto().equals(contexto)) continue;
+            if (!fonte.contexto().equals(contexto) || fonte.historicoAmbiguo()) continue;
             Instant cursor = fonte.inicio().isBefore(inicioMes) ? inicioMes : fonte.inicio();
             Instant fim =
                     fonte.fim() == null || fonte.fim().isAfter(referencia)

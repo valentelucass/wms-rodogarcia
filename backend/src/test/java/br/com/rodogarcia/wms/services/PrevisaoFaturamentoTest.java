@@ -182,6 +182,26 @@ class PrevisaoFaturamentoTest {
     }
 
     @Test
+    void identidadeAntigaZeradaSemTerminalFinanceiroNaoAfirmaFalsaFaltaDeContratoAtual() {
+        configurar();
+        when(fontes.atividadesPrevisao(anyList(), anyList(), any(), any()))
+                .thenReturn(
+                        List.of(
+                                new VisaoOperacaoRepository.AtividadeFinanceira(
+                                        new VisaoOperacaoRepository.ContextoFinanceiro(1L, 2L),
+                                        Instant.parse("2026-09-01T12:00:00Z"),
+                                        null,
+                                        true)));
+        var r = service.consultar(List.of(1L), List.of(2L), AGORA, ZONA);
+        assertThat(r.total()).isNull();
+        assertThat(r.pendencias())
+                .extracting(p -> p.codigo())
+                .containsExactly("HISTORICO_OPERACIONAL_INSUFICIENTE")
+                .doesNotContain("CONTRATO_AUSENTE");
+        verifyNoInteractions(calculos);
+    }
+
+    @Test
     void moedasDiferentesNaoSaoSomadasNemConvertidas() {
         configurar(
                 contrato(1, 2, "2026-01-01", null, 1, "BRL"),

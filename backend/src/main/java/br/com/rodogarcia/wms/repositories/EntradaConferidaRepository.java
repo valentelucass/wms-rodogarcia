@@ -15,6 +15,11 @@ public interface EntradaConferidaRepository extends JpaRepository<EntradaConferi
     java.util.List<EntradaConferida> historicoCobranca(Long clienteId, Long armazemId);
 
     @Query(
+            "select e from EntradaConferida e join fetch e.itemChegada i join fetch i.itemNota n join fetch n.nota join fetch i.chegada ch join fetch ch.pedido p where p.cliente.id=:clienteId and p.armazem.id=:armazemId and ch.chegouEm<=:referencia and e.efetivadaEm<=:referencia and (e.unitizadaEm is null or e.unitizadaEm>=:inicio) order by e.id")
+    java.util.List<EntradaConferida> paraPrevisao(
+            Long clienteId, Long armazemId, java.time.Instant inicio, java.time.Instant referencia);
+
+    @Query(
             "select e from EntradaConferida e join fetch e.itemChegada i join fetch i.itemNota n join fetch i.chegada ch join fetch ch.pedido p where e.unitizadaEm is null and p.cliente.id in :clientes and p.armazem.id in :armazens and n.produto.cliente.id=p.cliente.id order by e.id")
     java.util.List<EntradaConferida> pendentesParaIndicador(
             java.util.List<Long> clientes, java.util.List<Long> armazens);

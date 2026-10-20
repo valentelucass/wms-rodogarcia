@@ -83,6 +83,8 @@ Unidades, composição, marcador da entrada, revisão do pedido, auditoria e res
 
 ## Etiqueta e ligação com FE06
 
+**FE06-LOTE01, 20/10/2026:** a prévia e a mídia de impressão passam a exibir `L: <lote>` entre descrição e cliente, usando o lote recebido da unidade. O exemplo `8CB2654A` é dado fictício de conferência, sem geração automática de lote. Ausência em produto controlado aparece como Não informado; produto sem controle aparece como Não controlado. UUID, barras, QR, estoque e identidade da unidade permanecem vinculados ao registro consultado. Conferência de tela e mídia de impressão em [evidências](../orchestracao/.runtime/faturamento-etiqueta-20261020/label-visual/visual.json); impressão/leitura física continuam dependentes do equipamento.
+
 A etiqueta fornece código permanente, versão do conteúdo, SKU, cliente/armazém, nota/série/número, data FIFO apresentada como `dataEntrada`, chegada real separada, controle de lote/lote/validade, tipo, condição, quantidade atual, unidade de medida, DUN e quantidade por DUN. Não contém endereço físico.
 
 Obter/reobter a etiqueta é consulta: não aumenta estoque, não cria unidade, não reinicia data nem marca impressão como concluída. Após divisão/reagrupamento, a quantidade e a versão mudam; FE06 deverá substituir a etiqueta anterior. Leitura operacional deve consultar o código no servidor e usar o estado atual.

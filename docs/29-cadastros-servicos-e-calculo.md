@@ -4,6 +4,16 @@
 
 Fontes: RN04–RN09/RN21/RN27 do [documento 03](03-regras-de-negocio.md), respostas [10](10-respostas-recebidas-2026-10-05.md), propostas AC04–AC09/AC12 em [11](11-alinhamentos-apos-respostas.md), cadastros [14](14-cadastros-acesso-e-persistencia.md), padrões [16](16-padroes-de-engenharia-backend.md), fatos de estoque [22](22-enderecamento-movimentacao-e-estoque.md)/[27](27-separacao-retirada-retornos-e-avaria.md) e integração Lume consolidada em [26](26-execucao-continua-backend.md). Lume confirmou em leitura PDF §§3.1/3.3/9: IE/endereço completo/dados do estabelecimento; cliente com razão social/documento/IE/endereço/contatos/faturamento; informações fiscais por produto/operação. Natalina valida os dados fiscais externos. Não existem CFOP/NCM/alíquotas ou preços reais definidos por essas fontes.
 
+## Prévia automática do faturamento — BE14-FAT-AUTO01
+
+Pedido de Lucas em 20/10/2026. `GET /api/v1/visao-operacao/previsao-faturamento` consulta uma estimativa sem gravar fatos, cálculo aprovado ou fechamento. Aceita cliente/armazém opcionais e fuso; exige Supervisor/Gestor e alcance autorizado. O GET é separado do resumo/mapa para permitir carregamento e erro próprios no card. A soma de NFS-e emitidas permanece uma informação fiscal histórica, sem servir de fallback para a previsão.
+
+A prévia reutiliza o motor de cobrança com tabelas e contratos vigentes, armazenagem, mínimo e GRIS configurados. Inclui serviços confirmados e projeta entradas/saídas com execução física comprovada até a referência da consulta, sem duplicar fatos já confirmados ou anulados. XML, reserva e pedido sem retirada física não comprovam serviço executado. Serviço adicional depende do registro identificado da execução. O cálculo persistido continua usando seus fatos confirmados, sem confirmação financeira automática causada por esta consulta.
+
+Escolha técnica: competência é o mês do último dia incluído no ciclo contratual, isto é, fim exclusivo menos um dia. Assim, 25/09–25/10 pertence a outubro e 25/10–25/11 a novembro. A resposta apresenta ciclo nominal, intervalo apurado, fuso e referência. Não reparte mínimo ou GRIS entre meses por fórmula nova. O dia corrente está identificado como estimativa; não são incluídos fatos futuros. Contrato/tabela ausente, vigência sem cobertura, sobreposição ou moeda incompatível são pendências, sem inventar preço, conversão ou total zero. Com pendência, o total fica ausente e o subtotal conhecido permanece distinto; mínimo incompleto não é apresentado como complemento definitivo. Fechamentos anteriores não são recalculados ou alterados.
+
+Conferência e limites da entrega em [evidências](../orchestracao/.runtime/faturamento-etiqueta-20261020/validacao.json). Os preços dos testes são fictícios e não configuram contratos reais.
+
 ## Complementos cadastrais
 
 Código, documento fiscal, proprietário, SKU, unidade/precisão, embalagem e identidade estrutural dos endereços continuam imutáveis. PUT antigo mantém apenas nome/descrição. Complemento usa comando próprio, versão, UUID idempotente, motivo e auditoria antes/depois; não troca identidade sob o nome de correção fiscal. Campos não fornecidos ficam ausentes, sem dados do exemplo Tigre e sem consulta/emissão fiscal.

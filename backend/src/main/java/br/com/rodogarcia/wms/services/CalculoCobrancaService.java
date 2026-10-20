@@ -326,7 +326,27 @@ public class CalculoCobrancaService {
         var memoriaDiarias = new ArrayList<CalculoCobrancaDto.Diaria>();
         var memoriaServicos = new ArrayList<CalculoCobrancaDto.Servico>();
         var subtotalPorServico = new HashMap<Long, BigDecimal>();
-        var contextoUnidades = unidades.historicoCobranca(d.clienteId(), d.armazemId());
+        var contextoUnidades =
+                projetar
+                        ? c == null
+                                ? List.<UnidadeLogistica>of()
+                                : unidades.paraPrevisao(
+                                        d.clienteId(),
+                                        d.armazemId(),
+                                        d.periodoInicio()
+                                                .atStartOfDay(ZoneId.of(c.getFuso()))
+                                                .toInstant(),
+                                        referencia)
+                        : unidades.historicoCobranca(d.clienteId(), d.armazemId());
+        var dadosPrevia =
+                projetar && c != null
+                        ? carregarPrevia(
+                                contextoUnidades,
+                                d.clienteId(),
+                                d.armazemId(),
+                                d.periodoInicio().atStartOfDay(ZoneId.of(c.getFuso())).toInstant(),
+                                referencia)
+                        : null;
         if (c != null) {
             ZoneId zona = ZoneId.of(c.getFuso());
             for (LocalDate dia = d.periodoInicio();
@@ -340,7 +360,8 @@ public class CalculoCobrancaService {
                                 zona,
                                 contextoUnidades,
                                 pendentes,
-                                referencia);
+                                referencia,
+                                dadosPrevia);
                 memoriaDiarias.add(diaria);
                 for (var regra : diaria.regras())
                     if (regra.servicoId() != null && regra.valor() != null)
@@ -639,7 +660,8 @@ public class CalculoCobrancaService {
             ZoneId zona,
             List<UnidadeLogistica> us,
             List<CalculoCobrancaDto.Pendencia> p,
-            Instant referencia) {
+            Instant referencia,
+            DadosPrevia dadosPrevia) {
         Instant inicio = dia.atStartOfDay(zona).toInstant();
         Instant fim = dia.plusDays(1).atStartOfDay(zona).toInstant();
         if (referencia != null && referencia.isBefore(fim)) fim = referencia;
@@ -652,7 +674,11 @@ public class CalculoCobrancaService {
                     || u.getInicioArmazenagemEm().atZone(zona).toLocalDate().isAfter(dia)
                     || referencia != null && u.getInicioArmazenagemEm().isAfter(referencia))
                 continue;
-            var fs = fatos.findByUnidadeIdOrderByOcorridaEmAscIdAsc(u.getId());
+            var carregado = dadosPrevia == null ? null : dadosPrevia.historicos().get(u.getId());
+            var fs =
+                    carregado == null
+                            ? fatos.findByUnidadeIdOrderByOcorridaEmAscIdAsc(u.getId())
+                            : carregado.fatos();
             Instant retirada =
                     fs.stream()
                             .filter(
@@ -680,8 +706,11 @@ public class CalculoCobrancaService {
                         "Unidade encerrada sem retirada ou ajuste a zero datados comprovados.");
                 continue;
             }
-            var as = avarias.findByUnidadeIdOrderById(u.getId());
-            var legadas = avariasLegadas(u, as);
+            var as =
+                    carregado == null
+                            ? avarias.findByUnidadeIdOrderById(u.getId())
+                            : carregado.avarias();
+            var legadas = carregado == null ? avariasLegadas(u, as) : carregado.avariasLegadas();
             historicos.add(new Historico(u, fs, as, legadas, retirada));
             ponto(pontos, u.getInicioArmazenagemEm(), inicio, fim);
             for (var l : legadas) ponto(pontos, l.marcadaEm(), inicio, fim);
@@ -712,7 +741,14 @@ public class CalculoCobrancaService {
             BigDecimal soma = ZERO, somaSuspensa = ZERO;
             for (var h : historicos) {
                 if (instante.isBefore(h.unidade().getInicioArmazenagemEm())) continue;
-                var c = contribuicao(h, instante, dia, p);
+                var c =
+                        contribuicao(
+                                h,
+                                instante,
+                                dia,
+                                p,
+                                false,
+                                dadosPrevia == null ? null : dadosPrevia.dados());
                 contribuicoes.add(c);
                 if (c.equivalenciaLiquida() != null) {
                     soma = soma.add(c.equivalenciaLiquida());
@@ -755,7 +791,8 @@ public class CalculoCobrancaService {
                             regra.instante));
         }
         var unica = rs.size() == 1 ? rs.getFirst() : null;
-        var valorFisico = valorFisicoDoDia(cliente, armazem, dia, zona, us, p, referencia);
+        var valorFisico =
+                valorFisicoDoDia(cliente, armazem, dia, zona, us, p, referencia, dadosPrevia);
         return new CalculoCobrancaDto.Diaria(
                 dia,
                 t == null ? null : t.getId(),
@@ -770,11 +807,8 @@ public class CalculoCobrancaService {
                 valorFisico.intervalos());
     }
 
-    private CalculoCobrancaDto.Contribuicao contribuicao(
-            Historico h, Instant instante, LocalDate dia, List<CalculoCobrancaDto.Pendencia> p) {
-        return contribuicao(h, instante, dia, p, false);
-    }
-
+    // VisaoOperacaoIntegrationTest compara o caminho histórico por reflexão nesta sobrecarga.
+    @SuppressWarnings("unused")
     private CalculoCobrancaDto.Contribuicao contribuicao(
             Historico h,
             Instant instante,
@@ -796,12 +830,19 @@ public class CalculoCobrancaService {
         try {
             base =
                     dados != null
-                            ? temporal.fisicoNoInstante(
-                                    u,
-                                    instante,
-                                    h.fatos(),
-                                    dados.transformacoes()
-                                            .getOrDefault(u.getPedido().getId(), List.of()))
+                            ? fisico
+                                    ? temporal.fisicoNoInstante(
+                                            u,
+                                            instante,
+                                            h.fatos(),
+                                            dados.transformacoes()
+                                                    .getOrDefault(u.getPedido().getId(), List.of()))
+                                    : temporal.noInstante(
+                                            u,
+                                            instante,
+                                            h.fatos(),
+                                            dados.transformacoes()
+                                                    .getOrDefault(u.getPedido().getId(), List.of()))
                             : fisico
                                     ? temporal.fisicoNoInstante(u, instante)
                                     : temporal.noInstante(u, instante);
@@ -1197,6 +1238,85 @@ public class CalculoCobrancaService {
             Map<Long, List<br.com.rodogarcia.wms.models.MarcoFinanceiroAvaria>> marcos,
             Map<Long, List<br.com.rodogarcia.wms.models.OperacaoUnidade>> transformacoes) {}
 
+    private record DadosPrevia(
+            Map<Long, Historico> historicos,
+            DadosIndicador dados,
+            List<br.com.rodogarcia.wms.models.EntradaConferida> entradas) {}
+
+    /**
+     * Históricos são lidos uma vez por lote, e reutilizados em todos os dias/segmentos da prévia.
+     */
+    private DadosPrevia carregarPrevia(
+            List<UnidadeLogistica> selecionadas,
+            Long cliente,
+            Long armazem,
+            Instant inicio,
+            Instant referencia) {
+        var fs = new HashMap<Long, List<FatoPermanencia>>();
+        var av = new HashMap<Long, List<AvariaEstoque>>();
+        var ms = new HashMap<Long, List<br.com.rodogarcia.wms.models.MovimentoEstoque>>();
+        var os = new HashMap<Long, List<br.com.rodogarcia.wms.models.ConteudoUnidade>>();
+        var rs = new HashMap<Long, List<br.com.rodogarcia.wms.models.RevisaoContagem>>();
+        var bs = new HashMap<Long, List<br.com.rodogarcia.wms.models.BaixaSaida>>();
+        var mar = new HashMap<Long, List<br.com.rodogarcia.wms.models.MarcoFinanceiroAvaria>>();
+        var ts = new HashMap<Long, List<br.com.rodogarcia.wms.models.OperacaoUnidade>>();
+        for (int offset = 0; offset < selecionadas.size(); offset += 500) {
+            var lote = selecionadas.subList(offset, Math.min(offset + 500, selecionadas.size()));
+            var ids = lote.stream().map(UnidadeLogistica::getId).toList();
+            fs.putAll(
+                    fatos.buscarParaIndicador(ids).stream()
+                            .collect(
+                                    java.util.stream.Collectors.groupingBy(
+                                            f -> f.getUnidade().getId())));
+            av.putAll(
+                    avarias.buscarParaIndicador(ids).stream()
+                            .collect(
+                                    java.util.stream.Collectors.groupingBy(
+                                            a -> a.getUnidade().getId())));
+            for (var m : movimentos.buscarParaIndicador(ids))
+                ms.computeIfAbsent(m.getUnidadeId(), k -> new ArrayList<>()).add(m.getMovimento());
+            os.putAll(
+                    conteudos.buscarParaIndicador(ids).stream()
+                            .collect(
+                                    java.util.stream.Collectors.groupingBy(
+                                            c -> c.getUnidade().getId())));
+            rs.putAll(
+                    contagens.buscarParaIndicador(ids).stream()
+                            .collect(
+                                    java.util.stream.Collectors.groupingBy(
+                                            r -> r.getContagem().getUnidade().getId())));
+            bs.putAll(
+                    baixas.buscarParaIndicador(ids).stream()
+                            .collect(
+                                    java.util.stream.Collectors.groupingBy(
+                                            b -> b.getReserva().getUnidade().getId())));
+            mar.putAll(
+                    marcos.buscarParaIndicador(ids).stream()
+                            .collect(
+                                    java.util.stream.Collectors.groupingBy(
+                                            m -> m.getAvaria().getId())));
+            ts.putAll(
+                    temporal.transformacoesParaIndicador(
+                            lote.stream().map(u -> u.getPedido().getId()).distinct().toList()));
+        }
+        var historicos = new HashMap<Long, Historico>();
+        for (var u : selecionadas) {
+            var as = av.getOrDefault(u.getId(), List.of());
+            historicos.put(
+                    u.getId(),
+                    new Historico(
+                            u,
+                            fs.getOrDefault(u.getId(), List.of()),
+                            as,
+                            avariasLegadas(u, as, ms.getOrDefault(u.getId(), List.of())),
+                            null));
+        }
+        return new DadosPrevia(
+                historicos,
+                new DadosIndicador(os, rs, bs, mar, ts),
+                entradas.paraPrevisao(cliente, armazem, inicio, referencia));
+    }
+
     private ValorDoDia valorFisicoDoDia(
             Long cliente,
             Long armazem,
@@ -1204,7 +1324,8 @@ public class CalculoCobrancaService {
             ZoneId zona,
             List<UnidadeLogistica> us,
             List<CalculoCobrancaDto.Pendencia> p,
-            Instant referencia) {
+            Instant referencia,
+            DadosPrevia dadosPrevia) {
         Instant inicio = dia.atStartOfDay(zona).toInstant();
         Instant fim = dia.plusDays(1).atStartOfDay(zona).toInstant();
         if (referencia != null && referencia.isBefore(fim)) fim = referencia;
@@ -1214,9 +1335,16 @@ public class CalculoCobrancaService {
         var historicos = new ArrayList<Historico>();
         for (var u : us) {
             if (!u.getCriadaEm().isBefore(fim)) continue;
-            var fs = fatos.findByUnidadeIdOrderByOcorridaEmAscIdAsc(u.getId());
-            var as = avarias.findByUnidadeIdOrderById(u.getId());
-            var legadas = avariasLegadas(u, as);
+            var carregado = dadosPrevia == null ? null : dadosPrevia.historicos().get(u.getId());
+            var fs =
+                    carregado == null
+                            ? fatos.findByUnidadeIdOrderByOcorridaEmAscIdAsc(u.getId())
+                            : carregado.fatos();
+            var as =
+                    carregado == null
+                            ? avarias.findByUnidadeIdOrderById(u.getId())
+                            : carregado.avarias();
+            var legadas = carregado == null ? avariasLegadas(u, as) : carregado.avariasLegadas();
             historicos.add(new Historico(u, fs, as, legadas, null));
             ponto(pontos, u.getCriadaEm(), inicio, fim);
             for (var l : legadas) ponto(pontos, l.marcadaEm(), inicio, fim);
@@ -1225,10 +1353,16 @@ public class CalculoCobrancaService {
                 ponto(pontos, a.getOcorridaEm(), inicio, fim);
                 ponto(pontos, a.getResolvidaEm(), inicio, fim);
             }
-            for (var c : conteudos.buscarOrigens(u.getId()))
+            for (var c :
+                    dadosPrevia == null
+                            ? conteudos.buscarOrigens(u.getId())
+                            : dadosPrevia.dados().origens().getOrDefault(u.getId(), List.of()))
                 ponto(pontos, c.getEntrada().getUnitizadaEm(), inicio, fim);
         }
-        var es = entradas.historicoCobranca(cliente, armazem);
+        var es =
+                dadosPrevia == null
+                        ? entradas.historicoCobranca(cliente, armazem)
+                        : dadosPrevia.entradas();
         for (var e : es) {
             ponto(pontos, e.getItemChegada().getChegada().getChegouEm(), inicio, fim);
             ponto(pontos, e.getUnitizadaEm(), inicio, fim);
@@ -1245,7 +1379,13 @@ public class CalculoCobrancaService {
             boolean segmentoCompleto = true;
             for (var h : historicos) {
                 if (instante.isBefore(h.unidade().getCriadaEm())) continue;
-                var origem = conteudos.buscarOrigens(h.unidade().getId());
+                var origem =
+                        dadosPrevia == null
+                                ? conteudos.buscarOrigens(h.unidade().getId())
+                                : dadosPrevia
+                                        .dados()
+                                        .origens()
+                                        .getOrDefault(h.unidade().getId(), List.of());
                 if (origem.stream().anyMatch(c -> c.getEntrada().getUnitizadaEm() == null)) {
                     pendente(
                             p,
@@ -1260,7 +1400,14 @@ public class CalculoCobrancaService {
                 if (origem.stream()
                         .anyMatch(c -> instante.isBefore(c.getEntrada().getUnitizadaEm())))
                     continue;
-                var valor = contribuicao(h, instante, dia, p, true);
+                var valor =
+                        contribuicao(
+                                h,
+                                instante,
+                                dia,
+                                p,
+                                true,
+                                dadosPrevia == null ? null : dadosPrevia.dados());
                 valores.add(valor);
                 if (valor.valorEstoque() == null) segmentoCompleto = false;
                 else soma = soma.add(valor.valorEstoque());

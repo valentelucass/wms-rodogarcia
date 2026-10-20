@@ -24,14 +24,19 @@ public class VisaoOperacaoRepository {
 
     public record ContextoFinanceiro(Long clienteId, Long armazemId) {}
 
-    public record AtividadeFinanceira(ContextoFinanceiro contexto, Instant inicio, Instant fim) {}
+    public record AtividadeFinanceira(
+            ContextoFinanceiro contexto, Instant inicio, Instant fim, boolean historicoAmbiguo) {
+        public AtividadeFinanceira(ContextoFinanceiro contexto, Instant inicio, Instant fim) {
+            this(contexto, inicio, fim, false);
+        }
+    }
 
     /** Intervalos reais usados para conferir cobertura contratual da atividade. */
     public List<AtividadeFinanceira> atividadesPrevisao(
             List<Long> clientes, List<Long> armazens, Instant inicio, Instant referencia) {
         var consultas =
                 List.of(
-                        "select p.cliente.id,p.armazem.id,u.criadaEm,(select max(f.ocorridaEm) from FatoPermanencia f where f.unidade.id=u.id and f.quantidadeDepois=0 and f.equivalenciaDepois=0 and f.tipo in ('RETIRADA','AJUSTE_ESTOQUE') and f.ocorridaEm<=:referencia) from UnidadeLogistica u join u.pedido p where p.cliente.id in :clientes and p.armazem.id in :armazens and u.criadaEm<=:referencia and (u.ativa=true or exists(select f.id from FatoPermanencia f where f.unidade.id=u.id and f.ocorridaEm>=:inicio and f.ocorridaEm<=:referencia))",
+                        "select p.cliente.id,p.armazem.id,u.criadaEm,(select max(f.ocorridaEm) from FatoPermanencia f where f.unidade.id=u.id and f.quantidadeDepois=0 and f.equivalenciaDepois=0 and f.tipo in ('RETIRADA','AJUSTE_ESTOQUE') and f.ocorridaEm<=:referencia),u.ativa from UnidadeLogistica u join u.pedido p where p.cliente.id in :clientes and p.armazem.id in :armazens and u.criadaEm<=:referencia and (u.ativa=true or exists(select f.id from FatoPermanencia f where f.unidade.id=u.id and f.ocorridaEm>=:inicio and f.ocorridaEm<=:referencia) or not exists(select encerramento.id from FatoPermanencia encerramento where encerramento.unidade.id=u.id and encerramento.tipo in ('RETIRADA','AJUSTE_ESTOQUE') and encerramento.quantidadeDepois=0 and encerramento.equivalenciaDepois=0 and encerramento.ocorridaEm<=:referencia))",
                         "select f.cliente.id,f.armazem.id,f.executadoEm,f.executadoEm from FatoServico f where f.cliente.id in :clientes and f.armazem.id in :armazens and f.situacao='CONFIRMADO' and f.executadoEm>=:inicio and f.executadoEm<=:referencia",
                         "select p.cliente.id,p.armazem.id,r.retiradaEm,r.retiradaEm from RetiradaSaida r join r.pedido p where p.cliente.id in :clientes and p.armazem.id in :armazens and r.retiradaEm>=:inicio and r.retiradaEm<=:referencia",
                         "select p.cliente.id,p.armazem.id,e.itemChegada.chegada.chegouEm,e.unitizadaEm from EntradaConferida e join e.itemChegada.chegada.pedido p where p.cliente.id in :clientes and p.armazem.id in :armazens and e.efetivadaEm<=:referencia and (e.unitizadaEm is null or e.unitizadaEm>=:inicio)");
@@ -48,7 +53,10 @@ public class VisaoOperacaoRepository {
                         new AtividadeFinanceira(
                                 new ContextoFinanceiro((Long) linha[0], (Long) linha[1]),
                                 (Instant) linha[2],
-                                (Instant) linha[3]));
+                                (Instant) linha[3],
+                                linha.length > 4
+                                        && !Boolean.TRUE.equals(linha[4])
+                                        && linha[3] == null));
         return List.copyOf(resultado);
     }
 

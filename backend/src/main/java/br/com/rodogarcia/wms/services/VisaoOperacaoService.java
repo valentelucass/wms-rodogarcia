@@ -201,6 +201,7 @@ public class VisaoOperacaoService {
     }
 
     /** Consulta independente do mapa: custo/erro da prévia não bloqueia os indicadores físicos. */
+    @Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
     public VisaoOperacaoDto.PrevisaoFaturamento preverFaturamento(
             @Positive Long clienteId, @Positive Long armazemId, @NotBlank String fuso) {
         acesso.exigirSupervisor();

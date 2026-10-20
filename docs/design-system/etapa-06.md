@@ -4,6 +4,12 @@ Pedido expresso de Lucas em 09/10/2026. Esta entrega reorganiza as 12 áreas e s
 
 **Complemento FE05-PED01:** Entrada e conferência passou a reunir seus quatro grupos de capacidades na única visão Pedidos de entrada, com seções internas. A contagem de 50 páginas/171 ocorrências abaixo registra o inventário original de REG01, preservado para rastrear comandos; não representa quatro etapas globais atuais de Entrada. [Comportamento atual](etapa-07.md).
 
+## Lote na etiqueta — FE06-LOTE01
+
+Pedido de Lucas em 20/10/2026. A etiqueta exibe o lote da unidade com prefixo `L:`, após a descrição do produto, na tela e na mídia de impressão. Fonte visual destacada e quebra de linha para identificadores extensos. Lote não informado e produto sem controle recebem textos distintos; o frontend não cria um lote nem usa SKU ou UUID como substituto. O DTO já fornecia os dados, sem nova API ou alteração de estoque.
+
+Casos de lote real, ausência e valor textual zero conferidos nos testes; consulta/reimpressão conserva o UUID dos códigos de barras/QR. Comparação visual usa a fonte anterior `645153b6033775925f906dbd81aee1a619008bc4` e os mesmos dados fictícios. [Antes](../../orchestracao/.runtime/faturamento-etiqueta-20261020/label-visual/before-1440.png), [depois](../../orchestracao/.runtime/faturamento-etiqueta-20261020/label-visual/after-1440.png) e [conferência](../../orchestracao/.runtime/faturamento-etiqueta-20261020/label-visual/visual.json). Mídia de impressão de 150 mm; sem envio a impressora física.
+
 ## Contingência: dicas e identificação — FE12-CONTING-AUTO01
 
 Pedido expresso de Lucas em 20/10/2026, pela imagem de Registrar ocorrência. Dicas abertas dentro de um diálogo nativo passam a usar esse diálogo como destino do portal. Permanecem na mesma camada visual e acessível do formulário; fora de modal continuam no corpo da página. Escape encerra somente a dica, mantendo cadastro e foco. A posição, fechamento por fora, rolagem e interação por mouse/teclado/toque conservam o componente compartilhado.

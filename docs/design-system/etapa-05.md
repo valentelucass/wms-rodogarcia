@@ -24,7 +24,7 @@ O ajuste visual CTX01-A01 conserva seus critérios em [etapa-03.md](etapa-03.md#
 
 ## Indicadores do Início
 
-**Correção em implementação em 20/10/2026 — BE14-FAT-AUTO01/FE02-FAT-AUTO01:** por esclarecimento e autorização de Lucas, o card de faturamento deve mostrar a prévia operacional automática baseada nas tabelas/contratos, não depender da emissão de NFS-e. A definição fiscal da tabela abaixo descreve a implementação anterior e permanece histórica. A prévia é calculada no backend sem registrar fatos/cobranças, com períodos/ciclos, referência, subtotal conhecido e pendências; configuração ausente não vira zero. Competência segue o último dia incluído do ciclo contratual, preservando mínimo/GRIS sem novo rateio entre meses. Estado e evidências em [STATES](../../STATES.md#be14-fat-auto01--fe02-fat-auto01--fe06-lote01--previsão-de-faturamento-e-lote-na-etiqueta-20102026).
+**Correção em 20/10/2026 — BE14-FAT-AUTO01/FE02-FAT-AUTO01:** Lucas esclareceu e autorizou acompanhar automaticamente a operação conforme tabelas e contratos. A fonte frontend mostra essa prévia, com consulta financeira independente do mapa. Testes/builds locais aprovados; login e cinco GETs SQL reais 200, com card Todos conferido no AuthApp. O auxiliar não concluiu a seleção de contexto, nem a comparação financeira depois. Versão habitual não reiniciada; [estado e limites](../../STATES.md#be14-fat-auto01--fe02-fat-auto01--fe06-lote01--previsão-de-faturamento-e-lote-na-etiqueta-20102026).
 
 Título Início, descrição Visão geral da operação e os quatro acessos rápidos existentes. O painel exibe dez cards mesmo sem movimentações. Zero confirmado é diferente de informação indisponível, exibida como —. Cores, Inter, espaçamentos, raios, superfícies, estados e diálogos usam a fundação de [design.md](design.md); nenhuma faixa decorativa foi acrescentada.
 
@@ -39,9 +39,25 @@ Título Início, descrição Visão geral da operação e os quatro acessos ráp
 | Reservas ativas | Registros de reserva com situação ATIVA no alcance selecionado |
 | Entradas abertas | Pedidos diferentes de EFETIVADO e CANCELADO |
 | Saídas abertas | Pedidos RASCUNHO, RESERVADO, EM_SEPARACAO ou SEPARADO |
-| Faturamento do mês | Saldos positivos de versões com estado externo EMITIDO e NFS-e registrada com emissão no mês civil atual do fuso informado. Cada versão entra uma vez, mesmo com várias referências. Canceladas não entram; saldo desconhecido torna o valor indisponível. É parcial do mês, sem antecipar emissão ou somar cálculos em elaboração |
+| Faturamento previsto do mês | Prévia operacional automática fornecida pelo backend conforme tabelas e ciclos contratados. Competência acompanha o último dia incluído de cada ciclo. Apuração completa mostra o total previsto; pendências deixam o total indisponível e identificam separadamente o subtotal conhecido. Valores permanecem estimativas até o fechamento |
 
 O percentual e as posições consideram todos os clientes dos armazéns selecionados, para representar espaço físico real. Unidades, pedidos, reservas, quarentena e valores seguem também o filtro de cliente. A distinção está escrita no painel. Supervisor/Gestor podem consultar os valores financeiros; Operação recebe esses campos nulos. O backend valida o perfil e o alcance em cada leitura.
+
+## Prévia automática de faturamento — FE02-FAT-AUTO01
+
+`BillingPreviewCard` consome `GET /api/v1/visao-operacao/previsao-faturamento` (`VisaoOperacaoController.preverFaturamento`), com cliente/armazém do contexto e fuso. A consulta inicia automaticamente para Supervisor/Gestor, em paralelo à visão geral. Operação apresenta acesso restrito e não chama a rota financeira; permissão e alcance continuam sendo validados pelo backend.
+
+Carregamento, erro e cancelamento são próprios do card. A demora ou falha financeira não segura os nove indicadores restantes nem o mapa. Paginar, buscar e filtrar o mapa não repete a apuração financeira. Atualizar visão renova ambas as consultas em paralelo e também permite tentar novamente após uma falha financeira; essa orientação aparece no erro, sem outra ação de atualização no card. Trocar contexto aborta a leitura anterior e descarta respostas atrasadas.
+
+O card usa exclusivamente o novo DTO de previsão. Durante carregamento, ausência ou falha, apresenta —; não aproveita o valor fiscal legado. Na prévia incompleta, o total permanece —, com competência, número de pendências e valor conhecido quando fornecido. Esse conhecido reúne subtotais já apurados, sem garantir ajustes ou tarifas pendentes. Zero aparece como total somente quando a prévia completa o confirma. Moedas diferentes conservam os valores de cada período e a pendência do agregado; o frontend não converte nem soma moedas.
+
+Ver períodos e pendências abre o diálogo com competência, referência, situação, ciclo contratado, intervalo apurado, inclusão das operações do dia até a referência, fuso, subtotal, mínimo, GRIS e total retornados pelo backend. O dia final dos intervalos é identificado como não incluído. Referências de contrato/unidade/fato e códigos das pendências ficam disponíveis em detalhes recolhidos. A apresentação não recalcula tarifas, mínimo ou GRIS e não grava fatos, cálculos, fechamentos ou emissão fiscal. A ajuda permanece centralizada em `information.billing`.
+
+A competência vem do backend: ciclos de 01/10 a 01/11 e de 25/09 a 25/10 pertencem a outubro; o ciclo de 25/10 a 25/11 pertence a novembro. Os limites finais desses exemplos são exclusivos. Não há novo rateio de mínimo/GRIS entre meses.
+
+**Histórico preservado:** o antigo card Faturamento do mês somava saldos de versões EMITIDO com NFS-e registrada no mês civil. Essa escolha anterior de implementação não foi identificada como decisão expressa de Lucas. `faturamentoMes` continua no contrato por compatibilidade, sem alimentar o novo card.
+
+Conferência local: 52 testes em seis arquivos, incluindo 14 do card, tipagem, lint focal e formatação aprovados. Chrome fictício com os componentes reais: quatro layouts claro/escuro em 390/1440 px, teclado, foco restaurado, períodos/pendências, ausência de overflow, falha e acesso restrito; 38 chamadas somente ao transporte em memória, zero API/SQL/externos. Mesmo cenário compara o valor fiscal legado zero com a prévia operacional fictícia de R$ 2.950,00; não representa cobrança real. [Antes](../../orchestracao/.runtime/faturamento-etiqueta-20261020/card-visual/antes.png), [depois](../../orchestracao/.runtime/faturamento-etiqueta-20261020/card-visual/depois.png), [pendências](../../orchestracao/.runtime/faturamento-etiqueta-20261020/card-visual/pendencias.png), [testes](../../orchestracao/.runtime/faturamento-etiqueta-20261020/frontend-tests.json) e [visual](../../orchestracao/.runtime/faturamento-etiqueta-20261020/card-visual/visual.json). Previews próprios encerrados; build final, validação integrada e versão ativa não são comprovados por essa conferência.
 
 ## Mapa e detalhes
 

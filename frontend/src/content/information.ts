@@ -419,9 +419,8 @@ export const information = {
     billing: {
         title: "Faturamento previsto do mês",
         description:
-            "Prévia automática dos serviços e da ocupação apurados pelo WMS, com as tabelas e os ciclos contratados de cada cliente. A competência é o mês do último dia incluído no ciclo. O período aberto considera o que foi apurado até a referência da consulta. Pendências deixam o total indisponível; o valor conhecido é parcial. Mínimo e GRIS seguem cada ciclo contratado. A consulta não fecha cobranças nem emite NFS-e.",
-        footer:
-            "Valores estimados até o fechamento. Na prévia incompleta, o valor conhecido reúne somente os subtotais apurados; tarifas pendentes e ajustes do ciclo podem alterar o total.",
+            "Prévia automática dos serviços e da ocupação apurados pelo WMS, com as tabelas e os ciclos contratados de cada cliente. A competência é o mês do último dia incluído no ciclo. O período aberto considera o que foi apurado até a referência da consulta. Pendências deixam o total indisponível; o valor conhecido é parcial. Mínimo e GRIS seguem cada ciclo contratado. Em caso de falha na consulta, use Atualizar visão. A consulta não fecha cobranças nem emite NFS-e.",
+        footer: "Valores estimados até o fechamento. Na prévia incompleta, o valor conhecido reúne somente os subtotais apurados; tarifas pendentes e ajustes do ciclo podem alterar o total.",
     },
     availableUnits: {
         title: "Unidades disponíveis",

@@ -195,6 +195,11 @@ public interface UnidadeLogisticaRepository extends JpaRepository<UnidadeLogisti
     List<UnidadeLogistica> historicoCobranca(Long clienteId, Long armazemId);
 
     @Query(
+            "select u from UnidadeLogistica u join fetch u.pedido p join fetch u.produto where p.cliente.id=:clienteId and p.armazem.id=:armazemId and u.criadaEm<=:referencia and (u.ativa=true or u.primeiroEnderecamentoEm>=:inicio or exists(select f.id from FatoPermanencia f where f.unidade.id=u.id and f.ocorridaEm>=:inicio and f.ocorridaEm<=:referencia) or not exists(select encerramento.id from FatoPermanencia encerramento where encerramento.unidade.id=u.id and encerramento.tipo in ('RETIRADA','AJUSTE_ESTOQUE') and encerramento.quantidadeDepois=0 and encerramento.equivalenciaDepois=0 and encerramento.ocorridaEm<=:referencia)) order by u.id")
+    List<UnidadeLogistica> paraPrevisao(
+            Long clienteId, Long armazemId, java.time.Instant inicio, java.time.Instant referencia);
+
+    @Query(
             "select u from UnidadeLogistica u join fetch u.pedido p where u.ativa=true and p.cliente.id in :clientes and p.armazem.id in :armazens and u.produto.cliente.id=p.cliente.id order by u.id")
     List<UnidadeLogistica> ativasParaIndicador(List<Long> clientes, List<Long> armazens);
 

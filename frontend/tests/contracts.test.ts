@@ -166,6 +166,7 @@ describe("Fronteira contratual exata", () => {
             "DashboardController.consultar",
             "VisaoOperacaoController.consultar",
             "VisaoOperacaoController.detalhe",
+            "VisaoOperacaoController.preverFaturamento",
         ];
         const nativeXml = ["previa", "confirmar", "resultado", "documento"].map(
             (handler) => `PedidoEntradaXmlController.${handler}`,
@@ -182,6 +183,15 @@ describe("Fronteira contratual exata", () => {
             method: "GET",
             path: "/api/v1/dashboard",
             response: "DashboardDto.Resumo",
+        });
+        expect(
+            endpoints.find(
+                (e) => e.id === "VisaoOperacaoController.preverFaturamento",
+            ),
+        ).toMatchObject({
+            method: "GET",
+            path: "/api/v1/visao-operacao/previsao-faturamento",
+            response: "VisaoOperacaoDto.PrevisaoFaturamento",
         });
         expect(
             endpoints

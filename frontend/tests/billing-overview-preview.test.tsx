@@ -286,6 +286,19 @@ it("espera a consulta e remove a previsão anterior após falha de atualização
     expect(card().querySelector("strong")).toHaveTextContent("—");
     expect(card()).not.toHaveTextContent("2.345");
     expect(card()).not.toHaveTextContent("R$ 0,00");
+    expect(card()).toHaveTextContent(
+        "Use Atualizar visão para tentar novamente.",
+    );
+    expect(
+        within(card()).queryByRole("button", { name: "Atualizar previsão" }),
+    ).not.toBeInTheDocument();
+    fail = false;
+    fireEvent.click(screen.getByRole("button", { name: "Atualizar visão" }));
+    expect(card()).toHaveAttribute("aria-busy", "true");
+    expect(card().querySelector("strong")).toHaveTextContent("—");
+    await act(async () => finish(response(request, preview)));
+    expect(card().querySelector("strong")).toHaveTextContent("R$ 2.345,67");
+    expect(within(card()).queryByRole("alert")).not.toBeInTheDocument();
 });
 
 it.each(["GESTOR", "OPERACAO"] as const)(
@@ -392,6 +405,32 @@ it("prévia pendente não segura o mapa e filtros/paginação não repetem apura
                 "VisaoOperacaoController.preverFaturamento",
         ),
     ).toHaveLength(1);
+    await act(async () => finish(response(financial, preview)));
+    expect(card().querySelector("strong")).toHaveTextContent("R$ 2.345,67");
+    fireEvent.click(screen.getByRole("button", { name: "Atualizar visão" }));
+    await waitFor(() =>
+        expect(
+            requests.filter(
+                (value) =>
+                    value.endpoint.id === "VisaoOperacaoController.consultar",
+            ),
+        ).toHaveLength(4),
+    );
+    expect(
+        requests.filter(
+            (value) =>
+                value.endpoint.id ===
+                "VisaoOperacaoController.preverFaturamento",
+        ),
+    ).toHaveLength(2);
+    await waitFor(() =>
+        expect(
+            screen.getByRole("region", { name: "Visão geral da operação" }),
+        ).toHaveAttribute("aria-busy", "false"),
+    );
+    expect(card()).toHaveAttribute("aria-busy", "true");
+    expect(card().querySelector("strong")).toHaveTextContent("—");
+    expect(card()).not.toHaveTextContent("R$ 0,00");
     await act(async () => finish(response(financial, preview)));
     expect(card().querySelector("strong")).toHaveTextContent("R$ 2.345,67");
 });
