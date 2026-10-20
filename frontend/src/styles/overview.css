@@ -61,6 +61,42 @@
     color: var(--og-text-muted);
     line-height: var(--og-leading-caption);
 }
+.overview-billing > button {
+    margin-top: auto;
+    align-self: flex-start;
+    height: auto;
+    text-align: left;
+    white-space: normal;
+}
+.billing-preview-dialog > .dialog-header {
+    position: sticky;
+    top: 0;
+    z-index: var(--og-z-sticky);
+    background: var(--og-surface);
+}
+.billing-preview-details {
+    display: grid;
+    gap: var(--og-space-4);
+}
+.billing-preview-details > p,
+.billing-preview-details .result-section > p {
+    margin: 0;
+}
+.billing-preview-details .result-section {
+    display: grid;
+    gap: var(--og-space-3);
+}
+.billing-preview-details details > .record {
+    margin-top: var(--og-space-3);
+}
+.billing-preview-pendencies {
+    display: grid;
+    gap: var(--og-space-4);
+    padding-left: var(--og-space-5);
+}
+.billing-preview-pendencies p {
+    overflow-wrap: anywhere;
+}
 .overview-metric--0 {
     background: var(--og-selection);
     color: var(--og-selection-text);

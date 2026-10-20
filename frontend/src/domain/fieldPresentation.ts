@@ -104,6 +104,15 @@ export function presentationDefaults(
             ),
         ),
         ...(automaticCodes[schema] ? { [automaticCodes[schema]]: null } : {}),
+        ...(schema === "ContingenciaDto.Registrar"
+            ? {
+                  identidadeFato: `CONT-${crypto.randomUUID()}`,
+                  fonte:
+                      typeof context.fonte === "string" && context.fonte.trim()
+                          ? context.fonte
+                          : "Registro manual na tela de contingência do WMS.",
+              }
+            : {}),
         ...(schema === "PedidoEntradaDto.Efetivar"
             ? {
                   aceitarDivergencias: confirmedWithoutDivergence(context)

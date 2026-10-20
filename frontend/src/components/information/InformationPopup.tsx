@@ -24,19 +24,19 @@ export function useInformationPopup<T extends HTMLElement>(
     const popup = useRef<HTMLDivElement>(null);
     const id = useId();
     const pendingBounds = useRef<DOMRect | null>(null);
-    const [open, setOpen] = useState(false);
+    const [portalHost, setPortalHost] = useState<HTMLElement | null>(null);
     const opening = useRef<ReturnType<typeof setTimeout> | undefined>(
         undefined,
     );
     const closing = useRef<ReturnType<typeof setTimeout> | undefined>(
         undefined,
     );
-    const visible = open && !disabled;
+    const visible = portalHost !== null && !disabled;
     useEffect(() => {
         if (disabled) {
             clearTimeout(opening.current);
             clearTimeout(closing.current);
-            setOpen(false);
+            setPortalHost(null);
         }
     }, [disabled]);
     const cancel = () => {
@@ -45,17 +45,19 @@ export function useInformationPopup<T extends HTMLElement>(
     };
     const close = () => {
         cancel();
-        setOpen(false);
+        setPortalHost(null);
     };
     const show = () => {
         cancel();
         if (disabled) return;
         window.dispatchEvent(new CustomEvent(openedEvent, { detail: id }));
-        setOpen(true);
+        // A native modal makes elements outside its subtree inert and paints
+        // above body portals. Keep its help in the same dialog's top layer.
+        setPortalHost(anchor.current?.closest("dialog") ?? document.body);
     };
     const leave = () => {
         cancel();
-        closing.current = setTimeout(() => setOpen(false), 180);
+        closing.current = setTimeout(() => setPortalHost(null), 180);
     };
     useEffect(() => {
         const cancelPending = () => clearTimeout(opening.current);
@@ -74,7 +76,7 @@ export function useInformationPopup<T extends HTMLElement>(
             if ((event as CustomEvent<string>).detail !== id) {
                 clearTimeout(opening.current);
                 clearTimeout(closing.current);
-                setOpen(false);
+                setPortalHost(null);
             }
         };
         window.addEventListener(openedEvent, otherOpened);
@@ -109,10 +111,13 @@ export function useInformationPopup<T extends HTMLElement>(
         const dismiss = () => {
             clearTimeout(opening.current);
             clearTimeout(closing.current);
-            setOpen(false);
+            setPortalHost(null);
         };
         const escape = (event: KeyboardEvent) => {
-            if (event.key === "Escape") dismiss();
+            if (event.key !== "Escape") return;
+            event.preventDefault();
+            event.stopPropagation();
+            dismiss();
         };
         const scroll = (event: Event) => {
             if (event.target instanceof Node && tip.contains(event.target))
@@ -135,12 +140,12 @@ export function useInformationPopup<T extends HTMLElement>(
             )
                 dismiss();
         };
-        window.addEventListener("keydown", escape);
+        window.addEventListener("keydown", escape, true);
         window.addEventListener("resize", dismiss);
         window.addEventListener("scroll", scroll, true);
         document.addEventListener("pointerdown", outside);
         return () => {
-            window.removeEventListener("keydown", escape);
+            window.removeEventListener("keydown", escape, true);
             window.removeEventListener("resize", dismiss);
             window.removeEventListener("scroll", scroll, true);
             document.removeEventListener("pointerdown", outside);
@@ -164,35 +169,36 @@ export function useInformationPopup<T extends HTMLElement>(
             onFocus: show,
             onBlur: leave,
         },
-        popup: visible
-            ? createPortal(
-                  <div
-                      ref={popup}
-                      id={id}
-                      role="tooltip"
-                      className="information-popup"
-                      onPointerEnter={cancel}
-                      onPointerLeave={leave}
-                  >
-                      <strong className="information-popup-title">
-                          {content.title}
-                      </strong>
-                      {content.description && <p>{content.description}</p>}
-                      {content.facts && (
-                          <dl>
-                              {content.facts.map((fact, index) => (
-                                  <div key={`${fact.label}-${index}`}>
-                                      <dt>{fact.label}</dt>
-                                      <dd>{fact.value}</dd>
-                                  </div>
-                              ))}
-                          </dl>
-                      )}
-                      {content.footer && <small>{content.footer}</small>}
-                  </div>,
-                  document.body,
-              )
-            : null,
+        popup:
+            visible && portalHost
+                ? createPortal(
+                      <div
+                          ref={popup}
+                          id={id}
+                          role="tooltip"
+                          className="information-popup"
+                          onPointerEnter={cancel}
+                          onPointerLeave={leave}
+                      >
+                          <strong className="information-popup-title">
+                              {content.title}
+                          </strong>
+                          {content.description && <p>{content.description}</p>}
+                          {content.facts && (
+                              <dl>
+                                  {content.facts.map((fact, index) => (
+                                      <div key={`${fact.label}-${index}`}>
+                                          <dt>{fact.label}</dt>
+                                          <dd>{fact.value}</dd>
+                                      </div>
+                                  ))}
+                              </dl>
+                          )}
+                          {content.footer && <small>{content.footer}</small>}
+                      </div>,
+                      portalHost,
+                  )
+                : null,
     };
 }
 

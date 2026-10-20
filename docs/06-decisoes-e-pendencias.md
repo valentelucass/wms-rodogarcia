@@ -1,5 +1,9 @@
 # Decisões e pendências do WMS Rodogarcia
 
+## FE12-CONTING-AUTO01 — identificação e origem internas no cadastro, 20/10/2026
+
+Lucas pediu identidade automática, retirada do campo Fonte e correção das dicas atrás do modal. A interface gera uma identidade por nova ocorrência e conserva a mesma nos retornos/reenvios; a identidade registrada continua disponível para as dependências. A origem ausente recebe a descrição factual Registro manual na tela de contingência do WMS. O contrato existente continua recebendo identidade/fonte, sem alterar hash, histórico ou conciliação. Dicas ficam na camada do diálogo e Escape fecha somente a dica. [Definição e conferência](design-system/etapa-06.md#contingência-dicas-e-identificação--fe12-conting-auto01).
+
 ## FE06-ETIQUETA-UX01 — apresentação da etiqueta, 16/10/2026
 
 Lucas pediu organizar a consulta/reimpressão. Prévia e ações ficam juntas, com impressão em roxo, ajuda recolhida, acesso ao coletor separado e dados completos disponíveis sob demanda. Formato físico, códigos, UUID e dados recebidos preservados; bloqueio de impressão durante recarga e falha de geração do QR. [Definição e conferência](design-system/etapa-06.md#consulta-e-reimpressão-da-etiqueta--fe06-etiqueta-ux01). Validação frontend fictícia e mídia de impressão, sem teste de impressora, SQL ou atualização da instância ativa.

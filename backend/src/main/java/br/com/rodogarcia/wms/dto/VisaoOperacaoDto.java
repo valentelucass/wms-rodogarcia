@@ -6,6 +6,7 @@ import br.com.rodogarcia.wms.models.TiposUnidadePermitidos;
 import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 
 public final class VisaoOperacaoDto {
@@ -31,7 +32,45 @@ public final class VisaoOperacaoDto {
             boolean faturamentoParcial,
             boolean financeiroPermitido,
             @NotNull String competencia,
+            PrevisaoFaturamento previsaoFaturamento,
             @NotNull PaginaResponse<Posicao> mapa) {}
+
+    public record PrevisaoFaturamento(
+            @NotNull String competencia,
+            @NotNull Instant referenciaEm,
+            String moeda,
+            boolean incluiDiaAtual,
+            boolean completo,
+            BigDecimal conhecido,
+            BigDecimal total,
+            @NotNull List<PeriodoPrevisao> periodos,
+            @NotNull List<PendenciaPrevisao> pendencias) {}
+
+    public record PeriodoPrevisao(
+            Long clienteId,
+            Long armazemId,
+            Long contratoId,
+            String moeda,
+            String fuso,
+            LocalDate cicloInicio,
+            LocalDate cicloFimExclusivo,
+            LocalDate apuradoInicio,
+            LocalDate apuradoFimExclusivo,
+            boolean incluiDiaAtual,
+            BigDecimal subtotalConhecido,
+            BigDecimal minimoCalculado,
+            BigDecimal grisCalculado,
+            BigDecimal total,
+            @NotNull List<CalculoCobrancaDto.Pendencia> pendencias) {}
+
+    public record PendenciaPrevisao(
+            Long clienteId,
+            Long armazemId,
+            String codigo,
+            LocalDate data,
+            Long unidadeId,
+            Long fatoId,
+            String detalhe) {}
 
     public record Posicao(
             @NotNull Long id,

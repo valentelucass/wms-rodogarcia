@@ -27,10 +27,12 @@ import {
     InformationHint,
 } from "../information/InformationPopup";
 import { formatQuantity } from "./OperationDashboard";
-import { expandedDecimal } from "../../contracts/codec";
 import { MapStreetLayout } from "./MapStreetLayout";
 import { MapPosition } from "./MapPosition";
 import { permittedUnitTypesLabel } from "../../domain/unitTypes";
+import { BillingPreviewCard } from "./BillingPreviewCard";
+import { overviewMoney } from "./overviewFormatting";
+export { overviewMoney } from "./overviewFormatting";
 
 export const positionState = (p: VisaoOperacaoDto_Posicao) =>
     p.ocupada
@@ -45,15 +47,6 @@ export const positionState = (p: VisaoOperacaoDto_Posicao) =>
             }[p.estado] ?? "Indisponível");
 const quantity = (v: string | null | undefined) =>
     v == null ? "—" : formatQuantity(v);
-export function overviewMoney(v: string | null | undefined): string {
-    if (v == null) return "—";
-    const { negative, whole, fraction } = expandedDecimal(v);
-    const cents =
-        BigInt(whole) * 100n +
-        BigInt(fraction.padEnd(2, "0").slice(0, 2)) +
-        (Number(fraction[2] ?? "0") >= 5 ? 1n : 0n);
-    return `R$ ${negative && cents > 0n ? "-" : ""}${formatQuantity(String(cents / 100n))},${String(cents % 100n).padStart(2, "0")}`;
-}
 const money = overviewMoney;
 type Props = {
     transport: Transport;
@@ -216,15 +209,6 @@ function Overview({
             "Pedidos aguardando conclusão",
             "saida",
         ],
-        [
-            "billing",
-            "Faturamento do mês",
-            money(data?.faturamentoMes),
-            data && !data.financeiroPermitido
-                ? "Disponível para Supervisor e Gestor"
-                : `NFS-e registradas · ${data?.competencia ?? "mês atual"} · parcial`,
-            "fechamento",
-        ],
     ];
     return (
         <section
@@ -287,6 +271,11 @@ function Overview({
                         <small>{note}</small>
                     </InformationCard>
                 ))}
+                <BillingPreviewCard
+                    data={data}
+                    loading={loading}
+                    error={!!result.error}
+                />
             </div>
             {children}
             <section

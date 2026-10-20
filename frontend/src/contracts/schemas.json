@@ -11377,9 +11377,225 @@
         "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
       },
       {
+        "name": "previsaoFaturamento",
+        "type": "VisaoOperacaoDto.PrevisaoFaturamento",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
         "name": "mapa",
         "type": "PaginaResponse<VisaoOperacaoDto.Posicao>",
         "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      }
+    ],
+    "VisaoOperacaoDto.PrevisaoFaturamento": [
+      {
+        "name": "competencia",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "referenciaEm",
+        "type": "Instant",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "moeda",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "incluiDiaAtual",
+        "type": "boolean",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "completo",
+        "type": "boolean",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "conhecido",
+        "type": "BigDecimal",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "total",
+        "type": "BigDecimal",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "periodos",
+        "type": "List<VisaoOperacaoDto.PeriodoPrevisao>",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java",
+        "element": {
+          "name": "element",
+          "type": "VisaoOperacaoDto.PeriodoPrevisao",
+          "required": false,
+          "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+        }
+      },
+      {
+        "name": "pendencias",
+        "type": "List<VisaoOperacaoDto.PendenciaPrevisao>",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java",
+        "element": {
+          "name": "element",
+          "type": "VisaoOperacaoDto.PendenciaPrevisao",
+          "required": false,
+          "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+        }
+      }
+    ],
+    "VisaoOperacaoDto.PeriodoPrevisao": [
+      {
+        "name": "clienteId",
+        "type": "Long",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "armazemId",
+        "type": "Long",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "contratoId",
+        "type": "Long",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "moeda",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "fuso",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "cicloInicio",
+        "type": "LocalDate",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "cicloFimExclusivo",
+        "type": "LocalDate",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "apuradoInicio",
+        "type": "LocalDate",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "apuradoFimExclusivo",
+        "type": "LocalDate",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "incluiDiaAtual",
+        "type": "boolean",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "subtotalConhecido",
+        "type": "BigDecimal",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "minimoCalculado",
+        "type": "BigDecimal",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "grisCalculado",
+        "type": "BigDecimal",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "total",
+        "type": "BigDecimal",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "pendencias",
+        "type": "List<CalculoCobrancaDto.Pendencia>",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java",
+        "element": {
+          "name": "element",
+          "type": "CalculoCobrancaDto.Pendencia",
+          "required": false,
+          "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+        }
+      }
+    ],
+    "VisaoOperacaoDto.PendenciaPrevisao": [
+      {
+        "name": "clienteId",
+        "type": "Long",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "armazemId",
+        "type": "Long",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "codigo",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "data",
+        "type": "LocalDate",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "unidadeId",
+        "type": "Long",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "fatoId",
+        "type": "Long",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
+      },
+      {
+        "name": "detalhe",
+        "type": "String",
+        "required": false,
         "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/VisaoOperacaoDto.java"
       }
     ],

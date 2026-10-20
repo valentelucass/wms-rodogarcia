@@ -8,16 +8,9 @@ import { isFieldDisabled } from "../../domain/fieldPresentation";
 import { ContingencyData } from "./ContingencyFields";
 
 type Group = Omit<ComponentProps<typeof Fields>, "perfil">;
-const identity = [
-    "identidadeFato",
-    "tipo",
-    "efeitoRegistradoNoWms",
-    "clienteId",
-    "armazemId",
-];
-const source = ["operador", "ocorridaEm", "fonte"];
+const identity = ["tipo", "efeitoRegistradoNoWms", "clienteId", "armazemId"];
+const source = ["operador", "ocorridaEm"];
 const labels: Record<string, string> = {
-    identidadeFato: "Identidade do fato",
     ocorridaEm: "Instante real do fato",
     efeitoRegistradoNoWms: "Efeito já registrado no WMS",
     motivo: "Justificativa do registro",
@@ -36,6 +29,8 @@ export function ContingencyRegistrationFields({
     const assigned = new Set([
         ...identity,
         ...source,
+        "identidadeFato",
+        "fonte",
         "dados",
         "dependencias",
         "motivo",
@@ -80,14 +75,7 @@ export function ContingencyRegistrationFields({
                     <h3>Identificação da ocorrência</h3>
                     <InformationHint topic="contingencyRegistration" />
                 </header>
-                <div className="contingency-field-grid">
-                    <div className="contingency-field-wide">
-                        {render(["identidadeFato"])}
-                    </div>
-                    {render(
-                        identity.filter((name) => name !== "identidadeFato"),
-                    )}
-                </div>
+                <div className="contingency-field-grid">{render(identity)}</div>
             </section>
             <section className="contingency-form-section">
                 <h3>Registro na planilha</h3>

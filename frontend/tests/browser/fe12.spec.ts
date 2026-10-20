@@ -305,11 +305,9 @@ test("FE12 CHEGADA consulta modo prova concilia consulta", async ({ page }) => {
     await page
         .getByRole("button", { name: "Registrar fato", exact: true })
         .click();
-    await fill(page, "Identidade do fato *", "FE12-CHEGADA");
     await page.getByLabel("Tipo *", { exact: true }).selectOption("CHEGADA");
     await fill(page, "Instante real do fato *", localInstant);
     await fill(page, "Operador *", "Operador fictício FE12");
-    await fill(page, "Fonte *", "Planilha fictícia FE12");
     await page
         .getByLabel("Efeito já registrado no WMS *", { exact: true })
         .selectOption("true");
@@ -326,6 +324,10 @@ test("FE12 CHEGADA consulta modo prova concilia consulta", async ({ page }) => {
     await fill(page, "Justificativa do registro *", "Registro fictício FE12");
     await confirm(page);
     const registered = await body(page, "ContingenciaController.registrar");
+    expect(registered.identidadeFato).toMatch(/^CONT-[0-9a-f-]{36}$/);
+    expect(registered.fonte).toBe(
+        "Registro manual na tela de contingência do WMS.",
+    );
     expect(exact((registered.dados as Record<string, unknown>).pedidoId)).toBe(
         "9007199254740993",
     );

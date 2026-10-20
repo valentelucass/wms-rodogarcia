@@ -3,10 +3,12 @@ import {
     act,
     fireEvent,
     render,
+    renderHook,
     screen,
     waitFor,
 } from "@testing-library/react";
 import { Operation } from "../src/components/Operation";
+import { useOperation } from "../src/hooks/useOperation";
 import { FormReferences } from "../src/components/FormReferences";
 import {
     ApiError,
@@ -115,6 +117,7 @@ it("edita contagem e dependências com rótulos curtos, preservando os motivos d
     await waitFor(() => expect(state.requests).toHaveLength(1));
     expect(state.requests[0].body).toMatchObject({
         ...count,
+        identidadeFato: expect.stringMatching(/^CONT-[0-9a-f-]{36}$/),
         dependencias: ["PLAN-ORIGEM-BETA"],
         motivo: "Justificativa específica do registro fictício",
         dados: {
@@ -163,7 +166,10 @@ it("troca o tipo sem transportar os campos da contagem para a chegada, conservan
     expect(screen.getByLabelText("Identidade da dependência 1 *")).toHaveValue(
         "PLAN-ORIGEM-ALFA",
     );
-    expect(screen.getByLabelText("Fonte *")).toHaveValue(count.fonte);
+    expect(screen.queryByLabelText("Fonte *")).not.toBeInTheDocument();
+    expect(
+        screen.queryByLabelText("Identidade do fato *"),
+    ).not.toBeInTheDocument();
 });
 
 it("envia a chegada pelo contrato existente sem perder pedido, item, versão, quantidades e instante", async () => {
@@ -175,6 +181,7 @@ it("envia a chegada pelo contrato existente sem perder pedido, item, versão, qu
     await waitFor(() => expect(state.requests).toHaveLength(1));
     expect(state.requests[0].body).toMatchObject({
         ...arrival,
+        identidadeFato: expect.stringMatching(/^CONT-[0-9a-f-]{36}$/),
         dados: {
             ...arrival.dados,
             dados: {
@@ -192,4 +199,80 @@ it("não oferece registro de ocorrência ao perfil Operação", () => {
         screen.queryByRole("button", { name: "Conferir e confirmar" }),
     ).not.toBeInTheDocument();
     expect(state.requests).toHaveLength(0);
+});
+
+it("preenche identidade e origem sem pedir esses campos ao operador", async () => {
+    const state = setup({ ...count, identidadeFato: "", fonte: "" });
+    expect(
+        screen.queryByLabelText("Identidade do fato *"),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Fonte *")).not.toBeInTheDocument();
+    confirm();
+    expect(state.requests).toHaveLength(0);
+    fireEvent.click(screen.getByRole("button", { name: "Confirmar agora" }));
+    await waitFor(() => expect(state.requests).toHaveLength(1));
+    expect(state.requests[0].body).toMatchObject({
+        identidadeFato: expect.stringMatching(/^CONT-[0-9a-f-]{36}$/),
+        fonte: "Registro manual na tela de contingência do WMS.",
+    });
+});
+
+it("mantém a identidade ao editar, voltar e repetir após resposta desconhecida, e gera outra somente para nova ocorrência", async () => {
+    const requests: Request[] = [];
+    const transport: Transport = {
+        send: async (request) => {
+            requests.push(request);
+            if (requests.length === 1)
+                throw new ApiError(
+                    "Resposta fictícia desconhecida",
+                    0,
+                    "RESPOSTA_DESCONHECIDA",
+                    "",
+                    true,
+                );
+            return {
+                data: {},
+                ficticio: true,
+                replay: true,
+                raw: "",
+                requestId: "CONTINGENCY-IDENTITY-LOCAL",
+            };
+        },
+    };
+    const { result } = renderHook(() =>
+        useOperation({
+            id: "ContingenciaController.registrar",
+            context: count,
+            transport,
+            perfil: "SUPERVISOR",
+        }),
+    );
+    const identity = result.current.body.identidadeFato;
+    const operation = result.current.body.operacaoId;
+    expect(identity).toMatch(/^CONT-[0-9a-f-]{36}$/);
+    expect(identity).not.toBe(count.identidadeFato);
+    expect(identity).not.toBe(`CONT-${operation}`);
+    act(() => result.current.submit());
+    expect(result.current.confirm).toBe(true);
+    act(() => result.current.cancelConfirmation());
+    act(() =>
+        result.current.updateBody({
+            ...result.current.body,
+            motivo: "Registro fictício revisado antes de confirmar",
+        }),
+    );
+    expect(result.current.body.identidadeFato).toBe(identity);
+    act(() => result.current.submit());
+    await act(async () => result.current.send());
+    expect(result.current.uncertain).toBe(true);
+    expect(result.current.body.identidadeFato).toBe(identity);
+    await act(async () => result.current.send(true));
+    expect(requests).toHaveLength(2);
+    expect(requests[1].body).toEqual(requests[0].body);
+    expect(result.current.completed).toBe(true);
+    act(() => result.current.startNew());
+    expect(result.current.body.identidadeFato).toMatch(/^CONT-[0-9a-f-]{36}$/);
+    expect(result.current.body.identidadeFato).not.toBe(identity);
+    expect(result.current.body.identidadeFato).not.toBe(count.identidadeFato);
+    expect(result.current.body.operacaoId).not.toBe(operation);
 });

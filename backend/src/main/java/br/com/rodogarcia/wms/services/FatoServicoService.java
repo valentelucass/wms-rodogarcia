@@ -104,7 +104,7 @@ public class FatoServicoService {
         this.clock = clock;
     }
 
-    private record Execucao(
+    record Execucao(
             String chave,
             Instant instante,
             BigDecimal quantidade,
@@ -113,6 +113,13 @@ public class FatoServicoService {
             PedidoSaida saida,
             Produto produto,
             Map<Long, BigDecimal> cotas) {}
+
+    /** Mesma comprovação física do registro, sem criar fato, rateio, operação ou auditoria. */
+    @Transactional(noRollbackFor = RegraNegocioException.class, readOnly = true)
+    public Execucao projetarExecucao(ServicoCobranca servico, FatoServicoDto.Registrar dados) {
+        contextos.autorizar(dados.clienteId(), dados.armazemId());
+        return execucao(servico, dados);
+    }
 
     @Transactional
     public FatoServicoDto.Fato registrar(@NotNull @Valid FatoServicoDto.Registrar d) {

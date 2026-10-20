@@ -5,6 +5,15 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface RetiradaSaidaRepository extends JpaRepository<RetiradaSaida, Long> {
+    @org.springframework.data.jpa.repository.Query(
+            "select r from RetiradaSaida r join fetch r.pedido p where p.cliente.id=:clienteId and p.armazem.id=:armazemId and r.retiradaEm>=:inicio and r.retiradaEm<:fim and r.retiradaEm<=:referencia order by r.retiradaEm,r.id")
+    java.util.List<RetiradaSaida> paraPrevisao(
+            Long clienteId,
+            Long armazemId,
+            java.time.Instant inicio,
+            java.time.Instant fim,
+            java.time.Instant referencia);
+
     Optional<RetiradaSaida> findByPedidoId(Long pedidoId);
 
     @org.springframework.data.jpa.repository.Query(

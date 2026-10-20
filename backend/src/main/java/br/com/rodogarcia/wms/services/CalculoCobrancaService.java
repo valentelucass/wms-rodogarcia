@@ -89,6 +89,7 @@ public class CalculoCobrancaService {
     private final Clock clock;
     private final br.com.rodogarcia.wms.repositories.RevisaoContagemRepository contagens;
     private final ResolucaoFinanceiraCadastroService resolucaoCadastro;
+    private final FontesPrevisaoServicoService fontesPrevisao;
     private final br.com.rodogarcia.wms.repositories.EntradaConferidaRepository entradas;
 
     public CalculoCobrancaService(
@@ -118,7 +119,9 @@ public class CalculoCobrancaService {
             Clock clock,
             br.com.rodogarcia.wms.repositories.RevisaoContagemRepository contagens,
             br.com.rodogarcia.wms.repositories.EntradaConferidaRepository entradas,
-            ResolucaoFinanceiraCadastroService resolucaoCadastro) {
+            ResolucaoFinanceiraCadastroService resolucaoCadastro,
+            FontesPrevisaoServicoService fontesPrevisao) {
+        this.fontesPrevisao = fontesPrevisao;
         this.resolucaoCadastro = resolucaoCadastro;
         this.calculos = calculos;
         this.contratos = contratos;
@@ -249,7 +252,27 @@ public class CalculoCobrancaService {
             BigDecimal total,
             String hash) {}
 
+    public record Previa(
+            BigDecimal subtotalConhecido,
+            BigDecimal minimo,
+            BigDecimal gris,
+            BigDecimal total,
+            List<CalculoCobrancaDto.Pendencia> pendencias) {}
+
+    /** Apura fontes comprovadas até a referência, sem INSERT, resposta de operação ou auditoria. */
+    public Previa prever(
+            Long clienteId, Long armazemId, LocalDate inicio, LocalDate fim, Instant referencia) {
+        contextos.autorizar(clienteId, armazemId);
+        var a = apurar(new CalculoCobrancaDto.Calcular(null, clienteId, armazemId, inicio, fim,
+                "Prévia financeira sem persistência", null), referencia, true);
+        return new Previa(a.subtotal(), a.minimo(), a.gris(), a.total(), a.pendencias());
+    }
+
     private Apuracao apurar(CalculoCobrancaDto.Calcular d) {
+        return apurar(d, null, false);
+    }
+
+    private Apuracao apurar(CalculoCobrancaDto.Calcular d, Instant referencia, boolean projetar) {
         long duracao = ChronoUnit.DAYS.between(d.periodoInicio(), d.periodoFim());
         if (duracao < 1 || duracao > 366)
             throw CadastroSupport.invalido("Período [início,fim) entre 1 e 366 dias.");
@@ -301,24 +324,29 @@ public class CalculoCobrancaService {
                                 dia,
                                 zona,
                                 contextoUnidades,
-                                pendentes);
+                                pendentes,
+                                referencia);
                 memoriaDiarias.add(diaria);
                 for (var regra : diaria.regras())
                     if (regra.servicoId() != null && regra.valor() != null)
                         subtotalPorServico.merge(regra.servicoId(), regra.valor(), BigDecimal::add);
             }
-            for (var f :
-                    servicos.findByClienteIdAndArmazemIdOrderByExecutadoEmAscIdAsc(
-                            d.clienteId(), d.armazemId())) {
+            var fatosRegistrados = servicos.findByClienteIdAndArmazemIdOrderByExecutadoEmAscIdAsc(
+                    d.clienteId(), d.armazemId());
+            for (var f : fatosRegistrados) {
                 LocalDate executada = f.getExecutadoEm().atZone(zona).toLocalDate();
                 if (!f.getSituacao().equals("CONFIRMADO")
                         || executada.isBefore(d.periodoInicio())
-                        || !executada.isBefore(d.periodoFim())) continue;
+                        || !executada.isBefore(d.periodoFim())
+                        || referencia != null && f.getExecutadoEm().isAfter(referencia)) continue;
                 var m = servico(d.clienteId(), d.armazemId(), f, executada, pendentes);
                 memoriaServicos.add(m);
                 if (m.valor() != null)
                     subtotalPorServico.merge(f.getServico().getId(), m.valor(), BigDecimal::add);
             }
+            if (projetar)
+                projetarServicos(d, zona, referencia, contextoUnidades, fatosRegistrados,
+                        memoriaServicos, subtotalPorServico, pendentes);
         }
         BigDecimal subtotal =
                 moeda(subtotalPorServico.values().stream().reduce(ZERO, BigDecimal::add));
@@ -585,22 +613,26 @@ public class CalculoCobrancaService {
             LocalDate dia,
             ZoneId zona,
             List<UnidadeLogistica> us,
-            List<CalculoCobrancaDto.Pendencia> p) {
+            List<CalculoCobrancaDto.Pendencia> p,
+            Instant referencia) {
         Instant inicio = dia.atStartOfDay(zona).toInstant();
         Instant fim = dia.plusDays(1).atStartOfDay(zona).toInstant();
+        if (referencia != null && referencia.isBefore(fim)) fim = referencia;
         var historicos = new ArrayList<Historico>();
         var pontos = new TreeSet<Instant>();
         pontos.add(inicio);
         pontos.add(fim);
         for (var u : us) {
             if (u.getInicioArmazenagemEm() == null
-                    || u.getInicioArmazenagemEm().atZone(zona).toLocalDate().isAfter(dia)) continue;
+                    || u.getInicioArmazenagemEm().atZone(zona).toLocalDate().isAfter(dia)
+                    || referencia != null && u.getInicioArmazenagemEm().isAfter(referencia)) continue;
             var fs = fatos.findByUnidadeIdOrderByOcorridaEmAscIdAsc(u.getId());
             Instant retirada =
                     fs.stream()
                             .filter(
                                     f ->
-                                            (f.getTipo().equals("RETIRADA")
+                                            (referencia == null || !f.getOcorridaEm().isAfter(referencia))
+                                                    && (f.getTipo().equals("RETIRADA")
                                                             || f.getTipo().equals("AJUSTE_ESTOQUE")
                                                                     && f.getEquivalenciaDepois()
                                                                                     .signum()
@@ -695,7 +727,7 @@ public class CalculoCobrancaService {
                             regra.instante));
         }
         var unica = rs.size() == 1 ? rs.getFirst() : null;
-        var valorFisico = valorFisicoDoDia(cliente, armazem, dia, zona, us, p);
+        var valorFisico = valorFisicoDoDia(cliente, armazem, dia, zona, us, p, referencia);
         return new CalculoCobrancaDto.Diaria(
                 dia,
                 t == null ? null : t.getId(),
@@ -1143,9 +1175,11 @@ public class CalculoCobrancaService {
             LocalDate dia,
             ZoneId zona,
             List<UnidadeLogistica> us,
-            List<CalculoCobrancaDto.Pendencia> p) {
+            List<CalculoCobrancaDto.Pendencia> p,
+            Instant referencia) {
         Instant inicio = dia.atStartOfDay(zona).toInstant();
         Instant fim = dia.plusDays(1).atStartOfDay(zona).toInstant();
+        if (referencia != null && referencia.isBefore(fim)) fim = referencia;
         var pontos = new TreeSet<Instant>();
         pontos.add(inicio);
         pontos.add(fim);
@@ -1249,40 +1283,125 @@ public class CalculoCobrancaService {
         return new ValorDoDia(completo ? moeda(pico) : null, List.copyOf(intervalos));
     }
 
+    private void projetarServicos(
+            CalculoCobrancaDto.Calcular d,
+            ZoneId zona,
+            Instant referencia,
+            List<UnidadeLogistica> contextoUnidades,
+            List<FatoServico> registrados,
+            List<CalculoCobrancaDto.Servico> memoria,
+            Map<Long, BigDecimal> subtotais,
+            List<CalculoCobrancaDto.Pendencia> p) {
+        var existentes = registrados.stream()
+                .map(f -> f.getServico().getId() + "|" + f.getChaveFato())
+                .collect(java.util.stream.Collectors.toSet());
+        for (var evento : fontesPrevisao.eventos(d.clienteId(), d.armazemId(),
+                d.periodoInicio(), d.periodoFim(), zona, referencia, contextoUnidades)) {
+            LocalDate data = evento.instante().atZone(zona).toLocalDate();
+            var tabela = tabela(d.clienteId(), d.armazemId(), data, p);
+            if (tabela == null) continue;
+            var porServico = itens.findByTabelaIdOrderByIdAsc(tabela.getId()).stream()
+                    .filter(i -> i.getServico().getTipo().equals(evento.tipo()))
+                    .collect(java.util.stream.Collectors.groupingBy(
+                            i -> i.getServico().getId(), LinkedHashMap::new,
+                            java.util.stream.Collectors.toList()));
+            if (porServico.isEmpty())
+                pendente(p, "TARIFA_" + evento.tipo() + "_AUSENTE", data,
+                        evento.unidade() == null ? null : evento.unidade().getId(), null,
+                        "Execução física sem serviço de " + evento.tipo() + " na tabela vigente.");
+            for (var configurados : porServico.values()) {
+                var servico = configurados.getFirst().getServico();
+                for (var produto : evento.produtos(servico)) {
+                    String chave = evento.chave(produto);
+                    // Inclusive anulado: a consulta não recria nem volta a cobrar a execução.
+                    if (!existentes.add(servico.getId() + "|" + chave)) continue;
+                    var categorias = evento.categorias(produto);
+                    var candidatos = configurados.stream()
+                            .filter(i -> categorias.size() == 1
+                                    && categorias.contains(i.getCategoria())).toList();
+                    if (candidatos.isEmpty())
+                        candidatos = configurados.stream().filter(i -> i.getCategoria().isEmpty())
+                                .toList();
+                    if (candidatos.size() != 1) {
+                        pendente(p, "CATEGORIA_SERVICO_INSUFICIENTE", data,
+                                evento.unidade() == null ? null : evento.unidade().getId(), null,
+                                "Execução " + chave + " requer categoria/tarifa única comprovada.");
+                        continue;
+                    }
+                    var item = candidatos.getFirst();
+                    if (item.getPercentual() != null) {
+                        pendente(p, "BASE_SERVICO_PERCENTUAL_AUSENTE", data, null, null,
+                                "Execução " + chave + " requer base monetária explícita.");
+                        continue;
+                    }
+                    try {
+                        var e = fontesPrevisao.comprovar(d.clienteId(), d.armazemId(), evento,
+                                servico, produto);
+                        var cotas = e.cotas().entrySet().stream().sorted(Map.Entry.comparingByKey())
+                                .map(c -> new br.com.rodogarcia.wms.dto.FatoServicoDto.Cota(
+                                        c.getKey(), c.getValue())).toList();
+                        var valor = precificar(d.clienteId(), d.armazemId(),
+                                new FonteServico(null, servico.getId(), chave, e.instante(),
+                                        e.quantidade(), item.getCategoria(), null, cotas), data, p);
+                        memoria.add(valor);
+                        if (valor.valor() != null)
+                            subtotais.merge(servico.getId(), valor.valor(), BigDecimal::add);
+                    } catch (RegraNegocioException ex) {
+                        pendente(p, ex.getCodigo(), data,
+                                evento.unidade() == null ? null : evento.unidade().getId(), null,
+                                "Execução " + chave + ": " + ex.getMessage());
+                    }
+                }
+            }
+        }
+    }
+
+    private record FonteServico(Long id, Long servicoId, String chave, Instant instante,
+            BigDecimal quantidade, String categoria, BigDecimal valorBase,
+            List<br.com.rodogarcia.wms.dto.FatoServicoDto.Cota> cotas) {}
+
     private CalculoCobrancaDto.Servico servico(
-            Long cliente,
-            Long armazem,
-            FatoServico f,
-            LocalDate data,
+            Long cliente, Long armazem, FatoServico f, LocalDate data,
+            List<CalculoCobrancaDto.Pendencia> p) {
+        var cotas = rateios.findByFatoIdOrderByNotaIdAsc(f.getId()).stream()
+                .map(c -> new br.com.rodogarcia.wms.dto.FatoServicoDto.Cota(
+                        c.getNota().getId(), c.getCota())).toList();
+        return precificar(cliente, armazem, new FonteServico(f.getId(), f.getServico().getId(),
+                f.getChaveFato(), f.getExecutadoEm(), f.getQuantidade(), f.getCategoria(),
+                f.getValorBase(), cotas), data, p);
+    }
+
+    private CalculoCobrancaDto.Servico precificar(
+            Long cliente, Long armazem, FonteServico f, LocalDate data,
             List<CalculoCobrancaDto.Pendencia> p) {
         var t = tabela(cliente, armazem, data, p);
-        var i = itemServico(t, f.getServico().getId(), f.getCategoria());
+        var i = itemServico(t, f.servicoId(), f.categoria());
         if (i == null)
             pendente(
                     p,
                     "TARIFA_SERVICO_AUSENTE",
                     data,
                     null,
-                    f.getId(),
+                    f.id(),
                     "Tarifa/categoria vigente no instante executado não configurada.");
         BigDecimal bruto =
                 i == null
                         ? null
                         : i.getPercentual() == null
-                                ? f.getQuantidade().multiply(i.getPreco())
-                                : f.getValorBase() == null
+                                ? f.quantidade().multiply(i.getPreco())
+                                : f.valorBase() == null
                                         ? null
-                                        : f.getValorBase()
+                                        : f.valorBase()
                                                 .multiply(i.getPercentual())
                                                 .divide(CEM)
-                                                .multiply(f.getQuantidade());
+                                                .multiply(f.quantidade());
         BigDecimal valor = bruto == null ? null : moeda(bruto);
         var parcelas = new ArrayList<CalculoCobrancaDto.Parcela>();
-        var cotas = rateios.findByFatoIdOrderByNotaIdAsc(f.getId());
-        BigDecimal soma = cotas.stream().map(c -> c.getCota()).reduce(ZERO, BigDecimal::add);
+        var cotas = f.cotas();
+        BigDecimal soma = cotas.stream().map(c -> c.cota()).reduce(ZERO, BigDecimal::add);
         if (soma.signum() == 0) {
             pendente(
-                    p, "RATEIO_INSUFICIENTE", data, null, f.getId(), "Fato sem parcelas por nota.");
+                    p, "RATEIO_INSUFICIENTE", data, null, f.id(), "Fato sem parcelas por nota.");
             valor = null;
         }
         BigDecimal restante = valor;
@@ -1293,22 +1412,22 @@ public class CalculoCobrancaService {
                             ? null
                             : n == cotas.size() - 1
                                     ? restante
-                                    : valor.multiply(c.getCota())
+                                    : valor.multiply(c.cota())
                                             .divide(soma, 2, RoundingMode.DOWN);
             if (v != null) restante = restante.subtract(v);
-            parcelas.add(new CalculoCobrancaDto.Parcela(c.getNota().getId(), c.getCota(), v));
+            parcelas.add(new CalculoCobrancaDto.Parcela(c.notaId(), c.cota(), v));
         }
         return new CalculoCobrancaDto.Servico(
-                f.getId(),
-                f.getServico().getId(),
-                f.getChaveFato(),
-                f.getExecutadoEm(),
+                f.id(),
+                f.servicoId(),
+                f.chave(),
+                f.instante(),
                 t == null ? null : t.getId(),
                 i == null ? null : i.getId(),
-                f.getQuantidade(),
+                f.quantidade(),
                 i == null ? null : i.getPreco(),
                 i == null ? null : i.getPercentual(),
-                f.getValorBase(),
+                f.valorBase(),
                 valor,
                 bruto,
                 List.copyOf(parcelas));

@@ -6,6 +6,7 @@ import {
     useInformationPopup,
 } from "../src/components/information/InformationPopup";
 import { information, metricInformation } from "../src/content/information";
+import { Dialog } from "../src/components/layout/Dialog";
 
 afterEach(() => vi.useRealTimers());
 const tick = (ms: number) => act(() => vi.advanceTimersByTime(ms));
@@ -75,6 +76,71 @@ it("mantém somente uma explicação aberta e fecha com Escape sem tirar o foco"
     fireEvent.keyDown(window, { key: "Escape" });
     expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
     expect(buttons[1]).toHaveFocus();
+});
+
+it("mantém a dica no diálogo de origem e Escape fecha somente a explicação", () => {
+    const onClose = vi.fn();
+    const keyDown = vi.fn();
+    render(
+        <div onKeyDown={keyDown}>
+            <Dialog title="Registrar ocorrência" onClose={onClose}>
+                <InformationHint topic="free" />
+                <input aria-label="Operador" />
+            </Dialog>
+        </div>,
+    );
+    const dialog = screen.getByRole("dialog");
+    const button = screen.getByRole("button", {
+        name: `Informações sobre ${information.free.title}`,
+    });
+    act(() => button.focus());
+    const tip = screen.getByRole("tooltip");
+    expect(dialog).toContainElement(tip);
+    expect(button).toHaveAttribute("aria-describedby", tip.id);
+    expect(button).toHaveFocus();
+
+    const escape = new KeyboardEvent("keydown", {
+        key: "Escape",
+        bubbles: true,
+        cancelable: true,
+    });
+    fireEvent(button, escape);
+    expect(escape.defaultPrevented).toBe(true);
+    expect(keyDown).not.toHaveBeenCalled();
+    expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
+    expect(dialog).toBeInTheDocument();
+    expect(onClose).not.toHaveBeenCalled();
+    expect(button).toHaveFocus();
+    expect(button).not.toHaveAttribute("aria-describedby");
+
+    fireEvent.click(button);
+    expect(screen.getByRole("tooltip")).toBeInTheDocument();
+    fireEvent.pointerDown(screen.getByLabelText("Operador"));
+    expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
+    expect(onClose).not.toHaveBeenCalled();
+
+    fireEvent(dialog, new Event("cancel", { cancelable: true }));
+    expect(onClose).toHaveBeenCalledTimes(1);
+});
+
+it("usa o diálogo mais próximo e mantém as dicas da página no body", () => {
+    render(
+        <>
+            <dialog open aria-label="Diálogo externo">
+                <dialog open aria-label="Diálogo interno">
+                    <InformationHint topic="free" />
+                </dialog>
+            </dialog>
+            <InformationHint topic="occupied" />
+        </>,
+    );
+    const buttons = screen.getAllByRole("button");
+    fireEvent.click(buttons[0]);
+    const inner = screen.getByRole("dialog", { name: "Diálogo interno" });
+    expect(screen.getByRole("tooltip").parentElement).toBe(inner);
+    fireEvent.click(buttons[1]);
+    expect(screen.getAllByRole("tooltip")).toHaveLength(1);
+    expect(screen.getByRole("tooltip").parentElement).toBe(document.body);
 });
 
 it("preserva o clique do atalho e não dispara sua ação ao focar", () => {

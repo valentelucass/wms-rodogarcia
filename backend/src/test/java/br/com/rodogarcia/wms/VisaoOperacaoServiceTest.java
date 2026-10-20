@@ -24,6 +24,7 @@ import br.com.rodogarcia.wms.repositories.VisaoOperacaoRepository;
 import br.com.rodogarcia.wms.services.AcessoService;
 import br.com.rodogarcia.wms.services.IndicadorEstoqueService;
 import br.com.rodogarcia.wms.services.VisaoOperacaoService;
+import br.com.rodogarcia.wms.services.PrevisaoFaturamentoService;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
@@ -56,6 +57,7 @@ class VisaoOperacaoServiceTest {
                         armazens,
                         acesso,
                         valores,
+                        mock(PrevisaoFaturamentoService.class),
                         Clock.fixed(Instant.parse("2026-10-09T12:00:00Z"), ZoneOffset.UTC));
         var d = service.consultar(1L, 2L, "America/Sao_Paulo", "X", "OCUPADO", 0, 100);
         assertThat(d.ocupacao()).isEqualByComparingTo("3");
@@ -106,6 +108,7 @@ class VisaoOperacaoServiceTest {
                         mock(ArmazemRepository.class),
                         acesso,
                         mock(IndicadorEstoqueService.class),
+                        mock(PrevisaoFaturamentoService.class),
                         Clock.systemUTC());
         var d = service.detalhe(10L);
         assertThat(d.conteudoRestrito()).isTrue();

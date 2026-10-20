@@ -36,6 +36,7 @@ public class VisaoOperacaoService {
     private final ArmazemRepository armazens;
     private final AcessoService acesso;
     private final IndicadorEstoqueService indicadores;
+    private final PrevisaoFaturamentoService previsoes;
     private final Clock clock;
 
     public VisaoOperacaoService(
@@ -44,12 +45,14 @@ public class VisaoOperacaoService {
             ArmazemRepository armazens,
             AcessoService acesso,
             IndicadorEstoqueService indicadores,
+            PrevisaoFaturamentoService previsoes,
             Clock clock) {
         this.repository = repository;
         this.clientes = clientes;
         this.armazens = armazens;
         this.acesso = acesso;
         this.indicadores = indicadores;
+        this.previsoes = previsoes;
         this.clock = clock;
     }
 
@@ -189,6 +192,7 @@ public class VisaoOperacaoService {
                 true,
                 financeiro,
                 competencia.toString(),
+                financeiro ? previsoes.consultar(cs, as, agora, zona) : null,
                 new PaginaResponse<>(
                         mapa,
                         pagina,

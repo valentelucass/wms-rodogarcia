@@ -2054,7 +2054,45 @@ export interface VisaoOperacaoDto_Resumo {
   faturamentoParcial: boolean;
   financeiroPermitido: boolean;
   competencia: string;
+  previsaoFaturamento: VisaoOperacaoDto_PrevisaoFaturamento | null;
   mapa: PaginaResponse<VisaoOperacaoDto_Posicao>;
+}
+export interface VisaoOperacaoDto_PrevisaoFaturamento {
+  competencia: string;
+  referenciaEm: string;
+  moeda: string | null;
+  incluiDiaAtual: boolean;
+  completo: boolean;
+  conhecido: string | null;
+  total: string | null;
+  periodos: Array<VisaoOperacaoDto_PeriodoPrevisao>;
+  pendencias: Array<VisaoOperacaoDto_PendenciaPrevisao>;
+}
+export interface VisaoOperacaoDto_PeriodoPrevisao {
+  clienteId: string | null;
+  armazemId: string | null;
+  contratoId: string | null;
+  moeda: string | null;
+  fuso: string | null;
+  cicloInicio: string | null;
+  cicloFimExclusivo: string | null;
+  apuradoInicio: string | null;
+  apuradoFimExclusivo: string | null;
+  incluiDiaAtual: boolean;
+  subtotalConhecido: string | null;
+  minimoCalculado: string | null;
+  grisCalculado: string | null;
+  total: string | null;
+  pendencias: Array<CalculoCobrancaDto_Pendencia>;
+}
+export interface VisaoOperacaoDto_PendenciaPrevisao {
+  clienteId: string | null;
+  armazemId: string | null;
+  codigo: string | null;
+  data: string | null;
+  unidadeId: string | null;
+  fatoId: string | null;
+  detalhe: string | null;
 }
 export interface VisaoOperacaoDto_Posicao {
   id: string;

@@ -131,7 +131,7 @@ export const information = {
     contingencyDependencies: {
         title: "Dependências do fato",
         description:
-            "Informe as identidades dos outros fatos dos quais este registro depende. Use a identidade da planilha, sem substituir pelo ID de um cadastro.",
+            "Informe as identidades dos outros fatos dos quais este registro depende. Copie a identidade da ocorrência já registrada no WMS; para registros anteriores, use a identidade original da planilha. Não substitua pelo ID de um cadastro.",
     },
     contingencyRegistrationReason: {
         title: "Justificativa do registro",
@@ -188,8 +188,12 @@ export const information = {
             "Registre os fatos manualmente depois que a conexão for restabelecida. Não há sincronização automática offline.",
         facts: [
             {
+                label: "Identificação",
+                value: "A identidade do fato é gerada automaticamente e fica disponível na ocorrência registrada. Use essa identificação para informar dependências de outras ocorrências.",
+            },
+            {
                 label: "Dados do fato",
-                value: "Informe identidade, instante real, operador, fonte e dependências. Para CHEGADA, inclua os dados específicos da chegada.",
+                value: "Informe instante real, operador e dependências. Para CHEGADA, inclua os dados específicos da chegada. A origem do registro é preenchida pelo sistema.",
             },
             {
                 label: "Conciliação",
@@ -413,9 +417,11 @@ export const information = {
             "Pedidos de saída que ainda aguardam conclusão. Inclui etapas de elaboração, reserva e preparação; não representa somente pedidos prontos para retirada.",
     },
     billing: {
-        title: "Faturamento do mês",
+        title: "Faturamento previsto do mês",
         description:
-            "Visão parcial das NFS-e registradas na competência exibida e no contexto permitido. Não equivale ao valor do estoque nem a todos os serviços ainda por faturar.",
+            "Prévia automática dos serviços e da ocupação apurados pelo WMS, com as tabelas e os ciclos contratados de cada cliente. A competência é o mês do último dia incluído no ciclo. O período aberto considera somente o que foi apurado até a referência da consulta. Pendências deixam o total indisponível; o valor conhecido é identificado como parcial. Mínimo e GRIS são calculados no backend para cada ciclo. A consulta não fecha cobranças nem emite NFS-e.",
+        footer:
+            "Os valores são estimativas até o fechamento. Na prévia incompleta, o valor conhecido reúne somente os subtotais dos serviços já calculados; tarifas pendentes e ajustes do ciclo ainda podem alterar o total.",
     },
     availableUnits: {
         title: "Unidades disponíveis",
