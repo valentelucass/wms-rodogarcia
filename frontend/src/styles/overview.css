@@ -85,6 +85,15 @@
 .billing-preview-details .result-section {
     display: grid;
     gap: var(--og-space-3);
+    margin: 0;
+}
+.billing-preview-details > section {
+    display: grid;
+    gap: var(--og-space-3);
+}
+.billing-preview-details h3,
+.billing-preview-details h4 {
+    margin: 0;
 }
 .billing-preview-details details > .record {
     margin-top: var(--og-space-3);

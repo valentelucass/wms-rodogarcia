@@ -85,6 +85,7 @@ function UnitLabel({
               }).format(date)
             : "Não informada";
     const notes = Array.isArray(data.notas) ? data.notas.filter(isObject) : [];
+    const lot = String(data.lote ?? "").trim();
     const ready = validCode && Boolean(qr) && Boolean(bars);
     return (
         <section
@@ -116,6 +117,18 @@ function UnitLabel({
                             <strong className="label-description">
                                 {display(data.descricaoProduto)}
                             </strong>
+                            <div
+                                className={
+                                    "label-lot" +
+                                    (!lot ? " label-lot--absent" : "")
+                                }
+                            >
+                                L:{" "}
+                                {lot ||
+                                    (data.controlaLote === false
+                                        ? "Não controlado"
+                                        : "Não informado")}
+                            </div>
                             <div className="label-client">
                                 {display(data.nomeCliente)}
                             </div>

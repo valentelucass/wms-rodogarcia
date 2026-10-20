@@ -339,7 +339,7 @@ export const information = {
     unitLabel: {
         title: "Etiqueta da unidade",
         description:
-            "Barras e QR identificam o mesmo UUID. A data em destaque é a chegada física; a quantidade é o total do produto nas notas de origem. A numeração considera as unidades ativas do pedido no momento da consulta. Reimprimir não cria estoque. Confira tamanho, leitura e substituição física na impressora.",
+            "Barras e QR identificam o mesmo UUID. O lote é o informado na unidade; ausência ou falta de controle são identificadas, sem gerar um lote. A data em destaque é a chegada física; a quantidade é o total do produto nas notas de origem. A numeração considera as unidades ativas do pedido no momento da consulta. Reimprimir não cria estoque. Confira tamanho, leitura e substituição física na impressora.",
     },
     confirmedEntries: {
         title: "Distribuição das entradas conferidas",
@@ -419,9 +419,9 @@ export const information = {
     billing: {
         title: "Faturamento previsto do mês",
         description:
-            "Prévia automática dos serviços e da ocupação apurados pelo WMS, com as tabelas e os ciclos contratados de cada cliente. A competência é o mês do último dia incluído no ciclo. O período aberto considera somente o que foi apurado até a referência da consulta. Pendências deixam o total indisponível; o valor conhecido é identificado como parcial. Mínimo e GRIS são calculados no backend para cada ciclo. A consulta não fecha cobranças nem emite NFS-e.",
+            "Prévia automática dos serviços e da ocupação apurados pelo WMS, com as tabelas e os ciclos contratados de cada cliente. A competência é o mês do último dia incluído no ciclo. O período aberto considera o que foi apurado até a referência da consulta. Pendências deixam o total indisponível; o valor conhecido é parcial. Mínimo e GRIS seguem cada ciclo contratado. A consulta não fecha cobranças nem emite NFS-e.",
         footer:
-            "Os valores são estimativas até o fechamento. Na prévia incompleta, o valor conhecido reúne somente os subtotais dos serviços já calculados; tarifas pendentes e ajustes do ciclo ainda podem alterar o total.",
+            "Valores estimados até o fechamento. Na prévia incompleta, o valor conhecido reúne somente os subtotais apurados; tarifas pendentes e ajustes do ciclo podem alterar o total.",
     },
     availableUnits: {
         title: "Unidades disponíveis",

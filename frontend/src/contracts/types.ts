@@ -2054,7 +2054,6 @@ export interface VisaoOperacaoDto_Resumo {
   faturamentoParcial: boolean;
   financeiroPermitido: boolean;
   competencia: string;
-  previsaoFaturamento: VisaoOperacaoDto_PrevisaoFaturamento | null;
   mapa: PaginaResponse<VisaoOperacaoDto_Posicao>;
 }
 export interface VisaoOperacaoDto_PrevisaoFaturamento {
@@ -2318,5 +2317,6 @@ export interface ApiContracts {
   "UnidadeLogisticaController.lerCodigo": { request: undefined; response: UnidadeLogisticaDto_Detalhe };
   "UnidadeLogisticaController.etiqueta": { request: undefined; response: UnidadeLogisticaDto_Etiqueta };
   "VisaoOperacaoController.consultar": { request: undefined; response: VisaoOperacaoDto_Resumo };
+  "VisaoOperacaoController.preverFaturamento": { request: undefined; response: VisaoOperacaoDto_PrevisaoFaturamento };
   "VisaoOperacaoController.detalhe": { request: undefined; response: VisaoOperacaoDto_Detalhe };
 }

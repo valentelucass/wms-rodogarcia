@@ -1,5 +1,11 @@
 # Decisões e pendências do WMS Rodogarcia
 
+## BE14-FAT-AUTO01 / FE02-FAT-AUTO01 / FE06-LOTE01 — correção autorizada do faturamento e lote, 20/10/2026
+
+Lucas esclareceu que espera acompanhar o valor gerado pelas entradas/saídas, armazenagem e GRIS conforme as tabelas/contratos dos clientes, e autorizou verificar, testar e corrigir; depois, incluir o número do LOTE na etiqueta. A implementação anterior limitada às NFS-e não atende a essa expectativa. Essa limitação era uma escolha técnica documentada, não aprovação expressa localizada do usuário para a fórmula fiscal.
+
+A correção usa prévia somente leitura no backend, reaproveitando o motor e projetando execuções físicas comprovadas ainda não lançadas, sem criar fatos financeiros ao abrir o Início. Fatos confirmados/anulados prevalecem sobre a projeção da mesma execução. Tarifas/contratos/vigências e regras de mínimo/GRIS continuam configurados; ausência gera pendência. **Escolha de implementação identificada:** competência pelo mês do último dia incluído do ciclo contratual (fim exclusivo menos um dia), sem novo rateio mensal de mínimo/GRIS; períodos reais e referência ficam disponíveis no card. O resultado é estimativa, sem emitir NFS-e ou alterar fechamentos. A etiqueta usa o lote já existente na unidade, sem geração ou preenchimento fictício. [Andamento](../STATES.md#be14-fat-auto01--fe02-fat-auto01--fe06-lote01--previsão-de-faturamento-e-lote-na-etiqueta-20102026).
+
 ## FE12-CONTING-AUTO01 — identificação e origem internas no cadastro, 20/10/2026
 
 Lucas pediu identidade automática, retirada do campo Fonte e correção das dicas atrás do modal. A interface gera uma identidade por nova ocorrência e conserva a mesma nos retornos/reenvios; a identidade registrada continua disponível para as dependências. A origem ausente recebe a descrição factual Registro manual na tela de contingência do WMS. O contrato existente continua recebendo identidade/fonte, sem alterar hash, histórico ou conciliação. Dicas ficam na camada do diálogo e Escape fecha somente a dica. [Definição e conferência](design-system/etapa-06.md#contingência-dicas-e-identificação--fe12-conting-auto01).

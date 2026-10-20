@@ -32,7 +32,6 @@ public final class VisaoOperacaoDto {
             boolean faturamentoParcial,
             boolean financeiroPermitido,
             @NotNull String competencia,
-            PrevisaoFaturamento previsaoFaturamento,
             @NotNull PaginaResponse<Posicao> mapa) {}
 
     public record PrevisaoFaturamento(

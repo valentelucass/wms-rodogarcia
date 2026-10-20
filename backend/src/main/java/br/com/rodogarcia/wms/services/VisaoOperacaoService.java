@@ -192,13 +192,26 @@ public class VisaoOperacaoService {
                 true,
                 financeiro,
                 competencia.toString(),
-                financeiro ? previsoes.consultar(cs, as, agora, zona) : null,
                 new PaginaResponse<>(
                         mapa,
                         pagina,
                         tamanho,
                         total,
                         Math.toIntExact((total + tamanho - 1) / tamanho)));
+    }
+
+    /** Consulta independente do mapa: custo/erro da prévia não bloqueia os indicadores físicos. */
+    public VisaoOperacaoDto.PrevisaoFaturamento preverFaturamento(
+            @Positive Long clienteId, @Positive Long armazemId, @NotBlank String fuso) {
+        acesso.exigirSupervisor();
+        ZoneId zona;
+        try {
+            zona = ZoneId.of(fuso);
+        } catch (RuntimeException e) {
+            throw CadastroSupport.invalido("Informe fuso civil válido.");
+        }
+        return previsoes.consultar(
+                clientes(clienteId), armazens(armazemId), Instant.now(clock), zona);
     }
 
     private VisaoOperacaoDto.Posicao posicao(

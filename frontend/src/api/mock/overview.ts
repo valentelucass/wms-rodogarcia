@@ -4,6 +4,7 @@ import type {
     VisaoOperacaoDto_Posicao,
     VisaoOperacaoDto_Resumo,
     VisaoOperacaoDto_Detalhe,
+    VisaoOperacaoDto_PrevisaoFaturamento,
 } from "../../contracts/types";
 import { demoCode } from "./constants";
 
@@ -117,39 +118,6 @@ export function overviewExample(
         saidasAbertas: own && occupied ? "1" : "0",
         faturamentoMes: financial ? (empty ? "0.00" : "2345.00") : null,
         faturamentoParcial: true,
-        previsaoFaturamento: financial
-            ? {
-                  competencia: "2026-10",
-                  referenciaEm: "2026-10-20T15:25:30Z",
-                  incluiDiaAtual: true,
-                  moeda: "BRL",
-                  completo: true,
-                  conhecido: empty ? "0.00" : "2950.00",
-                  total: empty ? "0.00" : "2950.00",
-                  periodos: empty
-                      ? []
-                      : [
-                            {
-                                clienteId: String(r.query.clienteId ?? "1"),
-                                armazemId: String(r.query.armazemId ?? "1"),
-                                contratoId: "1",
-                                moeda: "BRL",
-                                fuso: "America/Sao_Paulo",
-                                cicloInicio: "2026-10-01",
-                                cicloFimExclusivo: "2026-11-01",
-                                apuradoInicio: "2026-10-01",
-                                apuradoFimExclusivo: "2026-10-20",
-                                incluiDiaAtual: true,
-                                subtotalConhecido: "2800.00",
-                                minimoCalculado: "100.00",
-                                grisCalculado: "50.00",
-                                total: "2950.00",
-                                pendencias: [],
-                            },
-                        ],
-                  pendencias: [],
-              }
-            : null,
         financeiroPermitido: financial,
         competencia: new Date().toISOString().slice(0, 7),
         mapa: {
@@ -159,5 +127,43 @@ export function overviewExample(
             totalItens: String(filtered.length),
             totalPaginas: Math.ceil(filtered.length / tamanho),
         },
+    };
+}
+
+/** Prévia pronta para apresentação; nenhum cálculo financeiro é simulado aqui. */
+export function overviewPreviewExample(
+    r: Request,
+    empty = false,
+): VisaoOperacaoDto_PrevisaoFaturamento {
+    return {
+        competencia: "2026-10",
+        referenciaEm: "2026-10-20T15:25:30Z",
+        incluiDiaAtual: true,
+        moeda: "BRL",
+        completo: true,
+        conhecido: empty ? "0.00" : "2950.00",
+        total: empty ? "0.00" : "2950.00",
+        periodos: empty
+            ? []
+            : [
+                  {
+                      clienteId: String(r.query.clienteId ?? "1"),
+                      armazemId: String(r.query.armazemId ?? "1"),
+                      contratoId: "1",
+                      moeda: "BRL",
+                      fuso: "America/Sao_Paulo",
+                      cicloInicio: "2026-10-01",
+                      cicloFimExclusivo: "2026-11-01",
+                      apuradoInicio: "2026-10-01",
+                      apuradoFimExclusivo: "2026-10-20",
+                      incluiDiaAtual: true,
+                      subtotalConhecido: "2800.00",
+                      minimoCalculado: "100.00",
+                      grisCalculado: "50.00",
+                      total: "2950.00",
+                      pendencias: [],
+                  },
+              ],
+        pendencias: [],
     };
 }

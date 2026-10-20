@@ -29,20 +29,26 @@ public class VisaoOperacaoRepository {
     /** Intervalos reais usados para conferir cobertura contratual da atividade. */
     public List<AtividadeFinanceira> atividadesPrevisao(
             List<Long> clientes, List<Long> armazens, Instant inicio, Instant referencia) {
-        var consultas = List.of(
-                "select p.cliente.id,p.armazem.id,u.criadaEm,(select max(f.ocorridaEm) from FatoPermanencia f where f.unidade.id=u.id and f.quantidadeDepois=0 and f.equivalenciaDepois=0 and f.tipo in ('RETIRADA','AJUSTE_ESTOQUE') and f.ocorridaEm<=:referencia) from UnidadeLogistica u join u.pedido p where p.cliente.id in :clientes and p.armazem.id in :armazens and u.criadaEm<=:referencia and (u.ativa=true or exists(select f.id from FatoPermanencia f where f.unidade.id=u.id and f.ocorridaEm>=:inicio and f.ocorridaEm<=:referencia))",
-                "select f.cliente.id,f.armazem.id,f.executadoEm,f.executadoEm from FatoServico f where f.cliente.id in :clientes and f.armazem.id in :armazens and f.situacao='CONFIRMADO' and f.executadoEm>=:inicio and f.executadoEm<=:referencia",
-                "select p.cliente.id,p.armazem.id,r.retiradaEm,r.retiradaEm from RetiradaSaida r join r.pedido p where p.cliente.id in :clientes and p.armazem.id in :armazens and r.retiradaEm>=:inicio and r.retiradaEm<=:referencia",
-                "select p.cliente.id,p.armazem.id,e.itemChegada.chegada.chegouEm,e.unitizadaEm from EntradaConferida e join e.itemChegada.chegada.pedido p where p.cliente.id in :clientes and p.armazem.id in :armazens and e.efetivadaEm<=:referencia and (e.unitizadaEm is null or e.unitizadaEm>=:inicio)");
+        var consultas =
+                List.of(
+                        "select p.cliente.id,p.armazem.id,u.criadaEm,(select max(f.ocorridaEm) from FatoPermanencia f where f.unidade.id=u.id and f.quantidadeDepois=0 and f.equivalenciaDepois=0 and f.tipo in ('RETIRADA','AJUSTE_ESTOQUE') and f.ocorridaEm<=:referencia) from UnidadeLogistica u join u.pedido p where p.cliente.id in :clientes and p.armazem.id in :armazens and u.criadaEm<=:referencia and (u.ativa=true or exists(select f.id from FatoPermanencia f where f.unidade.id=u.id and f.ocorridaEm>=:inicio and f.ocorridaEm<=:referencia))",
+                        "select f.cliente.id,f.armazem.id,f.executadoEm,f.executadoEm from FatoServico f where f.cliente.id in :clientes and f.armazem.id in :armazens and f.situacao='CONFIRMADO' and f.executadoEm>=:inicio and f.executadoEm<=:referencia",
+                        "select p.cliente.id,p.armazem.id,r.retiradaEm,r.retiradaEm from RetiradaSaida r join r.pedido p where p.cliente.id in :clientes and p.armazem.id in :armazens and r.retiradaEm>=:inicio and r.retiradaEm<=:referencia",
+                        "select p.cliente.id,p.armazem.id,e.itemChegada.chegada.chegouEm,e.unitizadaEm from EntradaConferida e join e.itemChegada.chegada.pedido p where p.cliente.id in :clientes and p.armazem.id in :armazens and e.efetivadaEm<=:referencia and (e.unitizadaEm is null or e.unitizadaEm>=:inicio)");
         var resultado = new java.util.ArrayList<AtividadeFinanceira>();
         for (var consulta : consultas)
-            for (var linha : em.createQuery(consulta, Object[].class)
-                    .setParameter("clientes", clientes).setParameter("armazens", armazens)
-                    .setParameter("inicio", inicio).setParameter("referencia", referencia)
-                    .getResultList())
-                resultado.add(new AtividadeFinanceira(
-                        new ContextoFinanceiro((Long) linha[0], (Long) linha[1]),
-                        (Instant) linha[2], (Instant) linha[3]));
+            for (var linha :
+                    em.createQuery(consulta, Object[].class)
+                            .setParameter("clientes", clientes)
+                            .setParameter("armazens", armazens)
+                            .setParameter("inicio", inicio)
+                            .setParameter("referencia", referencia)
+                            .getResultList())
+                resultado.add(
+                        new AtividadeFinanceira(
+                                new ContextoFinanceiro((Long) linha[0], (Long) linha[1]),
+                                (Instant) linha[2],
+                                (Instant) linha[3]));
         return List.copyOf(resultado);
     }
 

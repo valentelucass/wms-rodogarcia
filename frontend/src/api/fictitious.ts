@@ -13,7 +13,7 @@ import { exampleAudit } from "../modules/relatorios/exampleAudit";
 /** Deliberately separate example responder. It demonstrates UI states, not warehouse rules. */
 import { isObject, canPresent, type Perfil } from "../contracts/runtime";
 import { dashboardExample } from "./mock/dashboard";
-import { overviewExample } from "./mock/overview";
+import { overviewExample, overviewPreviewExample } from "./mock/overview";
 import {
     toWire,
     parseResponse,
@@ -166,7 +166,9 @@ export class FictitiousTransport implements Transport {
         data = exampleAudit(r, data);
         if (r.endpoint.id === "DashboardController.consultar")
             data = dashboardExample(r, this.perfil, this.scenario === "vazio");
-        if (r.endpoint.id.startsWith("VisaoOperacaoController."))
+        if (r.endpoint.id === "VisaoOperacaoController.preverFaturamento")
+            data = overviewPreviewExample(r, this.scenario === "vazio");
+        else if (r.endpoint.id.startsWith("VisaoOperacaoController."))
             data = overviewExample(r, this.perfil, this.scenario === "vazio");
         if (this.scenario === "vazio" && r.endpoint.method === "GET") {
             if (Array.isArray(data)) data = [];

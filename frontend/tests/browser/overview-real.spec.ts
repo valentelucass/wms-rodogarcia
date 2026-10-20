@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { origin } from "./environment";
 import { overviewExample } from "../../src/api/mock/overview";
+import { overviewPreviewExample } from "../../src/api/mock/overview";
 import type { Values } from "../../src/contracts/runtime";
 import type { Request } from "../../src/api/client";
 import { fulfillOverviewRead } from "./overview-fixture";
@@ -131,6 +132,25 @@ test("três correções: nomes, mapa completo, detalhes e destino sem escrita au
                     status: 503,
                     json: { detail: "Falha de prova isolada", codigo: "FALHA" },
                 });
+            if (
+                url.pathname === "/api/v1/visao-operacao/previsao-faturamento"
+            ) {
+                const data = overviewPreviewExample(
+                    {
+                        endpoint: endpoint(
+                            "VisaoOperacaoController.preverFaturamento",
+                        ),
+                        params: {},
+                        query: Object.fromEntries(url.searchParams),
+                        signal: new AbortController().signal,
+                    },
+                    empty,
+                );
+                return route.fulfill({
+                    contentType: "application/json",
+                    body: JSON.stringify(wire(data)),
+                });
+            }
             const detail = url.pathname.includes("/posicoes/");
             const e = endpoint(
                 detail

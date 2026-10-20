@@ -61,6 +61,8 @@ class EtiquetaLayoutTest {
         when(u.getProduto().getId()).thenReturn(11L);
         when(u.getProduto().getSku()).thenReturn("600366");
         when(u.getProduto().getDescricao()).thenReturn("Papel");
+        when(u.getProduto().getControlaLote()).thenReturn(true);
+        when(u.getLote()).thenReturn("8CB2654A");
         when(u.getPedido().getCliente().getNome()).thenReturn("Cliente");
         when(u.getQuantidade()).thenReturn(BigDecimal.TEN);
         when(unidades.findByCodigo(codigo.toString())).thenReturn(Optional.of(u));
@@ -80,6 +82,8 @@ class EtiquetaLayoutTest {
         when(usuarios.buscarNome("autor-historico")).thenReturn(Optional.of("Roberto Carlos"));
         var etiqueta = service.consultar(codigo);
         assertThat(etiqueta.codigoLeitura()).isEqualTo(codigo.toString());
+        assertThat(etiqueta.controlaLote()).isTrue();
+        assertThat(etiqueta.lote()).isEqualTo("8CB2654A");
         assertThat(etiqueta.notas())
                 .extracting(UnidadeLogisticaDto.NotaEtiqueta::numero)
                 .containsExactly(123L, 456L);

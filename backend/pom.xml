@@ -29,7 +29,7 @@
         <wms.bootstrap.skip>true</wms.bootstrap.skip>
         <wms.bootstrap.initSql>THROW 51021, 'Guarda do bootstrap manual ausente. Use o launcher WMS.', 1;</wms.bootstrap.initSql>
         <wms.tests.mode>SQL_PROOF_REQUIRED</wms.tests.mode>
-        <test>Sql01ObservationConfigTest,Sql01JdbcObservationTest,SqlServerConfigTest,SqlServerLocalITTest,SqlServerUpdateMappingTest,Sql01MavenPolicyTest,CodigoInternoTest,ModeloEnderecosTest,NfeDocumentoServiceTest,NfeBobinasTest,NfeSkuTest,CadastrosEdicaoTest,EtiquetaLayoutTest,CapacidadeSupportTest,TabelaCobrancaEdicaoTest</test>
+        <test>Sql01ObservationConfigTest,Sql01JdbcObservationTest,SqlServerConfigTest,SqlServerLocalITTest,SqlServerUpdateMappingTest,Sql01MavenPolicyTest,CodigoInternoTest,ModeloEnderecosTest,NfeDocumentoServiceTest,NfeBobinasTest,NfeSkuTest,CadastrosEdicaoTest,EtiquetaLayoutTest,CapacidadeSupportTest,TabelaCobrancaEdicaoTest,VisaoOperacaoServiceTest,PrevisaoFaturamentoTest,PrevisaoMotorTest,PrevisaoFontesTest</test>
     </properties>
     <dependencies>
         <dependency>
@@ -122,7 +122,7 @@
                                 </requireProperty>
                                 <requireProperty>
                                     <property>test</property>
-                                    <regex>(Sql01ObservationConfigTest|Sql01JdbcObservationTest|SqlServerConfigTest|SqlServerLocalITTest|SqlServerUpdateMappingTest|Sql01MavenPolicyTest|CodigoInternoTest|ModeloEnderecosTest|NfeDocumentoServiceTest|NfeBobinasTest|NfeSkuTest|CadastrosEdicaoTest|EtiquetaLayoutTest|CapacidadeSupportTest|TabelaCobrancaEdicaoTest)(,(Sql01ObservationConfigTest|Sql01JdbcObservationTest|SqlServerConfigTest|SqlServerLocalITTest|SqlServerUpdateMappingTest|Sql01MavenPolicyTest|CodigoInternoTest|ModeloEnderecosTest|NfeDocumentoServiceTest|NfeBobinasTest|NfeSkuTest|CadastrosEdicaoTest|EtiquetaLayoutTest|CapacidadeSupportTest|TabelaCobrancaEdicaoTest))*</regex>
+                                    <regex>(Sql01ObservationConfigTest|Sql01JdbcObservationTest|SqlServerConfigTest|SqlServerLocalITTest|SqlServerUpdateMappingTest|Sql01MavenPolicyTest|CodigoInternoTest|ModeloEnderecosTest|NfeDocumentoServiceTest|NfeBobinasTest|NfeSkuTest|CadastrosEdicaoTest|EtiquetaLayoutTest|CapacidadeSupportTest|TabelaCobrancaEdicaoTest|VisaoOperacaoServiceTest|PrevisaoFaturamentoTest|PrevisaoMotorTest|PrevisaoFontesTest)(,(Sql01ObservationConfigTest|Sql01JdbcObservationTest|SqlServerConfigTest|SqlServerLocalITTest|SqlServerUpdateMappingTest|Sql01MavenPolicyTest|CodigoInternoTest|ModeloEnderecosTest|NfeDocumentoServiceTest|NfeBobinasTest|NfeSkuTest|CadastrosEdicaoTest|EtiquetaLayoutTest|CapacidadeSupportTest|TabelaCobrancaEdicaoTest|VisaoOperacaoServiceTest|PrevisaoFaturamentoTest|PrevisaoMotorTest|PrevisaoFontesTest))*</regex>
                                     <message>SQL01: seleção de testes fora da lista sem banco recusada antes do contexto.</message>
                                     <regexMessage>SQL01: -Dtest não pode selecionar persistência/H2 no perfil puro.</regexMessage>
                                 </requireProperty>

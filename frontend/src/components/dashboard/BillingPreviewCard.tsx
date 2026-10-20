@@ -1,12 +1,14 @@
-import { useState } from "react";
-import type { VisaoOperacaoDto_Resumo } from "../../contracts/types";
+import { useEffect, useState } from "react";
+import type { VisaoOperacaoDto_PrevisaoFaturamento } from "../../contracts/types";
+import { ApiError, call, type Transport } from "../../api/client";
+import type { Perfil, Values } from "../../contracts/runtime";
 import { information } from "../../content/information";
 import { useReferenceCatalog } from "../context/ReferenceCatalog";
 import { InformationHint } from "../information/InformationPopup";
 import { Dialog } from "../layout/Dialog";
 import { overviewMoney } from "./overviewFormatting";
 
-type Preview = NonNullable<VisaoOperacaoDto_Resumo["previsaoFaturamento"]>;
+type Preview = VisaoOperacaoDto_PrevisaoFaturamento;
 
 function previewMoney(value: string | null, currency: string | null) {
     if (value == null) return "—";
@@ -32,25 +34,77 @@ function moment(value: string, timeZone: string | null) {
 }
 
 export function BillingPreviewCard({
-    data,
-    loading,
-    error,
+    transport,
+    context,
+    perfil,
+    revision,
 }: {
-    data?: VisaoOperacaoDto_Resumo;
-    loading: boolean;
-    error: boolean;
+    transport: Transport;
+    context: Values;
+    perfil: Perfil;
+    revision: number;
 }) {
     const [detailsOpen, setDetailsOpen] = useState(false);
-    const preview =
-        !loading && !error && data?.financeiroPermitido
-            ? data.previsaoFaturamento
-            : null;
+    const [refresh, setRefresh] = useState(0);
+    const [result, setResult] = useState<{
+        key: string;
+        preview?: Preview | null;
+        error?: string;
+    }>({ key: "" });
+    const permitted = perfil === "SUPERVISOR" || perfil === "GESTOR";
+    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const key = `${revision}/${refresh}/${context.clienteId ?? ""}/${context.armazemId ?? ""}/${perfil}/${timeZone}`;
+    const loading = permitted && result.key !== key;
+    const error = result.key === key ? result.error : undefined;
+    useEffect(() => {
+        if (!permitted) return;
+        const abort = new AbortController();
+        let active = true;
+        setDetailsOpen(false);
+        void call(
+            transport,
+            "VisaoOperacaoController.preverFaturamento",
+            undefined,
+            {},
+            {
+                clienteId: context.clienteId,
+                armazemId: context.armazemId,
+                fuso: timeZone,
+            },
+            abort.signal,
+        )
+            .then((preview) => {
+                if (active) setResult({ key, preview });
+            })
+            .catch((error: unknown) => {
+                if (active)
+                    setResult({
+                        key,
+                        error:
+                            error instanceof ApiError && error.status === 403
+                                ? "Seu acesso não permite consultar a previsão deste contexto."
+                                : "Não foi possível consultar a previsão de faturamento. Atualize para tentar novamente.",
+                    });
+            });
+        return () => {
+            active = false;
+            abort.abort();
+        };
+    }, [
+        transport,
+        permitted,
+        context.clienteId,
+        context.armazemId,
+        timeZone,
+        key,
+    ]);
+    const preview = permitted && !loading && !error ? result.preview : null;
     const pending = preview?.pendencias?.length ?? 0;
     const note = loading
         ? "Consultando prévia…"
-        : error || !data
+        : error
           ? "Prévia indisponível"
-          : !data.financeiroPermitido
+          : !permitted
             ? "Disponível para Supervisor e Gestor"
             : !preview
               ? "Prévia indisponível"
@@ -62,6 +116,7 @@ export function BillingPreviewCard({
             <article
                 className="overview-metric overview-metric--9 overview-billing"
                 aria-label={information.billing.title}
+                aria-busy={loading}
             >
                 <div>
                     <span>{information.billing.title}</span>
@@ -73,6 +128,7 @@ export function BillingPreviewCard({
                         : "—"}
                 </strong>
                 <small>{note}</small>
+                {error && <small role="alert">{error}</small>}
                 {preview && !preview.completo && (
                     <>
                         <small>
@@ -91,8 +147,16 @@ export function BillingPreviewCard({
                         Ver períodos e pendências
                     </button>
                 )}
+                {permitted && error && (
+                    <button
+                        type="button"
+                        onClick={() => setRefresh((value) => value + 1)}
+                    >
+                        Atualizar previsão
+                    </button>
+                )}
             </article>
-            {detailsOpen && preview && data && (
+            {detailsOpen && preview && (
                 <Dialog
                     title="Previsão de faturamento"
                     onClose={() => setDetailsOpen(false)}
@@ -100,7 +164,7 @@ export function BillingPreviewCard({
                     className="billing-preview-dialog"
                     wide
                 >
-                    <PreviewDetails preview={preview} timeZone={data.fuso} />
+                    <PreviewDetails preview={preview} timeZone={timeZone} />
                 </Dialog>
             )}
         </>
@@ -127,7 +191,6 @@ function PreviewDetails({
               `Armazém ${id}`);
     return (
         <div className="billing-preview-details">
-            <p className="muted">{information.billing.description}</p>
             <p className="muted">{information.billing.footer}</p>
             <dl className="record">
                 <div>
@@ -157,23 +220,23 @@ function PreviewDetails({
                         )}
                     </dd>
                 </div>
-                <div>
-                    <dt>
-                        {preview.completo
-                            ? "Valor conhecido"
-                            : "Valor conhecido (parcial)"}
-                    </dt>
-                    <dd>{previewMoney(preview.conhecido, preview.moeda)}</dd>
-                </div>
-                <div>
-                    <dt>Moeda do agregado</dt>
-                    <dd>{preview.moeda ?? "Sem moeda única informada"}</dd>
-                </div>
+                {!preview.completo && (
+                    <div>
+                        <dt>Valor conhecido (parcial)</dt>
+                        <dd>
+                            {previewMoney(preview.conhecido, preview.moeda)}
+                        </dd>
+                    </div>
+                )}
+                {!preview.moeda && (
+                    <div>
+                        <dt>Moeda do agregado</dt>
+                        <dd>{preview.moeda ?? "Sem moeda única informada"}</dd>
+                    </div>
+                )}
             </dl>
             <p className="muted">
-                A competência acompanha o mês do último dia incluído em cada
-                ciclo contratado. A prévia pode reunir ciclos com datas
-                diferentes.
+                A competência segue o último dia de cada ciclo contratado.
             </p>
             <section aria-label="Períodos da previsão">
                 <h3>Períodos</h3>

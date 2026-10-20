@@ -23,8 +23,8 @@ import br.com.rodogarcia.wms.repositories.ClienteRepository;
 import br.com.rodogarcia.wms.repositories.VisaoOperacaoRepository;
 import br.com.rodogarcia.wms.services.AcessoService;
 import br.com.rodogarcia.wms.services.IndicadorEstoqueService;
-import br.com.rodogarcia.wms.services.VisaoOperacaoService;
 import br.com.rodogarcia.wms.services.PrevisaoFaturamentoService;
+import br.com.rodogarcia.wms.services.VisaoOperacaoService;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
@@ -34,12 +34,43 @@ import org.junit.jupiter.api.Test;
 
 class VisaoOperacaoServiceTest {
     @Test
+    void previaIndependenteNaoConsultaMapaNemIndicadoresFisicos() {
+        var repo = mock(VisaoOperacaoRepository.class);
+        var clientes = mock(ClienteRepository.class);
+        var armazens = mock(ArmazemRepository.class);
+        var acesso = mock(AcessoService.class);
+        var valores = mock(IndicadorEstoqueService.class);
+        var previsoes = mock(PrevisaoFaturamentoService.class);
+        when(clientes.existsById(1L)).thenReturn(true);
+        when(armazens.existsById(2L)).thenReturn(true);
+        var agora = Instant.parse("2026-10-20T15:00:00Z");
+        var service =
+                new VisaoOperacaoService(
+                        repo,
+                        clientes,
+                        armazens,
+                        acesso,
+                        valores,
+                        previsoes,
+                        Clock.fixed(agora, ZoneOffset.UTC));
+        service.preverFaturamento(1L, 2L, "America/Sao_Paulo");
+        verify(acesso).exigirSupervisor();
+        verify(acesso).cliente(1L);
+        verify(acesso).armazem(2L);
+        verify(previsoes)
+                .consultar(
+                        List.of(1L), List.of(2L), agora, java.time.ZoneId.of("America/Sao_Paulo"));
+        org.mockito.Mockito.verifyNoInteractions(repo, valores);
+    }
+
+    @Test
     void duasPosicoesDeOitentaArredondamTresPorcentoSemDuplicarUnidadeOuFabricarValor() {
         var repo = mock(VisaoOperacaoRepository.class);
         var clientes = mock(ClienteRepository.class);
         var armazens = mock(ArmazemRepository.class);
         var acesso = mock(AcessoService.class);
         var valores = mock(IndicadorEstoqueService.class);
+        var previsoes = mock(PrevisaoFaturamentoService.class);
         when(clientes.existsById(1L)).thenReturn(true);
         when(armazens.existsById(2L)).thenReturn(true);
         when(acesso.supervisor()).thenReturn(true);
@@ -57,7 +88,7 @@ class VisaoOperacaoServiceTest {
                         armazens,
                         acesso,
                         valores,
-                        mock(PrevisaoFaturamentoService.class),
+                        previsoes,
                         Clock.fixed(Instant.parse("2026-10-09T12:00:00Z"), ZoneOffset.UTC));
         var d = service.consultar(1L, 2L, "America/Sao_Paulo", "X", "OCUPADO", 0, 100);
         assertThat(d.ocupacao()).isEqualByComparingTo("3");
@@ -78,6 +109,7 @@ class VisaoOperacaoServiceTest {
                         List.of(2L),
                         Instant.parse("2026-10-01T03:00:00Z"),
                         Instant.parse("2026-11-01T03:00:00Z"));
+        org.mockito.Mockito.verifyNoInteractions(previsoes);
     }
 
     @Test

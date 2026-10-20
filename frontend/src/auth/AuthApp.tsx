@@ -382,6 +382,7 @@ function Workspace({
                             key={accessScope}
                             transport={transport}
                             context={context}
+                            perfil={accessUser.perfil}
                             onScope={applyContext}
                             onAddress={(p) => {
                                 applyContext({

@@ -38,6 +38,38 @@ const receipt: Receipt = {
     requestId: "ETIQUETA-TESTE-01",
 };
 
+it("mostra o lote original da unidade na etiqueta sem substituir os códigos de leitura", async () => {
+    render(
+        <LabelPreview
+            data={{ ...label, controlaLote: true, lote: "8CB2654A" }}
+        />,
+    );
+    const preview = screen.getByRole("region", { name: "Prévia da etiqueta" });
+    expect(within(preview).getByText("L: 8CB2654A")).toBeVisible();
+    expect(
+        within(preview).getByRole("img", {
+            name: `Código de barras do UUID ${label.codigoLeitura}`,
+        }),
+    ).toBeInTheDocument();
+    expect(
+        await within(preview).findByRole("img", {
+            name: `QR do UUID ${label.codigoLeitura}`,
+        }),
+    ).toBeInTheDocument();
+    expect(
+        within(preview).getByRole("button", { name: "Imprimir etiqueta" }),
+    ).toBeEnabled();
+});
+
+it.each([
+    { controlaLote: true, lote: null, texto: "L: Não informado" },
+    { controlaLote: false, lote: null, texto: "L: Não controlado" },
+    { controlaLote: true, lote: "0", texto: "L: 0" },
+])("preserva a informação de lote: $texto", ({ controlaLote, lote, texto }) => {
+    render(<LabelPreview data={{ ...label, controlaLote, lote }} />);
+    expect(screen.getByText(texto)).toBeVisible();
+});
+
 it("imprime somente por ação explícita e mantém a navegação separada, com dados complementares recolhidos", async () => {
     const print = vi.spyOn(window, "print").mockImplementation(() => {}),
         onContinue = vi.fn(),

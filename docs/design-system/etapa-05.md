@@ -24,6 +24,8 @@ O ajuste visual CTX01-A01 conserva seus critérios em [etapa-03.md](etapa-03.md#
 
 ## Indicadores do Início
 
+**Correção em implementação em 20/10/2026 — BE14-FAT-AUTO01/FE02-FAT-AUTO01:** por esclarecimento e autorização de Lucas, o card de faturamento deve mostrar a prévia operacional automática baseada nas tabelas/contratos, não depender da emissão de NFS-e. A definição fiscal da tabela abaixo descreve a implementação anterior e permanece histórica. A prévia é calculada no backend sem registrar fatos/cobranças, com períodos/ciclos, referência, subtotal conhecido e pendências; configuração ausente não vira zero. Competência segue o último dia incluído do ciclo contratual, preservando mínimo/GRIS sem novo rateio entre meses. Estado e evidências em [STATES](../../STATES.md#be14-fat-auto01--fe02-fat-auto01--fe06-lote01--previsão-de-faturamento-e-lote-na-etiqueta-20102026).
+
 Título Início, descrição Visão geral da operação e os quatro acessos rápidos existentes. O painel exibe dez cards mesmo sem movimentações. Zero confirmado é diferente de informação indisponível, exibida como —. Cores, Inter, espaçamentos, raios, superfícies, estados e diálogos usam a fundação de [design.md](design.md); nenhuma faixa decorativa foi acrescentada.
 
 | Indicador | Definição da leitura |

@@ -7,7 +7,7 @@ import {
     type ReactNode,
 } from "react";
 import { ApiError, call, type Transport } from "../../api/client";
-import type { Values } from "../../contracts/runtime";
+import type { Perfil, Values } from "../../contracts/runtime";
 import type {
     VisaoOperacaoDto_Resumo,
     VisaoOperacaoDto_Posicao,
@@ -54,6 +54,7 @@ type Props = {
     onScope: (v: Values) => void;
     onAddress: (p: VisaoOperacaoDto_Posicao) => void;
     ficticio?: boolean;
+    perfil?: Perfil;
     children?: ReactNode;
 };
 
@@ -71,6 +72,7 @@ function Overview({
     onScope,
     onAddress,
     ficticio = false,
+    perfil = "OPERACAO",
     children,
 }: Props) {
     const catalog = useReferenceCatalog();
@@ -272,9 +274,10 @@ function Overview({
                     </InformationCard>
                 ))}
                 <BillingPreviewCard
-                    data={data}
-                    loading={loading}
-                    error={!!result.error}
+                    transport={transport}
+                    context={context}
+                    perfil={perfil}
+                    revision={revision}
                 />
             </div>
             {children}

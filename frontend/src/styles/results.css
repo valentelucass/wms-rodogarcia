@@ -92,6 +92,16 @@ caption {
     font-size: 17px;
     margin-block: 4px;
 }
+.label-lot {
+    font-size: clamp(24px, 5.5vw, 40px);
+    font-weight: 700;
+    line-height: 1.1;
+    margin-block: 6px;
+    overflow-wrap: anywhere;
+}
+.label-lot--absent {
+    font-size: 19px;
+}
 .label-client {
     font-size: 19px;
     margin-block: 5px;

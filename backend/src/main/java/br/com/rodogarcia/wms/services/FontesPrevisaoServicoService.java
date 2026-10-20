@@ -20,7 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 /** Fontes físicas da prévia; confirmar a consulta nunca registra um fato financeiro. */
 @Service
-@Transactional(readOnly = true,
+@Transactional(
+        readOnly = true,
         noRollbackFor = br.com.rodogarcia.wms.exceptions.RegraNegocioException.class)
 @ConditionalOnProperty(name = "wms.cadastros.enabled", havingValue = "true")
 public class FontesPrevisaoServicoService {
@@ -56,7 +57,8 @@ public class FontesPrevisaoServicoService {
         String chave(Long produto) {
             return unidade != null
                     ? "ENTRADA:UNIDADE:" + unidade.getId()
-                    : "SAIDA:RETIRADA:" + retirada.getId()
+                    : "SAIDA:RETIRADA:"
+                            + retirada.getId()
                             + (produto == null ? "" : ":SKU:" + produto);
         }
 
@@ -64,8 +66,14 @@ public class FontesPrevisaoServicoService {
             return unidade != null
                     ? Set.of(unidade.getTipo().name())
                     : baixas.stream()
-                            .filter(b -> produto == null
-                                    || b.getReserva().getUnidade().getProduto().getId().equals(produto))
+                            .filter(
+                                    b ->
+                                            produto == null
+                                                    || b.getReserva()
+                                                            .getUnidade()
+                                                            .getProduto()
+                                                            .getId()
+                                                            .equals(produto))
                             .map(b -> b.getReserva().getUnidade().getTipo().name())
                             .collect(Collectors.toSet());
         }
@@ -84,23 +92,45 @@ public class FontesPrevisaoServicoService {
         var eventos = new ArrayList<Evento>();
         for (var unidade : unidades) {
             var instante = unidade.getPrimeiroEnderecamentoEm();
-            if (instante != null && !instante.isBefore(desde) && instante.isBefore(ate)
+            if (instante != null
+                    && !instante.isBefore(desde)
+                    && instante.isBefore(ate)
                     && !instante.isAfter(referencia))
                 eventos.add(new Evento("ENTRADA", instante, unidade, null, List.of()));
         }
         for (var retirada : retiradas.paraPrevisao(cliente, armazem, desde, ate, referencia))
-            eventos.add(new Evento("SAIDA", retirada.getRetiradaEm(), null, retirada,
-                    baixas.buscarDoPedido(retirada.getPedido().getId())));
+            eventos.add(
+                    new Evento(
+                            "SAIDA",
+                            retirada.getRetiradaEm(),
+                            null,
+                            retirada,
+                            baixas.buscarDoPedido(retirada.getPedido().getId())));
         return List.copyOf(eventos);
     }
 
     FatoServicoService.Execucao comprovar(
             Long cliente, Long armazem, Evento evento, ServicoCobranca servico, Long produto) {
-        return fatos.projetarExecucao(servico,
-                new FatoServicoDto.Registrar(null, cliente, armazem, servico.getId(), "SUGESTAO",
-                        evento.unidade() == null ? null : evento.unidade().getId(), null,
+        return fatos.projetarExecucao(
+                servico,
+                new FatoServicoDto.Registrar(
+                        null,
+                        cliente,
+                        armazem,
+                        servico.getId(),
+                        "SUGESTAO",
+                        evento.unidade() == null ? null : evento.unidade().getId(),
+                        null,
                         evento.retirada() == null ? null : evento.retirada().getPedido().getId(),
-                        produto, null, null, null, "", null, List.of(),
-                        "Rateio das origens físicas comprovadas", "Prévia sem persistência", null));
+                        produto,
+                        null,
+                        null,
+                        null,
+                        "",
+                        null,
+                        List.of(),
+                        "Rateio das origens físicas comprovadas",
+                        "Prévia sem persistência",
+                        null));
     }
 }

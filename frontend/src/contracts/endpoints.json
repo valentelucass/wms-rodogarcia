@@ -4531,6 +4531,38 @@
     ]
   },
   {
+    "id": "VisaoOperacaoController.preverFaturamento",
+    "method": "GET",
+    "path": "/api/v1/visao-operacao/previsao-faturamento",
+    "request": null,
+    "response": "VisaoOperacaoDto.PrevisaoFaturamento",
+    "query": [
+      {
+        "name": "clienteId",
+        "type": "Long",
+        "required": false
+      },
+      {
+        "name": "armazemId",
+        "type": "Long",
+        "required": false
+      },
+      {
+        "name": "fuso",
+        "type": "String",
+        "required": true
+      }
+    ],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/VisaoOperacaoController.java",
+    "handler": "preverFaturamento",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/VisaoOperacaoService.java#preverFaturamento"
+    ]
+  },
+  {
     "id": "VisaoOperacaoController.detalhe",
     "method": "GET",
     "path": "/api/v1/visao-operacao/posicoes/{id}",

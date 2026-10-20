@@ -1,6 +1,9 @@
 import type { Route } from "@playwright/test";
 import { LosslessNumber, stringify } from "lossless-json";
-import { overviewExample } from "../../src/api/mock/overview";
+import {
+    overviewExample,
+    overviewPreviewExample,
+} from "../../src/api/mock/overview";
 import { dashboardExample } from "../../src/api/mock/dashboard";
 import type { Request } from "../../src/api/client";
 import type { Perfil } from "../../src/contracts/runtime";
@@ -93,6 +96,18 @@ export async function fulfillOverviewRead(
             totalItens: "1",
             totalPaginas: 1,
         };
+    else if (url.pathname === "/api/v1/visao-operacao/previsao-faturamento")
+        data = overviewPreviewExample(
+            {
+                endpoint: {
+                    id: "VisaoOperacaoController.preverFaturamento",
+                } as Request["endpoint"],
+                params: {},
+                query: Object.fromEntries(url.searchParams),
+                signal: new AbortController().signal,
+            },
+            true,
+        );
     else if (url.pathname === "/api/v1/visao-operacao")
         data = overviewExample(
             {

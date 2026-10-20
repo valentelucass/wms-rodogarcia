@@ -44,7 +44,11 @@ class Sql01MavenPolicyTest {
                         "CadastrosEdicaoTest",
                         "EtiquetaLayoutTest",
                         "CapacidadeSupportTest",
-                        "TabelaCobrancaEdicaoTest");
+                        "TabelaCobrancaEdicaoTest",
+                        "VisaoOperacaoServiceTest",
+                        "PrevisaoFaturamentoTest",
+                        "PrevisaoMotorTest",
+                        "PrevisaoFontesTest");
         assertThat(
                         text(
                                 pom,

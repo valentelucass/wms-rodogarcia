@@ -25,6 +25,7 @@ export function HomePage({
                 key={s.revision}
                 transport={s.transport}
                 context={s.context}
+                perfil={s.perfil}
                 onScope={s.selectContext}
                 onAddress={(p) => {
                     s.selectContext({

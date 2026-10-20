@@ -29,6 +29,14 @@ public class VisaoOperacaoController {
         return service.consultar(clienteId, armazemId, fuso, codigo, estado, pagina, tamanho);
     }
 
+    @GetMapping("/api/v1/visao-operacao/previsao-faturamento")
+    public VisaoOperacaoDto.PrevisaoFaturamento preverFaturamento(
+            @RequestParam(required = false) Long clienteId,
+            @RequestParam(required = false) Long armazemId,
+            @RequestParam String fuso) {
+        return service.preverFaturamento(clienteId, armazemId, fuso);
+    }
+
     @GetMapping("/api/v1/visao-operacao/posicoes/{id}")
     public VisaoOperacaoDto.Detalhe detalhe(@PathVariable Long id) {
         return service.detalhe(id);

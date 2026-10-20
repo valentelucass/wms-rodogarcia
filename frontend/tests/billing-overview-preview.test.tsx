@@ -1,4 +1,11 @@
-import { act, fireEvent, render, screen, within } from "@testing-library/react";
+import {
+    act,
+    fireEvent,
+    render,
+    screen,
+    waitFor,
+    within,
+} from "@testing-library/react";
 import { expect, it, vi } from "vitest";
 import {
     ApiError,
@@ -41,13 +48,15 @@ const preview = {
 
 function response(request: Request, value: unknown, permitted = true): Receipt {
     return {
-        data: {
-            ...overviewExample(request, "GESTOR", true),
-            // O legado fiscal difere de propósito da previsão operacional.
-            faturamentoMes: "9999.00",
-            financeiroPermitido: permitted,
-            previsaoFaturamento: value,
-        },
+        data:
+            request.endpoint.id === "VisaoOperacaoController.preverFaturamento"
+                ? value
+                : {
+                      ...overviewExample(request, "GESTOR", true),
+                      // O legado fiscal difere de propósito da previsão operacional.
+                      faturamentoMes: "9999.00",
+                      financeiroPermitido: permitted,
+                  },
         ficticio: true,
         replay: false,
         requestId: "BILLING-PREVIEW-LOCAL",
@@ -60,12 +69,23 @@ function setup(value: unknown, permitted = true) {
     const transport: Transport = {
         send: async (request) => {
             requests.push(request);
+            if (
+                request.endpoint.id ===
+                    "VisaoOperacaoController.preverFaturamento" &&
+                value === undefined
+            )
+                throw new ApiError(
+                    "Rota fictícia ausente",
+                    404,
+                    "NAO_ENCONTRADO",
+                );
             return response(request, value, permitted);
         },
     };
     render(
         <WarehouseOverview
             transport={transport}
+            perfil={permitted ? "GESTOR" : "OPERACAO"}
             context={{
                 clienteId: period.clienteId,
                 armazemId: period.armazemId,
@@ -85,13 +105,16 @@ it("mostra a previsão devolvida pelo backend sem depender do valor fiscal legad
     await within(card()).findByText("R$ 2.345,67");
     expect(card()).toHaveTextContent("Prévia automática · 2026-10");
     expect(card()).not.toHaveTextContent("9.999");
-    expect(requests).toHaveLength(1);
-    expect(requests[0].query).toMatchObject({
+    expect(requests).toHaveLength(2);
+    const request = requests.find(
+        (value) =>
+            value.endpoint.id === "VisaoOperacaoController.preverFaturamento",
+    )!;
+    expect(request.query).toMatchObject({
         clienteId: period.clienteId,
         armazemId: period.armazemId,
     });
-    expect(requests[0].endpoint.id).toBe("VisaoOperacaoController.consultar");
-    expect(requests[0].endpoint.method).toBe("GET");
+    expect(request.endpoint.method).toBe("GET");
 });
 
 it("detalha ciclo, período apurado e valores recebidos sem recalcular mínimo ou GRIS", async () => {
@@ -114,7 +137,7 @@ it("detalha ciclo, período apurado e valores recebidos sem recalcular mínimo o
     expect(dialog).toHaveTextContent("R$ 2.000,67");
     expect(dialog).toHaveTextContent("R$ 300,00");
     expect(dialog).toHaveTextContent("R$ 45,00");
-    expect(requests).toHaveLength(1);
+    expect(requests).toHaveLength(2);
     fireEvent.click(
         within(dialog).getByRole("button", { name: "Fechar diálogo" }),
     );
@@ -164,7 +187,7 @@ it.each([
 );
 
 it.each([
-    ["objeto ausente no backend antigo", undefined, true],
+    ["endpoint ausente no backend antigo", undefined, true],
     ["consulta sem previsão", null, true],
     ["perfil sem acesso financeiro", preview, false],
 ])(
@@ -232,6 +255,11 @@ it("espera a consulta e remove a previsão anterior após falha de atualização
     let request!: Request;
     const transport: Transport = {
         send: async (value) => {
+            if (
+                value.endpoint.id !==
+                "VisaoOperacaoController.preverFaturamento"
+            )
+                return response(value, preview);
             request = value;
             if (fail) throw new ApiError("Falha fictícia", 503, "INDISPONIVEL");
             return new Promise<Receipt>((resolve) => {
@@ -242,6 +270,7 @@ it("espera a consulta e remove a previsão anterior após falha de atualização
     render(
         <WarehouseOverview
             transport={transport}
+            perfil="GESTOR"
             context={{}}
             onScope={vi.fn()}
             onAddress={vi.fn()}
@@ -266,6 +295,7 @@ it.each(["GESTOR", "OPERACAO"] as const)(
         render(
             <WarehouseOverview
                 transport={transport}
+                perfil={perfil}
                 context={{ clienteId: "1", armazemId: "1" }}
                 onScope={vi.fn()}
                 onAddress={vi.fn()}
@@ -284,7 +314,137 @@ it.each(["GESTOR", "OPERACAO"] as const)(
             );
             expect(card()).not.toHaveTextContent("2.950");
         }
-        expect(transport.requests).toHaveLength(1);
+        expect(transport.requests).toHaveLength(perfil === "GESTOR" ? 2 : 1);
+        expect(
+            transport.requests.filter(
+                (value) =>
+                    value.endpoint.id ===
+                    "VisaoOperacaoController.preverFaturamento",
+            ),
+        ).toHaveLength(perfil === "GESTOR" ? 1 : 0);
         expect(transport.requests[0].endpoint.method).toBe("GET");
     },
 );
+
+it("prévia pendente não segura o mapa e filtros/paginação não repetem apuração financeira", async () => {
+    const requests: Request[] = [];
+    let finish!: (value: Receipt) => void;
+    let financial!: Request;
+    const transport: Transport = {
+        send: async (request) => {
+            requests.push(request);
+            if (
+                request.endpoint.id ===
+                "VisaoOperacaoController.preverFaturamento"
+            ) {
+                financial = request;
+                return new Promise<Receipt>((resolve) => {
+                    finish = resolve;
+                });
+            }
+            const data = overviewExample(request, "GESTOR", false);
+            if (!("mapa" in data)) throw Error("Consulta fictícia inesperada");
+            return {
+                ...response(request, preview),
+                data: {
+                    ...data,
+                    mapa: { ...data.mapa, totalPaginas: 2, totalItens: "160" },
+                },
+            };
+        },
+    };
+    render(
+        <WarehouseOverview
+            transport={transport}
+            perfil="GESTOR"
+            context={{ armazemId: "1" }}
+            onScope={vi.fn()}
+            onAddress={vi.fn()}
+        />,
+    );
+    await screen.findByText("3%", { exact: true });
+    expect(
+        screen.getByRole("region", { name: "Visão geral da operação" }),
+    ).toHaveAttribute("aria-busy", "false");
+    expect(card()).toHaveAttribute("aria-busy", "true");
+    expect(card().querySelector("strong")).toHaveTextContent("—");
+    fireEvent.click(screen.getByRole("button", { name: "Próxima" }));
+    await screen.findByText("Página 2 de 2");
+    await waitFor(() =>
+        expect(screen.getByRole("button", { name: "Anterior" })).toBeEnabled(),
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Filtros" }));
+    fireEvent.change(screen.getByLabelText("Mostrar posições"), {
+        target: { value: "OCUPADO" },
+    });
+    await waitFor(() =>
+        expect(
+            requests.filter(
+                (value) =>
+                    value.endpoint.id === "VisaoOperacaoController.consultar",
+            ),
+        ).toHaveLength(3),
+    );
+    expect(
+        requests.filter(
+            (value) =>
+                value.endpoint.id ===
+                "VisaoOperacaoController.preverFaturamento",
+        ),
+    ).toHaveLength(1);
+    await act(async () => finish(response(financial, preview)));
+    expect(card().querySelector("strong")).toHaveTextContent("R$ 2.345,67");
+});
+
+it("trocar contexto aborta a prévia anterior e recusa sua resposta atrasada", async () => {
+    let finish!: (value: Receipt) => void;
+    let old!: Request;
+    const current = {
+        ...preview,
+        conhecido: "2.00",
+        total: "2.00",
+        periodos: [
+            { ...period, clienteId: "2", armazemId: "2", total: "2.00" },
+        ],
+    };
+    const transport: Transport = {
+        send: async (request) => {
+            if (
+                request.endpoint.id !==
+                "VisaoOperacaoController.preverFaturamento"
+            )
+                return response(request, preview);
+            if (request.query.clienteId === "1") {
+                old = request;
+                return new Promise<Receipt>((resolve) => {
+                    finish = resolve;
+                });
+            }
+            return response(request, current);
+        },
+    };
+    const props = {
+        transport,
+        perfil: "GESTOR" as const,
+        onScope: vi.fn(),
+        onAddress: vi.fn(),
+    };
+    const view = render(
+        <WarehouseOverview
+            {...props}
+            context={{ clienteId: "1", armazemId: "1" }}
+        />,
+    );
+    expect(card()).toHaveAttribute("aria-busy", "true");
+    view.rerender(
+        <WarehouseOverview
+            {...props}
+            context={{ clienteId: "2", armazemId: "2" }}
+        />,
+    );
+    await within(card()).findByText("R$ 2,00");
+    expect(old.signal.aborted).toBe(true);
+    await act(async () => finish(response(old, preview)));
+    expect(card().querySelector("strong")).toHaveTextContent("R$ 2,00");
+    expect(card()).not.toHaveTextContent("2.345");
+});
