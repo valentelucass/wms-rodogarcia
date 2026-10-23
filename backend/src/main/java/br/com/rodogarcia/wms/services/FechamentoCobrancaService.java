@@ -71,6 +71,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -166,7 +167,10 @@ public class FechamentoCobrancaService {
         contextos.autorizar(clienteId, armazemId);
         return PaginaResponse.de(
                 fechamentos.findByClienteIdAndArmazemId(
-                        clienteId, armazemId, CadastroSupport.pagina(pagina, tamanho)),
+                        clienteId,
+                        armazemId,
+                        CadastroSupport.pagina(pagina, tamanho)
+                                .withSort(Sort.by(Sort.Direction.DESC, "periodoInicio", "id"))),
                 this::resposta);
     }
 

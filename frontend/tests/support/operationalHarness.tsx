@@ -79,6 +79,7 @@ export async function click(name: string) {
         "Registrar contagem física": "Nova contagem",
         "Solicitar cálculo ao servidor": "Calcular serviços",
         "Solicitar encerramento": "Solicitar desativação de cliente",
+        "Aprovar ciclo integral": "Confirmar fechamento",
     };
     name = alias[name] ?? name;
     if (/^Selecionar registro \d+$/.test(name))
@@ -165,11 +166,18 @@ async function loadedRecord() {
             ),
         ).toBeNull(),
     );
+    await waitFor(() =>
+        expect(
+            screen.queryByText(
+                "Consultando os serviços e os valores desta fatura…",
+            ),
+        ).toBeNull(),
+    );
     const failure = activeQueries().queryByRole("alert");
     if (failure) throw Error(failure.textContent ?? "Falha no detalhe");
 }
 export async function selectResultRow(entity: string, id: string) {
-    const table = screen.getByRole("table", {
+    const table = await screen.findByRole("table", {
         name: new RegExp("^" + entity + " ·"),
     });
     const row = table.querySelector(`tr[data-record-id="${id}"]`);

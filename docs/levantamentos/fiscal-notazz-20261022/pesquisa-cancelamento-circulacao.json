@@ -1,0 +1,34 @@
+{
+  "data": "2026-10-22",
+  "objetivo": "Esgotar fontes publicas antes de encaminhar a divergencia ao gestor/fiscal",
+  "fontes": [
+    {
+      "url": "https://www.confaz.fazenda.gov.br/legislacao/ajustes/2005/AJ007_05",
+      "dispositivo": "Clausula decima segunda",
+      "resultado": "Cancelamento comum condicionado a ausencia de circulacao e demais requisitos; estar dentro de 24 horas nao supre essa condicao"
+    },
+    {
+      "url": "https://portal.fazenda.sp.gov.br/servicos/nfe/Paginas/cancelamentoextemp.aspx/1000",
+      "resultado": "Orientacao paulista exclui cancelamento extemporaneo quando houve circulacao",
+      "limite": "Prazos e procedimentos estaduais nao aplicados automaticamente a outro estabelecimento"
+    },
+    {
+      "url": "https://legislacao.fazenda.sp.gov.br/Paginas/RC21291_2020.aspx",
+      "resultado": "Retorno por recusa ao armazem geral possui documentacao propria com participacao do depositante",
+      "limite": "Cenario paulista de venda a adquirente por mercadoria em armazem geral; nao parametriza a retirada pelo proprietario deste projeto"
+    },
+    {
+      "url": "https://www.confaz.fazenda.gov.br/legislacao/ajustes/2025/AJ049_25",
+      "dispositivo": "Clausulas quinta, quinta-A e sexta na redacao consolidada consultada",
+      "resultado": "Disciplina documentos de retorno por recusa ou nao localizacao; distingue retorno total/parcial; obrigacao de seguir o ajuste a partir de 2027-01-01",
+      "limite": "Validar transicao temporal, fato real e aderencia do fornecedor; nao impor schema tributario universal nesta analise"
+    }
+  ],
+  "conclusao": "Regra geral encontrada. Encaminhamento remanescente e conciliar com Natalina o procedimento informado para mercadoria que realmente saiu e voltou, identificando documento/evento aplicavel",
+  "naoConcluido": [
+    "Nao foi comprovado regime especial que autorize cancelamento da operacao concreta apos circulacao",
+    "Nao foi escolhido CFOP ou emitente de regularizacao por analogia com outra operacao",
+    "Nao houve consulta fiscal autenticada, emissao ou cancelamento",
+    "Nao houve alteracao de codigo, configuracao ou banco"
+  ]
+}

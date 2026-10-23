@@ -8514,6 +8514,541 @@
         }
       }
     ],
+    "InventarioDto.Disponibilidade": [
+      {
+        "name": "disponivel",
+        "type": "boolean",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "mensagem",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      }
+    ],
+    "InventarioDto.Iniciar": [
+      {
+        "name": "operacaoId",
+        "type": "UUID",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "clienteId",
+        "type": "Long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java",
+        "positive": true
+      },
+      {
+        "name": "armazemId",
+        "type": "Long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java",
+        "positive": true
+      },
+      {
+        "name": "tipo",
+        "type": "TipoInventario",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "produtoId",
+        "type": "Long",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java",
+        "positive": true
+      },
+      {
+        "name": "enderecoId",
+        "type": "Long",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java",
+        "positive": true
+      },
+      {
+        "name": "motivo",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java",
+        "notBlank": true,
+        "Size": "min = 5, max = 500"
+      }
+    ],
+    "InventarioDto.Ler": [
+      {
+        "name": "operacaoId",
+        "type": "UUID",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "versao",
+        "type": "Long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java",
+        "Min": "0"
+      },
+      {
+        "name": "codigoUnidade",
+        "type": "UUID",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "contado",
+        "type": "BigDecimal",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java",
+        "Digits": "integer = 13, fraction = 6",
+        "DecimalMin": "\"0\""
+      },
+      {
+        "name": "enderecoId",
+        "type": "Long",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java",
+        "positive": true
+      },
+      {
+        "name": "substituir",
+        "type": "boolean",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      }
+    ],
+    "InventarioDto.Encerrar": [
+      {
+        "name": "operacaoId",
+        "type": "UUID",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "versao",
+        "type": "Long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java",
+        "Min": "0"
+      },
+      {
+        "name": "confirmarNaoLidas",
+        "type": "boolean",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "motivo",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java",
+        "notBlank": true,
+        "Size": "min = 5, max = 500"
+      }
+    ],
+    "InventarioDto.Resumo": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "versao",
+        "type": "long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "clienteId",
+        "type": "Long",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "armazemId",
+        "type": "Long",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "tipo",
+        "type": "TipoInventario",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "produtoId",
+        "type": "Long",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "enderecoId",
+        "type": "Long",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "situacao",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "iniciadoEm",
+        "type": "Instant",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "encerradoEm",
+        "type": "Instant",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "responsavel",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "unidadesLidas",
+        "type": "long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "divergencias",
+        "type": "Integer",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      }
+    ],
+    "InventarioDto.Leitura": [
+      {
+        "name": "codigoUnidade",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "sku",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "descricao",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "unidadeMedida",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "contado",
+        "type": "BigDecimal",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "enderecoId",
+        "type": "Long",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "posicao",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "lidoEm",
+        "type": "Instant",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      }
+    ],
+    "InventarioDto.Detalhe": [
+      {
+        "name": "inventario",
+        "type": "InventarioDto.Resumo",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "leituras",
+        "type": "List<InventarioDto.Leitura>",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java",
+        "element": {
+          "name": "element",
+          "type": "InventarioDto.Leitura",
+          "required": false,
+          "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+        }
+      }
+    ],
+    "InventarioDto.Registro": [
+      {
+        "name": "inventario",
+        "type": "InventarioDto.Resumo",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "leitura",
+        "type": "InventarioDto.Leitura",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      }
+    ],
+    "InventarioDto.Linha": [
+      {
+        "name": "codigoUnidade",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "produtoId",
+        "type": "Long",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "sku",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "descricao",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "unidadeMedida",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "esperado",
+        "type": "BigDecimal",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "contado",
+        "type": "BigDecimal",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "diferenca",
+        "type": "BigDecimal",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "posicoesEsperadas",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "posicaoEncontrada",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "ocorrencias",
+        "type": "List<String>",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java",
+        "element": {
+          "name": "element",
+          "type": "String",
+          "required": false,
+          "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+        }
+      }
+    ],
+    "InventarioDto.PorSku": [
+      {
+        "name": "produtoId",
+        "type": "Long",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "sku",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "descricao",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "unidadeMedida",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "esperado",
+        "type": "BigDecimal",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "contado",
+        "type": "BigDecimal",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "diferenca",
+        "type": "BigDecimal",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "mercadoriasDivergentes",
+        "type": "int",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      }
+    ],
+    "InventarioDto.Relatorio": [
+      {
+        "name": "inventario",
+        "type": "InventarioDto.Resumo",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "referenciaEstoque",
+        "type": "Instant",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "mercadoriasConferidas",
+        "type": "int",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "mercadoriasNaoLidas",
+        "type": "int",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "divergenciasQuantidade",
+        "type": "int",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "divergenciasEndereco",
+        "type": "int",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "movimentadasDuranteContagem",
+        "type": "int",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "porSku",
+        "type": "List<InventarioDto.PorSku>",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java",
+        "element": {
+          "name": "element",
+          "type": "InventarioDto.PorSku",
+          "required": false,
+          "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+        }
+      },
+      {
+        "name": "mercadorias",
+        "type": "List<InventarioDto.Linha>",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java",
+        "element": {
+          "name": "element",
+          "type": "InventarioDto.Linha",
+          "required": false,
+          "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+        }
+      }
+    ],
+    "InventarioDto.Visao": [
+      {
+        "name": "produtoId",
+        "type": "Long",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "sku",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "descricao",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "unidadeMedida",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "quantidade",
+        "type": "BigDecimal",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "mercadorias",
+        "type": "long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      },
+      {
+        "name": "posicoes",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/InventarioDto.java"
+      }
+    ],
     "NfeEntradaDto": [
       {
         "name": "emitente",
@@ -12015,6 +12550,11 @@
       "TRIAGEM",
       "QUARENTENA",
       "SEPARACAO"
+    ],
+    "TipoInventario": [
+      "CEGAS",
+      "SKU",
+      "POSICAO"
     ],
     "TipoQuantidade": [
       "CONTAGEM",

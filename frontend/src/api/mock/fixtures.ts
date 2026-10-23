@@ -75,6 +75,12 @@ const baseValues: Values = {
     conteudoHash: "a".repeat(64),
 };
 export function fixture(type: string, depth = 0): unknown {
+    if (type === "InventarioDto.Disponibilidade")
+        return {
+            disponivel: false,
+            mensagem:
+                "O registro de inventários aguarda ativação neste ambiente.",
+        };
     if (
         type === "VisaoOperacaoDto.Resumo" ||
         type === "VisaoOperacaoDto.Detalhe"

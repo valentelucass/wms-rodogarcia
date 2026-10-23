@@ -1,0 +1,18 @@
+{
+  "name": "GEN01-GESTOR-resolucao-explicita",
+  "at": "2026-10-22T20:02:42.486Z",
+  "ui": "Conferir leitura da reservaDados da operaçãoIdentificador *Revisão atual *Reserva *Código lido *Revisão do conteúdo da etiqueta *Motivo / justificativa *Resolução histórica fictícia explicitada pelo GestorResolver pendências (Gestor)Não informadoNãoSimConferir e confirmarRepetir exatamente a mesma operaçãoIniciar nova operaçãoResposta FICTÍCIA de exercício recebida.  Correlação: local-ficticioResultado da operaçãoPedido de entradaReferência indisponívelExpedicaoRetirada física confirmada emNão informadoPedidoClienteReferência indisponívelArmazémReferência indisponívelReferênciaDEMO-01Situação informadaRASCUNHOCriado Em07/10/2026, 09:00Alterado Em07/10/2026, 09:00Pode ProsseguirNãoReservasNenhum registro informado.ItensRegistros · 1 registro nesta respostaProduto / SKUSkuUnidade MedidaQuantidadeAçõesDEMO-CAIXADEMO-CAIXAUN10Ver registro 1Selecionar registro 1Unidades Impedidas1Selecionar este registroSeparacoesRegistros · 1 registro nesta respostaReservaSituação informadaRevisao Conteudo LidaLida EmSeparada EmConjunto OrigemAçõesReferência indisponívelExemplo fictício107/10/2026, 09:0007/10/2026, 09:00Referência indisponívelVer registro 1Selecionar registro 1DocumentosDocumentos de mercadoria · 1 registro nesta respostaOrigemNaturezaProtocolo existente NOTAZZSituação informadaRegistrado EmAçõesExemplo fictícioExemplo fictícioExemplo fictícioExemplo fictício07/10/2026, 09:00Ver registro 1Selecionar registro 1BaixasBaixas físicas · 1 registro nesta respostaReservaEntrada OrigemQuantidadeData FIFOInício da cobrança de armazenagemPosicoes EquivalentesAçõesReferência indisponívelReferência indisponível1007/10/2026, 09:0007/10/2026, 09:001Ver registro 1Selecionar registro 1DevolucoesDevoluções ligadas às baixas · 1 registro nesta respostaBaixa físicaPedido de entradaEntrada NovaQuantidadeData FIFORegistrada EmAçõesReferência indisponívelReferência indisponívelReferência indisponível1007/10/2026, 09:0007/10/2026, 09:00Ver registro 1Selecionar registro 1FatosRegistros · 1 registro nesta respostaUnidade logísticaTipoInstante real do fatoRegistrada EmQuantidade AntesQuantidade DepoisEquivalencia AntesEquivalencia DepoisAçõesReferência indisponívelExemplo fictício07/10/2026, 09:0007/10/2026, 09:00101010.00000010.000000Ver registro 1Selecionar registro 1",
+  "requests": [
+    {
+      "id": "ExpedicaoController.ler",
+      "route": "/api/v1/pedidos-saida/{id}/leituras",
+      "params": {
+        "id": "601"
+      },
+      "query": {},
+      "wire": "{\"operacaoId\":\"28468255-2bf8-41bb-8439-d70d42cf5039\",\"versao\":2,\"reservaId\":701,\"codigoLido\":\"00000000-0000-4000-8000-000000000001\",\"revisaoConteudo\":11,\"motivo\":\"Resolução histórica fictícia explicitada pelo Gestor\",\"resolverPendentes\":true}",
+      "file": null
+    }
+  ],
+  "boundary": "componentes React reais + transport ficticio; zero HTTP/backend"
+}

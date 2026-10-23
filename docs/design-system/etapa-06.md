@@ -636,3 +636,17 @@ Pedido expresso de Lucas em 10/10/2026, com exemplos em Dados fiscais cadastrais
 Rastreio: o problema estava no único ramo `canOperate` do componente compartilhado, alcançando todas as tabelas que o utilizam. Também foram inspecionadas a tabela genérica `Result` e a lista especializada `ReceivingList`: não usam essa coluna fixa de ícones com o ramo textual defeituoso. Regras dessas outras apresentações foram preservadas.
 
 Conferência: tipagem, lint focal, formatação/build real, 25 testes existentes e dois casos Chrome aprovados. Cinco visões (fiscal e encerramento de clientes/armazéns e lista comum de clientes), quatro larguras (1500/1280/1024/390) e dois temas: 40 combinações, botões lado a lado, dimensões, títulos/nomes acessíveis, toque, Tab/Enter/Escape, abertura do formulário e retorno do foco. Desktop sem rolagem lateral nos cenários conferidos; mobile mantém rolagem interna da tabela quando necessária e não transborda a página. Capturas inspecionadas. [Recibo](../../orchestracao/.runtime/table-actions/resultado.json). API interceptada; sem backend/SQL/reinício/publicação. Graphify recusou substituir o índice por extração menor, sem forçar.
+
+
+## Fechamento de Fatura — FE11-FATURA-UX01
+
+Página financeira única com lista de cliente, período, valor da versão vigente e Acessar fatura. Novo fechamento abre a conferência de serviços e período; serviços adicionais e avarias ficam em áreas recolhidas no mesmo contexto. Supervisor tem acesso às suas conferências e lançamentos; a preparação/aprovação integral do ciclo conserva as permissões do backend. A fatura mostra serviços executados, armazenagem diária, mínimo/GRIS, ajustes, pendências e memória, sem recalcular no navegador. A versão/cálculo consultados devem pertencer exatamente à fatura, ao cliente/armazém e ao período selecionados.
+
+Serviços e cálculo deixa a navegação. A rota antiga conduz ao Fechamento de Fatura; contratos internos continuam disponíveis para consulta/correção histórica. Remover as cinco etapas da apresentação não apaga controles, documentos ou versões. A ação Enviar minuta ao ESL é indisponível até a integração própria da Dalga ser validada; NFS-e é emitida no ESL. [Decisão e limites](../06-decisoes-e-pendencias.md#fe11-fatura-ux01-e-be13-esl-minuta01--fechamento-de-fatura-22102026).
+
+Na fatura, Aplicar filtros e Restaurar filtros alinham topo e base com as caixas de seleção, permitindo quebra de linha em telas menores. Aprovado/Aprovada usam o tom success verde do componente StatusBadge, com texto legível e cores próprias de claro/escuro.
+
+
+## Inventário por escopo — FE12-INVENTARIO-UX02
+
+Visão única por SKU/posição e histórico. Realizar inventário abre três cartões de escolha com descrição: às cegas, por SKU e por posição. A contagem apresenta apenas o informado, com etiqueta focada, quantidade e posição, sem base esperada. O relatório concluído reúne quantidade por SKU e mercadorias/endereços, com ocorrências e CSV. Área administrativa secundária preserva carga inicial e ajustes antigos. A tela consulta disponibilidade real e não simula gravação quando o recurso está desativado. Fotos antes/depois são dos componentes reais com dados fictícios; não comprovam SQL ou leitor físico. [Decisão](../06-decisoes-e-pendencias.md#fe12-inventario-ux02--be14-inventario01--inventários-por-escopo-23102026).

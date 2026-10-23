@@ -1,0 +1,311 @@
+{
+  "name": "FE09-01-02-duas-reservas",
+  "at": "2026-10-22T20:02:26.611Z",
+  "ui": "InícioCadastrosEntrada e conferênciaUnidades e etiquetasEstoque e rastreabilidadeSaída, FIFO e reservaFiscal e retiradaServiços e tabelasServiços e cálculoFechamentos e ESLContagem e carga inicialContingênciaConsultas e relatóriosColetorAcesso e limitesSaída, FIFO e reservaSelecione uma etapa, consulte os dados e confira a operação antes de confirmar.Etapas da jornada11. Pedido integral22. Sugestão FIFO e reserva33. Leitura e separação44. Reversão e cancelamentoConsultar referências para a tarefaConsultar posições para separaçãoConsultar etiqueta da unidadeReservas do pedidoDEMO-01Confira a quantidade, a nota de origem e o identificador da unidade antes de selecionar a reserva. A escolha prepara a leitura da etiqueta ou o registro do destino; quantidades e situações são as retornadas na consulta.Reserva 1AtivaQuantidade reservada30Nota de origemReferência indisponívelIdentificador da unidade00000000-0000-4000-8000-000000000001Selecionar reservaReserva 2AtivaReserva selecionadaQuantidade reservada70Nota de origemReferência indisponívelIdentificador da unidade00000000-0000-4000-8000-000000000002Selecionar reserva3. Leitura e separaçãoConfirme UUID e revisão do conteúdo da etiqueta. Destino de separação e remanescente são explícitos. Avaria pode bloquear a expedição.Filtros da consultaCliente *Armazém *Aplicar filtrosRestaurar filtrosOperação confirmada no exercício fictício. Lista em atualização.Ver registro confirmadoBuscar nos registros desta páginaSituação nesta páginaTodasSeparadoAtualizar lista1 de 1 registros desta resposta correspondem aos filtros de apresentação.Pedidos de saída · 1 registros nesta respostaReferênciaSituaçãoAçõesDEMO-01SeparadoVer detalhes1 registros · 1 nesta página · 20 por páginaAnteriorPágina 1 de 1PróximaConfirmar separaçãoConsultar referências para a tarefaConsultar posições para separaçãoConsultar etiqueta da unidadeVer referências consultadasReservas do pedidoDEMO-01Confira a quantidade, a nota de origem e o identificador da unidade antes de selecionar a reserva. A escolha prepara a leitura da etiqueta ou o registro do destino; quantidades e situações são as retornadas na consulta.Reserva 1AtivaQuantidade reservada30Nota de origemReferência indisponívelIdentificador da unidade00000000-0000-4000-8000-000000000001Selecionar reservaReserva 2AtivaReserva selecionadaQuantidade reservada70Nota de origemReferência indisponívelIdentificador da unidade00000000-0000-4000-8000-000000000002Selecionar reservaDados da operaçãoIdentificador *Revisão atual *Destinacao *Destinacao / Reserva *Selecione pelo nome ou código00000000-0000-4000-8000-00000000000100000000-0000-4000-8000-000000000002Destinacao / Conjunto de posiçõesPosições de destino *Posições de destino 11 *Destinacao / Posições de destino / Item 1 / Endereço *Selecione pelo nome ou códigoA101Destinacao / Posições de destino / Item 1 / Código lido *Remover Posições de destino 1Adicionar Posições de destinoMotivo / justificativa *Destino fictício conferido para esta reservaResolver pendências (Gestor)Não informadoNãoSimConferir e confirmarRepetir exatamente a mesma operaçãoIniciar nova operaçãoResposta FICTÍCIA de exercício recebida.  Correlação: local-ficticioResultado da operaçãoPedido de entradaReferência indisponívelExpedicaoRetirada física confirmada emNão informadoSeparacoesNenhum registro informado.DocumentosNenhum registro informado.BaixasNenhum registro informado.DevolucoesNenhum registro informado.FatosNenhum registro informado.PedidoClienteReferência indisponívelArmazémReferência indisponívelReferênciaDEMO-01Situação informadaSEPARADOCriado Em07/10/2026, 09:00Alterado Em07/10/2026, 09:00Pode ProsseguirNãoItensRegistros · 1 registro nesta respostaProduto / SKUSkuUnidade MedidaQuantidadeAçõesBOBINA-FICTBOBINA-FICTUN100Ver registro 1Selecionar registro 1ReservasReservas do pedido · 2 registros nesta respostaItemUnidade logísticaUUID da unidadeNota de origemData FIFOQuantidadeSituação informadaCriada EmAçõesBOBINA-FICT00000000-0000-4000-8000-00000000000100000000-0000-4000-8000-000000000001Referência indisponível07/10/2026, 09:0030ATIVA07/10/2026, 09:00Ver registro 1Selecionar registro 1BOBINA-FICT00000000-0000-4000-8000-00000000000200000000-0000-4000-8000-000000000002Referência indisponível07/10/2026, 09:0070ATIVA07/10/2026, 09:00Ver registro 2Selecionar registro 2Unidades Impedidas1Selecionar este registroRegistrar documento existente deste pedidoVoltar à listaReferências da jornada no contexto atualPedido de saída: DEMO-01 · Revisão 6  · SEPARADOReserva: 00000000-0000-4000-8000-000000000002   · ATIVAUma lista com vários registros exige seleção explícita. Confira o pedido, a mercadoria e a unidade antes de continuar.",
+  "requests": [
+    {
+      "id": "PedidoSaidaController.listar",
+      "route": "/api/v1/pedidos-saida",
+      "params": {},
+      "query": {
+        "clienteId": "1",
+        "armazemId": "1",
+        "pagina": "0",
+        "tamanho": "20"
+      },
+      "wire": null,
+      "file": null
+    },
+    {
+      "id": "PedidoSaidaController.consultar",
+      "route": "/api/v1/pedidos-saida/{id}",
+      "params": {
+        "id": "601"
+      },
+      "query": {},
+      "wire": null,
+      "file": null
+    },
+    {
+      "id": "PedidoSaidaController.listar",
+      "route": "/api/v1/pedidos-saida",
+      "params": {},
+      "query": {
+        "clienteId": "1",
+        "armazemId": "1",
+        "pagina": "0",
+        "tamanho": "20"
+      },
+      "wire": null,
+      "file": null
+    },
+    {
+      "id": "PedidoSaidaController.consultar",
+      "route": "/api/v1/pedidos-saida/{id}",
+      "params": {
+        "id": "601"
+      },
+      "query": {},
+      "wire": null,
+      "file": null
+    },
+    {
+      "id": "PedidoSaidaController.sugerir",
+      "route": "/api/v1/pedidos-saida/{id}/fifo",
+      "params": {
+        "id": "601"
+      },
+      "query": {},
+      "wire": null,
+      "file": null
+    },
+    {
+      "id": "PedidoSaidaController.justificar",
+      "route": "/api/v1/pedidos-saida/{id}/justificativas-fifo",
+      "params": {
+        "id": "601"
+      },
+      "query": {},
+      "wire": "{\"operacaoId\":\"1ea42345-2c96-488f-a266-ab0041a8fb47\",\"versao\":0,\"selecoes\":[{\"unidadeId\":501,\"quantidade\":30.000000},{\"unidadeId\":502,\"quantidade\":70.000000}],\"motivo\":\"Seleção fictícia identificada de duas bobinas\"}",
+      "file": null
+    },
+    {
+      "id": "PedidoSaidaController.listar",
+      "route": "/api/v1/pedidos-saida",
+      "params": {},
+      "query": {
+        "clienteId": "1",
+        "armazemId": "1",
+        "pagina": "0",
+        "tamanho": "20"
+      },
+      "wire": null,
+      "file": null
+    },
+    {
+      "id": "PedidoSaidaController.listar",
+      "route": "/api/v1/pedidos-saida",
+      "params": {},
+      "query": {
+        "clienteId": "1",
+        "armazemId": "1",
+        "pagina": "0",
+        "tamanho": "20"
+      },
+      "wire": null,
+      "file": null
+    },
+    {
+      "id": "PedidoSaidaController.reservar",
+      "route": "/api/v1/pedidos-saida/{id}/reserva",
+      "params": {
+        "id": "601"
+      },
+      "query": {},
+      "wire": "{\"operacaoId\":\"17c8798e-e977-4c91-8b34-41d9376ed9d0\",\"versao\":1,\"justificativaId\":\"1ea42345-2c96-488f-a266-ab0041a8fb47\",\"motivo\":\"Reserva integral fictícia conferida pelo Supervisor\"}",
+      "file": null
+    },
+    {
+      "id": "PedidoSaidaController.listar",
+      "route": "/api/v1/pedidos-saida",
+      "params": {},
+      "query": {
+        "clienteId": "1",
+        "armazemId": "1",
+        "pagina": "0",
+        "tamanho": "20"
+      },
+      "wire": null,
+      "file": null
+    },
+    {
+      "id": "PedidoSaidaController.listar",
+      "route": "/api/v1/pedidos-saida",
+      "params": {},
+      "query": {
+        "clienteId": "1",
+        "armazemId": "1",
+        "pagina": "0",
+        "tamanho": "20"
+      },
+      "wire": null,
+      "file": null
+    },
+    {
+      "id": "UnidadeLogisticaController.etiqueta",
+      "route": "/api/v1/unidades-logisticas/{codigo}/etiqueta",
+      "params": {
+        "codigo": "00000000-0000-4000-8000-000000000001"
+      },
+      "query": {},
+      "wire": null,
+      "file": null
+    },
+    {
+      "id": "ExpedicaoController.ler",
+      "route": "/api/v1/pedidos-saida/{id}/leituras",
+      "params": {
+        "id": "601"
+      },
+      "query": {},
+      "wire": "{\"operacaoId\":\"4dc48f25-2046-42b1-9b8c-a5ddbdffef3a\",\"versao\":2,\"reservaId\":701,\"codigoLido\":\"00000000-0000-4000-8000-000000000001\",\"revisaoConteudo\":11,\"motivo\":\"Leitura fictícia da etiqueta consultada\",\"resolverPendentes\":false}",
+      "file": null
+    },
+    {
+      "id": "PedidoSaidaController.listar",
+      "route": "/api/v1/pedidos-saida",
+      "params": {},
+      "query": {
+        "clienteId": "1",
+        "armazemId": "1",
+        "pagina": "0",
+        "tamanho": "20"
+      },
+      "wire": null,
+      "file": null
+    },
+    {
+      "id": "PedidoSaidaController.listar",
+      "route": "/api/v1/pedidos-saida",
+      "params": {},
+      "query": {
+        "clienteId": "1",
+        "armazemId": "1",
+        "pagina": "0",
+        "tamanho": "20"
+      },
+      "wire": null,
+      "file": null
+    },
+    {
+      "id": "EnderecoController.listar",
+      "route": "/api/v1/enderecos",
+      "params": {},
+      "query": {
+        "armazemId": "1",
+        "pagina": 0,
+        "tamanho": 20
+      },
+      "wire": null,
+      "file": null
+    },
+    {
+      "id": "ExpedicaoController.separar",
+      "route": "/api/v1/pedidos-saida/{id}/separacoes",
+      "params": {
+        "id": "601"
+      },
+      "query": {},
+      "wire": "{\"operacaoId\":\"8386b561-0e78-47b5-849a-332745190c60\",\"versao\":3,\"destinacao\":{\"reservaId\":701,\"conjuntoId\":null,\"destinos\":[{\"enderecoId\":81,\"codigoLido\":\"A101\"}]},\"motivo\":\"Destino fictício conferido para esta reserva\",\"resolverPendentes\":false}",
+      "file": null
+    },
+    {
+      "id": "PedidoSaidaController.listar",
+      "route": "/api/v1/pedidos-saida",
+      "params": {},
+      "query": {
+        "clienteId": "1",
+        "armazemId": "1",
+        "pagina": "0",
+        "tamanho": "20"
+      },
+      "wire": null,
+      "file": null
+    },
+    {
+      "id": "PedidoSaidaController.listar",
+      "route": "/api/v1/pedidos-saida",
+      "params": {},
+      "query": {
+        "clienteId": "1",
+        "armazemId": "1",
+        "pagina": "0",
+        "tamanho": "20"
+      },
+      "wire": null,
+      "file": null
+    },
+    {
+      "id": "UnidadeLogisticaController.etiqueta",
+      "route": "/api/v1/unidades-logisticas/{codigo}/etiqueta",
+      "params": {
+        "codigo": "00000000-0000-4000-8000-000000000002"
+      },
+      "query": {},
+      "wire": null,
+      "file": null
+    },
+    {
+      "id": "ExpedicaoController.ler",
+      "route": "/api/v1/pedidos-saida/{id}/leituras",
+      "params": {
+        "id": "601"
+      },
+      "query": {},
+      "wire": "{\"operacaoId\":\"ba48f1b7-8284-4940-a849-df5eba0fdf7f\",\"versao\":4,\"reservaId\":702,\"codigoLido\":\"00000000-0000-4000-8000-000000000002\",\"revisaoConteudo\":12,\"motivo\":\"Leitura fictícia da etiqueta consultada\",\"resolverPendentes\":false}",
+      "file": null
+    },
+    {
+      "id": "PedidoSaidaController.listar",
+      "route": "/api/v1/pedidos-saida",
+      "params": {},
+      "query": {
+        "clienteId": "1",
+        "armazemId": "1",
+        "pagina": "0",
+        "tamanho": "20"
+      },
+      "wire": null,
+      "file": null
+    },
+    {
+      "id": "PedidoSaidaController.listar",
+      "route": "/api/v1/pedidos-saida",
+      "params": {},
+      "query": {
+        "clienteId": "1",
+        "armazemId": "1",
+        "pagina": "0",
+        "tamanho": "20"
+      },
+      "wire": null,
+      "file": null
+    },
+    {
+      "id": "EnderecoController.listar",
+      "route": "/api/v1/enderecos",
+      "params": {},
+      "query": {
+        "armazemId": "1",
+        "pagina": 0,
+        "tamanho": 20
+      },
+      "wire": null,
+      "file": null
+    },
+    {
+      "id": "ExpedicaoController.separar",
+      "route": "/api/v1/pedidos-saida/{id}/separacoes",
+      "params": {
+        "id": "601"
+      },
+      "query": {},
+      "wire": "{\"operacaoId\":\"98f11220-601b-453a-a633-6ecf12d2b9f1\",\"versao\":5,\"destinacao\":{\"reservaId\":702,\"conjuntoId\":null,\"destinos\":[{\"enderecoId\":81,\"codigoLido\":\"A101\"}]},\"motivo\":\"Destino fictício conferido para esta reserva\",\"resolverPendentes\":false}",
+      "file": null
+    },
+    {
+      "id": "PedidoSaidaController.listar",
+      "route": "/api/v1/pedidos-saida",
+      "params": {},
+      "query": {
+        "clienteId": "1",
+        "armazemId": "1",
+        "pagina": "0",
+        "tamanho": "20"
+      },
+      "wire": null,
+      "file": null
+    }
+  ],
+  "boundary": "componentes React reais + transport ficticio; zero HTTP/backend"
+}

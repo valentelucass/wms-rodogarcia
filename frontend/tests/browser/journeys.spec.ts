@@ -558,7 +558,7 @@ test("Financeiro: cálculo → fechamento → memória → aprovação → entre
         page.getByRole("region", {
             name: "Referências confirmadas da jornada",
         }),
-    ).toContainText("APROVADO");
+    ).toContainText(/aprovado/i);
     await continueTo(page, "Registrar entrega manual desta versão");
     await expect(
         page.getByLabel("Arquivo Hash *", { exact: true }),
@@ -687,7 +687,7 @@ test("Financeiro: cálculo → fechamento → memória → aprovação → entre
         page.getByRole("region", {
             name: "Referências confirmadas da jornada",
         }),
-    ).toContainText("APROVADO");
+    ).toContainText(/aprovado/i);
     await expect(
         page.getByRole("region", {
             name: "Referências confirmadas da jornada",
@@ -803,9 +803,8 @@ test("Navega todos módulos em 768px e 1440px sem erro de página", async ({
             "Saída, FIFO e reserva",
             "Fiscal e retirada",
             "Serviços e tabelas",
-            "Serviços e cálculo",
-            "Fechamentos e ESL",
-            "Contagem e carga inicial",
+            "Fechamento de Fatura",
+            "Inventário",
             "Contingência",
             "Consultas e relatórios",
             "Coletor",

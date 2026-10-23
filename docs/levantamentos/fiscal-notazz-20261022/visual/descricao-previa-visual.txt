@@ -1,0 +1,23 @@
+Modo: ferramenta integrada image_gen. Prévia ilustrativa de interface, sem alteração do sistema.
+Imagem de origem: captura fornecida pelo usuário.
+Antes: antes-tela-atual.png.
+Depois: depois-proposta-retirada-fiscal.png.
+
+Prompt utilizado:
+Use case: ui-mockup / precise screenshot redesign.
+Input image 1 is the CURRENT WMS Rodogarcia fiscal screen, provided as an edit/style reference. Create ONE high fidelity desktop screenshot of the PROPOSED AFTER screen. This is a design preview, not a real deployed application. Make a wide desktop admin screen, approximately 1600x1050, with crisp, large, readable Portuguese text. Flat software screenshot, not a photograph of a monitor, no device frame, no people, no decorative perspective. Preserve the restrained existing Rodogarcia visual identity: narrow light-gray left navigation, blue selected navigation, white content, pale blue accents, teal context button, light borders, simple sans-serif. Retain Rodogarcia / WMS branding and the 'Fiscal e retirada' active navigation. Do not invent a new brand style.
+At top of the image include a small unobtrusive label: 'PROPOSTA DE TELA · DADOS ILUSTRATIVOS'.
+Header: 'Fiscal e retirada'.
+Replace the old three-step journey with just two options in a small left journey panel: selected '1. Retirada fiscal da mercadoria'; second '2. Retorno e devolução'. The selected option must be legible and wrapped to fit.
+Main area heading: 'Retirada fiscal da mercadoria'. Subtitle: 'Consulte os pedidos, emita a NF-e e acompanhe a retirada.'
+Filters: 'Cliente' with 'BRACELL SP CELULOSE LTDA'; 'Armazém' with 'SPO · DALGA LOGÍSTICA'; blue 'Aplicar filtros'. Include search 'Buscar pedido' and fiscal status filter 'Todas'.
+A generously spaced main table with EXACT columns: 'Nº pedido', 'Data do pedido', 'Cliente', 'Status da NF-e', 'Nº NFe'.
+Four illustrative rows, all same Bracell client abbreviated clearly:
+SAI-000123 | 22/10/2026 | BRACELL SP CELULOSE LTDA | amber badge 'PENDENTE' | prominent blue button 'EMITIR NF-e'.
+SAI-000122 | 21/10/2026 | BRACELL SP CELULOSE LTDA | green badge 'FINALIZADO' | number '1.245'.
+SAI-000121 | 21/10/2026 | BRACELL SP CELULOSE LTDA | amber badge 'PENDENTE' with small subtext 'Em processamento' | action 'Acompanhar emissão'.
+SAI-000120 | 20/10/2026 | BRACELL SP CELULOSE LTDA | green badge 'FINALIZADO' | numbers '1.243 / 1.244'.
+The numbers and records are fictional. Do not use the real Tigre PDF invoice numbers.
+Below the table, a clear selected-order review card, heading 'Conferência do pedido SAI-000123'. Display two simple text fields: 'Emitente: armazém da entrada' and 'Destinatário: proprietário da mercadoria'. A short product summary 'Mercadoria: 1.000 peças' and 'Valor proporcional da entrada: R$ 5.000,00'. Text 'Observações: Pedido de saída WMS SAI-000123'. Right aligned primary blue button 'Confirmar emissão da NF-e'. This review is illustrative of what appears after clicking EMITIR.
+At the bottom a visually separate smaller card titled 'Retirada física', status text 'Aguardando NF-e autorizada' and disabled button 'Confirmar retirada física'. A short plain-language note: 'A emissão da nota não confirma a retirada da mercadoria.' This distinction is essential.
+Everything must fit without clipping, no horizontal scroll, no tiny unreadable text. Maintain generous practical spacing and professional admin UI fidelity, rather than a marketing illustration. No cancellation or return-entry flow in this preview, as those exceptional business cases are still being aligned.

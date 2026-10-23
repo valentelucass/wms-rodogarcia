@@ -1,0 +1,149 @@
+{
+  "name": "FE09-02-bobinas4-6",
+  "at": "2026-10-22T20:02:28.267Z",
+  "ui": "InícioCadastrosEntrada e conferênciaUnidades e etiquetasEstoque e rastreabilidadeSaída, FIFO e reservaFiscal e retiradaServiços e tabelasServiços e cálculoFechamentos e ESLContagem e carga inicialContingênciaConsultas e relatóriosColetorAcesso e limitesSaída, FIFO e reservaSelecione uma etapa, consulte os dados e confira a operação antes de confirmar.Etapas da jornada11. Pedido integral22. Sugestão FIFO e reserva33. Leitura e separação44. Reversão e cancelamentoConsultar referências para a tarefaConsultar posições para separaçãoConsultar etiqueta da unidadeReservas do pedidoDEMO-01Confira a quantidade, a nota de origem e o identificador da unidade antes de selecionar a reserva. A escolha prepara a leitura da etiqueta ou o registro do destino; quantidades e situações são as retornadas na consulta.Reserva 1AtivaReserva selecionadaQuantidade reservada6Nota de origemReferência indisponívelIdentificador da unidade00000000-0000-4000-8000-000000000002Selecionar reserva2. Sugestão FIFO e reservaConsulte a sugestão do backend e transcreva/seleciona as unidades. A reserva só existe após confirmação. Exceção FIFO exige justificativa e Supervisor/Gestor.Filtros da consultaCliente *Armazém *Aplicar filtrosRestaurar filtrosOperação confirmada no exercício fictício. Lista em atualização.Ver registro confirmadoBuscar nos registros desta páginaSituação nesta páginaTodasReservadoAtualizar lista1 de 1 registros desta resposta correspondem aos filtros de apresentação.Pedidos de saída · 1 registros nesta respostaReferênciaSituaçãoAçõesDEMO-01ReservadoVer detalhesRevalidar disponibilidade1 registros · 1 nesta página · 20 por páginaAnteriorPágina 1 de 1PróximaConfirmar reserva integralConsultar referências para a tarefaConsultar posições para separaçãoConsultar etiqueta da unidadeReservas do pedidoDEMO-01Confira a quantidade, a nota de origem e o identificador da unidade antes de selecionar a reserva. A escolha prepara a leitura da etiqueta ou o registro do destino; quantidades e situações são as retornadas na consulta.Reserva 1AtivaReserva selecionadaQuantidade reservada6Nota de origemReferência indisponívelIdentificador da unidade00000000-0000-4000-8000-000000000002Selecionar reservaDados da operaçãoIdentificador *Revisão atual *JustificativaMotivo / justificativa *Reserva fictícia inteira6 conferida pelo SupervisorConferir e confirmarRepetir exatamente a mesma operaçãoIniciar nova operaçãoResposta FICTÍCIA de exercício recebida.  Correlação: local-ficticioResultado da operaçãoExcecao FifoNãoJustificada PorExemplo fictícioJustificativaExemplo fictícioPedidoClienteReferência indisponívelArmazémReferência indisponívelReferênciaDEMO-01Situação informadaRESERVADOCriado Em07/10/2026, 09:00Alterado Em07/10/2026, 09:00Pode ProsseguirNãoItensRegistros · 1 registro nesta respostaProduto / SKUSkuUnidade MedidaQuantidadeAçõesBOBINA-FICTBOBINA-FICTUN6Ver registro 1Selecionar registro 1ReservasReservas do pedido · 1 registro nesta respostaItemUnidade logísticaUUID da unidadeNota de origemData FIFOQuantidadeSituação informadaCriada EmAçõesReferência indisponível00000000-0000-4000-8000-00000000000200000000-0000-4000-8000-000000000002Referência indisponível07/10/2026, 09:006ATIVA07/10/2026, 09:00Ver registro 1Selecionar registro 1Unidades Impedidas1Selecionar este registroSelecoesRegistros · 1 registro nesta respostaUnidade logísticaQuantidadeAçõesExemplo fictício10Ver registro 1Selecionar registro 1Ler a etiqueta da reserva confirmadaVoltar à listaReferências da jornada no contexto atualPedido de saída: DEMO-01 · Revisão 2  · RESERVADOReserva: 00000000-0000-4000-8000-000000000002   · ATIVAUma lista com vários registros exige seleção explícita. Confira o pedido, a mercadoria e a unidade antes de continuar.",
+  "requests": [
+    {
+      "id": "PedidoEntradaController.listar",
+      "route": "/api/v1/pedidos-entrada",
+      "params": {},
+      "query": {
+        "clienteId": "1",
+        "armazemId": "1",
+        "pagina": "0",
+        "tamanho": "20"
+      },
+      "wire": null,
+      "file": null
+    },
+    {
+      "id": "UnidadeLogisticaController.listar",
+      "route": "/api/v1/pedidos-entrada/{pedidoId}/unidades",
+      "params": {
+        "pedidoId": "101"
+      },
+      "query": {
+        "pagina": "0",
+        "tamanho": "20"
+      },
+      "wire": null,
+      "file": null
+    },
+    {
+      "id": "PedidoSaidaController.listar",
+      "route": "/api/v1/pedidos-saida",
+      "params": {},
+      "query": {
+        "clienteId": "1",
+        "armazemId": "1",
+        "pagina": "0",
+        "tamanho": "20"
+      },
+      "wire": null,
+      "file": null
+    },
+    {
+      "id": "PedidoSaidaController.consultar",
+      "route": "/api/v1/pedidos-saida/{id}",
+      "params": {
+        "id": "601"
+      },
+      "query": {},
+      "wire": null,
+      "file": null
+    },
+    {
+      "id": "PedidoSaidaController.listar",
+      "route": "/api/v1/pedidos-saida",
+      "params": {},
+      "query": {
+        "clienteId": "1",
+        "armazemId": "1",
+        "pagina": "0",
+        "tamanho": "20"
+      },
+      "wire": null,
+      "file": null
+    },
+    {
+      "id": "PedidoSaidaController.consultar",
+      "route": "/api/v1/pedidos-saida/{id}",
+      "params": {
+        "id": "601"
+      },
+      "query": {},
+      "wire": null,
+      "file": null
+    },
+    {
+      "id": "PedidoSaidaController.sugerir",
+      "route": "/api/v1/pedidos-saida/{id}/fifo",
+      "params": {
+        "id": "601"
+      },
+      "query": {},
+      "wire": null,
+      "file": null
+    },
+    {
+      "id": "PedidoSaidaController.justificar",
+      "route": "/api/v1/pedidos-saida/{id}/justificativas-fifo",
+      "params": {
+        "id": "601"
+      },
+      "query": {},
+      "wire": "{\"operacaoId\":\"c2fc3920-56cb-4168-af6c-50072a790a1d\",\"versao\":0,\"selecoes\":[{\"unidadeId\":502,\"quantidade\":6.000000}],\"motivo\":\"Bobina4/6: seleção fictícia da unidade6 inteira recebida, sem fracionar a unidade4\"}",
+      "file": null
+    },
+    {
+      "id": "PedidoSaidaController.listar",
+      "route": "/api/v1/pedidos-saida",
+      "params": {},
+      "query": {
+        "clienteId": "1",
+        "armazemId": "1",
+        "pagina": "0",
+        "tamanho": "20"
+      },
+      "wire": null,
+      "file": null
+    },
+    {
+      "id": "PedidoSaidaController.listar",
+      "route": "/api/v1/pedidos-saida",
+      "params": {},
+      "query": {
+        "clienteId": "1",
+        "armazemId": "1",
+        "pagina": "0",
+        "tamanho": "20"
+      },
+      "wire": null,
+      "file": null
+    },
+    {
+      "id": "PedidoSaidaController.reservar",
+      "route": "/api/v1/pedidos-saida/{id}/reserva",
+      "params": {
+        "id": "601"
+      },
+      "query": {},
+      "wire": "{\"operacaoId\":\"c91ee6a9-c86d-4009-8934-64019316d6f6\",\"versao\":1,\"justificativaId\":\"c2fc3920-56cb-4168-af6c-50072a790a1d\",\"motivo\":\"Reserva fictícia inteira6 conferida pelo Supervisor\"}",
+      "file": null
+    },
+    {
+      "id": "PedidoSaidaController.listar",
+      "route": "/api/v1/pedidos-saida",
+      "params": {},
+      "query": {
+        "clienteId": "1",
+        "armazemId": "1",
+        "pagina": "0",
+        "tamanho": "20"
+      },
+      "wire": null,
+      "file": null
+    }
+  ],
+  "boundary": "componentes React reais + transport ficticio; zero HTTP/backend"
+}

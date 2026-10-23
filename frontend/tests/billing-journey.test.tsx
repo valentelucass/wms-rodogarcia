@@ -1,5 +1,5 @@
 import { it, expect, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { FictitiousTransport } from "../src/api/fictitious";
 import { Result } from "../src/components/Result";
 import {
@@ -72,7 +72,11 @@ it("FE04 FE11 serviço tabela vigência vínculo sugestão fato e cálculo com r
     await consult();
     expect(screen.queryByRole("cell", { name: "2601" })).toBeNull();
     expect(body(lastMutation(t.requests)).tabelaId).toBe("2601");
-    await click("Serviços e cálculo");
+    await click("Fechamento de Fatura");
+    await click("Novo fechamento");
+    fireEvent.click(
+        screen.getByText("Conferir ou incluir serviços realizados"),
+    );
     await click("Consultar sugestões de serviço");
     await consult();
     await click("Selecionar registro 1");
@@ -158,14 +162,12 @@ it("FE11 reabertura nova versão ajuste conserva origem histórica e consulta id
     );
     await consult();
     await selectResultRow("Cálculos", "801");
-    await click("Fechamentos e ESL");
+    await click("Fechamento de Fatura");
     await consult();
     await selectResultRow("Fechamentos", "901");
-    await click("1. Ciclo e versões");
     await click("Consultar versão e hash");
     await consult();
     await click("Guardar versão consultada como origem do ajuste");
-    await click("2. Decisão integral do Gestor");
     await click("Reabrir ciclo");
     selected("Identificador *", "901");
     selected("Cálculo de referência *", "801");
@@ -182,7 +184,6 @@ it("FE11 reabertura nova versão ajuste conserva origem histórica e consulta id
             .getAllByRole("region", { name: "Origem histórica do ajuste" })
             .at(-1),
     ).toHaveTextContent("versão 1");
-    await click("Ajustes de ciclo");
     await click("Registrar ajuste");
     selected("Origem Versao Id *", "1001");
     selected("Destino Fechamento Id *", "901");
@@ -201,8 +202,16 @@ it("FE11 reabertura nova versão ajuste conserva origem histórica e consulta id
     await click("Consultar ajustes identificados do fechamento");
     await consult();
     expect(
-        document.querySelector('tr[data-record-id="2901"]'),
-    ).toBeInTheDocument();
+        (
+            await screen.findAllByText(
+                "Documento fictício e memória corrigida recebida",
+                { exact: true },
+            )
+        ).length,
+    ).toBeGreaterThan(0);
+    expect(t.requests.at(-1)?.endpoint.id).toBe(
+        "AjusteFechamentoController.listar",
+    );
     expect(
         screen.queryByRole("cell", { name: "2901" }),
     ).not.toBeInTheDocument();

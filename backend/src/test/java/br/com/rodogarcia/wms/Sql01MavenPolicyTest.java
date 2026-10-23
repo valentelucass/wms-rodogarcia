@@ -48,7 +48,9 @@ class Sql01MavenPolicyTest {
                         "VisaoOperacaoServiceTest",
                         "PrevisaoFaturamentoTest",
                         "PrevisaoMotorTest",
-                        "PrevisaoFontesTest");
+                        "PrevisaoFontesTest",
+                        "InventarioConferenciaTest",
+                        "InventarioServiceTest");
         assertThat(
                         text(
                                 pom,

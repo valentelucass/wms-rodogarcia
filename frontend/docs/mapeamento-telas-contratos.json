@@ -53,7 +53,7 @@
     },
     {
       "id": "contagem",
-      "title": "Contagem e carga inicial",
+      "title": "Inventário",
       "fe": "FE12",
       "be": "BE14",
       "source": "src/modules/regularizacao/definition.ts"
@@ -856,7 +856,7 @@
       "screens": [
         {
           "id": "contagem",
-          "title": "Contagem e carga inicial",
+          "title": "Inventário",
           "fe": "FE12",
           "be": "BE14",
           "source": "src/modules/regularizacao/definition.ts",
@@ -889,7 +889,7 @@
       "screens": [
         {
           "id": "contagem",
-          "title": "Contagem e carga inicial",
+          "title": "Inventário",
           "fe": "FE12",
           "be": "BE14",
           "source": "src/modules/regularizacao/definition.ts",
@@ -959,7 +959,7 @@
       "screens": [
         {
           "id": "contagem",
-          "title": "Contagem e carga inicial",
+          "title": "Inventário",
           "fe": "FE12",
           "be": "BE14",
           "source": "src/modules/regularizacao/definition.ts",
@@ -1005,7 +1005,7 @@
       "screens": [
         {
           "id": "contagem",
-          "title": "Contagem e carga inicial",
+          "title": "Inventário",
           "fe": "FE12",
           "be": "BE14",
           "source": "src/modules/regularizacao/definition.ts",
@@ -1043,7 +1043,7 @@
       "screens": [
         {
           "id": "contagem",
-          "title": "Contagem e carga inicial",
+          "title": "Inventário",
           "fe": "FE12",
           "be": "BE14",
           "source": "src/modules/regularizacao/definition.ts",
@@ -1081,7 +1081,7 @@
       "screens": [
         {
           "id": "contagem",
-          "title": "Contagem e carga inicial",
+          "title": "Inventário",
           "fe": "FE12",
           "be": "BE14",
           "source": "src/modules/regularizacao/definition.ts",
@@ -1119,7 +1119,7 @@
       "screens": [
         {
           "id": "contagem",
-          "title": "Contagem e carga inicial",
+          "title": "Inventário",
           "fe": "FE12",
           "be": "BE14",
           "source": "src/modules/regularizacao/definition.ts",
@@ -1152,7 +1152,7 @@
       "screens": [
         {
           "id": "contagem",
-          "title": "Contagem e carga inicial",
+          "title": "Inventário",
           "fe": "FE12",
           "be": "BE14",
           "source": "src/modules/regularizacao/definition.ts",
@@ -1185,7 +1185,7 @@
       "screens": [
         {
           "id": "contagem",
-          "title": "Contagem e carga inicial",
+          "title": "Inventário",
           "fe": "FE12",
           "be": "BE14",
           "source": "src/modules/regularizacao/definition.ts",
@@ -1815,7 +1815,7 @@
       "screens": [
         {
           "id": "contagem",
-          "title": "Contagem e carga inicial",
+          "title": "Inventário",
           "fe": "FE12",
           "be": "BE14",
           "source": "src/modules/regularizacao/definition.ts",
@@ -1856,7 +1856,7 @@
       "screens": [
         {
           "id": "contagem",
-          "title": "Contagem e carga inicial",
+          "title": "Inventário",
           "fe": "FE12",
           "be": "BE14",
           "source": "src/modules/regularizacao/definition.ts",
@@ -1931,7 +1931,7 @@
       "screens": [
         {
           "id": "contagem",
-          "title": "Contagem e carga inicial",
+          "title": "Inventário",
           "fe": "FE12",
           "be": "BE14",
           "source": "src/modules/regularizacao/definition.ts",
@@ -1982,7 +1982,7 @@
       "screens": [
         {
           "id": "contagem",
-          "title": "Contagem e carga inicial",
+          "title": "Inventário",
           "fe": "FE12",
           "be": "BE14",
           "source": "src/modules/regularizacao/definition.ts",
@@ -2015,7 +2015,7 @@
       "screens": [
         {
           "id": "contagem",
-          "title": "Contagem e carga inicial",
+          "title": "Inventário",
           "fe": "FE12",
           "be": "BE14",
           "source": "src/modules/regularizacao/definition.ts",
@@ -2963,7 +2963,7 @@
         },
         {
           "id": "contagem",
-          "title": "Contagem e carga inicial",
+          "title": "Inventário",
           "fe": "FE12",
           "be": "BE14",
           "source": "src/modules/regularizacao/definition.ts",
@@ -6113,6 +6113,346 @@
         }
       ],
       "supportOnly": false
+    },
+    {
+      "id": "InventarioController.disponibilidade",
+      "method": "GET",
+      "path": "/api/v1/inventarios/disponibilidade",
+      "request": null,
+      "response": "InventarioDto.Disponibilidade",
+      "query": [],
+      "params": [],
+      "multipart": false,
+      "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/InventarioController.java",
+      "handler": "disponibilidade",
+      "permission": "OPERACAO",
+      "permissionSource": [
+        "backend/src/main/java/br/com/rodogarcia/wms/services/InventarioService.java#disponibilidade"
+      ],
+      "screens": [
+        {
+          "id": "contagem",
+          "title": "Inventário",
+          "fe": "FE12",
+          "be": "BE14",
+          "source": "src/modules/regularizacao/InventoryWorkspace.tsx",
+          "step": "Inventários por escopo"
+        }
+      ],
+      "supportOnly": false
+    },
+    {
+      "id": "InventarioController.visao",
+      "method": "GET",
+      "path": "/api/v1/inventarios/visao",
+      "request": null,
+      "response": "PaginaResponse<InventarioDto.Visao>",
+      "query": [
+        {
+          "name": "clienteId",
+          "type": "Long",
+          "required": true
+        },
+        {
+          "name": "armazemId",
+          "type": "Long",
+          "required": true
+        },
+        {
+          "name": "produtoId",
+          "type": "Long",
+          "required": false
+        },
+        {
+          "name": "enderecoId",
+          "type": "Long",
+          "required": false
+        },
+        {
+          "name": "pesquisa",
+          "type": "String",
+          "required": false
+        },
+        {
+          "name": "agrupar",
+          "type": "String",
+          "required": false,
+          "default": "SKU"
+        },
+        {
+          "name": "pagina",
+          "type": "int",
+          "required": false,
+          "default": "0"
+        },
+        {
+          "name": "tamanho",
+          "type": "int",
+          "required": false,
+          "default": "20"
+        }
+      ],
+      "params": [],
+      "multipart": false,
+      "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/InventarioController.java",
+      "handler": "visao",
+      "permission": "OPERACAO",
+      "permissionSource": [
+        "backend/src/main/java/br/com/rodogarcia/wms/services/InventarioService.java#visao"
+      ],
+      "screens": [
+        {
+          "id": "contagem",
+          "title": "Inventário",
+          "fe": "FE12",
+          "be": "BE14",
+          "source": "src/modules/regularizacao/InventoryWorkspace.tsx",
+          "step": "Inventários por escopo"
+        }
+      ],
+      "supportOnly": false
+    },
+    {
+      "id": "InventarioController.listar",
+      "method": "GET",
+      "path": "/api/v1/inventarios",
+      "request": null,
+      "response": "PaginaResponse<InventarioDto.Resumo>",
+      "query": [
+        {
+          "name": "clienteId",
+          "type": "Long",
+          "required": true
+        },
+        {
+          "name": "armazemId",
+          "type": "Long",
+          "required": true
+        },
+        {
+          "name": "pagina",
+          "type": "int",
+          "required": false,
+          "default": "0"
+        },
+        {
+          "name": "tamanho",
+          "type": "int",
+          "required": false,
+          "default": "20"
+        }
+      ],
+      "params": [],
+      "multipart": false,
+      "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/InventarioController.java",
+      "handler": "listar",
+      "permission": "OPERACAO",
+      "permissionSource": [
+        "backend/src/main/java/br/com/rodogarcia/wms/services/InventarioService.java#listar"
+      ],
+      "screens": [
+        {
+          "id": "contagem",
+          "title": "Inventário",
+          "fe": "FE12",
+          "be": "BE14",
+          "source": "src/modules/regularizacao/InventoryWorkspace.tsx",
+          "step": "Inventários por escopo"
+        }
+      ],
+      "supportOnly": false
+    },
+    {
+      "id": "InventarioController.iniciar",
+      "method": "POST",
+      "path": "/api/v1/inventarios",
+      "request": "InventarioDto.Iniciar",
+      "response": "InventarioDto.Resumo",
+      "query": [],
+      "params": [],
+      "multipart": false,
+      "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/InventarioController.java",
+      "handler": "iniciar",
+      "permission": "OPERACAO",
+      "permissionSource": [
+        "backend/src/main/java/br/com/rodogarcia/wms/services/InventarioService.java#iniciar"
+      ],
+      "screens": [
+        {
+          "id": "contagem",
+          "title": "Inventário",
+          "fe": "FE12",
+          "be": "BE14",
+          "source": "src/modules/regularizacao/InventoryWorkspace.tsx",
+          "step": "Inventários por escopo"
+        }
+      ],
+      "supportOnly": false
+    },
+    {
+      "id": "InventarioController.consultar",
+      "method": "GET",
+      "path": "/api/v1/inventarios/{id}",
+      "request": null,
+      "response": "InventarioDto.Detalhe",
+      "query": [],
+      "params": [
+        {
+          "name": "id",
+          "type": "Long",
+          "required": true
+        }
+      ],
+      "multipart": false,
+      "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/InventarioController.java",
+      "handler": "consultar",
+      "permission": "OPERACAO",
+      "permissionSource": [
+        "backend/src/main/java/br/com/rodogarcia/wms/services/InventarioService.java#consultar"
+      ],
+      "screens": [
+        {
+          "id": "contagem",
+          "title": "Inventário",
+          "fe": "FE12",
+          "be": "BE14",
+          "source": "src/modules/regularizacao/InventoryWorkspace.tsx",
+          "step": "Inventários por escopo"
+        }
+      ],
+      "supportOnly": false
+    },
+    {
+      "id": "InventarioController.ler",
+      "method": "POST",
+      "path": "/api/v1/inventarios/{id}/leituras",
+      "request": "InventarioDto.Ler",
+      "response": "InventarioDto.Registro",
+      "query": [],
+      "params": [
+        {
+          "name": "id",
+          "type": "Long",
+          "required": true
+        }
+      ],
+      "multipart": false,
+      "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/InventarioController.java",
+      "handler": "ler",
+      "permission": "OPERACAO",
+      "permissionSource": [
+        "backend/src/main/java/br/com/rodogarcia/wms/services/InventarioService.java#ler"
+      ],
+      "screens": [
+        {
+          "id": "contagem",
+          "title": "Inventário",
+          "fe": "FE12",
+          "be": "BE14",
+          "source": "src/modules/regularizacao/InventoryWorkspace.tsx",
+          "step": "Inventários por escopo"
+        }
+      ],
+      "supportOnly": false
+    },
+    {
+      "id": "InventarioController.finalizar",
+      "method": "POST",
+      "path": "/api/v1/inventarios/{id}/finalizar",
+      "request": "InventarioDto.Encerrar",
+      "response": "InventarioDto.Relatorio",
+      "query": [],
+      "params": [
+        {
+          "name": "id",
+          "type": "Long",
+          "required": true
+        }
+      ],
+      "multipart": false,
+      "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/InventarioController.java",
+      "handler": "finalizar",
+      "permission": "OPERACAO",
+      "permissionSource": [
+        "backend/src/main/java/br/com/rodogarcia/wms/services/InventarioService.java#finalizar"
+      ],
+      "screens": [
+        {
+          "id": "contagem",
+          "title": "Inventário",
+          "fe": "FE12",
+          "be": "BE14",
+          "source": "src/modules/regularizacao/InventoryWorkspace.tsx",
+          "step": "Inventários por escopo"
+        }
+      ],
+      "supportOnly": false
+    },
+    {
+      "id": "InventarioController.cancelar",
+      "method": "POST",
+      "path": "/api/v1/inventarios/{id}/cancelar",
+      "request": "InventarioDto.Encerrar",
+      "response": "InventarioDto.Resumo",
+      "query": [],
+      "params": [
+        {
+          "name": "id",
+          "type": "Long",
+          "required": true
+        }
+      ],
+      "multipart": false,
+      "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/InventarioController.java",
+      "handler": "cancelar",
+      "permission": "SUPERVISOR",
+      "permissionSource": [
+        "backend/src/main/java/br/com/rodogarcia/wms/services/InventarioService.java#cancelar"
+      ],
+      "screens": [
+        {
+          "id": "contagem",
+          "title": "Inventário",
+          "fe": "FE12",
+          "be": "BE14",
+          "source": "src/modules/regularizacao/InventoryWorkspace.tsx",
+          "step": "Inventários por escopo"
+        }
+      ],
+      "supportOnly": false
+    },
+    {
+      "id": "InventarioController.relatorio",
+      "method": "GET",
+      "path": "/api/v1/inventarios/{id}/relatorio",
+      "request": null,
+      "response": "InventarioDto.Relatorio",
+      "query": [],
+      "params": [
+        {
+          "name": "id",
+          "type": "Long",
+          "required": true
+        }
+      ],
+      "multipart": false,
+      "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/InventarioController.java",
+      "handler": "relatorio",
+      "permission": "OPERACAO",
+      "permissionSource": [
+        "backend/src/main/java/br/com/rodogarcia/wms/services/InventarioService.java#relatorio"
+      ],
+      "screens": [
+        {
+          "id": "contagem",
+          "title": "Inventário",
+          "fe": "FE12",
+          "be": "BE14",
+          "source": "src/modules/regularizacao/InventoryWorkspace.tsx",
+          "step": "Inventários por escopo"
+        }
+      ],
+      "supportOnly": false
     }
   ],
   "sourceHashes": {
@@ -6283,5 +6623,12 @@
     "backend/src/main/java/br/com/rodogarcia/wms/services/StatusService.java": "ab4dd6d706a42eafd4d4cdb5c09d4830598f407ddaf6939d31198aa7975cba7f",
     "backend/src/main/java/br/com/rodogarcia/wms/services/UnidadeLogisticaService.java": "9f1a91f7574495318daee13d7cc3037c57551b535d26896f1011d52d1759cd28",
     "frontend/tools/contratos.py": "e6a1c64e05b67d2c3cf95dc573b1bdd508b9d482c6b888234b5bbf34d08b3e87"
+  },
+  "inventoryAddendum": {
+    "scope": "FE12-INVENTARIO-UX02 / BE14-INVENTARIO01",
+    "date": "2026-10-23",
+    "source": "Definição, componentes atuais e contratos Java extraídos",
+    "endpoints": 9,
+    "generatorLimitation": "O gerador geral anterior recusa 19 endpoints nativos de auth/início/XML sem ligação em jornadas. Adendo focal preserva as linhas históricas."
   }
 }

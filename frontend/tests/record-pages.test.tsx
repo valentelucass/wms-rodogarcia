@@ -479,7 +479,34 @@ describe("REG01 expansão das páginas reais", () => {
                 />,
             );
             for (let i = 0; i < journey.steps.length; i++) {
-                if (i > 0 && journey.id !== "entrada")
+                if (journey.id === "contagem") {
+                    const opened = screen.queryByRole("dialog");
+                    if (opened)
+                        fireEvent.click(
+                            within(opened).getByRole("button", {
+                                name: "Fechar diálogo",
+                            }),
+                        );
+                    if (i === 1)
+                        fireEvent.click(
+                            screen.getByText("Ajustes e carga inicial", {
+                                selector: "summary",
+                            }),
+                        );
+                    if (i === 1 || i === 2)
+                        fireEvent.click(
+                            screen.getByRole("button", {
+                                name:
+                                    i === 1
+                                        ? "Contagens e ajustes anteriores"
+                                        : "Carga inicial excepcional",
+                            }),
+                        );
+                }
+                if (
+                    i > 0 &&
+                    !["entrada", "fechamento", "contagem"].includes(journey.id)
+                )
                     click(
                         new RegExp(
                             journey.steps[i].title.replace(
@@ -493,7 +520,12 @@ describe("REG01 expansão das páginas reais", () => {
                         requests.some(
                             (request) =>
                                 request.endpoint.id ===
-                                recordPages[journey.id][i].source,
+                                (journey.id === "contagem" &&
+                                (i === 0 || i === 3)
+                                    ? "InventarioController.visao"
+                                    : recordPages[journey.id][
+                                          journey.id === "fechamento" ? 0 : i
+                                      ].source),
                         ),
                     ).toBe(true),
                 );

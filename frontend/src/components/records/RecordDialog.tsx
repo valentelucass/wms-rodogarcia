@@ -30,6 +30,8 @@ import { DispatchReservations } from "../../modules/saida/DispatchReservations";
 import { AdjustmentOrigin } from "../../modules/financeiro/AdjustmentOrigin";
 import { ServiceDetail } from "../../modules/financeiro/ServiceDetail";
 import { ServiceFactRecovery } from "../../modules/financeiro/ServiceFactRecovery";
+import { InvoiceDetail } from "../../modules/financeiro/InvoiceDetail";
+import { InvoicePreparationTools } from "../../modules/financeiro/InvoicePreparationTools";
 import { InitialLoadDetail } from "../../modules/regularizacao/InitialLoadDetail";
 import { AuditSelection } from "../../modules/relatorios/AuditSelection";
 import { useRecordQuery } from "../../hooks/useRecordQuery";
@@ -315,8 +317,20 @@ export function RecordDialog({
         derived.tipo = "PEDIDO_ENTRADA";
         derived.registroId = recordIdentity(record);
     }
+    const invoiceVersion =
+        workingWorkflow.current.selected["FechamentoCobrancaDto.Versao"];
+    const invoiceReady = Boolean(
+        record &&
+        invoiceVersion &&
+        String(invoiceVersion.fechamentoId) === String(record.id) &&
+        String(invoiceVersion.numero) === String(record.versaoAtual),
+    );
     const available = actions.filter(
         (id) =>
+            (recordType !== "FechamentoCobrancaDto.Fechamento" ||
+                id !== "FechamentoCobrancaController.aprovar" ||
+                invoiceReady ||
+                endpoint(id).method === "GET") &&
             visibleRecordActions(
                 [id],
                 perfil,
@@ -378,6 +392,18 @@ export function RecordDialog({
         if (request.endpoint.method !== "GET") {
             setCompletedAction(id);
             edit.current.dirty = false;
+            if (
+                journey.id === "fechamento" &&
+                isObject(r.data) &&
+                isObject(r.data.fechamento)
+            ) {
+                setRecord(r.data.fechamento);
+                setRecordType("FechamentoCobrancaDto.Fechamento");
+                target.current = {
+                    row: r.data.fechamento,
+                    type: "FechamentoCobrancaDto.Fechamento",
+                };
+            }
             const canonicalType = endpoint(page.detail ?? page.source).response;
             const candidate =
                 isObject(r.data) &&
@@ -509,6 +535,9 @@ export function RecordDialog({
                         ? " record-dialog--initial-load"
                         : "") +
                     (serviceDetail ? " record-dialog--service" : "") +
+                    (recordType === "FechamentoCobrancaDto.Fechamento"
+                        ? " record-dialog--invoice"
+                        : "") +
                     (action === "FatoServicoController.sugestoes"
                         ? " record-dialog--service-suggestions"
                         : "") +
@@ -541,16 +570,21 @@ export function RecordDialog({
                 }
                 title={
                     action
-                        ? recordActionLabel(action)
-                        : serviceDetail
-                          ? "Detalhes do serviço"
-                          : recordType === "AuditoriaResponse"
-                            ? "Detalhes da alteração"
-                            : recordType === "CargaInicialDto.Resultado"
-                              ? "Carga inicial"
-                              : recordType === "EncerramentoDto.Resultado"
-                                ? "Encerramento do cadastro"
-                                : subjectTitle
+                        ? journey.id === "fechamento" &&
+                          action === "CalculoCobrancaController.calcular"
+                            ? "Novo fechamento"
+                            : recordActionLabel(action)
+                        : recordType === "FechamentoCobrancaDto.Fechamento"
+                          ? "Detalhes da fatura"
+                          : serviceDetail
+                            ? "Detalhes do serviço"
+                            : recordType === "AuditoriaResponse"
+                              ? "Detalhes da alteração"
+                              : recordType === "CargaInicialDto.Resultado"
+                                ? "Carga inicial"
+                                : recordType === "EncerramentoDto.Resultado"
+                                  ? "Encerramento do cadastro"
+                                  : subjectTitle
                 }
                 wide
                 icon={
@@ -728,7 +762,17 @@ export function RecordDialog({
                                 className="record-detail"
                                 aria-label="Dados do registro"
                             >
-                                {serviceDetail ? (
+                                {recordType ===
+                                "FechamentoCobrancaDto.Fechamento" ? (
+                                    <InvoiceDetail
+                                        key={`${record.id}/${record.versaoAtual}/${record.versao}`}
+                                        invoice={record}
+                                        transport={transport}
+                                        perfil={perfil}
+                                        onReceipt={commandReceipt}
+                                        onRecord={selectRecord}
+                                    />
+                                ) : serviceDetail ? (
                                     <ServiceDetail data={record} />
                                 ) : recordType ===
                                   "CargaInicialDto.Resultado" ? (
@@ -777,71 +821,91 @@ export function RecordDialog({
                                 available.includes(action) ||
                                 completedAction === action ||
                                 endpoint(action).method === "GET") && (
-                                <Operation
-                                    key={
-                                        action +
-                                        ":" +
-                                        reload +
-                                        ":" +
-                                        actionRevision
-                                    }
-                                    id={action}
-                                    transport={transport}
-                                    context={derived}
-                                    perfil={perfil}
-                                    inDialog
-                                    hideHeading
-                                    fixedFields={
-                                        opening.row ||
-                                        (journey.id === "entrada" && record)
-                                            ? [
-                                                  "id",
-                                                  ...(action ===
-                                                  "ConfiguracaoCobrancaController.alterar"
-                                                      ? []
-                                                      : [
-                                                            "clienteId",
-                                                            "armazemId",
-                                                        ]),
-                                                  "pedidoId",
-                                                  "unidadeId",
-                                                  ...(action ===
-                                                  "EnderecoController.alterar"
-                                                      ? []
-                                                      : ["codigo"]),
-                                                  "versao",
-                                                  "versaoPedido",
-                                                  "versaoDestino",
-                                                  ...(journey.id ===
-                                                      "entrada" ||
-                                                  action.startsWith(
-                                                      "EncerramentoController.",
-                                                  )
-                                                      ? ["tipo", "registroId"]
-                                                      : []),
-                                              ].filter(
-                                                  (key) =>
-                                                      derived[key] !==
-                                                          undefined &&
-                                                      derived[key] !== "",
-                                              )
-                                            : []
-                                    }
-                                    onEditingChange={editingChange}
-                                    onReceipt={commandReceipt}
-                                    onReplayReceipt={commandReceipt}
-                                    onSelect={selectRecord}
-                                    onContinue={(next) => {
-                                        if (canClose()) {
-                                            if (
-                                                journey.id === "entrada" &&
-                                                next.page === "entrada"
-                                            )
-                                                chooseAction(next.action);
-                                            else onNavigate(next);
+                                <>
+                                    {journey.id === "fechamento" &&
+                                        action ===
+                                            "CalculoCobrancaController.calcular" && (
+                                            <InvoicePreparationTools
+                                                transport={transport}
+                                                context={derived}
+                                                perfil={perfil}
+                                                workflow={
+                                                    workingWorkflow.current
+                                                }
+                                                onRecord={selectRecord}
+                                                onReceipt={commandReceipt}
+                                                onNavigate={onNavigate}
+                                            />
+                                        )}
+                                    <Operation
+                                        key={
+                                            action +
+                                            ":" +
+                                            reload +
+                                            ":" +
+                                            actionRevision
                                         }
-                                    }}
-                                />
+                                        id={action}
+                                        transport={transport}
+                                        context={derived}
+                                        perfil={perfil}
+                                        inDialog
+                                        hideHeading
+                                        fixedFields={
+                                            opening.row ||
+                                            (journey.id === "entrada" && record)
+                                                ? [
+                                                      "id",
+                                                      ...(action ===
+                                                      "ConfiguracaoCobrancaController.alterar"
+                                                          ? []
+                                                          : [
+                                                                "clienteId",
+                                                                "armazemId",
+                                                            ]),
+                                                      "pedidoId",
+                                                      "unidadeId",
+                                                      ...(action ===
+                                                      "EnderecoController.alterar"
+                                                          ? []
+                                                          : ["codigo"]),
+                                                      "versao",
+                                                      "versaoPedido",
+                                                      "versaoDestino",
+                                                      ...(journey.id ===
+                                                          "entrada" ||
+                                                      action.startsWith(
+                                                          "EncerramentoController.",
+                                                      )
+                                                          ? [
+                                                                "tipo",
+                                                                "registroId",
+                                                            ]
+                                                          : []),
+                                                  ].filter(
+                                                      (key) =>
+                                                          derived[key] !==
+                                                              undefined &&
+                                                          derived[key] !== "",
+                                                  )
+                                                : []
+                                        }
+                                        onEditingChange={editingChange}
+                                        onReceipt={commandReceipt}
+                                        onReplayReceipt={commandReceipt}
+                                        onSelect={selectRecord}
+                                        onContinue={(next) => {
+                                            if (canClose()) {
+                                                if (
+                                                    journey.id === "entrada" &&
+                                                    next.page === "entrada"
+                                                )
+                                                    chooseAction(next.action);
+                                                else onNavigate(next);
+                                            }
+                                        }}
+                                    />
+                                </>
                             )}
                         {uncertain &&
                             action === "FatoServicoController.anular" && (

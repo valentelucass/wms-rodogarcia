@@ -1,0 +1,81 @@
+{
+  "data": "2026-10-22",
+  "escopo": "BE10-NOTAZZ-MAP01 / FE10-NOTAZZ-MAP01",
+  "status": "LEVANTAMENTO_DOCUMENTAL_CONCLUIDO_REVISADO",
+  "codigoAlterado": false,
+  "configuracaoAlterada": false,
+  "bancoAcessado": false,
+  "emissaoFiscal": false,
+  "frontend": {
+    "total": 68,
+    "aprovados": 68,
+    "falhas": 0,
+    "pendentes": 0,
+    "arquivos": 12,
+    "rede": "BLOQUEADA_FETCH_GLOBAL_TRANSPORTES_FICTICIOS",
+    "provas": 12,
+    "resultado": "frontend-vitest.json"
+  },
+  "backend": {
+    "resultado": "NAO_INICIADO_POR_PROTECAO_MEMORIA",
+    "codigo": "BATCH_MEMORY_ADMISSION",
+    "ramLivreMiB": 2741,
+    "minimoMiB": 4096,
+    "comprometimentoPercent": 87,
+    "maximoPercent": 85,
+    "testesExecutados": 0,
+    "classesCandidatas": [
+      "NfeDocumentoServiceTest",
+      "NfeBobinasTest",
+      "NfeSkuTest"
+    ],
+    "perfil": "pure-no-db",
+    "contornoOuRepeticao": false
+  },
+  "apiPublica": {
+    "verificacoesConfirmadas": 17,
+    "sdkZipConfirmado": false,
+    "camposCriacao": 101,
+    "caminhosModeloDocumento": 848,
+    "caminhosModeloProduto": 559,
+    "chamadasAutenticadas": 0
+  },
+  "limites": [
+    "Sem teste integrado SQL ou Notazz",
+    "Sem homologacao fiscal",
+    "F06/F07/F08 causas estaticas, sem reteste ponta a ponta",
+    "Graphify existente consultado; fontes documentais novas nao incorporadas ao grafo nesta entrega"
+  ],
+  "regras": 102,
+  "cenariosPlanejados": 65,
+  "verificacaoDocumental": {
+    "documentos": 3,
+    "idsSequenciais": true,
+    "linksExistentes": true,
+    "tabelasConferidas": true,
+    "jsonsValidos": true,
+    "problemas": 0,
+    "revisaoIndependente": true
+  },
+  "alinhamentoGestor": {
+    "data": "2026-10-22",
+    "regrasAtuais": 107,
+    "cenariosPlanejadosAtuais": 75,
+    "danfesConferidos": 2,
+    "verificacoesDocumentais": 30,
+    "verificacoesDocumentaisAprovadas": 30,
+    "autorizacaoFiscalAtualConsultada": false,
+    "rodadasRespondidas": 2,
+    "definicoesOperacionaisConfirmadas": [
+      "Procedimento informado ate 24 horas: cancelar saida fiscal e reenderecar, inclusive apos saida e retorno; admissibilidade fiscal especifica pendente",
+      "Apos 24 horas: nota de entrada, novo processo operacional e reenderecamento mesmo sem retirada, conservando quantidade fisica unica",
+      "Fiscal primeiro; operador depois nos enderecamentos",
+      "Retorno simbolico pode ser somente fiscal"
+    ],
+    "validacaoFiscalEspecificaPendente": [
+      "Natalina/Controladoria: admissibilidade do cancelamento quando houve circulacao e retorno dentro de 24 horas; prazo isolado nao comprova permissao"
+    ],
+    "previaVisual": "ILUSTRATIVA_SEM_APLICAR_CODIGO",
+    "testeAplicacaoNovo": false
+  }
+}

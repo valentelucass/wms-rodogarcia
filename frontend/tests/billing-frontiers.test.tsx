@@ -1,5 +1,5 @@
 import { it, expect, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { ApiError, type Request, type Transport } from "../src/api/client";
 import { FictitiousTransport } from "../src/api/fictitious";
 import { Operation } from "../src/components/Operation";
@@ -46,20 +46,29 @@ it("FE11 decisão recusada preserva ciclo integral versão e consulta histórica
                           totalItens: "1",
                           totalPaginas: 1,
                       }
-                    : closure,
+                    : r.endpoint.id === "FechamentoCobrancaController.versao"
+                      ? obj("FechamentoCobrancaDto.Versao", {
+                            fechamentoId: "901",
+                            numero: 2,
+                            calculoId: "801",
+                        })
+                      : r.endpoint.id === "CalculoCobrancaController.consultar"
+                        ? obj("CalculoCobrancaDto.Resultado", {
+                              id: "801",
+                              clienteId: closure.clienteId,
+                              armazemId: closure.armazemId,
+                              periodoInicio: closure.periodoInicio,
+                              periodoFim: closure.periodoFim,
+                          })
+                        : closure,
             );
         }),
     };
-    render(
-        <Harness
-            transport={t}
-            page="fechamento"
-            action="FechamentoCobrancaController.consultar"
-        />,
+    render(<Harness transport={t} page="fechamento" action="" />);
+    fireEvent.click(
+        await screen.findByRole("button", { name: "Acessar fatura" }),
     );
-    fill("Identificador *", "901");
-    await consult();
-    await click("2. Decisão integral do Gestor");
+    await screen.findByText("Serviços cobrados");
     await click("Aprovar ciclo integral");
     selected("Identificador *", "901");
     selected("Revisão atual *", "4");
@@ -74,11 +83,9 @@ it("FE11 decisão recusada preserva ciclo integral versão e consulta histórica
     expect(body(lastMutation(calls))).toMatchObject({ versao: "4", numero: 2 });
     expect(body(lastMutation(calls))).not.toHaveProperty("linhaId");
     expect(screen.queryByText(/Resposta FICTÍCIA/)).toBeNull();
-    await click("1. Ciclo e versões");
-    await click("Consultar detalhe");
-    await consult();
+    await click("Ver detalhes do registro");
     expect(
-        screen.getByText("PREPARADO", { exact: true, selector: "dd" }),
+        screen.getAllByText("PREPARADO", { exact: true })[0],
     ).toBeInTheDocument();
     saveProof("FE11-decisao-recusa", calls);
 });
@@ -94,7 +101,12 @@ it("FE11 Gestor escolhe compromisso consultado na resolução explícita do fato
     );
     await consult();
     await selectResultRow("Fechamentos", "901");
-    await click("Serviços e cálculo");
+    await click("Fechar detalhes");
+    await click("Novo fechamento");
+    fireEvent.click(
+        screen.getByText("Conferir ou incluir serviços realizados"),
+    );
+    await screen.findByRole("button", { name: "Registrar fato" });
     await click("Registrar fato");
     await click("Consultar serviços para o fato");
     await screen.findByRole("button", { name: "Selecionar registro 1" });

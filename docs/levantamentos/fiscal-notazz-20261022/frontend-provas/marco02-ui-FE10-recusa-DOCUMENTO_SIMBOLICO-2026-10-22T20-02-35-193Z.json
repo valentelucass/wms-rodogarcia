@@ -1,0 +1,18 @@
+{
+  "name": "FE10-recusa-DOCUMENTO_SIMBOLICO",
+  "at": "2026-10-22T20:02:35.193Z",
+  "ui": "Confirmar retirada físicaDados da operaçãoIdentificador *Revisão atual *XMLs comprovantes da retirada *XMLs comprovantes da retirada 1XMLs comprovantes da retirada / 1 *Remover XMLs comprovantes da retirada 1Adicionar XMLs comprovantes da retiradaDestinos dos remanescentes *Nenhum item informado.Adicionar Destinos dos remanescentesMotivo / justificativa *Retirada fictícia consultada para confirmaçãoResolver pendências (Gestor)Não informadoNãoSimConferir e confirmarRetirada impedida: DOCUMENTO_SIMBOLICO. Consulte a expedição atual.Detalhes técnicosSe precisar de suporte, informe o código e a correlação abaixo.CódigoDOCUMENTO_SIMBOLICOCorrelaçãofiscal409",
+  "requests": [
+    {
+      "id": "ExpedicaoController.retirar",
+      "route": "/api/v1/pedidos-saida/{id}/retirada",
+      "params": {
+        "id": "601"
+      },
+      "query": {},
+      "wire": "{\"operacaoId\":\"801c2110-e6b2-4d61-a4fd-d2e0e231bc27\",\"versao\":4,\"xmls\":[\"<nfe>ficticia</nfe>\"],\"remanescentes\":[],\"motivo\":\"Retirada fictícia consultada para confirmação\",\"resolverPendentes\":false}",
+      "file": null
+    }
+  ],
+  "boundary": "componentes React reais + transport ficticio; zero HTTP/backend"
+}

@@ -1,0 +1,230 @@
+{
+  "data": "2026-10-22",
+  "escopo": "Conferência de DANFE e exercícios aritméticos independentes",
+  "exemplos": [
+    {
+      "arquivo": "NF-41260904547874000203550000000003191000001871.pdf",
+      "numero": 319,
+      "data": "30/09/2026",
+      "quantidade": "16000",
+      "valor_unitario": "0.7100",
+      "total": "11360.00",
+      "volumes": 13,
+      "peso": "13000.000",
+      "unidade": "PC",
+      "nota_origem": 293732,
+      "pis": "73.84",
+      "cofins": "340.80",
+      "caminho_origem": "C:\\Users\\suporte\\Downloads\\NF-41260904547874000203550000000003191000001871.pdf",
+      "sha256": "d67bd99c398e354e1c9e784acc019a1611bee45acdd3516058b7024d726a04af",
+      "chave": "41260904547874000203550000000003191000001871"
+    },
+    {
+      "arquivo": "NF-41260904547874000203550000000003161000001845.pdf",
+      "numero": 316,
+      "data": "29/09/2026",
+      "quantidade": "32000",
+      "valor_unitario": "0.7000",
+      "total": "22400.00",
+      "volumes": 26,
+      "peso": "26000.000",
+      "unidade": "PEC",
+      "nota_origem": 293729,
+      "pis": "145.60",
+      "cofins": "672.00",
+      "caminho_origem": "C:\\Users\\suporte\\Downloads\\NF-41260904547874000203550000000003161000001845.pdf",
+      "sha256": "27b70c99ef077a78318c2f0ef70720cfc0927aac6344949e48fb94652f21f30a",
+      "chave": "41260904547874000203550000000003161000001845"
+    }
+  ],
+  "verificacoes": [
+    {
+      "id": "NF319.paginas",
+      "ok": true,
+      "observado": "1",
+      "esperado": "1"
+    },
+    {
+      "id": "NF319.chave_tamanho",
+      "ok": true,
+      "observado": "44",
+      "esperado": "44"
+    },
+    {
+      "id": "NF319.chave_dv",
+      "ok": true,
+      "observado": "1",
+      "esperado": "1"
+    },
+    {
+      "id": "NF319.cnpj_emitente_chave",
+      "ok": true,
+      "observado": "04547874000203",
+      "esperado": "04547874000203"
+    },
+    {
+      "id": "NF319.numero_chave",
+      "ok": true,
+      "observado": "319",
+      "esperado": "319"
+    },
+    {
+      "id": "NF319.serie_chave",
+      "ok": true,
+      "observado": "000",
+      "esperado": "000"
+    },
+    {
+      "id": "NF319.destinatario_texto",
+      "ok": true,
+      "observado": "True",
+      "esperado": "True"
+    },
+    {
+      "id": "NF319.nota_origem_texto",
+      "ok": true,
+      "observado": "True",
+      "esperado": "True"
+    },
+    {
+      "id": "NF319.cfop_texto",
+      "ok": true,
+      "observado": "True",
+      "esperado": "True"
+    },
+    {
+      "id": "NF319.itens_total",
+      "ok": true,
+      "observado": "11360.00",
+      "esperado": "11360.00"
+    },
+    {
+      "id": "NF319.quantidade_nao_volumes",
+      "ok": true,
+      "observado": "True",
+      "esperado": "True"
+    },
+    {
+      "id": "NF319.pis_informado_positivo",
+      "ok": true,
+      "observado": "True",
+      "esperado": "True"
+    },
+    {
+      "id": "NF319.cofins_informado_positivo",
+      "ok": true,
+      "observado": "True",
+      "esperado": "True"
+    },
+    {
+      "id": "NF316.paginas",
+      "ok": true,
+      "observado": "1",
+      "esperado": "1"
+    },
+    {
+      "id": "NF316.chave_tamanho",
+      "ok": true,
+      "observado": "44",
+      "esperado": "44"
+    },
+    {
+      "id": "NF316.chave_dv",
+      "ok": true,
+      "observado": "5",
+      "esperado": "5"
+    },
+    {
+      "id": "NF316.cnpj_emitente_chave",
+      "ok": true,
+      "observado": "04547874000203",
+      "esperado": "04547874000203"
+    },
+    {
+      "id": "NF316.numero_chave",
+      "ok": true,
+      "observado": "316",
+      "esperado": "316"
+    },
+    {
+      "id": "NF316.serie_chave",
+      "ok": true,
+      "observado": "000",
+      "esperado": "000"
+    },
+    {
+      "id": "NF316.destinatario_texto",
+      "ok": true,
+      "observado": "True",
+      "esperado": "True"
+    },
+    {
+      "id": "NF316.nota_origem_texto",
+      "ok": true,
+      "observado": "True",
+      "esperado": "True"
+    },
+    {
+      "id": "NF316.cfop_texto",
+      "ok": true,
+      "observado": "True",
+      "esperado": "True"
+    },
+    {
+      "id": "NF316.itens_total",
+      "ok": true,
+      "observado": "22400.00",
+      "esperado": "22400.00"
+    },
+    {
+      "id": "NF316.quantidade_nao_volumes",
+      "ok": true,
+      "observado": "True",
+      "esperado": "True"
+    },
+    {
+      "id": "NF316.pis_informado_positivo",
+      "ok": true,
+      "observado": "True",
+      "esperado": "True"
+    },
+    {
+      "id": "NF316.cofins_informado_positivo",
+      "ok": true,
+      "observado": "True",
+      "esperado": "True"
+    },
+    {
+      "id": "RATEIO.soma_conservada",
+      "ok": true,
+      "observado": "100.00",
+      "esperado": "100.00"
+    },
+    {
+      "id": "RATEIO.saldo_ultima_parcela",
+      "ok": true,
+      "observado": "33.34",
+      "esperado": "33.34"
+    },
+    {
+      "id": "MULTIORIGEM.valores_distintos",
+      "ok": true,
+      "observado": "220",
+      "esperado": "220"
+    },
+    {
+      "id": "MULTIORIGEM.media_indiscriminada_nao_preserva_parcela",
+      "ok": true,
+      "observado": "True",
+      "esperado": "True"
+    }
+  ],
+  "total": 30,
+  "aprovadas": 30,
+  "limites": [
+    "Sem consulta de autorização atual na SEFAZ",
+    "DANFE não substitui XML para tributação completa",
+    "Exercícios não executam código fiscal ou estoque do WMS",
+    "Taxas e códigos dos exemplos não foram generalizados para outros clientes ou armazéns"
+  ]
+}

@@ -14,6 +14,7 @@ export type SituacaoReservaSaida = "ATIVA" | "CANCELADA" | "REVERTIDA" | "RETIRA
 export type SituacaoRevisaoContagem = "PENDENTE" | "PENDENTE_RESERVA" | "RECONCILIADA" | "SUBSTITUIDA" | "APLICADA";
 export type TipoContingencia = "CHEGADA" | "RESERVA" | "SEPARACAO" | "RETIRADA" | "RETORNO" | "ENTRADA" | "AVARIA" | "FATO_SERVICO" | "CONTAGEM" | "AJUSTE" | "REMANEJAMENTO";
 export type TipoEndereco = "ARMAZENAGEM" | "TRIAGEM" | "QUARENTENA" | "SEPARACAO";
+export type TipoInventario = "CEGAS" | "SKU" | "POSICAO";
 export type TipoQuantidade = "CONTAGEM" | "MEDIDA";
 export type TiposUnidadePermitidos = "PALLET" | "BOBINA" | "VOLUME" | "PALLET_BOBINA" | "PALLET_VOLUME" | "BOBINA_VOLUME" | "TODAS";
 export type TipoUnidadeLogistica = "PALLET" | "BOBINA" | "VOLUME";
@@ -1525,6 +1526,109 @@ export interface IndicadorEstoqueDto_Resultado {
   pendencias: Array<string> | null;
   avisos: Array<IndicadorEstoqueDto_Aviso> | null;
 }
+export interface InventarioDto_Disponibilidade {
+  disponivel: boolean;
+  mensagem: string | null;
+}
+export interface InventarioDto_Iniciar {
+  operacaoId: string;
+  clienteId: string;
+  armazemId: string;
+  tipo: TipoInventario;
+  produtoId: string | null;
+  enderecoId: string | null;
+  motivo: string;
+}
+export interface InventarioDto_Ler {
+  operacaoId: string;
+  versao: string;
+  codigoUnidade: string;
+  contado: string;
+  enderecoId: string | null;
+  substituir: boolean;
+}
+export interface InventarioDto_Encerrar {
+  operacaoId: string;
+  versao: string;
+  confirmarNaoLidas: boolean;
+  motivo: string;
+}
+export interface InventarioDto_Resumo {
+  id: string | null;
+  versao: string;
+  clienteId: string | null;
+  armazemId: string | null;
+  tipo: TipoInventario | null;
+  produtoId: string | null;
+  enderecoId: string | null;
+  situacao: string | null;
+  iniciadoEm: string | null;
+  encerradoEm: string | null;
+  responsavel: string | null;
+  unidadesLidas: string;
+  divergencias: number | null;
+}
+export interface InventarioDto_Leitura {
+  codigoUnidade: string | null;
+  sku: string | null;
+  descricao: string | null;
+  unidadeMedida: string | null;
+  contado: string | null;
+  enderecoId: string | null;
+  posicao: string | null;
+  lidoEm: string | null;
+}
+export interface InventarioDto_Detalhe {
+  inventario: InventarioDto_Resumo | null;
+  leituras: Array<InventarioDto_Leitura> | null;
+}
+export interface InventarioDto_Registro {
+  inventario: InventarioDto_Resumo | null;
+  leitura: InventarioDto_Leitura | null;
+}
+export interface InventarioDto_Linha {
+  codigoUnidade: string | null;
+  produtoId: string | null;
+  sku: string | null;
+  descricao: string | null;
+  unidadeMedida: string | null;
+  esperado: string | null;
+  contado: string | null;
+  diferenca: string | null;
+  posicoesEsperadas: string | null;
+  posicaoEncontrada: string | null;
+  ocorrencias: Array<string> | null;
+}
+export interface InventarioDto_PorSku {
+  produtoId: string | null;
+  sku: string | null;
+  descricao: string | null;
+  unidadeMedida: string | null;
+  esperado: string | null;
+  contado: string | null;
+  diferenca: string | null;
+  mercadoriasDivergentes: number;
+}
+export interface InventarioDto_Relatorio {
+  inventario: InventarioDto_Resumo | null;
+  referenciaEstoque: string | null;
+  mercadoriasConferidas: number;
+  mercadoriasNaoLidas: number;
+  divergenciasQuantidade: number;
+  divergenciasEndereco: number;
+  movimentadasDuranteContagem: number;
+  porSku: Array<InventarioDto_PorSku> | null;
+  mercadorias: Array<InventarioDto_Linha> | null;
+}
+export interface InventarioDto_Visao {
+  produtoId: string | null;
+  sku: string | null;
+  descricao: string | null;
+  unidadeMedida: string | null;
+  quantidade: string | null;
+  mercadorias: string;
+  posicoes: string | null;
+}
 export interface NfeEntradaDto {
   emitente: string | null;
   serie: number;
@@ -2279,6 +2383,15 @@ export interface ApiContracts {
   "IndicadorEstoqueController.listar": { request: undefined; response: PaginaResponse<IndicadorEstoqueDto_Resultado> };
   "IndicadorEstoqueController.consultar": { request: undefined; response: IndicadorEstoqueDto_Configuracao };
   "IndicadorEstoqueController.configurar": { request: IndicadorEstoqueDto_ConfigurarAviso; response: IndicadorEstoqueDto_Configuracao };
+  "InventarioController.disponibilidade": { request: undefined; response: InventarioDto_Disponibilidade };
+  "InventarioController.visao": { request: undefined; response: PaginaResponse<InventarioDto_Visao> };
+  "InventarioController.listar": { request: undefined; response: PaginaResponse<InventarioDto_Resumo> };
+  "InventarioController.iniciar": { request: InventarioDto_Iniciar; response: InventarioDto_Resumo };
+  "InventarioController.consultar": { request: undefined; response: InventarioDto_Detalhe };
+  "InventarioController.ler": { request: InventarioDto_Ler; response: InventarioDto_Registro };
+  "InventarioController.finalizar": { request: InventarioDto_Encerrar; response: InventarioDto_Relatorio };
+  "InventarioController.cancelar": { request: InventarioDto_Encerrar; response: InventarioDto_Resumo };
+  "InventarioController.relatorio": { request: undefined; response: InventarioDto_Relatorio };
   "LoginController.csrf": { request: undefined; response: Record<string, unknown> };
   "LoginController.jwks": { request: undefined; response: Record<string, unknown> };
   "LoginController.entrar": { request: AcessoDtos_Login; response: AcessoDtos_Tokens };

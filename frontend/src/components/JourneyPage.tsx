@@ -21,6 +21,8 @@ import { ReceivingSummary } from "../modules/recebimento/ReceivingSummary";
 import { AuditSelection } from "../modules/relatorios/AuditSelection";
 import { DispatchReservations } from "../modules/saida/DispatchReservations";
 import { businessTitle } from "../domain/referencePresentation";
+import { InvoiceWorkspace } from "../modules/financeiro/InvoiceWorkspace";
+import { InventoryWorkspace } from "../modules/regularizacao/InventoryWorkspace";
 export function JourneyPage({
     journey,
     transport,
@@ -78,6 +80,36 @@ export function JourneyPage({
                 "Referência indisponível",
         }));
     const references = journey.references;
+    if (journey.id === "contagem")
+        return (
+            <InventoryWorkspace
+                key={`${context.clienteId}:${context.armazemId}:${perfil}`}
+                journey={journey}
+                transport={transport}
+                context={context}
+                perfil={perfil}
+                workflow={workflow}
+                onRecord={onRecord}
+                onReceipt={onReceipt}
+                startAction={startAction}
+                onNavigate={onNavigate}
+            />
+        );
+    if (journey.id === "fechamento")
+        return (
+            <InvoiceWorkspace
+                key={`${context.clienteId}:${context.armazemId}:${perfil}`}
+                journey={journey}
+                transport={transport}
+                context={context}
+                perfil={perfil}
+                workflow={workflow}
+                onRecord={onRecord}
+                onReceipt={onReceipt}
+                startAction={startAction}
+                onNavigate={onNavigate}
+            />
+        );
     if (journey.id === "entrada")
         return (
             <>

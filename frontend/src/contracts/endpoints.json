@@ -3303,6 +3303,247 @@
     ]
   },
   {
+    "id": "InventarioController.disponibilidade",
+    "method": "GET",
+    "path": "/api/v1/inventarios/disponibilidade",
+    "request": null,
+    "response": "InventarioDto.Disponibilidade",
+    "query": [],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/InventarioController.java",
+    "handler": "disponibilidade",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/InventarioService.java#disponibilidade"
+    ]
+  },
+  {
+    "id": "InventarioController.visao",
+    "method": "GET",
+    "path": "/api/v1/inventarios/visao",
+    "request": null,
+    "response": "PaginaResponse<InventarioDto.Visao>",
+    "query": [
+      {
+        "name": "clienteId",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "armazemId",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "produtoId",
+        "type": "Long",
+        "required": false
+      },
+      {
+        "name": "enderecoId",
+        "type": "Long",
+        "required": false
+      },
+      {
+        "name": "pesquisa",
+        "type": "String",
+        "required": false
+      },
+      {
+        "name": "agrupar",
+        "type": "String",
+        "required": false,
+        "default": "SKU"
+      },
+      {
+        "name": "pagina",
+        "type": "int",
+        "required": false,
+        "default": "0"
+      },
+      {
+        "name": "tamanho",
+        "type": "int",
+        "required": false,
+        "default": "20"
+      }
+    ],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/InventarioController.java",
+    "handler": "visao",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/InventarioService.java#visao"
+    ]
+  },
+  {
+    "id": "InventarioController.listar",
+    "method": "GET",
+    "path": "/api/v1/inventarios",
+    "request": null,
+    "response": "PaginaResponse<InventarioDto.Resumo>",
+    "query": [
+      {
+        "name": "clienteId",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "armazemId",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "pagina",
+        "type": "int",
+        "required": false,
+        "default": "0"
+      },
+      {
+        "name": "tamanho",
+        "type": "int",
+        "required": false,
+        "default": "20"
+      }
+    ],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/InventarioController.java",
+    "handler": "listar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/InventarioService.java#listar"
+    ]
+  },
+  {
+    "id": "InventarioController.iniciar",
+    "method": "POST",
+    "path": "/api/v1/inventarios",
+    "request": "InventarioDto.Iniciar",
+    "response": "InventarioDto.Resumo",
+    "query": [],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/InventarioController.java",
+    "handler": "iniciar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/InventarioService.java#iniciar"
+    ]
+  },
+  {
+    "id": "InventarioController.consultar",
+    "method": "GET",
+    "path": "/api/v1/inventarios/{id}",
+    "request": null,
+    "response": "InventarioDto.Detalhe",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/InventarioController.java",
+    "handler": "consultar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/InventarioService.java#consultar"
+    ]
+  },
+  {
+    "id": "InventarioController.ler",
+    "method": "POST",
+    "path": "/api/v1/inventarios/{id}/leituras",
+    "request": "InventarioDto.Ler",
+    "response": "InventarioDto.Registro",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/InventarioController.java",
+    "handler": "ler",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/InventarioService.java#ler"
+    ]
+  },
+  {
+    "id": "InventarioController.finalizar",
+    "method": "POST",
+    "path": "/api/v1/inventarios/{id}/finalizar",
+    "request": "InventarioDto.Encerrar",
+    "response": "InventarioDto.Relatorio",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/InventarioController.java",
+    "handler": "finalizar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/InventarioService.java#finalizar"
+    ]
+  },
+  {
+    "id": "InventarioController.cancelar",
+    "method": "POST",
+    "path": "/api/v1/inventarios/{id}/cancelar",
+    "request": "InventarioDto.Encerrar",
+    "response": "InventarioDto.Resumo",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/InventarioController.java",
+    "handler": "cancelar",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/InventarioService.java#cancelar"
+    ]
+  },
+  {
+    "id": "InventarioController.relatorio",
+    "method": "GET",
+    "path": "/api/v1/inventarios/{id}/relatorio",
+    "request": null,
+    "response": "InventarioDto.Relatorio",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/InventarioController.java",
+    "handler": "relatorio",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/InventarioService.java#relatorio"
+    ]
+  },
+  {
     "id": "LoginController.csrf",
     "method": "GET",
     "path": "/api/auth/csrf",

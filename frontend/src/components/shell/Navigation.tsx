@@ -5,7 +5,7 @@ import { useEffect, useId, useRef, useState } from "react";
 export function navigationItems(exercise: boolean, administrator: boolean) {
     return [
         { id: "inicio", title: "Início" },
-        ...journeys,
+        ...journeys.filter((journey) => journey.id !== "cobranca"),
         { id: "coletor", title: "Coletor" },
         ...(exercise ? [{ id: "acesso", title: "Acesso e limites" }] : []),
         ...(administrator

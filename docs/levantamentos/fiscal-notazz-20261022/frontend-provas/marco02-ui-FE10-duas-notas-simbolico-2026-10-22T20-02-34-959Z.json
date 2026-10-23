@@ -1,0 +1,77 @@
+{
+  "name": "FE10-duas-notas-simbolico",
+  "at": "2026-10-22T20:02:34.959Z",
+  "ui": "InícioCadastrosEntrada e conferênciaUnidades e etiquetasEstoque e rastreabilidadeSaída, FIFO e reservaFiscal e retiradaServiços e tabelasServiços e cálculoFechamentos e ESLContagem e carga inicialContingênciaConsultas e relatóriosColetorAcesso e limitesFiscal e retiradaSelecione uma etapa, consulte os dados e confira a operação antes de confirmar.Etapas da jornada11. Documento de mercadoria22. Retirada física integral33. Retorno e devoluçãoConsultar referências para a tarefaConsultar posições de retorno ou remanescenteReservas do pedidoDEMO-01Confira a quantidade, a nota de origem e o identificador da unidade antes de selecionar a reserva. A escolha prepara a leitura da etiqueta ou o registro do destino; quantidades e situações são as retornadas na consulta.Reserva 1AtivaQuantidade reservada5Nota de origemReferência indisponívelIdentificador da unidade00000000-0000-4000-8000-000000000501Selecionar reservaReserva 2AtivaQuantidade reservada5Nota de origemReferência indisponívelIdentificador da unidade00000000-0000-4000-8000-000000000502Selecionar reservaPedido DEMO-01Retirada física: não registrada. Documentos registrados ou cancelados são fatos distintos do movimento físico.Documento RETORNO_SIMBOLICO · AUTORIZADO · Protocolo SIMBOLICO-FICTICIO1. Documento de mercadoriaNOTAZZ registra nota/protocolo/cobertura; XML é alternativa de registro. Nenhuma ação aqui emite nota no sistema externo.Filtros da consultaCliente *Armazém *Aplicar filtrosRestaurar filtrosOperação confirmada no exercício fictício. Lista em atualização.Ver registro confirmadoBuscar nos registros desta páginaSituação nesta páginaTodasSeparadoAtualizar lista1 de 1 registros desta resposta correspondem aos filtros de apresentação.Pedidos de saída · 1 registros nesta respostaReferênciaSituaçãoAçõesDEMO-01SeparadoVer detalhesRegistrar documento existente1 registros · 1 nesta página · 20 por páginaAnteriorPágina 1 de 1PróximaRegistrar documento existenteRegistro selecionadoDEMO-01SeparadoConsultar referências para a tarefaConsultar posições de retorno ou remanescenteReservas do pedidoDEMO-01Confira a quantidade, a nota de origem e o identificador da unidade antes de selecionar a reserva. A escolha prepara a leitura da etiqueta ou o registro do destino; quantidades e situações são as retornadas na consulta.Reserva 1AtivaQuantidade reservada5Nota de origemReferência indisponívelIdentificador da unidade00000000-0000-4000-8000-000000000501Selecionar reservaReserva 2AtivaQuantidade reservada5Nota de origemReferência indisponívelIdentificador da unidade00000000-0000-4000-8000-000000000502Selecionar reservaRegistro selecionadoDados da operaçãoOrigem *SelecioneNOTAZZXMLNatureza *SelecioneRETORNO MERCADORIARETORNO SIMBOLICONotaNota / Emitente Cnpj *Nota / Serie *Nota / Numero *Nota / Emissao *Nota / Chave AcessoRemover NotaProtocolo existente NOTAZZ *XML existente da NF-eCobertura de mercadoria por reserva e nota de origemAdicione as reservas deste pedido ao documento. Quantidades e origens vêm da consulta; o servidor confere a cobertura integral. Registro fiscal não confirma retirada física.Adicionar cobertura da unidade 00000000-0000-4000-8000-000000000501 · Referência indisponívelAdicionar cobertura da unidade 00000000-0000-4000-8000-000000000502 · Referência indisponívelCobertura por reserva / nota / SKU / Item 1 / Reserva *Selecione pelo nome ou código00000000-0000-4000-8000-00000000050100000000-0000-4000-8000-000000000502Cobertura por reserva / nota / SKU / Item 1 / Nota de origem *Cobertura por reserva / nota / SKU / Item 1 / Sku *Cobertura por reserva / nota / SKU / Item 1 / Quantidade *Decimal exato; use ponto. Sem cálculo no navegador.Remover cobertura 1Cobertura por reserva / nota / SKU / Item 2 / Reserva *Selecione pelo nome ou código00000000-0000-4000-8000-00000000050100000000-0000-4000-8000-000000000502Cobertura por reserva / nota / SKU / Item 2 / Nota de origem *Cobertura por reserva / nota / SKU / Item 2 / Sku *Cobertura por reserva / nota / SKU / Item 2 / Quantidade *Decimal exato; use ponto. Sem cálculo no navegador.Remover cobertura 2Motivo / justificativa *Documento fictício de duas notas conferidoResolver pendências (Gestor)Não informadoNãoSimConferir e confirmarRepetir exatamente a mesma operaçãoIniciar nova operaçãoResposta FICTÍCIA de exercício recebida.  Correlação: local-ficticioResultado da operaçãoPedido de entradaNão informadoExpedicaoRetirada física confirmada emNão informadoBaixasNenhum registro informado.DevolucoesNenhum registro informado.FatosNenhum registro informado.PedidoClienteReferência indisponívelArmazémReferência indisponívelReferênciaDEMO-01Situação informadaSEPARADOCriado Em07/10/2026, 09:00Alterado Em07/10/2026, 09:00Pode ProsseguirNãoItensRegistros · 1 registro nesta respostaProduto / SKUSkuUnidade MedidaQuantidadeAçõesSKU-DUAS-NOTASSKU-DUAS-NOTASUN10Ver registro 1Selecionar registro 1ReservasReservas do pedido · 2 registros nesta respostaItemUnidade logísticaUUID da unidadeNota de origemData FIFOQuantidadeSituação informadaCriada EmAçõesSKU-DUAS-NOTAS00000000-0000-4000-8000-00000000050100000000-0000-4000-8000-000000000501Referência indisponível07/10/2026, 09:005ATIVA07/10/2026, 09:00Ver registro 1Selecionar registro 1SKU-DUAS-NOTAS00000000-0000-4000-8000-00000000050200000000-0000-4000-8000-000000000502Referência indisponível07/10/2026, 09:005ATIVA07/10/2026, 09:00Ver registro 2Selecionar registro 2Unidades Impedidas1Selecionar este registroSeparacoesRegistros · 1 registro nesta respostaReservaSituação informadaRevisao Conteudo LidaLida EmSeparada EmConjunto OrigemAçõesReferência indisponívelExemplo fictício107/10/2026, 09:0007/10/2026, 09:00Referência indisponívelVer registro 1Selecionar registro 1DocumentosDocumentos de mercadoria · 1 registro nesta respostaOrigemNaturezaProtocolo existente NOTAZZSituação informadaRegistrado EmXML existente da NF-eMotivo / justificativaResolver pendências (Gestor)AçõesNOTAZZRETORNO_SIMBOLICOSIMBOLICO-FICTICIOAUTORIZADO07/10/2026, 09:00Documento fictício de duas notas conferidoNãoVer registro 1Selecionar registro 1Confirmar retirada física com comprovantesOutras operações2Registrar documento existenteRegistrar cancelamentoVoltar à listaVer detalhes do registroRecarregar dados atuaisReferências da jornada no contexto atualPedido de saída: DEMO-01 · Revisão 4  · SEPARADODocumento fiscal: Referência consultada · Revisão 3  · AUTORIZADOUma lista com vários registros exige seleção explícita. Confira o pedido, a mercadoria e a unidade antes de continuar.",
+  "requests": [
+    {
+      "id": "PedidoSaidaController.listar",
+      "route": "/api/v1/pedidos-saida",
+      "params": {},
+      "query": {
+        "clienteId": "1",
+        "armazemId": "1",
+        "pagina": "0",
+        "tamanho": "20"
+      },
+      "wire": null,
+      "file": null
+    },
+    {
+      "id": "PedidoSaidaController.consultar",
+      "route": "/api/v1/pedidos-saida/{id}",
+      "params": {
+        "id": "601"
+      },
+      "query": {},
+      "wire": null,
+      "file": null
+    },
+    {
+      "id": "PedidoSaidaController.listar",
+      "route": "/api/v1/pedidos-saida",
+      "params": {},
+      "query": {
+        "clienteId": "1",
+        "armazemId": "1",
+        "pagina": "0",
+        "tamanho": "20"
+      },
+      "wire": null,
+      "file": null
+    },
+    {
+      "id": "ExpedicaoController.consultar",
+      "route": "/api/v1/pedidos-saida/{id}/expedicao",
+      "params": {
+        "id": "601"
+      },
+      "query": {},
+      "wire": null,
+      "file": null
+    },
+    {
+      "id": "ExpedicaoController.documento",
+      "route": "/api/v1/pedidos-saida/{id}/documentos",
+      "params": {
+        "id": "601"
+      },
+      "query": {},
+      "wire": "{\"operacaoId\":\"5cfb876c-0a39-4267-806d-6fbf20cc872b\",\"versao\":3,\"origem\":\"NOTAZZ\",\"natureza\":\"RETORNO_SIMBOLICO\",\"nota\":{\"emitenteCnpj\":\"12345678000190\",\"serie\":\"1\",\"numero\":\"456\",\"emissao\":\"2026-10-08\",\"chaveAcesso\":null},\"protocolo\":\"SIMBOLICO-FICTICIO\",\"xml\":\"\",\"coberturas\":[{\"reservaId\":701,\"notaOrigemId\":301,\"sku\":\"SKU-DUAS-NOTAS\",\"quantidade\":5.000000},{\"reservaId\":702,\"notaOrigemId\":302,\"sku\":\"SKU-DUAS-NOTAS\",\"quantidade\":5.000000}],\"motivo\":\"Documento fictício de duas notas conferido\",\"resolverPendentes\":false}",
+      "file": null
+    },
+    {
+      "id": "PedidoSaidaController.listar",
+      "route": "/api/v1/pedidos-saida",
+      "params": {},
+      "query": {
+        "clienteId": "1",
+        "armazemId": "1",
+        "pagina": "0",
+        "tamanho": "20"
+      },
+      "wire": null,
+      "file": null
+    }
+  ],
+  "boundary": "componentes React reais + transport ficticio; zero HTTP/backend"
+}

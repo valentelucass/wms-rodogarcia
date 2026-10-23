@@ -98,7 +98,7 @@ export const journeys: Journey[] = [
     },
     {
         id: "fechamento",
-        title: "Fechamentos e ESL",
+        title: "Fechamento de Fatura",
         fe: "FE11",
         be: "BE13",
         steps: [
@@ -181,7 +181,7 @@ export const nextActions: Record<string, NextAction> = {
         title: "Consultar situação e origem deste fato",
     },
     "FatoServicoController.consultar": {
-        page: "cobranca",
+        page: "fechamento",
         action: "CalculoCobrancaController.calcular",
         title: "Conferir solicitação de cálculo após consulta do fato",
     },

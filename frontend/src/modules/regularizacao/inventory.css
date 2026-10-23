@@ -1,0 +1,258 @@
+.inventory-workspace,
+.inventory-dialog-content,
+.inventory-report {
+    display: grid;
+    gap: var(--og-space-4);
+    min-width: 0;
+}
+.inventory-heading,
+.inventory-toolbar,
+.inventory-report-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--og-space-3);
+}
+.inventory-heading :is(h2, h3, p),
+.inventory-dialog-content p {
+    margin: 0;
+}
+.inventory-heading p {
+    margin-top: var(--og-space-2);
+    color: var(--og-text-muted);
+}
+.inventory-heading > button,
+.inventory-toolbar > button {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--og-space-2);
+}
+.inventory-heading svg,
+.inventory-toolbar svg {
+    width: 1.1rem;
+    height: 1.1rem;
+}
+.inventory-filters > fieldset {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: end;
+}
+.inventory-filters > fieldset > .inventory-search {
+    grid-column: span 2;
+}
+.inventory-filters > fieldset > .button-row {
+    grid-column: span 2;
+    justify-content: flex-end;
+}
+.inventory-filters :is(.field, label) {
+    margin-bottom: 0;
+    min-width: 0;
+}
+.inventory-toolbar {
+    padding-block: var(--og-space-3);
+    border-block: 1px solid var(--og-border);
+}
+.inventory-toolbar button[aria-pressed="true"],
+.inventory-report-controls button[aria-pressed="true"] {
+    background: var(--og-selection);
+    color: var(--og-selection-text);
+    border-color: var(--og-link);
+}
+.inventory-table-scroll {
+    overflow-x: auto;
+    max-width: 100%;
+    border: 1px solid var(--og-border);
+    border-radius: var(--og-radius-control);
+}
+.inventory-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.inventory-table :is(th, td) {
+    padding: var(--og-space-4);
+    border-bottom: 1px solid var(--og-border);
+    text-align: left;
+    vertical-align: middle;
+}
+.inventory-table th {
+    background: var(--og-surface-raised);
+    font-weight: 600;
+    white-space: nowrap;
+}
+.inventory-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+.inventory-table td > small {
+    display: block;
+    margin-top: var(--og-space-1);
+    color: var(--og-text-muted);
+    overflow-wrap: anywhere;
+}
+.inventory-stock-quantity {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: var(--og-radius-badge);
+    background: var(--og-selection);
+    color: var(--og-selection-text);
+    font-weight: 600;
+    white-space: nowrap;
+}
+.inventory-mode-options {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--og-space-3);
+    width: 100%;
+}
+.inventory-mode {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    padding: var(--og-space-4);
+    gap: var(--og-space-3);
+    border: 1px solid var(--og-border);
+    border-radius: var(--og-radius-control);
+    cursor: pointer;
+}
+.inventory-mode > span {
+    display: grid;
+    gap: var(--og-space-2);
+}
+.inventory-mode > span > span {
+    font-size: var(--og-type-caption);
+    color: var(--og-text-muted);
+    line-height: 1.5;
+}
+.inventory-mode.selected {
+    border-color: var(--og-link);
+    background: var(--og-selection);
+}
+.inventory-mode input {
+    flex: 0 0 auto;
+    width: auto;
+    min-height: 0;
+    margin-top: 4px;
+}
+.inventory-full {
+    flex-basis: 100%;
+    width: 100%;
+}
+.inventory-scope {
+    display: flex;
+    gap: var(--og-space-4);
+    flex-wrap: wrap;
+    padding: var(--og-space-3);
+    background: var(--og-surface-raised);
+    border-radius: var(--og-radius-control);
+}
+.inventory-checkbox {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--og-space-2);
+}
+.inventory-checkbox input {
+    width: 18px;
+    height: 18px;
+    min-height: 0;
+    flex: 0 0 18px;
+}
+.inventory-reading-notice,
+.inventory-reading-success {
+    padding: var(--og-space-4);
+    background: var(--og-selection);
+    border-radius: var(--og-radius-control);
+}
+.inventory-reading-success {
+    background: var(--og-success-bg);
+    color: var(--og-positive-text);
+}
+.inventory-finish {
+    border-top: 1px solid var(--og-border);
+    padding-top: var(--og-space-4);
+}
+.inventory-admin {
+    padding: var(--og-space-3);
+    border: 1px solid var(--og-border);
+    border-radius: var(--og-radius-control);
+}
+.inventory-admin summary {
+    cursor: pointer;
+    min-height: 2.5rem;
+    align-content: center;
+}
+.inventory-admin[open] summary {
+    margin-bottom: var(--og-space-3);
+}
+.inventory-admin .button-row {
+    margin-top: var(--og-space-3);
+}
+.inventory-warning,
+.inventory-activation {
+    padding: var(--og-space-3);
+    border: 1px solid var(--og-border);
+    border-radius: var(--og-radius-control);
+    background: var(--og-warning-bg);
+    color: var(--og-warning-text);
+}
+.inventory-activation {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--og-space-3);
+    flex-wrap: wrap;
+}
+.inventory-difference {
+    color: var(--og-warning-text) !important;
+}
+.inventory-summary-cards {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--og-space-3);
+}
+.inventory-summary-cards > div {
+    display: grid;
+    gap: var(--og-space-2);
+    padding: var(--og-space-3);
+    border: 1px solid var(--og-border);
+    border-radius: var(--og-radius-control);
+}
+.inventory-summary-cards strong {
+    font-size: var(--og-type-section);
+}
+.inventory-summary-cards span {
+    color: var(--og-text-muted);
+    font-size: var(--og-type-caption);
+}
+@media (max-width: 1000px) {
+    .inventory-filters > fieldset {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .inventory-mode-options {
+        grid-template-columns: 1fr;
+    }
+}
+@media (max-width: 640px) {
+    .inventory-filters > fieldset {
+        grid-template-columns: 1fr;
+    }
+    .inventory-filters > fieldset > :is(.inventory-search, .button-row) {
+        grid-column: auto;
+    }
+    .inventory-filters > fieldset > .button-row {
+        justify-content: flex-start;
+    }
+    .inventory-summary-cards {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .inventory-table {
+        min-width: 42rem;
+    }
+    .inventory-heading > button {
+        width: 100%;
+        justify-content: center;
+    }
+    .inventory-dialog-content {
+        gap: var(--og-space-3);
+    }
+}

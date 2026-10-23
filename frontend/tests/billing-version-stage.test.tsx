@@ -45,13 +45,11 @@ it("FE11 R18 reabertura: demonstrativo deve corresponder a numero2 escolhido", a
     );
     await consult();
     await selectResultRow("Cálculos", "801");
-    await click("Fechamentos e ESL");
+    await click("Fechamento de Fatura");
     await consult();
     await selectResultRow("Fechamentos", "901");
-    await click("1. Ciclo e versões");
     await click("Consultar versão e hash");
     await consult();
-    await click("2. Decisão integral do Gestor");
     await click("Reabrir ciclo");
     fill(
         "Motivo / justificativa *",

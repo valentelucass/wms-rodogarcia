@@ -145,7 +145,7 @@ describe("Fronteira contratual exata", () => {
             }),
         ).toThrow("UUID");
     });
-    it("162 rotas nas jornadas; login, dashboard e importação XML têm apresentação nativa", () => {
+    it("171 rotas nas jornadas; login, dashboard e importação XML têm apresentação nativa", () => {
         const used = new Set(
             journeys.flatMap((j) => j.steps.flatMap((s) => s.actions)),
         );
@@ -206,7 +206,7 @@ describe("Fronteira contratual exata", () => {
                     !nativeDashboard.includes(e.id) &&
                     !nativeXml.includes(e.id),
             ),
-        ).toHaveLength(162);
+        ).toHaveLength(171);
         expect(
             endpoints.filter(
                 (e) =>

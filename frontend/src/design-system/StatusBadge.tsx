@@ -3,6 +3,8 @@ import type { ReactNode } from "react";
 
 const states: Record<string, Record<string, string>> = {
     success: {
+        APROVADO: "Aprovado",
+        APROVADA: "Aprovada",
         ATIVO: "Ativo",
         BOA: "Boa",
         NORMAL: "Normal",

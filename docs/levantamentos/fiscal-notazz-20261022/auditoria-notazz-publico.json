@@ -1,0 +1,344 @@
+{
+  "consulta_utc": "2026-10-22T20:12:42.797627+00:00",
+  "somente_leitura": true,
+  "fontes": {
+    "api": {
+      "url": "https://app.notazz.com/docs/api/",
+      "url_final": "https://app.notazz.com/docs/api/",
+      "http": 200,
+      "bytes": 281278,
+      "sha256": "f5344eba14c16a45fa9eb4d323d14894eba101d44f23bc9a2cc47d393de0806b"
+    },
+    "swagger": {
+      "url": "https://app.notazz.com/docs/api/notazz-swagger.yaml",
+      "url_final": "https://app.notazz.com/docs/api/notazz-swagger.yaml",
+      "http": 200,
+      "bytes": 53897,
+      "sha256": "c5b5d026c6dad11becfb35ab2d0d7e18141ee377a6e8d9706512a80d873f8f25"
+    },
+    "documento": {
+      "url": "https://app.notazz.com/docs/api/DOCUMENT_CUSTOM_CONFIGURATION.json",
+      "url_final": "https://app.notazz.com/docs/api/DOCUMENT_CUSTOM_CONFIGURATION.json",
+      "http": 200,
+      "bytes": 24426,
+      "sha256": "e5582f86bf1b2be3ad0dd25f6989982c50bef0aebbea400e997912b95d62c9a9"
+    },
+    "produto": {
+      "url": "https://app.notazz.com/docs/api/DOCUMENT_PRODUCT_CUSTOM_CONFIGURATION.json",
+      "url_final": "https://app.notazz.com/docs/api/DOCUMENT_PRODUCT_CUSTOM_CONFIGURATION.json",
+      "http": 200,
+      "bytes": 17340,
+      "sha256": "59128c5e2f477af8195bc0f0a1470e90436d0cd12f0c3582435c6fa6eb195910"
+    },
+    "leiaute": {
+      "url": "https://app.notazz.com/docs/nfe/documentacao/",
+      "url_final": "https://app.notazz.com/docs/nfe/documentacao/",
+      "http": 200,
+      "bytes": 558197,
+      "sha256": "3da14ff88a1f677b8d62343b72bd1d89c0a62aedaa7ba3851f4dcda0374f8b54"
+    },
+    "sdk": {
+      "url": "https://app.notazz.com/docs/sdk_python_node_curl.zip",
+      "url_final": "https://app.notazz.com/docs/sdk_python_node_curl.zip",
+      "http": 200,
+      "bytes": 7093,
+      "sha256": "5d3217c19c297229dd74a13a3e08056828cc3de6b711e284b0de1fb2baeb455b"
+    }
+  },
+  "verificacoes": [
+    {
+      "id": "documento.ide.tpAmb",
+      "resultado": "CONFIRMADO",
+      "detalhe": ""
+    },
+    {
+      "id": "documento.ide.NFref",
+      "resultado": "CONFIRMADO",
+      "detalhe": ""
+    },
+    {
+      "id": "documento.emit.CNPJ",
+      "resultado": "CONFIRMADO",
+      "detalhe": ""
+    },
+    {
+      "id": "documento.emit.CRT",
+      "resultado": "CONFIRMADO",
+      "detalhe": ""
+    },
+    {
+      "id": "documento.dest.indIEDest",
+      "resultado": "CONFIRMADO",
+      "detalhe": ""
+    },
+    {
+      "id": "documento.retirada.cMun",
+      "resultado": "CONFIRMADO",
+      "detalhe": ""
+    },
+    {
+      "id": "documento.entrega.cMun",
+      "resultado": "CONFIRMADO",
+      "detalhe": ""
+    },
+    {
+      "id": "documento.infAdic.infCpl",
+      "resultado": "CONFIRMADO",
+      "detalhe": ""
+    },
+    {
+      "id": "produto.det.prod.uCom",
+      "resultado": "CONFIRMADO",
+      "detalhe": ""
+    },
+    {
+      "id": "produto.det.prod.qCom",
+      "resultado": "CONFIRMADO",
+      "detalhe": ""
+    },
+    {
+      "id": "produto.det.prod.uTrib",
+      "resultado": "CONFIRMADO",
+      "detalhe": ""
+    },
+    {
+      "id": "produto.det.prod.qTrib",
+      "resultado": "CONFIRMADO",
+      "detalhe": ""
+    },
+    {
+      "id": "produto.det.prod.vUnCom",
+      "resultado": "CONFIRMADO",
+      "detalhe": ""
+    },
+    {
+      "id": "produto.det.prod.vUnTrib",
+      "resultado": "CONFIRMADO",
+      "detalhe": ""
+    },
+    {
+      "id": "json.produto.nested_det",
+      "resultado": "CONFIRMADO",
+      "detalhe": "Formato exato do template registrado; não pressupor raiz prod sem conferir."
+    },
+    {
+      "id": "swagger.metodo_atualizar_existe",
+      "resultado": "CONFIRMADO",
+      "detalhe": ""
+    },
+    {
+      "id": "api.criar_transmitir_descrito",
+      "resultado": "CONFIRMADO",
+      "detalhe": ""
+    },
+    {
+      "id": "sdk.link_entrega_zip",
+      "resultado": "NAO_CONFIRMADO",
+      "detalhe": "Download público inspecionado em memória, sem executar conteúdo."
+    }
+  ],
+  "secoes_api": [
+    {
+      "nivel": "h1",
+      "titulo": "Introdução"
+    },
+    {
+      "nivel": "h1",
+      "titulo": "NFS-e (Nota Fiscal de Serviço)"
+    },
+    {
+      "nivel": "h2",
+      "titulo": "Criar"
+    },
+    {
+      "nivel": "h2",
+      "titulo": "Atualizar"
+    },
+    {
+      "nivel": "h2",
+      "titulo": "Consultar por ID"
+    },
+    {
+      "nivel": "h2",
+      "titulo": "Consultar (Personalizado)"
+    },
+    {
+      "nivel": "h2",
+      "titulo": "Cancelar"
+    },
+    {
+      "nivel": "h2",
+      "titulo": "Excluir"
+    },
+    {
+      "nivel": "h2",
+      "titulo": "Desvincular EXTERNAL_ID"
+    },
+    {
+      "nivel": "h2",
+      "titulo": "Cidades Atendidas"
+    },
+    {
+      "nivel": "h1",
+      "titulo": "NF-e (Nota Fiscal de Produto)"
+    },
+    {
+      "nivel": "h2",
+      "titulo": "Criar"
+    },
+    {
+      "nivel": "h2",
+      "titulo": "Atualizar"
+    },
+    {
+      "nivel": "h2",
+      "titulo": "Consultar por ID"
+    },
+    {
+      "nivel": "h2",
+      "titulo": "Consultar (Personalizado)"
+    },
+    {
+      "nivel": "h2",
+      "titulo": "Cancelar"
+    },
+    {
+      "nivel": "h2",
+      "titulo": "Excluir"
+    },
+    {
+      "nivel": "h2",
+      "titulo": "Desvincular EXTERNAL_ID"
+    },
+    {
+      "nivel": "h2",
+      "titulo": "Cancelar Logística"
+    },
+    {
+      "nivel": "h2",
+      "titulo": "Anexar Arquivo"
+    },
+    {
+      "nivel": "h1",
+      "titulo": "Webhooks"
+    },
+    {
+      "nivel": "h2",
+      "titulo": "Criar"
+    },
+    {
+      "nivel": "h2",
+      "titulo": "Atualizar"
+    },
+    {
+      "nivel": "h2",
+      "titulo": "Consultar por ID"
+    },
+    {
+      "nivel": "h2",
+      "titulo": "Listar"
+    },
+    {
+      "nivel": "h2",
+      "titulo": "Excluir"
+    },
+    {
+      "nivel": "h2",
+      "titulo": "Documentação do POSTBACK"
+    },
+    {
+      "nivel": "h1",
+      "titulo": "Atualizar Estoque"
+    },
+    {
+      "nivel": "h1",
+      "titulo": "Atualizar Rastreio"
+    },
+    {
+      "nivel": "h1",
+      "titulo": "Consultar PLP"
+    },
+    {
+      "nivel": "h1",
+      "titulo": "Consultar Transportadoras"
+    },
+    {
+      "nivel": "h1",
+      "titulo": "Gerar PLP"
+    },
+    {
+      "nivel": "h1",
+      "titulo": "Enviar Mensagem"
+    },
+    {
+      "nivel": "h1",
+      "titulo": "Capturar Transação"
+    },
+    {
+      "nivel": "h1",
+      "titulo": "Anexo 1"
+    },
+    {
+      "nivel": "h1",
+      "titulo": "Erros"
+    }
+  ],
+  "chaves_documento": [
+    "ide",
+    "emit",
+    "dest",
+    "autXML",
+    "det",
+    "total",
+    "transp",
+    "pag",
+    "infAdic",
+    "cobr",
+    "cana",
+    "avulsa",
+    "compra",
+    "entrega",
+    "exporta",
+    "retirada",
+    "infIntermed"
+  ],
+  "chaves_produto": [
+    "det"
+  ],
+  "rotas_swagger": [
+    "/create_nfe_55",
+    "/update_nfe_55",
+    "/consult_nfe_55",
+    "/consult_all_nfe_55",
+    "/cancel_nfe_55",
+    "/delete_nfe_55",
+    "/unlink_nfe_external_id",
+    "/cancel_logistics",
+    "/nfe_attachment",
+    "/create_nfse",
+    "/update_nfse",
+    "/consult_nfse",
+    "/consult_all_nfse",
+    "/cancel_nfse",
+    "/delete_nfse",
+    "/unlink_nfse_external_id",
+    "/cidades_atendidas",
+    "/update_stock",
+    "/update_tracking",
+    "/plp",
+    "/carriers",
+    "/generate_plp",
+    "/message",
+    "/capture_transaction",
+    "/create_webhook",
+    "/update_webhook",
+    "/consult_webhook",
+    "/consult_all_webhook"
+  ],
+  "schema_swagger_tem_transmitir": false,
+  "schema_swagger_tem_cclASSTrib": false,
+  "sdk_publico": [],
+  "inventario_campos_criacao": 101,
+  "inventario_caminhos_documento": 848,
+  "inventario_caminhos_produto": 559
+}

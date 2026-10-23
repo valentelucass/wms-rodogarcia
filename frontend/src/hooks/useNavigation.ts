@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import { canLeavePage } from "../domain/pageLeave";
 export function useNavigation() {
-    const [page, setPage] = useState(() => location.hash.slice(1) || "inicio");
+    const normalize = (page: string) =>
+        page === "cobranca" ? "fechamento" : page;
+    const [page, setPage] = useState(() =>
+        normalize(location.hash.slice(1) || "inicio"),
+    );
     const [startAction, setStartAction] = useState("");
     const [revision, setRevision] = useState(0);
     useEffect(() => {
@@ -10,7 +14,7 @@ export function useNavigation() {
                 history.pushState(null, "", "#" + page);
                 return;
             }
-            setPage(location.hash.slice(1) || "inicio");
+            setPage(normalize(location.hash.slice(1) || "inicio"));
             setStartAction("");
             setRevision((x) => x + 1);
         };
@@ -19,6 +23,7 @@ export function useNavigation() {
     }, [page]);
     const navigate = (id: string, action = "") => {
         if (!canLeavePage()) return;
+        id = normalize(id);
         setPage(id);
         setStartAction(action);
         setRevision((x) => x + 1);

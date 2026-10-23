@@ -412,14 +412,14 @@ it("INIT01 direitos retornados por fresh atualizam perfil e invalidam nomes do c
     expect(proof.unknown).toEqual([]);
 });
 
-it("INIT01 duas solicitações antigas aguardando o mesmo fresh não enviam contexto revogado após guarda aceita", async () => {
+it("INIT01 mapa, resumo e previsão aguardam o mesmo fresh sem enviar contexto revogado após guarda aceita", async () => {
     const proof = await mounted();
     await choosePriorContext();
     const fresh = vi.spyOn(AuthClient.prototype, "fresh");
     proof.nearExpiry();
     fireEvent.click(screen.getByRole("button", { name: "Início" }));
     await waitFor(() => expect(proof.renewalCount()).toBe(2));
-    await waitFor(() => expect(fresh).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(fresh).toHaveBeenCalledTimes(3));
     await act(async () =>
         proof.release({
             ...initialUser,
@@ -432,7 +432,11 @@ it("INIT01 duas solicitações antigas aguardando o mesmo fresh não enviam cont
     );
     const home = () =>
         proof.calls.filter((c) =>
-            ["/api/v1/dashboard", "/api/v1/visao-operacao"].includes(c.path),
+            [
+                "/api/v1/dashboard",
+                "/api/v1/visao-operacao",
+                "/api/v1/visao-operacao/previsao-faturamento",
+            ].includes(c.path),
         );
     await waitFor(() => expect(home().length).toBeGreaterThanOrEqual(2));
     expect(

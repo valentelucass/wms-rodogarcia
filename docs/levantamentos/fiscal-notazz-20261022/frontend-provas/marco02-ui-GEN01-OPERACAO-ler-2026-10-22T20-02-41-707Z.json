@@ -1,0 +1,18 @@
+{
+  "name": "GEN01-OPERACAO-ler",
+  "at": "2026-10-22T20:02:41.707Z",
+  "ui": "Conferir leitura da reservaDados da operaçãoIdentificador *Revisão atual *Reserva *Código lido *Revisão do conteúdo da etiqueta *Motivo / justificativa *Confirmação comum fictícia no alcance do perfilResolver pendências (Gestor)Não informadoNãoSimConferir e confirmarRepetir exatamente a mesma operaçãoIniciar nova operaçãoResposta FICTÍCIA de exercício recebida.  Correlação: local-ficticioResultado da operaçãoPedido de entradaReferência indisponívelExpedicaoRetirada física confirmada emNão informadoDocumentosNenhum registro informado.BaixasNenhum registro informado.FatosNenhum registro informado.PedidoClienteReferência indisponívelArmazémReferência indisponívelReferênciaDEMO-01Situação informadaEM_SEPARACAOCriado Em07/10/2026, 09:00Alterado Em07/10/2026, 09:00Pode ProsseguirNãoReservasNenhum registro informado.ItensRegistros · 1 registro nesta respostaProduto / SKUSkuUnidade MedidaQuantidadeAçõesDEMO-CAIXADEMO-CAIXAUN10Ver registro 1Selecionar registro 1Unidades Impedidas1Selecionar este registroSeparacoesRegistros · 1 registro nesta respostaReservaSituação informadaRevisao Conteudo LidaLida EmSeparada EmConjunto OrigemAçõesReferência indisponívelExemplo fictício107/10/2026, 09:0007/10/2026, 09:00Referência indisponívelVer registro 1Selecionar registro 1DevolucoesDevoluções ligadas às baixas · 1 registro nesta respostaBaixa físicaPedido de entradaEntrada NovaQuantidadeData FIFORegistrada EmAçõesReferência indisponívelReferência indisponívelReferência indisponível1007/10/2026, 09:0007/10/2026, 09:00Ver registro 1Selecionar registro 1",
+  "requests": [
+    {
+      "id": "ExpedicaoController.ler",
+      "route": "/api/v1/pedidos-saida/{id}/leituras",
+      "params": {
+        "id": "601"
+      },
+      "query": {},
+      "wire": "{\"operacaoId\":\"fe0b3197-2c2a-49f7-92fe-3fa55fec1258\",\"versao\":2,\"reservaId\":701,\"codigoLido\":\"00000000-0000-4000-8000-000000000001\",\"revisaoConteudo\":11,\"motivo\":\"Confirmação comum fictícia no alcance do perfil\",\"resolverPendentes\":false}",
+      "file": null
+    }
+  ],
+  "boundary": "componentes React reais + transport ficticio; zero HTTP/backend"
+}

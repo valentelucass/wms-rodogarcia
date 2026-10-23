@@ -71,6 +71,10 @@ function Get-WmsD21CatalogoEsperado([object[]]$Fontes){
         $v=[IO.Path]::GetFileName($_.arquivo) -replace '^V','' -replace '__.*$',''
         (@($v -split '[._]'|ForEach-Object {if($_ -notmatch '^\d{1,24}$'){throw 'D21_FONTE_PARSER_NAO_SUPORTADA'};$_.TrimStart('0').PadLeft(24,'0')}) -join '.')
     }})
+    if(@($fs|Where-Object {[IO.Path]::GetFileName($_.arquivo) -ceq 'V14__inventarios_por_escopo.sql'}).Count){
+        . (Join-Path $PSScriptRoot '../../infra/inventario/schema-replay.ps1')
+        $fs=@(Convert-WmsInventorySchemaReplay $fs)
+    }
     try{$schema=D20SchemaEfetivo $fs}catch{throw 'D21_FONTE_PARSER_NAO_SUPORTADA'}
     $ret=New-Object 'Collections.Generic.List[object]'
     foreach($t in $schema.tabelas.Values){

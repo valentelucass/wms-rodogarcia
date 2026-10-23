@@ -2,7 +2,7 @@ import { s, type Journey, type NextAction } from "../../domain/journeyTypes";
 export const journeys: Journey[] = [
     {
         id: "contagem",
-        title: "Contagem e carga inicial",
+        title: "Inventário",
         fe: "FE12",
         be: "BE14",
         steps: [
@@ -34,6 +34,22 @@ export const journeys: Journey[] = [
                     "resolverCancelamento",
                 ],
             ),
+            s(
+                "Inventários por escopo",
+                "Abra inventário às cegas, por SKU ou posição, registre as etiquetas e consulte o relatório após encerrar. O relatório não aplica ajustes de estoque.",
+                "InventarioController",
+                [
+                    "disponibilidade",
+                    "visao",
+                    "listar",
+                    "iniciar",
+                    "consultar",
+                    "ler",
+                    "finalizar",
+                    "cancelar",
+                    "relatorio",
+                ],
+            ),
         ],
         lookups: [],
         references: [
@@ -44,6 +60,7 @@ export const journeys: Journey[] = [
         referenceFields: {
             unidadeId: "UnidadeLogisticaDto.Resumo",
             produtoId: "ProdutoDto.Resposta",
+            enderecoId: "EnderecoDto.Resposta",
         },
     },
     {

@@ -44,13 +44,11 @@ it("FE-VIG-008 rejeição integral recebida e consultada deve apresentar REJEITA
     );
     await consult();
     await selectResultRow("Cálculos", "801");
-    await click("Fechamentos e ESL");
+    await click("Fechamento de Fatura");
     await consult();
     await selectResultRow("Fechamentos", "901");
-    await click("1. Ciclo e versões");
     await click("Consultar versão e hash");
     await consult();
-    await click("2. Decisão integral do Gestor");
     await click("Rejeitar ciclo integral");
     fill(
         "Motivo / justificativa *",
@@ -62,10 +60,10 @@ it("FE-VIG-008 rejeição integral recebida e consultada deve apresentar REJEITA
     )!;
     const confirmation = rejected.data as Values;
     const uiAfterDecision = document.body.textContent;
-    await click("1. Ciclo e versões");
-    await click("Consultar detalhe");
-    await consult();
-    const consulted = receipts.at(-1)!.data as Values;
+    await click("Recarregar dados atuais");
+    const consulted = receipts.findLast(
+        (r) => r.id === "FechamentoCobrancaController.consultar",
+    )!.data as Values;
     writeFileSync(
         "evidencias/vigia-marco02-rejeicao.json",
         JSON.stringify(
@@ -91,6 +89,6 @@ it("FE-VIG-008 rejeição integral recebida e consultada deve apresentar REJEITA
     expect.soft((confirmation.versao as Values).situacao).toBe("REJEITADA");
     expect.soft(consulted.situacao).toBe("REJEITADO");
     expect(
-        screen.getAllByText("REJEITADO", { exact: true }).length,
+        screen.getAllByText("Rejeitado", { exact: true }).length,
     ).toBeGreaterThan(0);
 }, 15000);

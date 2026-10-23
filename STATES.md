@@ -1,5 +1,72 @@
 # Estado e trilha de implementação do WMS Rodogarcia
 
+## FE12-INVENTARIO-UX02 / BE14-INVENTARIO01 — inventários por escopo, 23/10/2026
+
+**Status:** apresentação e serviços implementados/validados na fonte local; **ativação e validação SQL pendentes de autorização específica**. Não declarar o módulo em operação nem interpretar testes puros como aceite SQL. Fonte, pacote e versão ativa continuam distintos.
+
+- [x] Uma tela Inventário com visão por SKU/posição, filtros, histórico e Realizar inventário; três etapas antigas removidas da apresentação principal.
+- [x] Modal às cegas, por SKU ou por posição; contagem exige todas as etiquetas do escopo cliente/armazém. Na contagem, só o observado é retornado/apresentado; esperado e divergências exigem encerramento.
+- [x] Leituras únicas por etiqueta, recontagem substitutiva explícita, precisão de quantidade, versão e repetição da mesma chave após resposta incerta.
+- [x] Relatório por SKU e por mercadoria/posição, não lidas como faltantes com confirmação, ocorrências de fora da base e movimentação, exportação CSV e relatório fechado imutável. Sem ajuste/reendereçamento automático.
+- [x] Carga inicial e contagens/ajustes históricos preservados em acesso administrativo secundário, com papéis existentes.
+- [x] 847 testes frontend aprovados; após ajuste final de foco do leitor, 9 testes do inventário revalidados; tipagem/lint/formatação/build aprovados. 31 testes backend puros aprovados, sem Spring/banco; pacote oficial SomenteBuild aprovado com SQL/H2 zero.
+- [x] Antes/depois dos componentes reais, dados fictícios; cinco layouts antes/atual, claro/escuro e 1440/390 px, com seleções dos três tipos, foco/diálogo/relatório, sem erro React, transbordamento ou HTTP de negócio.
+- [ ] Autorizar/aplicar a estrutura proposta V14 no WMS_DEV com guardas atuais, revisar acesso da aplicação e ativar WMS_INVENTARIO_ENABLED só nesse ambiente.
+- [ ] Validar persistência, concorrência/isolamento, dialecto/volume SQL e leitor físico antes do aceite operacional.
+
+Proposta não executada: database/docs/propostas/V14__inventarios_por_escopo.sql, com duas tabelas e ampliação conservadora de tipos de operação/auditoria dentro de transação; migrations históricas preservadas. Nenhuma nova entidade JPA força a validação de tabelas ainda ausentes; serviço de registro desativado por padrão. Visão de estoque usa estruturas existentes. Limite técnico explícito de 20.000 mercadorias por escopo, recusando escopo maior integralmente, sem relatório parcial; revisar com volume real. Evidência: orchestracao/.runtime/inventory-20261023/validation-summary.json. Graphify tentou update sem force e preservou histórico pelo guard de redução. Adendo focal do mapa liga os nove endpoints novos; gerador geral tem limitação anterior de 19 rotas nativas. Sem SQL, DDL, H2, integração externa, reinício/publicação ou equipamentos nesta entrega.
+
+## FE12-INVENTARIO-NOME01 — nome da página, 23/10/2026
+
+**Status:** concluído na fonte local. A pedido de Lucas, Contagem e carga inicial passa a se chamar **Inventário** no menu, cabeçalho e título. FE12 continua vinculado a BE14; rota contagem, etapas, contratos e regras preservados. Referências atuais de telas/contratos e expectativa do roteiro de navegação atualizadas.
+
+- [x] Atualizar nome central da jornada e suas referências atuais.
+- [x] Conferir formatação, tipagem, lint, 25 testes existentes de páginas e build.
+
+Evidências em orchestracao/.runtime/inventory-name-20261023/validation-summary.json. graphify update . executado sem force; resultado registrado. Sem alteração backend, SQL, integração externa ou publicação.
+
+## FE11-FATURA-UX01 e BE13-ESL-MINUTA01 — Fechamento de Fatura, 22/10/2026
+
+**Status:** FE11-FATURA-UX01 concluído e validado na fonte local; dependências BE12/BE13 preservadas. BE13-ESL-MINUTA01 continua pendente do ambiente/token e das regras da Dalga. Pacotes locais gerados; a versão ativa de DEV/PROD não foi reiniciada nem homologada nesta entrega.
+
+- [x] Reunir as duas pendências: Fechamento de Fatura sem cinco etapas e sem Serviços e cálculo na navegação.
+- [x] Lista por cliente/período/valor da versão vigente; detalhe dos serviços com referências exatas, preservando zero, crédito e cálculo incompleto.
+- [x] Serviços realizados/adicionais e avarias na preparação; aprovação integral, reabertura, versões, ajustes e documentos preservados.
+- [x] Preparar a ação Enviar minuta ao ESL, desabilitada até integração validada.
+- [x] Ajuste visual solicitado: filtros alinhados à altura das seleções e selos Aprovado/Aprovada em verde nos dois temas. Sete testes do fluxo, tipagem/lint/formatação/build e quatro layouts conferidos novamente; evidências em orchestracao/.runtime/invoice-alignment-20261022/.
+- [x] 829 testes frontend aprovados; tipagem, lint e build aprovados; conferência visual em 1440/390 px, claro/escuro, sem erro de página ou transbordamento horizontal.
+- [x] Ordenar a consulta dos fechamentos por início do período e ID decrescentes; backend empacotado pelo preparador oficial SomenteBuild, com zero testes/SQL/H2.
+- [ ] Validar integração real/token/regras no ambiente próprio ESL da Dalga, em entrega separada.
+
+[Decisão](docs/06-decisoes-e-pendencias.md#fe11-fatura-ux01-e-be13-esl-minuta01--fechamento-de-fatura-22102026), [apresentação](docs/design-system/etapa-06.md#fechamento-de-fatura--fe11-fatura-ux01) e evidências em orchestracao/.runtime/invoice-reorg-20261022/validation-summary.json. Única alteração backend: ordenação de leitura; sem mudança de contrato, schema, credenciais ou emissão externa. graphify update . executado sem force; preservado pelo guard de redução do grafo histórico. Não houve teste com banco/integração reais nem implantação. Próximo passo da integração: acesso protegido, ambiente/empresa Dalga, campos/travas, retorno e prevenção de duplicidade.
+
+## BE10-NOTAZZ-ALINH01 e FE10-NOTAZZ-ALINH01 — respostas fiscais e exemplos, 22/10/2026
+
+**Status:** duas rodadas de respostas incorporadas; definições operacionais esclarecidas, com validação fiscal específica do cancelamento após circulação, sem implementação. [Alinhamento e exemplos](docs/49-alinhamento-fiscal-respostas-e-exemplos.md).
+
+Gestor definiu emissão pelo CNPJ do armazém da entrada, destinatário sempre proprietário, retorno correspondente ao tratamento da entrada, agrupamento conforme cliente com consolidação permitida à Bracell e valor proporcional da entrada. Na segunda rodada, informou cancelamento fiscal e reendereçamento até 24 horas mesmo quando houve saída/retorno; após o prazo, nota de entrada e novo processo operacional com reendereçamento, mesmo sem retirada. Fiscal atua primeiro, operador depois; retorno simbólico pode ser somente fiscal. Cancelamento após circulação depende de validação específica de Natalina. Preservar fatos e quantidade física única.
+
+Dois DANFEs Tigre/Castro conferidos integralmente por extração e imagem; 30 verificações documentais/aritméticas aprovadas, sem consulta fiscal autenticada. Inventário atualizado para 107 regras e 75 cenários planejados, mantendo IDs anteriores. As dúvidas operacionais foram respondidas; detalhes de XML/tributação seguem com o fiscal, sem novo questionário técnico ao gestor. Código, configuração, banco e notas reais preservados. Prévia visual antes/depois produzida para compreensão, sem aplicação no sistema.
+
+Pesquisa oficial adicional confirmou a condição de ausência de circulação para cancelamento comum. Pendência específica é conciliar a orientação recebida para carga que saiu e voltou com o documento fiscal aplicável, não pedir ao gestor que pesquise a lei. Fontes nacionais/estaduais e limites de aplicação registrados no documento 49; sem alteração de código ou execução fiscal.
+
+## BE10-NOTAZZ-MAP01 e FE10-NOTAZZ-MAP01 — mapeamento fiscal para implementação futura, 22/10/2026
+
+**Status:** levantamento documental concluído e revisado, com insumos fiscais externos identificados; implementação não iniciada. **Dependências:** BE05, BE09, BE10, BE11, FE04, FE09 e FE10; contrato Notazz e parâmetros fiscais por operação/estabelecimento.
+
+Pedido atual do responsável: ler AGENTS.md, estudar profundamente a API Notazz e o projeto, documentar todas as regras pertinentes e esgotar fontes/verificações antes de retornar dúvidas reais. Restrição expressa: não aplicar código agora. Documentação e testes puros focais estão autorizados; emissão externa, banco, configuração, migration e reinício não foram executados.
+
+- [x] Conferir PDF/Word originais, regras RN/Q/AC, contratos e fontes atuais, mantendo a proveniência.
+- [x] Mapear tela/contratos, cadastros, estados, cobertura multinota, emissão versus retirada, cancelamento/devolução, avaria e cobrança.
+- [x] Consultar guia Notazz, Swagger, modelos JSON e leiaute público; confrontar divergências sem chamadas fiscais autenticadas.
+- [x] Executar 68 testes puros de frontend em 12 arquivos, com rede bloqueada e evidências isoladas; zero falhas/ignorados.
+- [x] Concluir revisão dos documentos de regras, cenários e sequência de implementação: 102 regras, 65 cenários, 101 campos públicos de criação e índices dos modelos completos. Revisão independente corrigiu completude fiscal, proteção do legado e condição do aviso comercial/tributável.
+- [ ] Implementar a integração em demanda futura; os critérios desta implementação permanecem separados do estudo.
+
+[Mapeamento](docs/46-mapeamento-fiscal-notazz.md), [regras](docs/47-regras-de-negocio-fiscal-notazz.md) e [cenários e validação](docs/48-cenarios-e-validacao-fiscal-notazz.md). Três testes puros de backend foram selecionados na whitelist; o executor recusou o início por memória disponível abaixo do mínimo/comprometimento acima do teto. Não houve execução dos testes backend ou contorno da proteção. Integração Notazz/SQL, homologação tributária e parâmetros reais continuam sem comprovação nesta entrega.
+
+Evidências documentais em [resumo](docs/levantamentos/fiscal-notazz-20261022/validacao.json), [inventário de campos](docs/levantamentos/fiscal-notazz-20261022/inventario-campos-notazz.json) e arquivos adjacentes. Próxima implementação deve consumir o plano e registrar sua própria validação; não iniciar automaticamente código, conexão ou emissão por existir este levantamento. O grafo existente foi consultado, sem rebuild nesta entrega documental.
+
 ## FE04-TABELA-UX01 — formulário de tabela reorganizado, 20/10/2026
 
 Lucas pediu reorganizar Nova tabela e seus itens. Criar/editar usam apresentação própria: descrição em uma linha, identificação e vigência agrupadas, datas alinhadas, serviços com contador e rótulos curtos, sem fieldsets aninhados; justificativa e resolução histórica separadas. A área histórica começa recolhida, informa quando há resolução no rascunho e conserva seu conteúdo ao recolher/voltar. Confirmação permanece acessível durante a rolagem. Ajuda no catálogo central descreve tipo/proprietário, preço ou percentual e categoria de armazenagem conforme o serviço atual, sem cálculo no navegador.

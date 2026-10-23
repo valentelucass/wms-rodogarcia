@@ -271,6 +271,9 @@ export const recordPages: Record<string, RecordPage[]> = {
             "CargaInicialController.consultar",
             ["CargaInicialController.criar"],
         ),
+        page("InventarioController.visao", "InventarioController.consultar", [
+            "InventarioController.iniciar",
+        ]),
     ],
     contingencia: [
         page(
@@ -321,7 +324,8 @@ export function recordActionLabel(id: string): string {
         "CargaInicialController.confirmar": "Confirmar carga inicial",
         "ContingenciaController.registrar": "Registrar ocorrência",
         "CalculoCobrancaController.calcular": "Calcular serviços",
-        "FechamentoCobrancaController.preparar": "Preparar fechamento",
+        "FechamentoCobrancaController.preparar": "Preparar fatura",
+        "FechamentoCobrancaController.aprovar": "Confirmar fechamento",
         "ConfiguracaoCobrancaController.criarServico": "Novo serviço",
         "ConfiguracaoCobrancaController.criarTabela": "Nova tabela",
         "ConfiguracaoCobrancaController.alterar": "Editar tabela",

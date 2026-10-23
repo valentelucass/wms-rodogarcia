@@ -1,5 +1,26 @@
 import type { VisaoOperacaoDto_Posicao } from "../contracts/types";
 
+export const inventoryModes = [
+    {
+        id: "CEGAS",
+        title: "Às cegas",
+        description:
+            "Bipe todas as mercadorias do cliente neste armazém. As quantidades esperadas e as divergências aparecem após encerrar.",
+    },
+    {
+        id: "SKU",
+        title: "Por SKU",
+        description:
+            "Selecione um SKU e bipe todas as mercadorias desse produto no armazém.",
+    },
+    {
+        id: "POSICAO",
+        title: "Por posição",
+        description:
+            "Selecione uma posição e bipe as mercadorias encontradas nela para conferir quantidades e endereçamento.",
+    },
+] as const;
+
 /** Catálogo único dos popups informativos. Ao mudar um indicador/fluxo,
  * revise sua explicação aqui e o respectivo consumidor. Não contém regras de cálculo. */
 export type Information = {

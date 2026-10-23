@@ -1,0 +1,133 @@
+{
+  "name": "FE09-conflito-reversao",
+  "at": "2026-10-22T20:02:29.502Z",
+  "ui": "InícioCadastrosEntrada e conferênciaUnidades e etiquetasEstoque e rastreabilidadeSaída, FIFO e reservaFiscal e retiradaServiços e tabelasServiços e cálculoFechamentos e ESLContagem e carga inicialContingênciaConsultas e relatóriosColetorAcesso e limitesSaída, FIFO e reservaSelecione uma etapa, consulte os dados e confira a operação antes de confirmar.Etapas da jornada11. Pedido integral22. Sugestão FIFO e reserva33. Leitura e separação44. Reversão e cancelamentoConsultar referências para a tarefaConsultar posições para separaçãoConsultar etiqueta da unidade1. Pedido integralCrie manualmente ou importe XML existente. Não há liberação parcial do pedido.Nova saídaCriar pedido por XMLFiltros da consultaCliente *Armazém *Aplicar filtrosRestaurar filtrosBuscar nos registros desta páginaSituação nesta páginaTodasRascunhoAtualizar lista1 de 1 registros desta resposta correspondem aos filtros de apresentação.Pedidos de saída · 1 registros nesta respostaReferênciaSituaçãoAçõesDEMO-01RascunhoVer detalhes1 registros · 1 nesta página · 20 por páginaAnteriorPágina 1 de 1PróximaDEMO-01ClienteReferência indisponívelArmazémReferência indisponívelReferênciaDEMO-01Situação informadaRASCUNHOCriado Em07/10/2026, 09:00Alterado Em07/10/2026, 09:00Pode ProsseguirNãoReservasNenhum registro informado.ItensRegistros · 1 registro nesta respostaProduto / SKUSkuUnidade MedidaQuantidadeAçõesDEMO-CAIXADEMO-CAIXAUN10Ver registro 1Selecionar registro 1Unidades Impedidas1Selecionar este registroFechar detalhesRecarregar dados atuaisReferências da jornada no contexto atualPedido de saída: DEMO-01 · Revisão 3  · RASCUNHOUma lista com vários registros exige seleção explícita. Confira o pedido, a mercadoria e a unidade antes de continuar.",
+  "requests": [
+    {
+      "id": "PedidoSaidaController.listar",
+      "route": "/api/v1/pedidos-saida",
+      "params": {},
+      "query": {
+        "clienteId": "1",
+        "armazemId": "1",
+        "pagina": "0",
+        "tamanho": "20"
+      },
+      "wire": null,
+      "file": null
+    },
+    {
+      "id": "PedidoSaidaController.consultar",
+      "route": "/api/v1/pedidos-saida/{id}",
+      "params": {
+        "id": "601"
+      },
+      "query": {},
+      "wire": null,
+      "file": null
+    },
+    {
+      "id": "PedidoSaidaController.listar",
+      "route": "/api/v1/pedidos-saida",
+      "params": {},
+      "query": {
+        "clienteId": "1",
+        "armazemId": "1",
+        "pagina": "0",
+        "tamanho": "20"
+      },
+      "wire": null,
+      "file": null
+    },
+    {
+      "id": "PedidoSaidaController.consultar",
+      "route": "/api/v1/pedidos-saida/{id}",
+      "params": {
+        "id": "601"
+      },
+      "query": {},
+      "wire": null,
+      "file": null
+    },
+    {
+      "id": "PedidoSaidaController.revalidar",
+      "route": "/api/v1/pedidos-saida/{id}/revalidacao",
+      "params": {
+        "id": "601"
+      },
+      "query": {},
+      "wire": null,
+      "file": null
+    },
+    {
+      "id": "PedidoSaidaController.listar",
+      "route": "/api/v1/pedidos-saida",
+      "params": {},
+      "query": {
+        "clienteId": "1",
+        "armazemId": "1",
+        "pagina": "0",
+        "tamanho": "20"
+      },
+      "wire": null,
+      "file": null
+    },
+    {
+      "id": "PedidoSaidaController.consultar",
+      "route": "/api/v1/pedidos-saida/{id}",
+      "params": {
+        "id": "601"
+      },
+      "query": {},
+      "wire": null,
+      "file": null
+    },
+    {
+      "id": "PedidoSaidaController.reverter",
+      "route": "/api/v1/pedidos-saida/{id}/reversao-reserva",
+      "params": {
+        "id": "601"
+      },
+      "query": {},
+      "wire": "{\"operacaoId\":\"e52c7c9c-0736-4be5-9022-b78123171175\",\"versao\":2,\"motivo\":\"Reversão fictícia motivada de reserva não separada\"}",
+      "file": null
+    },
+    {
+      "id": "PedidoSaidaController.listar",
+      "route": "/api/v1/pedidos-saida",
+      "params": {},
+      "query": {
+        "clienteId": "1",
+        "armazemId": "1",
+        "pagina": "0",
+        "tamanho": "20"
+      },
+      "wire": null,
+      "file": null
+    },
+    {
+      "id": "PedidoSaidaController.listar",
+      "route": "/api/v1/pedidos-saida",
+      "params": {},
+      "query": {
+        "clienteId": "1",
+        "armazemId": "1",
+        "pagina": "0",
+        "tamanho": "20"
+      },
+      "wire": null,
+      "file": null
+    },
+    {
+      "id": "PedidoSaidaController.consultar",
+      "route": "/api/v1/pedidos-saida/{id}",
+      "params": {
+        "id": "601"
+      },
+      "query": {},
+      "wire": null,
+      "file": null
+    }
+  ],
+  "boundary": "componentes React reais + transport ficticio; zero HTTP/backend"
+}

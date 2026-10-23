@@ -1,5 +1,9 @@
 # Documentação do WMS Rodogarcia
 
+**BE10-NOTAZZ-ALINH01 e FE10-NOTAZZ-ALINH01:** [respostas do gestor e exemplos fiscais](49-alinhamento-fiscal-respostas-e-exemplos.md), com emitente, destinatário, agrupamento, valor, regularização, sequência fiscal/operador e possibilidade de operação apenas fiscal definidos. Resta validação específica de cancelamento após circulação. Incorpora os DANFEs Tigre/Castro sem generalizar seus tributos.
+
+**BE10-NOTAZZ-MAP01 e FE10-NOTAZZ-MAP01:** [mapeamento da integração fiscal Notazz](46-mapeamento-fiscal-notazz.md), [inventário das regras de negócio](47-regras-de-negocio-fiscal-notazz.md) e [cenários e verificações](48-cenarios-e-validacao-fiscal-notazz.md). Levantamento de 22/10/2026 para unir as primeiras etapas de Fiscal e retirada e preparar a emissão; nenhum código ou banco alterado.
+
 [TAB-EDIT01 — edição das tabelas de cobrança](design-system/etapa-18-tabelas-cobranca.md): editor dos dados e serviços, vínculos na mesma tela, proteção financeira e ativação pendente da V13/seis permissões.
 
 **QUAL-CONF01-SQL01 — estratégia vigente e execução SQL real:** [regra permanente SQL Server/WMS_DEV](06-decisoes-e-pendencias.md#qual-conf01-sql01--testes-reais-sql-server-10102026), [estado](../states.md#qual-conf01-sql01--testes-reais-sql-server-10102026) e [procedimento](19-desenvolvimento-integrado-dev.md#política-vigente-de-testes--qual-conf01-sql01). H2 anterior é histórico; testes puros sem banco ficam separados. Guarda atual e dados preservados antes de integração, sem selecionar testes destrutivos/banco vazio.
