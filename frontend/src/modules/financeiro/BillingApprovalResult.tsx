@@ -7,7 +7,6 @@ import { formatDate, indexRecords } from "../../domain/referencePresentation";
 import { StatusBadge } from "../../design-system/StatusBadge";
 import { information } from "../../content/information";
 import { billingValue } from "./BillingAdjustments";
-import "./billingApproval.css";
 
 const states: Record<string, string> = {
     APROVADA: "Aprovada",

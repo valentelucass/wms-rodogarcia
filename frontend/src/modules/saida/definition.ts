@@ -57,20 +57,14 @@ export const journeys: Journey[] = [
         be: "BE10 / BE11",
         steps: [
             s(
-                "1. Documento de mercadoria",
-                "NOTAZZ registra nota/protocolo/cobertura; XML é alternativa de registro. Nenhuma ação aqui emite nota no sistema externo.",
+                "Retirada fiscal da mercadoria",
+                "Confira o pedido, emita a NF-e pela Notazz e acompanhe sua autorização. A retirada física continua sendo confirmada separadamente.",
                 "ExpedicaoController",
-                ["consultar", "documento", "cancelar"],
+                ["consultar", "documento", "cancelar", "retirar", "fatos"],
             ),
             s(
-                "2. Retirada física integral",
-                "Supervisor/Gestor confirma retirada real, com XMLs comprovantes e destinos de todos os remanescentes. Documento registrado e retirada são fatos diferentes.",
-                "ExpedicaoController",
-                ["retirar", "fatos"],
-            ),
-            s(
-                "3. Retorno e devolução",
-                "Retorno interno exige destinos e documento cancelado. Devolução após saída cria nova entrada ligada à baixa original, preservando FIFO.",
+                "Retorno e regularização",
+                "Fiscal primeiro, operador depois. Cancelamento impedido por circulação exige nova nota de entrada, seguida de recebimento e reendereçamento, preservando a saída original.",
                 "ExpedicaoController",
                 ["retornar", "devolver"],
             ),
@@ -94,6 +88,7 @@ export const journeys: Journey[] = [
             reservaId: "PedidoSaidaDto.Reserva",
             unidadeId: "UnidadeLogisticaDto.Resumo",
             baixaId: "ExpedicaoDto.Baixa",
+            documentoId: "ExpedicaoDto.DocumentoRegistrado",
         },
     },
 ];
@@ -126,7 +121,7 @@ export const nextActions: Record<string, NextAction> = {
     "ExpedicaoController.separar": {
         page: "fiscal",
         action: "ExpedicaoController.documento",
-        title: "Registrar documento existente deste pedido",
+        title: "Conferir emissão fiscal deste pedido",
     },
     "ExpedicaoController.documento": {
         page: "fiscal",

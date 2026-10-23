@@ -22,12 +22,15 @@
     margin-top: var(--og-space-2);
 }
 .invoice-heading > button,
+.invoice-heading-actions,
+.invoice-heading-actions > button,
 .invoice-list-tools button {
     display: inline-flex;
     align-items: center;
     gap: var(--og-space-2);
 }
 .invoice-heading svg,
+.invoice-heading-actions svg,
 .invoice-list-tools svg {
     width: 1.1rem;
     height: 1.1rem;
@@ -114,17 +117,105 @@
     display: block;
     font-size: var(--og-type-small);
 }
-.invoice-filters fieldset {
+.invoice-heading-actions {
+    flex-wrap: wrap;
+    flex-shrink: 0;
+}
+.invoice-heading p {
+    color: var(--og-text-muted);
+}
+.invoice-filters {
+    margin: 0;
+    padding-block: var(--og-space-4);
+    border-block: 1px solid var(--og-border);
+}
+.invoice-filters > fieldset {
+    display: grid;
+    grid-template-columns: minmax(0, 840px) max-content;
+    align-items: end;
+    justify-content: start;
     min-width: 0;
 }
-.invoice-filters > fieldset > .button-row {
-    align-self: flex-end;
+.invoice-filter-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--og-space-3);
+    min-width: 0;
+}
+.invoice-filters :is(.field, label) {
+    min-width: 0;
+    margin-bottom: 0;
+}
+.invoice-filter-fields .reference-select {
+    display: flex;
+    flex-direction: column;
+    gap: var(--og-space-1);
+}
+.invoice-filters :is(input:not([type="hidden"]), select, button) {
+    height: var(--og-touch-height);
+}
+.invoice-list-tools {
+    gap: var(--og-space-2);
+}
+.invoice-list-tools h3 {
+    margin: 0;
+    font-size: var(--og-type-body);
+}
+.invoice-list-tools > span {
+    color: var(--og-text-muted);
+    font-size: var(--og-type-caption);
+}
+.invoice-list-empty {
+    display: grid;
+    justify-items: center;
+    align-content: center;
+    gap: var(--og-space-2);
+    min-height: 160px;
+    padding: var(--og-space-5) var(--og-space-3);
+    text-align: center;
+}
+.invoice-list-empty > svg {
+    width: 32px;
+    height: 32px;
+    margin-bottom: var(--og-space-2);
+    color: var(--og-text-muted);
+}
+.invoice-list-empty :is(h3, p) {
+    margin: 0;
+}
+.invoice-list-empty h3 {
+    font-size: var(--og-type-section);
+}
+.invoice-list-empty p {
+    color: var(--og-text-muted);
+}
+.invoice-list-error {
+    margin: 0;
+    padding: var(--og-space-3);
+    border-radius: var(--og-radius-control);
+    color: var(--og-negative-text);
+    background: var(--og-danger-bg);
 }
 .record-dialog--invoice .record-detail {
     padding: 0;
     border: 0;
 }
 @media (max-width: 640px) {
+    .invoice-filters > fieldset,
+    .invoice-filter-fields {
+        grid-template-columns: 1fr;
+    }
+    .invoice-filter-actions > button {
+        flex: 1 1 auto;
+    }
+    .invoice-heading-actions {
+        width: 100%;
+    }
+    .invoice-heading-actions > button {
+        flex: 1 1 auto;
+        justify-content: center;
+        min-height: var(--og-touch-height);
+    }
     .invoice-context {
         grid-template-columns: 1fr;
     }

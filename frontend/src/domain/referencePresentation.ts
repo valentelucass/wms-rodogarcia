@@ -32,6 +32,7 @@ export const referenceTypes: Record<string, string[]> = {
     unidadeId: ["UnidadeLogisticaDto.Resumo", "EstoqueDto.Unidade"],
     reservaId: ["PedidoSaidaDto.Reserva"],
     baixaId: ["ExpedicaoDto.Baixa"],
+    documentoId: ["ExpedicaoDto.DocumentoRegistrado"],
     servicoId: ["ConfiguracaoCobrancaDto.Servico"],
     tabelaId: ["ConfiguracaoCobrancaDto.Tabela"],
     itemTabelaId: ["ConfiguracaoCobrancaDto.ItemResposta"],

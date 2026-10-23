@@ -968,6 +968,7 @@ export interface ExpedicaoDto_Retornar {
   unidades: Array<ExpedicaoDto_Destinacao>;
   motivo: string;
   resolverPendentes: boolean | null;
+  regularizacoesFiscais: Array<string> | null;
 }
 export interface ExpedicaoDto_ItemDevolucao {
   baixaId: string;
@@ -983,6 +984,7 @@ export interface ExpedicaoDto_Devolver {
   itens: Array<ExpedicaoDto_ItemDevolucao>;
   motivo: string;
   resolverPendentes: boolean | null;
+  solicitacaoEntradaId?: string | null;
 }
 export interface ExpedicaoDto_Separacao {
   id: string | null;
@@ -1399,12 +1401,33 @@ export interface FiscalCadastroDto_Dados {
   contatoTelefone: string | null;
   faturamentoEmail: string | null;
   faturamentoReferencia: string | null;
+  codigoMunicipio?: string | null;
+  indicadorIe?: number | null;
+  agrupamentoNfe?: string | null;
 }
 export interface FiscalCadastroDto_Complementar {
   operacaoId: string;
   versao: string;
   dados: FiscalCadastroDto_Dados;
   motivo: string;
+}
+export interface FiscalCadastroDto_Tributacao {
+  origem: string;
+  icmsCst: string;
+  ipiCst: string | null;
+  pisCst: string;
+  cofinsCst: string;
+  aliquotaPis: string | null;
+  aliquotaCofins: string | null;
+  codigoBeneficio: string | null;
+  unidadeTributavel: string | null;
+  fatorTributavel: string | null;
+  aliquotaIbsUf: string | null;
+  aliquotaIbsMunicipio: string | null;
+  aliquotaCbs: string | null;
+  aliquotaIs: string | null;
+  classificacaoIbsCbs: string | null;
+  classificacaoIs: string | null;
 }
 export interface FiscalCadastroDto_Complemento {
   id: string | null;
@@ -1428,6 +1451,7 @@ export interface FiscalCadastroDto_Referenciar {
   conferidaPor: string | null;
   conferidaEm: string | null;
   motivo: string;
+  tributacao?: FiscalCadastroDto_Tributacao | null;
 }
 export interface FiscalCadastroDto_Referencia {
   id: string | null;
@@ -1444,6 +1468,116 @@ export interface FiscalCadastroDto_Referencia {
   fonte: string | null;
   conferidaPor: string | null;
   conferidaEm: string | null;
+  tributacao: FiscalCadastroDto_Tributacao | null;
+}
+export interface FiscalNfeDto_Preparar {
+  versao: string;
+  natureza: string;
+  documentoOrigemId: string | null;
+}
+export interface FiscalNfeDto_Confirmar {
+  operacaoId: string;
+  versao: string;
+  hash: string;
+  natureza: string;
+  documentoOrigemId: string | null;
+  motivo: string;
+}
+export interface FiscalNfeDto_Comando {
+  operacaoId: string;
+  motivo: string;
+}
+export interface FiscalNfeDto_Item {
+  reservaId: string;
+  entradaOrigemId: string;
+  itemNotaOrigemId: string;
+  notaOrigemId: string;
+  produtoId: string;
+  sku: string;
+  descricao: string;
+  unidade: string;
+  quantidade: string;
+  valorUnitario: string;
+  valorTotal: string;
+  ncm: string;
+  cfop: string;
+  chaveOrigem: string;
+  revisaoConteudo: string;
+}
+export interface FiscalNfeDto_DocumentoPlanejado {
+  grupo: string;
+  natureza: string;
+  emitenteCnpj: string;
+  destinatarioDocumento: string;
+  destinatarioNome: string | null;
+  naturezaOperacao: string | null;
+  finalidade: string | null;
+  ambiente: number;
+  documentoOrigemId: string | null;
+  itens: Array<FiscalNfeDto_Item>;
+  coberturas: Array<ExpedicaoDto_Cobertura>;
+  chavesReferenciadas: Array<string>;
+  valorTotal: string;
+  observacao: string;
+}
+export interface FiscalNfeDto_Previa {
+  pedidoId: string;
+  versao: string;
+  hash: string;
+  podeEmitir: boolean;
+  integracaoHabilitada: boolean;
+  pendencias: Array<string>;
+  documentos: Array<FiscalNfeDto_DocumentoPlanejado>;
+  expedicao: ExpedicaoDto_Detalhe;
+}
+export interface FiscalNfeDto_Solicitacao {
+  id: string;
+  planoId: string;
+  natureza: string;
+  situacao: string;
+  numero: string | null;
+  serie: string | null;
+  chaveAcesso: string | null;
+  protocolo: string | null;
+  documentoId: string | null;
+  documentoOrigemId: string | null;
+  mensagem: string;
+  podeProcessar: boolean;
+  podeCancelar: boolean;
+  xmlDisponivel: boolean;
+  criadaEm: string;
+  atualizadaEm: string;
+}
+export interface FiscalNfeDto_Andamento {
+  pedidoId: string;
+  situacao: string;
+  solicitacoes: Array<FiscalNfeDto_Solicitacao>;
+}
+export interface FiscalNfeDto_Linha {
+  id: string;
+  versao: string;
+  referencia: string;
+  criadoEm: string;
+  clienteId: string;
+  cliente: string;
+  armazemId: string;
+  situacaoOperacional: string;
+  situacaoFiscal: string;
+  numerosNfe: Array<string>;
+  podeEmitir: boolean;
+}
+export interface FiscalNfeDto_Arquivo {
+  nome: string;
+  conteudo: string;
+}
+export interface FiscalNfeDto_RetornoOperacional {
+  pedidoId: string;
+  versao: string;
+  houveRetirada: boolean;
+  regularizacoesFiscais: Array<string>;
+  solicitacaoEntradaId: string;
+  nota: ExpedicaoDto_Nota;
+  itens: Array<ExpedicaoDto_ItemDevolucao>;
 }
 export interface ImportacaoEnderecoDto_Previa {
   operacaoId: string;
@@ -2377,6 +2511,14 @@ export interface ApiContracts {
   "FiscalCadastroController.complementarArmazem": { request: FiscalCadastroDto_Complementar; response: FiscalCadastroDto_Complemento };
   "FiscalCadastroController.referencias": { request: undefined; response: Array<FiscalCadastroDto_Referencia> };
   "FiscalCadastroController.referenciar": { request: FiscalCadastroDto_Referenciar; response: FiscalCadastroDto_Referencia };
+  "FiscalNfeController.listar": { request: undefined; response: PaginaResponse<FiscalNfeDto_Linha> };
+  "FiscalNfeController.previa": { request: FiscalNfeDto_Preparar; response: FiscalNfeDto_Previa };
+  "FiscalNfeController.confirmar": { request: FiscalNfeDto_Confirmar; response: FiscalNfeDto_Andamento };
+  "FiscalNfeController.andamento": { request: undefined; response: FiscalNfeDto_Andamento };
+  "FiscalNfeController.processar": { request: undefined; response: FiscalNfeDto_Andamento };
+  "FiscalNfeController.cancelar": { request: FiscalNfeDto_Comando; response: FiscalNfeDto_Andamento };
+  "FiscalNfeController.arquivo": { request: undefined; response: FiscalNfeDto_Arquivo };
+  "FiscalNfeController.retorno": { request: undefined; response: FiscalNfeDto_RetornoOperacional };
   "ImportacaoEnderecoController.previa": { request: ImportacaoEnderecoDto_Previa; response: ImportacaoEnderecoDto_Resultado };
   "ImportacaoEnderecoController.consultar": { request: undefined; response: ImportacaoEnderecoDto_Resultado };
   "ImportacaoEnderecoController.confirmar": { request: ImportacaoEnderecoDto_Confirmar; response: ImportacaoEnderecoDto_Resultado };

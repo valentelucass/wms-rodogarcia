@@ -10,7 +10,6 @@ import {
     invoiceMoney,
     invoicePeriod,
 } from "./invoicePresentation";
-import "./invoice.css";
 
 type DialogProps = ComponentProps<typeof RecordDialog>;
 type Props = Pick<

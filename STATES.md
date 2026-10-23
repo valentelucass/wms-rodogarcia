@@ -1,8 +1,58 @@
 # Estado e trilha de implementação do WMS Rodogarcia
 
+## FE02-DADOS-AUD01 — auditoria real dos gráficos, 23/10/2026
+
+**Status:** conferência de leitura concluída. SQL independente, API autenticada e navegador real em quatro contextos conferem: ocupação 89/3/8/0 = 100 posições; fila 43/20/0/0 = 63 pedidos. Cinco retirados e doze cancelados permanecem no histórico. 28 reservas pertencem a 20 pedidos; 92 unidades endereçadas ocupam 100 posições. Das 1.354 unidades ativas, 1.262 não têm endereço, sendo 1.250 das massas REG01; existem no banco e não entram na ocupação física.
+
+Guarda atual 26 checks, 22 SELECTs incluindo identidade; sem escrita de negócio, H2, DDL, reinício ou PROD. Backend ativo b8511b96 preservado e distinguido da fonte fiscal local em desenvolvimento. Dois testes frontend acrescentados; 28 aprovados, tipagem/lint/formatação/build aprovados. Ajuda central esclarece unidades sem endereço, escopo do KPI e exclusão de pedidos encerrados. [Relatório e evidências](orchestracao/.runtime/dashboard-data-audit-20261023/auditoria.md); sem renovar aceite histórico dos 879 casos.
+
+**Pendência lateral FE02-DADOS-AUD01-OBS01:** pedido 95/SAI-000006 cancelado e reserva 56 cancelada conservam leitura 11 em LEITURA sem encerramento. Sem impacto nos totais auditados; encaminhar correção do encerramento de leituras no cancelamento/retorno, com teste próprio e preservação do histórico. Nenhuma correção SQL da fixture ou alteração de expedição foi feita neste recorte.
+
+## BE10-NOTAZZ-IMP01 e FE10-NOTAZZ-IMP01 — implementação autorizada, 23/10/2026
+
+**Status:** em implementação, a pedido expresso do responsável: “pode implementar de forma testada e rigorosa”. Esta autorização substitui a restrição anterior de somente documentação para esta frente. Dependências: BE05/BE09/BE10/BE11 e FE04/FE09/FE10; levantamento 46–49 e resposta final sobre retorno com cancelamento impedido.
+
+- [ ] Solicitação fiscal persistida antes do envio, identidade estável, snapshot, concorrência, conciliação e proteção contra duplicidade.
+- [ ] Completar dados fiscais com fonte explícita e bloqueio de emissão incompleta; emitente da origem, destinatário proprietário e valores proporcionais.
+- [ ] Unificar emissão/conferência na tela Retirada fiscal da mercadoria; listar pedidos, situação e números, mantendo retirada física distinta.
+- [ ] Cancelamento externo confirmado e nova entrada vinculada quando cancelamento é impedido, preservando fatos e estoque.
+- [ ] Testes puros, contratos, build, conferência visual e integração SQL guardada proporcional; Notazz real exige configuração/ambiente próprios comprovados.
+
+Preservar as alterações preexistentes das demais frentes. Somente WMS_DEV, com guardas atuais; sem PROD, emissão fiscal de produção, commit ou push. Credenciais externas protegidas, nunca no navegador/log/repositório. Evidências próprias em orchestracao/.runtime/notazz-implementation-20261023/; fonte, testes locais, ambiente ativo e homologação externa serão relatados separadamente.
+
+## FE02-PRODUTOS-UX01 — disponibilidade compacta por SKU, 23/10/2026
+
+**Status:** concluído na fonte local. Lucas pediu compactar a Disponibilidade por produto e rejeitou a tentativa com tabela e grupo de zerados. Apresentação final: todos os SKUs visíveis, linhas com composição curta e total próximo, duas colunas no desktop/uma no celular. Produtos zerados indicam Sem saldo; seleção por clique/foco mostra cliente e quatro quantidades exatas uma vez abaixo. Paginação, contagem, ordem da página, unidades e contratos preservados. Cabeçalho/rodapé mais baixos; sem tabela ou grupo recolhível.
+
+26 testes existentes, tipagem/lint/formatação/build aprovados. Navegador isolado fictício: oito layouts claro/escuro, 1640/1024/768/390 px, cerca de 316 px para seis produtos no desktop; cinco estados/interações, seleção sem consulta, paginação/foco, zero, saldo, Long/decimal exatos e vazio. Sem transbordamento, erro React ou HTTP de negócio. Evidências em orchestracao/.runtime/product-availability-20261023/. Atualização Graphify tentada sem force, preservada pelo guard de redução. Sem backend, SQL, reinício ou homologação integrada nova.
+
+## FE11-FATURA-LISTA-UX02 — organização da lista de fechamentos, 23/10/2026
+
+**Status:** concluído na fonte local. A pedido de Lucas, lista com filtros compactos/alinhados, ações no cabeçalho e orientação inicial central. Atualizar lista aparece após consulta/erro pertinente; contagem somente com resultados. Cliente/armazém sem legenda visual redundante, altura de 44 px e adaptação ao celular. Estados inicial/vazio/carregando/erro distintos; restauração sem filtros oculta tabela/contador/paginação anteriores. Novo fechamento, conferência, acesso, valores da versão e permissões preservados.
+
+Sete testes existentes, tipagem/lint/formatação/build aprovados. Navegador isolado com componentes reais/transporte fictício: oito layouts claro/escuro, 1640/1024/768/390 px, alinhamento medido, teclado/aplicação, lista com valor, restauração, vazio/carregando/erro e perfil restrito, sem transbordamento ou HTTP de negócio. Evidências em orchestracao/.runtime/invoice-list-layout-20261023/. Sem backend, SQL, reinício ou nova homologação integrada.
+
+## FE02-GRAFICOS-UX01 — linhas e pontos nos gráficos operacionais, 23/10/2026
+
+**Status:** concluído na fonte local. A pedido de Lucas, Ocupação física e Fila de saída passam de barras para linhas com pontos e preenchimento suave. Valores atuais por área/etapa, total recebido, seleção por ponto/cartão e detalhe preservam os dados e os atalhos. A faixa azul lateral e a caixa cinza do detalhe foram removidas após a correção visual do responsável. Linha representa comparação entre categorias atuais, sem histórico inventado; capacidade/livres somente quando permitidos e informados. Ajuda central atualizada; disponibilidade por produto preservada.
+
+26 testes existentes, tipagem/lint/formatação/build aprovados. Navegador isolado com transporte fictício explícito: oito layouts claro/escuro em 1640/1024/768/390 px, foco/Escape/seleção/atalhos, sete estados incluindo zero, Long acima de 2^53, capacidade ausente, acesso restrito, séries vazias, carregamento e erro. Sem transbordamento, geometria inválida ou HTTP de negócio; processos próprios fechados. Evidências em orchestracao/.runtime/operation-charts-20261023/. Graphify preservado pelo guard de redução, sem force. Sem backend, SQL, reinício ou homologação integrada nova.
+
+## FE02-KPI-CORES01 — fundos dos indicadores, 23/10/2026
+
+**Status:** concluído na fonte local. A pedido de Lucas, os dez KPIs do Início recebem fundos por significado: quarentena com unidades vermelha/sem unidades verde; posições livres verdes, capacidade ativa sem posições livres amarela; financeiro completo verde/incompleto amarelo e falha de previsão vermelha. Ocupação/posições ocupadas em azul, armazenadas/entradas em turquesa e reservas/saídas em violeta identificam volumes informativos. Sem meta arbitrária de ocupação, classificação de atraso ou alteração de valores/regras/permissões. Carregamento, falta de acesso e capacidade não informada preservam estado neutro pertinente. Ajuda central revisada.
+
+36 testes existentes aprovados, nove do contexto revalidados após tratar campos nulos; tipagem/lint/formatação/build aprovados. Navegador isolado: oito layouts em dois temas/1640/1024/768/390 px, contraste textual mínimo 4,5:1, seis estados e ajuda por foco/Escape, sem transbordamento ou HTTP de negócio. Evidências em orchestracao/.runtime/dashboard-kpi-colors-20261023/. Graphify preservou o mapa pelo guard de redução, sem force. Sem backend, SQL, reinício ou nova homologação integrada.
+
+## FE12-INVENTARIO-UX03 — alinhamento da visão geral, 23/10/2026
+
+**Status:** reorganização visual na fonte local, a pedido de Lucas. Cliente, Armazém, Produto/SKU e Endereço têm o mesmo alinhamento e altura; a busca acompanha a grade e as ações ficam alinhadas à sua base. As três visões usam abas simples com sublinhado ativo, sem a faixa cinza rejeitada pelo responsável. Mensagem inicial e adaptação ao celular organizadas; regras, consultas e permissões preservadas.
+
+Conferência em navegador isolado com componentes reais e transporte fictício explícito: oito layouts, claro/escuro, 1640/1024/768/390 px; medidas dos campos, teclado, três visões, consulta vazia/erro/restauração e ausência de transbordamento aprovados. Nove testes existentes do inventário, tipagem, lint, formatação e build aprovados. Evidências em orchestracao/.runtime/inventory-layout-20261023/. Graphify recusou a redução e preservou o mapa histórico, sem force. Sem backend, SQL ou reinício; esta conferência visual não renova a homologação integrada anterior.
+
 ## FE12-INVENTARIO-UX02 / BE14-INVENTARIO01 — inventários por escopo, 23/10/2026
 
-**Status:** apresentação e serviços implementados/validados na fonte local; **ativação e validação SQL pendentes de autorização específica**. Não declarar o módulo em operação nem interpretar testes puros como aceite SQL. Fonte, pacote e versão ativa continuam distintos.
+**Status:** implementado e ativo no WMS_DEV em 23/10/2026, com V14 aplicada, guarda atual aprovada, fonte/pacote atuais e validação HTTP/navegador/SQL real. Lucas confirmou que ajustes necessários no WMS_DEV não exigem nova autorização por etapa. Leitor físico e volume de 20.000 unidades permanecem sem homologação; não transportar este aceite para PROD.
 
 - [x] Uma tela Inventário com visão por SKU/posição, filtros, histórico e Realizar inventário; três etapas antigas removidas da apresentação principal.
 - [x] Modal às cegas, por SKU ou por posição; contagem exige todas as etiquetas do escopo cliente/armazém. Na contagem, só o observado é retornado/apresentado; esperado e divergências exigem encerramento.
@@ -11,10 +61,13 @@
 - [x] Carga inicial e contagens/ajustes históricos preservados em acesso administrativo secundário, com papéis existentes.
 - [x] 847 testes frontend aprovados; após ajuste final de foco do leitor, 9 testes do inventário revalidados; tipagem/lint/formatação/build aprovados. 31 testes backend puros aprovados, sem Spring/banco; pacote oficial SomenteBuild aprovado com SQL/H2 zero.
 - [x] Antes/depois dos componentes reais, dados fictícios; cinco layouts antes/atual, claro/escuro e 1440/390 px, com seleções dos três tipos, foco/diálogo/relatório, sem erro React, transbordamento ou HTTP de negócio.
-- [ ] Autorizar/aplicar a estrutura proposta V14 no WMS_DEV com guardas atuais, revisar acesso da aplicação e ativar WMS_INVENTARIO_ENABLED só nesse ambiente.
-- [ ] Validar persistência, concorrência/isolamento, dialecto/volume SQL e leitor físico antes do aceite operacional.
+- [x] V14 aplicada por Flyway protegido somente WMS_DEV; duas tabelas/23 colunas, histórico V1–V13 preservado e direitos mínimos WMSDEV conferidos. Ativação exclusiva em application-frontend-dev.properties; padrão geral false.
+- [x] 27 verificações HTTP/navegador reais: três tipos, relatório, recontagem substitutiva, início/leitura/fim/cancelamento idempotentes, disputa nativa 200/409, base cega oculta, relatório fechado imutável e estoque preservado. Movimentação controlada da fixture sinalizada sem desfazê-la.
+- [x] SELECT independente WMSDEV/TLS confirma cinco inventários (quatro concluídos/um cancelado), relatórios JSON válidos, vinte operações únicas e três mercadorias/25 unidades de produto. Fixtures fictícias criadas somente pela API autenticada; sem limpeza ou SQL de negócio direto.
+- [x] CSS do inventário/fatura e controles financeiros registrado no agregador externo; imports por JavaScript removidos para respeitar style-src 'self'. Navegador real confirma grid/flex, SKU separado e zero violações de estilos; quatro fotos finais sem estado de carregamento. Tipagem/lint/build finais aprovados.
+- [ ] Homologar leitor físico e volume máximo com cenário operacional. A amostra real contém três mercadorias; não comprova carga de 20.000.
 
-Proposta não executada: database/docs/propostas/V14__inventarios_por_escopo.sql, com duas tabelas e ampliação conservadora de tipos de operação/auditoria dentro de transação; migrations históricas preservadas. Nenhuma nova entidade JPA força a validação de tabelas ainda ausentes; serviço de registro desativado por padrão. Visão de estoque usa estruturas existentes. Limite técnico explícito de 20.000 mercadorias por escopo, recusando escopo maior integralmente, sem relatório parcial; revisar com volume real. Evidência: orchestracao/.runtime/inventory-20261023/validation-summary.json. Graphify tentou update sem force e preservou histórico pelo guard de redução. Adendo focal do mapa liga os nove endpoints novos; gerador geral tem limitação anterior de 19 rotas nativas. Sem SQL, DDL, H2, integração externa, reinício/publicação ou equipamentos nesta entrega.
+Proposta histórica preservada em database/docs/propostas; fonte aplicada imutável em database/migrations/V14__inventarios_por_escopo.sql. Registros locais anteriores: orchestracao/.runtime/inventory-20261023/validation-summary.json. Ativação: orchestracao/.runtime/inventory-activation-20261023/validation-summary.json; versão ativa b8511b96-0296-49fd-a7f7-2f6fa3ca37b2, portas 25580/25581. Corrigido o registro da rota no controle de acesso após o primeiro HTTP403. Contrato/replay estrutural: dez testes aprovados; preparo do ambiente: 18/18. Atualização AST do Graphify sem force preservou o grafo pelo guard de redução; adendo focal dos nove endpoints mantido. Sem H2, PROD, emissão fiscal, integração externa ou leitor físico.
 
 ## FE12-INVENTARIO-NOME01 — nome da página, 23/10/2026
 
@@ -42,13 +95,13 @@ Evidências em orchestracao/.runtime/inventory-name-20261023/validation-summary.
 
 ## BE10-NOTAZZ-ALINH01 e FE10-NOTAZZ-ALINH01 — respostas fiscais e exemplos, 22/10/2026
 
-**Status:** duas rodadas de respostas incorporadas; definições operacionais esclarecidas, com validação fiscal específica do cancelamento após circulação, sem implementação. [Alinhamento e exemplos](docs/49-alinhamento-fiscal-respostas-e-exemplos.md).
+**Status:** complemento de 23/10/2026 incorporado; última dúvida operacional resolvida, sem implementação. Se a circulação impedir cancelar a NF-e, emitir nova nota de entrada e processar o retorno, inclusive dentro de 24 horas. [Alinhamento e exemplos](docs/49-alinhamento-fiscal-respostas-e-exemplos.md).
 
-Gestor definiu emissão pelo CNPJ do armazém da entrada, destinatário sempre proprietário, retorno correspondente ao tratamento da entrada, agrupamento conforme cliente com consolidação permitida à Bracell e valor proporcional da entrada. Na segunda rodada, informou cancelamento fiscal e reendereçamento até 24 horas mesmo quando houve saída/retorno; após o prazo, nota de entrada e novo processo operacional com reendereçamento, mesmo sem retirada. Fiscal atua primeiro, operador depois; retorno simbólico pode ser somente fiscal. Cancelamento após circulação depende de validação específica de Natalina. Preservar fatos e quantidade física única.
+Gestor definiu emissão pelo CNPJ do armazém da entrada, destinatário sempre proprietário, retorno correspondente ao tratamento da entrada, agrupamento conforme cliente com consolidação permitida à Bracell e valor proporcional da entrada. Complemento de 23/10/2026: circulação que impede cancelamento exige nova nota de entrada, com saída original preservada e reendereçamento da quantidade retornada. Após o prazo, permanece o novo processo de entrada mesmo sem retirada, conservando quantidade física única. Fiscal atua primeiro, operador depois; retorno simbólico pode ser somente fiscal. Não repetir a pergunta de circulação ao gestor.
 
 Dois DANFEs Tigre/Castro conferidos integralmente por extração e imagem; 30 verificações documentais/aritméticas aprovadas, sem consulta fiscal autenticada. Inventário atualizado para 107 regras e 75 cenários planejados, mantendo IDs anteriores. As dúvidas operacionais foram respondidas; detalhes de XML/tributação seguem com o fiscal, sem novo questionário técnico ao gestor. Código, configuração, banco e notas reais preservados. Prévia visual antes/depois produzida para compreensão, sem aplicação no sistema.
 
-Pesquisa oficial adicional confirmou a condição de ausência de circulação para cancelamento comum. Pendência específica é conciliar a orientação recebida para carga que saiu e voltou com o documento fiscal aplicável, não pedir ao gestor que pesquise a lei. Fontes nacionais/estaduais e limites de aplicação registrados no documento 49; sem alteração de código ou execução fiscal.
+Pesquisa oficial de 22/10/2026 e resposta de 23/10/2026 conciliadas no documento 49: ausência de circulação para cancelamento comum; nova nota de entrada quando a circulação impede cancelamento. A pendência de negócio está encerrada. Credenciamento, XMLs, configuração tributária e homologação permanecem insumos da implementação futura. Atualização somente documental; sem nova execução da aplicação ou fiscal.
 
 ## BE10-NOTAZZ-MAP01 e FE10-NOTAZZ-MAP01 — mapeamento fiscal para implementação futura, 22/10/2026
 

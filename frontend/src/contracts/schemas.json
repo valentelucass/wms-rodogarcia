@@ -5371,6 +5371,20 @@
         "type": "Boolean",
         "required": false,
         "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/ExpedicaoDto.java"
+      },
+      {
+        "name": "regularizacoesFiscais",
+        "type": "List<String>",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/ExpedicaoDto.java",
+        "Size": "max = 200",
+        "element": {
+          "name": "element",
+          "type": "String",
+          "required": false,
+          "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/ExpedicaoDto.java",
+          "Pattern": "regexp = \"[0-9a-fA-F-]{36}\""
+        }
       }
     ],
     "ExpedicaoDto.ItemDevolucao": [
@@ -5457,6 +5471,14 @@
         "type": "Boolean",
         "required": false,
         "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/ExpedicaoDto.java"
+      },
+      {
+        "name": "solicitacaoEntradaId",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/ExpedicaoDto.java",
+        "omitNull": true,
+        "Pattern": "regexp = \"[0-9a-fA-F-]{36}\""
       }
     ],
     "ExpedicaoDto.Separacao": [
@@ -7817,6 +7839,30 @@
         "required": false,
         "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalCadastroDto.java",
         "Size": "max = 500"
+      },
+      {
+        "name": "codigoMunicipio",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalCadastroDto.java",
+        "omitNull": true,
+        "Pattern": "regexp = \"[0-9]{7}\""
+      },
+      {
+        "name": "indicadorIe",
+        "type": "Integer",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalCadastroDto.java",
+        "omitNull": true,
+        "Min": "1"
+      },
+      {
+        "name": "agrupamentoNfe",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalCadastroDto.java",
+        "omitNull": true,
+        "Pattern": "regexp = \"CONSOLIDAR|POR_NOTA\""
       }
     ],
     "FiscalCadastroDto.Complementar": [
@@ -7846,6 +7892,131 @@
         "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalCadastroDto.java",
         "notBlank": true,
         "Size": "min = 5, max = 500"
+      }
+    ],
+    "FiscalCadastroDto.Tributacao": [
+      {
+        "name": "origem",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalCadastroDto.java",
+        "notBlank": true,
+        "Pattern": "regexp = \"[0-8]\""
+      },
+      {
+        "name": "icmsCst",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalCadastroDto.java",
+        "notBlank": true,
+        "Pattern": "regexp = \"[0-9]{2,3}\""
+      },
+      {
+        "name": "ipiCst",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalCadastroDto.java",
+        "Pattern": "regexp = \"[0-9]{2}\""
+      },
+      {
+        "name": "pisCst",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalCadastroDto.java",
+        "notBlank": true,
+        "Pattern": "regexp = \"[0-9]{2}\""
+      },
+      {
+        "name": "cofinsCst",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalCadastroDto.java",
+        "notBlank": true,
+        "Pattern": "regexp = \"[0-9]{2}\""
+      },
+      {
+        "name": "aliquotaPis",
+        "type": "BigDecimal",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalCadastroDto.java",
+        "DecimalMin": "\"0\"",
+        "DecimalMax": "\"100\""
+      },
+      {
+        "name": "aliquotaCofins",
+        "type": "BigDecimal",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalCadastroDto.java",
+        "DecimalMin": "\"0\"",
+        "DecimalMax": "\"100\""
+      },
+      {
+        "name": "codigoBeneficio",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalCadastroDto.java",
+        "Size": "max = 40"
+      },
+      {
+        "name": "unidadeTributavel",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalCadastroDto.java",
+        "Size": "max = 6"
+      },
+      {
+        "name": "fatorTributavel",
+        "type": "BigDecimal",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalCadastroDto.java",
+        "Digits": "integer = 9, fraction = 6",
+        "DecimalMin": "value = \"0\", inclusive = false"
+      },
+      {
+        "name": "aliquotaIbsUf",
+        "type": "BigDecimal",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalCadastroDto.java",
+        "DecimalMin": "\"0\"",
+        "DecimalMax": "\"100\""
+      },
+      {
+        "name": "aliquotaIbsMunicipio",
+        "type": "BigDecimal",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalCadastroDto.java",
+        "DecimalMin": "\"0\"",
+        "DecimalMax": "\"100\""
+      },
+      {
+        "name": "aliquotaCbs",
+        "type": "BigDecimal",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalCadastroDto.java",
+        "DecimalMin": "\"0\"",
+        "DecimalMax": "\"100\""
+      },
+      {
+        "name": "aliquotaIs",
+        "type": "BigDecimal",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalCadastroDto.java",
+        "DecimalMin": "\"0\"",
+        "DecimalMax": "\"100\""
+      },
+      {
+        "name": "classificacaoIbsCbs",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalCadastroDto.java",
+        "Pattern": "regexp = \"[0-9]{6}\""
+      },
+      {
+        "name": "classificacaoIs",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalCadastroDto.java",
+        "Pattern": "regexp = \"[0-9]{3,6}\""
       }
     ],
     "FiscalCadastroDto.Complemento": [
@@ -7984,6 +8155,13 @@
         "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalCadastroDto.java",
         "notBlank": true,
         "Size": "min = 5, max = 500"
+      },
+      {
+        "name": "tributacao",
+        "type": "FiscalCadastroDto.Tributacao",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalCadastroDto.java",
+        "omitNull": true
       }
     ],
     "FiscalCadastroDto.Referencia": [
@@ -8070,6 +8248,624 @@
         "type": "Instant",
         "required": false,
         "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalCadastroDto.java"
+      },
+      {
+        "name": "tributacao",
+        "type": "FiscalCadastroDto.Tributacao",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalCadastroDto.java"
+      }
+    ],
+    "FiscalNfeDto.Preparar": [
+      {
+        "name": "versao",
+        "type": "Long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java",
+        "Min": "0"
+      },
+      {
+        "name": "natureza",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java",
+        "notBlank": true,
+        "Pattern": "regexp = \"RETORNO_MERCADORIA|RETORNO_SIMBOLICO|REGULARIZACAO_ENTRADA\""
+      },
+      {
+        "name": "documentoOrigemId",
+        "type": "Long",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java",
+        "positive": true
+      }
+    ],
+    "FiscalNfeDto.Confirmar": [
+      {
+        "name": "operacaoId",
+        "type": "UUID",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "versao",
+        "type": "Long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java",
+        "Min": "0"
+      },
+      {
+        "name": "hash",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java",
+        "notBlank": true,
+        "Pattern": "regexp = \"[a-f0-9]{64}\""
+      },
+      {
+        "name": "natureza",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java",
+        "notBlank": true,
+        "Pattern": "regexp = \"RETORNO_MERCADORIA|RETORNO_SIMBOLICO|REGULARIZACAO_ENTRADA\""
+      },
+      {
+        "name": "documentoOrigemId",
+        "type": "Long",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java",
+        "positive": true
+      },
+      {
+        "name": "motivo",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java",
+        "notBlank": true,
+        "Size": "min = 5, max = 500"
+      }
+    ],
+    "FiscalNfeDto.Comando": [
+      {
+        "name": "operacaoId",
+        "type": "UUID",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "motivo",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java",
+        "notBlank": true,
+        "Size": "min = 15, max = 500"
+      }
+    ],
+    "FiscalNfeDto.Item": [
+      {
+        "name": "reservaId",
+        "type": "Long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "entradaOrigemId",
+        "type": "Long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "itemNotaOrigemId",
+        "type": "Long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "notaOrigemId",
+        "type": "Long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "produtoId",
+        "type": "Long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "sku",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "descricao",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "unidade",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "quantidade",
+        "type": "BigDecimal",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "valorUnitario",
+        "type": "BigDecimal",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "valorTotal",
+        "type": "BigDecimal",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "ncm",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "cfop",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "chaveOrigem",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "revisaoConteudo",
+        "type": "long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      }
+    ],
+    "FiscalNfeDto.DocumentoPlanejado": [
+      {
+        "name": "grupo",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "natureza",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "emitenteCnpj",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "destinatarioDocumento",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "destinatarioNome",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "naturezaOperacao",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "finalidade",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "ambiente",
+        "type": "int",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "documentoOrigemId",
+        "type": "Long",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "itens",
+        "type": "List<FiscalNfeDto.Item>",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java",
+        "element": {
+          "name": "element",
+          "type": "FiscalNfeDto.Item",
+          "required": false,
+          "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+        }
+      },
+      {
+        "name": "coberturas",
+        "type": "List<ExpedicaoDto.Cobertura>",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java",
+        "element": {
+          "name": "element",
+          "type": "ExpedicaoDto.Cobertura",
+          "required": false,
+          "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+        }
+      },
+      {
+        "name": "chavesReferenciadas",
+        "type": "List<String>",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java",
+        "element": {
+          "name": "element",
+          "type": "String",
+          "required": false,
+          "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+        }
+      },
+      {
+        "name": "valorTotal",
+        "type": "BigDecimal",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "observacao",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      }
+    ],
+    "FiscalNfeDto.Previa": [
+      {
+        "name": "pedidoId",
+        "type": "Long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "versao",
+        "type": "long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "hash",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "podeEmitir",
+        "type": "boolean",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "integracaoHabilitada",
+        "type": "boolean",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "pendencias",
+        "type": "List<String>",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java",
+        "element": {
+          "name": "element",
+          "type": "String",
+          "required": false,
+          "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+        }
+      },
+      {
+        "name": "documentos",
+        "type": "List<FiscalNfeDto.DocumentoPlanejado>",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java",
+        "element": {
+          "name": "element",
+          "type": "FiscalNfeDto.DocumentoPlanejado",
+          "required": false,
+          "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+        }
+      },
+      {
+        "name": "expedicao",
+        "type": "ExpedicaoDto.Detalhe",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      }
+    ],
+    "FiscalNfeDto.Solicitacao": [
+      {
+        "name": "id",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "planoId",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "natureza",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "situacao",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "numero",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "serie",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "chaveAcesso",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "protocolo",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "documentoId",
+        "type": "Long",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "documentoOrigemId",
+        "type": "Long",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "mensagem",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "podeProcessar",
+        "type": "boolean",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "podeCancelar",
+        "type": "boolean",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "xmlDisponivel",
+        "type": "boolean",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "criadaEm",
+        "type": "Instant",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "atualizadaEm",
+        "type": "Instant",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      }
+    ],
+    "FiscalNfeDto.Andamento": [
+      {
+        "name": "pedidoId",
+        "type": "Long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "situacao",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "solicitacoes",
+        "type": "List<FiscalNfeDto.Solicitacao>",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java",
+        "element": {
+          "name": "element",
+          "type": "FiscalNfeDto.Solicitacao",
+          "required": false,
+          "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+        }
+      }
+    ],
+    "FiscalNfeDto.Linha": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "versao",
+        "type": "long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "referencia",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "criadoEm",
+        "type": "Instant",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "clienteId",
+        "type": "Long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "cliente",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "armazemId",
+        "type": "Long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "situacaoOperacional",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "situacaoFiscal",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "numerosNfe",
+        "type": "List<String>",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java",
+        "element": {
+          "name": "element",
+          "type": "String",
+          "required": false,
+          "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+        }
+      },
+      {
+        "name": "podeEmitir",
+        "type": "boolean",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      }
+    ],
+    "FiscalNfeDto.Arquivo": [
+      {
+        "name": "nome",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "conteudo",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      }
+    ],
+    "FiscalNfeDto.RetornoOperacional": [
+      {
+        "name": "pedidoId",
+        "type": "Long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "versao",
+        "type": "long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "houveRetirada",
+        "type": "boolean",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "regularizacoesFiscais",
+        "type": "List<String>",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java",
+        "element": {
+          "name": "element",
+          "type": "String",
+          "required": false,
+          "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+        }
+      },
+      {
+        "name": "solicitacaoEntradaId",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "nota",
+        "type": "ExpedicaoDto.Nota",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+      },
+      {
+        "name": "itens",
+        "type": "List<ExpedicaoDto.ItemDevolucao>",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java",
+        "element": {
+          "name": "element",
+          "type": "ExpedicaoDto.ItemDevolucao",
+          "required": false,
+          "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/FiscalNfeDto.java"
+        }
       }
     ],
     "ImportacaoEnderecoDto.Previa": [

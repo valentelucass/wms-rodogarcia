@@ -215,3 +215,90 @@ it("erro de transporte aparece separado de zero e os contadores mantêm precisã
     expect(barShare("9007199254740993", "90071992547409930")).toBe(100);
     expect(barShare("0", "0")).toBe(0);
 });
+
+it("etapas de separação e retirada exibem valores positivos e atualização para zero sem ocultar categorias", async () => {
+    let empty = false;
+    const send = vi.fn(async (r: Request) =>
+        receipt(r, dashboardExample(r, "GESTOR", empty)),
+    );
+    render(
+        <OperationDashboard
+            transport={{ send }}
+            context={{}}
+            perfil="GESTOR"
+            navigate={vi.fn()}
+            showMetrics={false}
+        />,
+    );
+    const physical = await screen.findByRole("article", {
+        name: "Ocupação física",
+    });
+    const queue = screen.getByRole("article", { name: "Fila de saída" });
+    expect(
+        within(physical).getByRole("button", { name: /^Separação\s*6$/ }),
+    ).toBeInTheDocument();
+    expect(
+        within(queue).getByRole("button", { name: /^Em separação\s*5$/ }),
+    ).toBeInTheDocument();
+    fireEvent.click(
+        within(queue).getByRole("button", {
+            name: /^Aguardando retirada\s*2$/,
+        }),
+    );
+    expect(queue.querySelector(".operation-line-detail")).toHaveTextContent(
+        "2 pedidos nesta etapa.",
+    );
+    expect(send).toHaveBeenCalledTimes(1);
+    empty = true;
+    fireEvent.click(screen.getByRole("button", { name: "Atualizar gráficos" }));
+    await waitFor(() =>
+        expect(
+            within(queue).getByRole("button", {
+                name: /^Aguardando retirada\s*0$/,
+            }),
+        ).toBeInTheDocument(),
+    );
+    for (const chart of [physical, queue]) {
+        expect(
+            chart.querySelectorAll(".operation-line-breakdown button"),
+        ).toHaveLength(4);
+        expect(chart.querySelectorAll(".operation-line-point")).toHaveLength(4);
+        expect(
+            chart.querySelector(".operation-line-summary strong"),
+        ).toHaveTextContent(/^0$/);
+    }
+    expect(send).toHaveBeenCalledTimes(2);
+});
+
+it("consulta sem capacidade informada preserva as posições recebidas e não inventa espaço livre", async () => {
+    const send = vi.fn(async (r: Request) => {
+        const data = dashboardExample(r, "GESTOR", false);
+        return receipt(r, {
+            ...data,
+            areas: data.areas.map((area) => ({
+                ...area,
+                capacidadeAtiva: null,
+                livresArmazem: null,
+            })),
+        });
+    });
+    render(
+        <OperationDashboard
+            transport={{ send }}
+            context={{}}
+            perfil="GESTOR"
+            navigate={vi.fn()}
+            showMetrics={false}
+        />,
+    );
+    const physical = await screen.findByRole("article", {
+        name: "Ocupação física",
+    });
+    fireEvent.click(
+        within(physical).getByRole("button", { name: /^Quarentena\s*4$/ }),
+    );
+    expect(physical.querySelector(".operation-line-detail")).toHaveTextContent(
+        "4 posições ocupadas no contexto.",
+    );
+    expect(within(physical).queryByText(/livres de/)).not.toBeInTheDocument();
+});

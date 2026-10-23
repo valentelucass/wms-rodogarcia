@@ -1,6 +1,6 @@
 # Alinhamento fiscal com as respostas do gestor
 
-Respostas encaminhadas em 22/10/2026 para complementar o levantamento de Fiscal e retirada. Emitente, destinatário, agrupamento, valor, sequência de desistência e possibilidade de operação apenas fiscal foram esclarecidos em duas rodadas. Permanece uma validação fiscal específica: o cancelamento informado para mercadoria que já circulou não deve ser tratado como automaticamente admissível só por ocorrer dentro de 24 horas.
+Respostas encaminhadas em 22 e 23/10/2026 para complementar o levantamento de Fiscal e retirada. Emitente, destinatário, agrupamento, valor, sequência de desistência e possibilidade de operação apenas fiscal foram esclarecidos. A terceira rodada resolveu a última dúvida operacional: havendo circulação que impeça o cancelamento da NF-e, emitir nova nota de entrada e processar o retorno da mercadoria, mesmo dentro de 24 horas. A saída original permanece registrada; o retorno gera entrada vinculada e reendereçamento.
 
 Esta atualização é documental. Não houve alteração de código, configuração ou banco, emissão de NF-e ou cancelamento externo. As respostas são fonte de negócio; os DANFEs são exemplos de operações específicas e não instruções de execução ou parâmetros universais.
 
@@ -22,12 +22,22 @@ As quatro primeiras dúvidas do levantamento inicial ficam resolvidas nesses lim
 
 | Situação perguntada | Resposta recebida | Consequência para o desenho |
 | --- | --- | --- |
-| Mercadoria saiu e voltou dentro de 24 horas | Cancelar a nota de saída e a saída fiscal; somente reendereçar a mercadoria, sem emitir nota de entrada nesse procedimento informado. | Reendereçamento precisa de mercadoria efetivamente presente e de resolução fiscal confirmada/admissível. Preservar os fatos e o vínculo da reversão no histórico; validar com Natalina a hipótese de cancelamento após circulação. |
+| Mercadoria saiu e voltou dentro de 24 horas | Na segunda rodada, foi informado cancelar a nota de saída e a saída fiscal e somente reendereçar. | Registro histórico, complementado pela terceira rodada abaixo: se a circulação impedir o cancelamento, usar nova nota de entrada e processar o retorno. Não aplicar a resposta anterior como cancelamento automático após circulação. |
 | Mais de 24 horas, mesmo sem retirada | Nota de entrada regulariza físico e fiscal; tratar como entrada nova e exigir reendereçamento, mesmo sem ter saído. | Abrir novo processo de entrada/regularização e encaminhar a endereçamento. Para mercadoria ainda presente, reaproveitar a quantidade real com vínculos entre os ciclos, sem acrescentar uma segunda cópia ao estoque. |
 | Responsabilidade e ordem | Fiscal atua primeiro; depois o operador realiza endereçamento. | A etapa fiscal precede a execução operacional. Documento/processamento fiscal pendente ou recusado não equivale a liberação para concluir a regularização. |
 | Retorno simbólico | Pode ser operação somente fiscal. | Documento simbólico tem acompanhamento próprio e não comanda retirada, baixa ou entrada física por si só. |
 
-Essas respostas substituem as hipóteses operacionais apresentadas na primeira rodada. Não é necessário perguntar novamente ao gestor se existe operação apenas fiscal nem quem atua primeiro. A resposta sobre cancelamento após circulação é registrada como procedimento informado, com a validação fiscal delimitada adiante.
+Essas respostas substituem as hipóteses operacionais apresentadas na primeira rodada. Não é necessário perguntar novamente ao gestor se existe operação apenas fiscal nem quem atua primeiro. O caso de circulação foi complementado em 23/10/2026 e segue a definição vigente abaixo.
+
+### Definição vigente da terceira rodada — 23/10/2026
+
+**Resposta recebida:** “Sim, nesse cenário, caso tenha circulação da NFe e impeça o cancelamento dela, temos que seguir aquele processo de emitir uma nova nota de entrada dessa mercadoria no armazém como se tivesse saído e voltado realmente.”
+
+A resposta encerra a pendência operacional de cancelamento após circulação. Se houve saída real e o cancelamento não é cabível, a nota de saída conserva sua situação verdadeira e o retorno é documentado por nova nota de entrada, vinculada à saída original. O fiscal resolve a documentação primeiro; depois o operador processa a entrada e o reendereçamento das quantidades efetivamente retornadas. Não basta estar dentro de 24 horas para escolher cancelamento.
+
+Sem circulação e com cancelamento cabível, permanece o caminho de cancelamento fiscal confirmado e retorno interno. Depois do prazo informado, permanece a entrada/regularização já definida, inclusive sem trânsito externo, conservando uma única quantidade física. Resposta externa desconhecida não comprova impedimento nem cancelamento: consultar e conciliar antes de concluir o tratamento, prevenindo documento ou estoque duplicados.
+
+Responsabilidade funcional: fiscal/contabilidade e, depois, operador. Não é necessário identificar uma pessoa pelo nome para fechar essa regra de negócio. Configuração tributária, XMLs, credenciamento e homologação permanecem insumos da implementação, sem representar nova dúvida sobre o procedimento.
 
 ## Exemplos de nota conferidos
 
@@ -75,26 +85,26 @@ O cálculo deve usar precisão decimal e controlar o arredondamento para que ret
 
 O prazo informado é uma condição do procedimento de negócio, não prova suficiente para decidir a movimentação. A cláusula décima segunda do [Ajuste SINIEF 7/05](https://www.confaz.fazenda.gov.br/legislacao/ajustes/2005/AJ007_05) condiciona o cancelamento comum à ausência de circulação da mercadoria e às demais condições aplicáveis, contando o prazo da autorização. A resposta não deve ser convertida em cancelamento automático de toda saída ocorrida há menos de 24 horas. Regras específicas e enquadramento da regularização ficam com o fiscal responsável.
 
-| Situação real | Efeito físico e histórico a preservar | Tratamento fiscal informado ou pendência |
+| Situação real | Efeito físico e histórico a preservar | Tratamento fiscal vigente |
 | --- | --- | --- |
 | Nota autorizada, mercadoria ainda no armazém, desistência dentro do prazo informado | Não houve baixa física. Retorno da separação às posições deve ser confirmado, mantendo origem e histórico. | Cancelar documento conforme admissibilidade e confirmação do emissor; cancelar pedido integralmente depois de resolver o conjunto. |
 | Mais de 24 horas, mercadoria nunca saiu | Novo processo de entrada/regularização, seguido de reendereçamento, conforme resposta expressa. A quantidade física real continua única; os vínculos entre ciclos explicam a regularização sem trânsito. | Fiscal emite a nota de entrada e resolve sua etapa; operador endereça depois. Não tratar a operação como simples troca de texto sem processo de entrada, nem duplicar mercadoria por ela continuar no depósito. |
-| Mercadoria saiu e voltou dentro de 24 horas | Procedimento informado: resolver a saída fiscal e reendereçar a quantidade efetivamente retornada, sem nota de entrada nessa via. Preservar fatos de saída/retorno e sua correção por registros vinculados, sem apagar história. | Gestor especificou cancelamento da nota de saída. A admissibilidade após circulação precisa ser validada por Natalina; o prazo isolado não autoriza envio automático de cancelamento. |
+| Mercadoria saiu e voltou dentro de 24 horas, com circulação que impede cancelamento | Nova entrada vinculada à saída original e reendereçamento da quantidade efetivamente retornada. Preservar a saída e o retorno como fatos próprios, sem apagar história nem somar duas vezes a mesma quantidade. | Conforme resposta de 23/10/2026, fiscal emite nova nota de entrada; operador executa a entrada e o reendereçamento depois. Não marcar a NF-e original como cancelada para permitir o fluxo. |
 | Mercadoria saiu e voltou depois de 24 horas | Nova entrada/regularização e reendereçamento da quantidade realmente retornada, com vínculo à origem e à saída. | Fiscal primeiro; operação depois. Conservar identidade de origem, histórico e saldo uma única vez. |
 | Mercadoria saiu e ainda não retornou | Não recompor estoque disponível apenas por documento ou desistência comunicada. | Acompanhar pendência fiscal e física; nova chegada depende do retorno efetivo. |
 | Cancelamento solicitado foi recusado ou ficou sem confirmação | Não marcar cancelado, liberar saldo ou apagar saída por antecipação. | Consultar o resultado e encaminhar regularização aplicável. |
 
 ### Impacto no contrato atual
 
-O retorno interno atual exige que os documentos ativos estejam localmente cancelados. A resposta posterior ao prazo acrescenta um cenário em que a NF-e original pode continuar autorizada e ser regularizada por outro documento. A implementação futura precisará reconhecer esse vínculo de regularização e sua cobertura, preservando a situação real de cada nota. Não simular CANCELADO apenas para satisfazer a regra antiga do retorno interno.
+O retorno interno atual exige que os documentos ativos estejam localmente cancelados. A resposta posterior ao prazo e o complemento de 23/10/2026 acrescentam caminhos em que a NF-e original permanece válida e o retorno é documentado por outra nota. A implementação futura precisará reconhecer o vínculo de entrada/regularização e sua cobertura, preservando a situação real de cada nota. Não simular CANCELADO apenas para satisfazer a regra antiga do retorno interno.
 
 O complemento exige novo processo operacional de entrada após o prazo, inclusive sem trânsito externo. Isso substitui a hipótese anterior de uma regularização apenas documental nesse caso. O processo deve distinguir mercadoria já presente de mercadoria realmente retornada, vincular ciclos e quantidades e exigir novo endereçamento, sem duplicar o saldo. A expressão entrada nova não autoriza apagar a origem histórica, alterar FIFO original ou inventar serviço executado; datas e fatos de cada ciclo devem registrar o que de fato ocorreu.
 
-## Validação fiscal específica ainda necessária
+## Pendência operacional resolvida em 23/10/2026
 
-A regra operacional está esclarecida. O gestor informou cancelamento da nota de saída mesmo quando a mercadoria já saiu e voltou dentro de 24 horas. A cláusula décima segunda do Ajuste SINIEF 7/05 condiciona o cancelamento comum à ausência de circulação, além das demais condições. Portanto, a resposta não comprova por si a admissibilidade fiscal dessa hipótese.
+A pergunta encaminhada confrontou o cancelamento informado com a condição de ausência de circulação. O gestor esclareceu que, se a circulação impedir o cancelamento, deve ser emitida nova nota de entrada e seguido o processo de retorno. Essa definição complementa a segunda rodada; não resta essa dúvida para o gestor.
 
-Natalina/Controladoria deve validar o enquadramento aplicável e o documento/evento aceito nesse caso concreto. O sistema deve preservar a distinção entre solicitar cancelamento e ter cancelamento autorizado, sem liberar regularização com base apenas no relógio ou simular evento recusado. Esta pendência não exige nova explicação genérica de operação pelo gestor e não impede o mapeamento independente dos demais caminhos.
+O sistema deve preservar a distinção entre solicitar cancelamento e ter cancelamento confirmado, sem decidir somente pelo relógio ou simular evento recusado. Circulação com cancelamento impedido conduz à nova entrada, com saída original preservada. A emissão não recompõe estoque sozinha: a quantidade deve ter retornado e ser recebida/endereçada no fluxo operacional correspondente.
 
 Os parâmetros técnicos e tributários seguem pelo XML, emissor e Controladoria. Emitente, destinatário, valor proporcional, agrupamento Bracell, novo processo de entrada após o prazo, ordem fiscal antes de operação e possibilidade de retorno somente fiscal têm resposta expressa e não devem ser reabertos como dúvidas genéricas.
 
@@ -108,7 +118,7 @@ Há procedimentos próprios para retorno: a [consulta paulista 21291/2020](https
 
 O [Ajuste SINIEF 49/25](https://www.confaz.fazenda.gov.br/legislacao/ajustes/2025/AJ049_25), cláusula quinta, também disciplina documentos de retorno por recusa/não localização. A redação consultada distingue retorno total e parcial; a cláusula quinta-A fixa a obrigação de seguir o ajuste a partir de 01/01/2027. Verificar vigência, transição e aderência ao fato real na implementação, sem transformar esse texto em configuração universal ou obrigatoriedade antecipada.
 
-**Conclusão da pesquisa:** a regra geral foi encontrada; resta conciliar o procedimento informado com o caso real do armazém. O encaminhamento ao gestor deve pedir que Natalina confirme qual documento registra a volta quando a carga efetivamente deixou o estabelecimento, pois o cancelamento comum pressupõe ausência de circulação. Não perguntar novamente se o retorno simbólico pode ser apenas fiscal nem repetir o questionário já respondido. [Fontes, alcance e limites](levantamentos/fiscal-notazz-20261022/pesquisa-cancelamento-circulacao.json).
+**Conclusão da pesquisa e do alinhamento:** a regra geral foi encontrada em 22/10/2026 e o documento para o retorno com cancelamento impedido foi confirmado pelo gestor em 23/10/2026: nova nota de entrada. O encaminhamento anterior está encerrado. Não repetir a pergunta de circulação, a possibilidade de retorno apenas fiscal ou o questionário já respondido. [Fontes, alcance, limites e resolução posterior](levantamentos/fiscal-notazz-20261022/pesquisa-cancelamento-circulacao.json).
 
 ## Comparação visual antes e depois
 
@@ -122,7 +132,7 @@ O antes é a captura original fornecida pelo responsável. O depois é uma propo
 
 ![Proposta de Retirada fiscal da mercadoria](levantamentos/fiscal-notazz-20261022/visual/depois-proposta-retirada-fiscal.png)
 
-O cartão de conferência ilustra o conteúdo apresentado depois de escolher emitir; sua presença abaixo da lista não fixa o uso de cartão em vez de diálogo na implementação final. A imagem retrata a emissão/retirada principal. Os caminhos de regularização e retorno apenas fiscal serão detalhados conforme as respostas complementares, preservando a validação fiscal específica acima. [Descrição e prompt da prévia](levantamentos/fiscal-notazz-20261022/visual/descricao-previa-visual.txt).
+O cartão de conferência ilustra o conteúdo apresentado depois de escolher emitir; sua presença abaixo da lista não fixa o uso de cartão em vez de diálogo na implementação final. A imagem retrata a emissão/retirada principal. Os caminhos de regularização e retorno apenas fiscal seguem as respostas complementares, incluindo a nova entrada confirmada em 23/10/2026 para retorno com cancelamento impedido. [Descrição e prompt da prévia](levantamentos/fiscal-notazz-20261022/visual/descricao-previa-visual.txt).
 
 ## Verificações desta atualização
 

@@ -3139,6 +3139,230 @@
     ]
   },
   {
+    "id": "FiscalNfeController.listar",
+    "method": "GET",
+    "path": "/api/v1/pedidos-saida/fiscal",
+    "request": null,
+    "response": "PaginaResponse<FiscalNfeDto.Linha>",
+    "query": [
+      {
+        "name": "clienteId",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "armazemId",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "situacao",
+        "type": "String",
+        "required": false,
+        "default": "TODOS"
+      },
+      {
+        "name": "busca",
+        "type": "String",
+        "required": false
+      },
+      {
+        "name": "pagina",
+        "type": "int",
+        "required": false,
+        "default": "0"
+      },
+      {
+        "name": "tamanho",
+        "type": "int",
+        "required": false,
+        "default": "25"
+      }
+    ],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/FiscalNfeController.java",
+    "handler": "listar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/FiscalNfeService.java#listar"
+    ]
+  },
+  {
+    "id": "FiscalNfeController.previa",
+    "method": "POST",
+    "path": "/api/v1/pedidos-saida/{id}/fiscal/previa",
+    "request": "FiscalNfeDto.Preparar",
+    "response": "FiscalNfeDto.Previa",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/FiscalNfeController.java",
+    "handler": "previa",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/FiscalNfeService.java#previa"
+    ]
+  },
+  {
+    "id": "FiscalNfeController.confirmar",
+    "method": "POST",
+    "path": "/api/v1/pedidos-saida/{id}/fiscal/emissoes",
+    "request": "FiscalNfeDto.Confirmar",
+    "response": "FiscalNfeDto.Andamento",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/FiscalNfeController.java",
+    "handler": "confirmar",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/FiscalNfeService.java#confirmar"
+    ]
+  },
+  {
+    "id": "FiscalNfeController.andamento",
+    "method": "GET",
+    "path": "/api/v1/pedidos-saida/{id}/fiscal",
+    "request": null,
+    "response": "FiscalNfeDto.Andamento",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/FiscalNfeController.java",
+    "handler": "andamento",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/FiscalNfeService.java#andamento"
+    ]
+  },
+  {
+    "id": "FiscalNfeController.processar",
+    "method": "POST",
+    "path": "/api/v1/pedidos-saida/{id}/fiscal/{solicitacaoId}/processamento",
+    "request": null,
+    "response": "FiscalNfeDto.Andamento",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "solicitacaoId",
+        "type": "UUID",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/FiscalNfeController.java",
+    "handler": "processar",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/FiscalNfeService.java#processar"
+    ]
+  },
+  {
+    "id": "FiscalNfeController.cancelar",
+    "method": "POST",
+    "path": "/api/v1/pedidos-saida/{id}/fiscal/{solicitacaoId}/cancelamento",
+    "request": "FiscalNfeDto.Comando",
+    "response": "FiscalNfeDto.Andamento",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "solicitacaoId",
+        "type": "UUID",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/FiscalNfeController.java",
+    "handler": "cancelar",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/FiscalNfeService.java#cancelar"
+    ]
+  },
+  {
+    "id": "FiscalNfeController.arquivo",
+    "method": "GET",
+    "path": "/api/v1/pedidos-saida/{id}/fiscal/{solicitacaoId}/xml",
+    "request": null,
+    "response": "FiscalNfeDto.Arquivo",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "solicitacaoId",
+        "type": "UUID",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/FiscalNfeController.java",
+    "handler": "arquivo",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/FiscalNfeService.java#arquivo"
+    ]
+  },
+  {
+    "id": "FiscalNfeController.retorno",
+    "method": "GET",
+    "path": "/api/v1/pedidos-saida/{id}/fiscal/{solicitacaoId}/retorno",
+    "request": null,
+    "response": "FiscalNfeDto.RetornoOperacional",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      },
+      {
+        "name": "solicitacaoId",
+        "type": "UUID",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/FiscalNfeController.java",
+    "handler": "retorno",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/FiscalNfeService.java#retorno"
+    ]
+  },
+  {
     "id": "ImportacaoEnderecoController.previa",
     "method": "POST",
     "path": "/api/v1/armazens/{id}/importacoes-enderecos/previa",

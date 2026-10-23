@@ -78,6 +78,11 @@ export const unknownStoredValueReason = {
 };
 
 export const information = {
+    fiscalWithdrawal: {
+        title: "Retirada fiscal da mercadoria",
+        description: "Confira os dados antes de emitir. PENDENTE inclui notas ainda não autorizadas; FINALIZADO indica a documentação fiscal completa. A retirada física é confirmada separadamente.",
+    },
+    fiscalReturn: { title: "Retorno e regularização", description: "O fiscal regulariza os documentos primeiro. Se a circulação impedir cancelar a nota de saída, emita nova nota de entrada, mesmo dentro de 24 horas. Depois, o operador confirma o retorno e o reendereçamento, mantendo registrada a saída original." },
     operationErrorDetails: {
         title: "Detalhes técnicos",
         description:
@@ -452,52 +457,52 @@ export const information = {
     occupancy: {
         title: "Ocupação",
         description:
-            "Percentual de posições de armazenagem ocupadas em relação à capacidade ativa, arredondado para o inteiro mais próximo. Considera o espaço físico dos armazéns permitidos, inclusive posições ocupadas por outros clientes; o filtro de cliente não reduz a capacidade física. Posições físicas e quantidade de produtos são medidas diferentes.",
+            "Percentual de posições de armazenagem ocupadas em relação à capacidade ativa, arredondado para o inteiro mais próximo. Considera o espaço físico dos armazéns permitidos, inclusive posições ocupadas por outros clientes; o filtro de cliente não reduz a capacidade física. Posições físicas e quantidade de produtos são medidas diferentes. O fundo azul é informativo; amarelo indica capacidade ativa sem posições livres. A cor não representa uma meta de ocupação.",
     },
     occupied: {
         title: "Posições ocupadas",
         description:
-            "Posições de armazenagem ativas e ocupadas nos armazéns permitidos, independentemente do cliente da mercadoria. Áreas de triagem, quarentena e separação não entram neste número. Uma posição recebe uma única unidade logística. Uma unidade pode ocupar várias posições conforme a regra de capacidade.",
+            "Posições de armazenagem ativas e ocupadas nos armazéns permitidos, independentemente do cliente da mercadoria. Áreas de triagem, quarentena e separação não entram neste número. Uma posição recebe uma única unidade logística. Uma unidade pode ocupar várias posições conforme a regra de capacidade. O fundo azul identifica um volume informativo.",
     },
     free: {
         title: "Posições livres",
         description:
-            "Posições de armazenagem ativas e desocupadas. Estar livre não garante que a posição aceite qualquer carga: capacidade, bloqueios e permissões são conferidos na operação.",
+            "Posições de armazenagem ativas e desocupadas. Estar livre não garante que a posição aceite qualquer carga: capacidade, bloqueios e permissões são conferidos na operação. O fundo verde indica posições livres; amarelo indica capacidade ativa sem posições livres.",
     },
     stored: {
         title: "Unidades armazenadas",
         description:
-            "Unidades logísticas ativas do cliente e dos armazéns permitidos, inclusive nas áreas de triagem, quarentena e separação. Uma unidade com várias posições é contada uma vez. Mercadoria conferida ainda não unitizada não entra neste número. Não representa quantidade de produtos nem somente estoque disponível para saída.",
+            "Unidades logísticas ativas do cliente e dos armazéns permitidos, inclusive as que ainda não têm endereço e as localizadas em triagem, quarentena e separação. Uma unidade com várias posições é contada uma vez. Mercadoria conferida ainda não unitizada não entra neste número. Não representa posições ocupadas, quantidade de produtos nem somente estoque disponível para saída. O fundo turquesa é informativo e não indica liberação da mercadoria.",
     },
     storedValue: {
         title: "Valor armazenado",
         description:
-            "Valor da mercadoria confirmado pelas notas de origem, proporcional à quantidade física restante. Inclui mercadoria reservada e em quarentena quando não avariada; exclui a parte avariada. Inclui a mercadoria boa conferida ainda não unitizada, sem duplicá-la após a unitização. Quando faltam origens, valores ou histórico, o montante apurável aparece como parcial, com quantidades pendentes e motivos nesta ajuda. Sem parcela apurável, o valor fica indisponível. Acesso financeiro é restrito a Supervisor e Gestor. Não representa cobrança de armazenagem.",
+            "Valor da mercadoria confirmado pelas notas de origem, proporcional à quantidade física restante. Inclui mercadoria reservada e em quarentena quando não avariada; exclui a parte avariada. Inclui a mercadoria boa conferida ainda não unitizada, sem duplicá-la após a unitização. Quando faltam origens, valores ou histórico, o montante apurável aparece como parcial, com quantidades pendentes e motivos nesta ajuda. Sem parcela apurável, o valor fica indisponível. Acesso financeiro é restrito a Supervisor e Gestor. Não representa cobrança de armazenagem. Verde indica valoração completa; amarelo indica informações pendentes. Sem acesso ou durante a consulta, o fundo é neutro.",
     },
     quarantine: {
         title: "Em quarentena",
         description:
-            "Unidades logísticas ativas localizadas na área de quarentena, no cliente e nos armazéns permitidos. Conta unidades, não quantidade de produtos. Não inclui mercadoria ainda não unitizada. Esse estoque não atende pedidos de saída enquanto permanecer nessa condição.",
+            "Unidades logísticas ativas localizadas na área de quarentena, no cliente e nos armazéns permitidos. Conta unidades, não quantidade de produtos. Não inclui mercadoria ainda não unitizada. Esse estoque não atende pedidos de saída enquanto permanecer nessa condição. Vermelho indica unidades em quarentena; verde indica nenhuma unidade nessa área na consulta.",
     },
     reservations: {
         title: "Reservas ativas",
         description:
-            "Registros de reserva ATIVA do cliente e dos armazéns permitidos. Conta reservas de unidades, não pedidos nem quantidade de produtos reservados. Reserva não é retirada física e não expira automaticamente.",
+            "Registros de reserva ATIVA do cliente e dos armazéns permitidos. Conta reservas de unidades, não pedidos nem quantidade de produtos reservados. Reserva não é retirada física e não expira automaticamente. O fundo violeta identifica atividade de saída, sem indicar atraso ou problema.",
     },
     inbound: {
         title: "Entradas abertas",
         description:
-            "Pedidos de entrada do cliente e dos armazéns permitidos, excluindo os efetivados e os cancelados. Conta pedidos, não notas nem unidades. Documentos registrados e conferência física são etapas distintas; o pedido aberto não comprova estoque disponível.",
+            "Pedidos de entrada do cliente e dos armazéns permitidos, excluindo os efetivados e os cancelados. Conta pedidos, não notas nem unidades. Documentos registrados e conferência física são etapas distintas; o pedido aberto não comprova estoque disponível. O fundo turquesa identifica atividade de entrada, sem indicar atraso ou problema.",
     },
     outbound: {
         title: "Saídas abertas",
         description:
-            "Pedidos de saída do cliente e dos armazéns permitidos nas situações Rascunho, Reservado, Em separação ou Separado. Exclui os retirados e os cancelados. Conta pedidos, não reservas, notas nem unidades; não representa somente pedidos prontos para retirada.",
+            "Pedidos de saída do cliente e dos armazéns permitidos nas situações Rascunho, Reservado, Em separação ou Separado. Exclui os retirados e os cancelados. Conta pedidos, não reservas, notas nem unidades; não representa somente pedidos prontos para retirada. O fundo violeta identifica atividade de saída, sem indicar atraso ou problema.",
     },
     billing: {
         title: "Faturamento previsto do mês",
         description:
-            "Prévia automática dos serviços e da ocupação apurados pelo WMS, com as tabelas e os ciclos contratados de cada cliente. A competência é o mês do último dia incluído no ciclo. O período aberto considera o que foi apurado até a referência da consulta. Com cálculo incompleto e moeda única, o card destaca o valor conhecido como parcial; o total previsto continua indisponível. Sem valor conhecido ou moeda única, aparece —. A contagem de pendências representa ocorrências da apuração. Mínimo e GRIS seguem cada ciclo contratado. Em caso de falha na consulta, use Atualizar visão. A consulta não fecha cobranças nem emite NFS-e.",
+            "Prévia automática dos serviços e da ocupação apurados pelo WMS, com as tabelas e os ciclos contratados de cada cliente. A competência é o mês do último dia incluído no ciclo. O período aberto considera o que foi apurado até a referência da consulta. Com cálculo incompleto e moeda única, o card destaca o valor conhecido como parcial; o total previsto continua indisponível. Sem valor conhecido ou moeda única, aparece —. A contagem de pendências representa ocorrências da apuração. Mínimo e GRIS seguem cada ciclo contratado. Em caso de falha na consulta, use Atualizar visão. A consulta não fecha cobranças nem emite NFS-e. Verde indica prévia completa; amarelo indica apuração incompleta; vermelho indica falha na consulta. A cor não representa recebimento ou fechamento confirmado. Sem acesso ou durante a consulta, o fundo é neutro.",
         footer: "Valores estimados até o fechamento. O valor parcial reúne somente os subtotais conhecidos; tarifas pendentes e ajustes do ciclo podem alterar o total. Consulte os períodos e as pendências para conferir o que falta apurar.",
     },
     availableUnits: {
@@ -513,17 +518,17 @@ export const information = {
     physicalChart: {
         title: "Ocupação física por área",
         description:
-            "Compara posições ocupadas nas áreas do contexto consultado. Armazenagem, triagem, quarentena e separação têm funções distintas; a comparação não indica liberação para saída.",
+            "Compara posições ocupadas nas áreas do contexto consultado. Unidades sem endereço físico não ocupam posições neste gráfico; uma unidade pode ocupar duas posições. O total reúne armazenagem, triagem, quarentena e separação, enquanto o KPI de ocupação considera somente armazenagem. A altura dos pontos representa o número de posições ocupadas; a linha une as áreas para facilitar a comparação, sem representar evolução no tempo ou percentual de ocupação. Selecione um ponto ou uma área para conferir os números. Capacidade ativa e posições livres, quando permitidas e informadas, pertencem ao armazém; o espaço restante do desenho não equivale a posições livres. A comparação entre áreas não indica liberação para saída.",
     },
     queueChart: {
         title: "Fila de saída",
         description:
-            "Distribuição dos pedidos que ainda aguardam conclusão entre suas etapas. Os números representam pedidos, não unidades logísticas ou quantidades de produto.",
+            "Distribuição atual dos pedidos que ainda aguardam conclusão entre suas etapas. Pedidos retirados ou cancelados permanecem no histórico e ficam fora desta fila; zero em uma etapa significa que nenhum pedido está nela agora, mesmo que existam movimentações concluídas no histórico. A altura dos pontos representa o número de pedidos em cada etapa; a linha liga situações atuais, sem representar evolução no tempo, velocidade ou taxa de conversão. Selecione um ponto ou uma etapa para conferir a quantidade exata. Os números representam pedidos, não reservas individuais, unidades logísticas ou quantidades de produto.",
     },
     productChart: {
         title: "Disponibilidade por produto",
         description:
-            "Distingue saldo disponível, reservado, demais indisponíveis e quantidade pendente de unitização. Consulte os produtos das demais páginas; o gráfico não soma quantidades de produtos diferentes.",
+            "Distingue saldo disponível, reservado, demais indisponíveis e quantidade pendente de unitização. Todos os SKUs desta página aparecem com seu total físico e unidade de medida. Cada barra mostra a composição do total do próprio SKU; Sem saldo indica total e todas as parcelas zeradas. Selecione uma linha com o mouse ou teclado para conferir cliente e valores exatos abaixo do gráfico. A seleção não repete a consulta nem muda filtros ou paginação. Consulte os produtos das demais páginas; o gráfico não soma quantidades de produtos diferentes.",
     },
     receivingShortcut: {
         title: "Receber e conferir",

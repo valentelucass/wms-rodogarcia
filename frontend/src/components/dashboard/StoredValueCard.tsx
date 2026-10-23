@@ -28,6 +28,11 @@ export function StoredValueCard({
             (count) => BigInt(count) > 0n,
         );
     const partial = allowed && !data.valorCompleto && hasKnown;
+    const tone = !allowed
+        ? "neutral"
+        : data.valorCompleto && data.valorArmazenado != null
+          ? "success"
+          : "warning";
     const value = overviewMoney(
         allowed
             ? data.valorCompleto
@@ -79,7 +84,7 @@ export function StoredValueCard({
     return (
         <InformationCard
             content={content}
-            className={`overview-metric overview-metric--4 overview-stored-value${partial ? " overview-stored-value--partial" : ""}`}
+            className={`overview-metric overview-metric--4 overview-metric--${tone} overview-stored-value${partial ? " overview-stored-value--partial" : ""}`}
         >
             <div className="overview-metric-heading">
                 <span>{information.storedValue.title}</span>

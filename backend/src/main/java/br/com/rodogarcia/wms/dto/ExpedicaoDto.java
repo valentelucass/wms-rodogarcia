@@ -100,9 +100,15 @@ public final class ExpedicaoDto {
             @NotNull @Min(0) Long versao,
             @NotNull List<@NotNull @Valid Destinacao> unidades,
             @NotBlank @Size(min = 5, max = 500) String motivo,
-            Boolean resolverPendentes) {
+            Boolean resolverPendentes,
+            @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY)
+            @Size(max = 200) List<@Pattern(regexp = "[0-9a-fA-F-]{36}") String> regularizacoesFiscais) {
         public Retornar {
             if (resolverPendentes == null) resolverPendentes = false;
+            regularizacoesFiscais=regularizacoesFiscais==null?List.of():List.copyOf(regularizacoesFiscais);
+        }
+        public Retornar(UUID operacaoId,Long versao,List<Destinacao> unidades,String motivo,Boolean resolverPendentes) {
+            this(operacaoId,versao,unidades,motivo,resolverPendentes,List.of());
         }
     }
 
@@ -121,9 +127,14 @@ public final class ExpedicaoDto {
             @NotNull Instant chegadaReal,
             @NotNull @Size(min = 1) List<@NotNull @Valid ItemDevolucao> itens,
             @NotBlank @Size(min = 5, max = 500) String motivo,
-            Boolean resolverPendentes) {
+            Boolean resolverPendentes,
+            @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)
+            @Pattern(regexp = "[0-9a-fA-F-]{36}") String solicitacaoEntradaId) {
         public Devolver {
             if (resolverPendentes == null) resolverPendentes = false;
+        }
+        public Devolver(UUID operacaoId,Long versao,String referencia,Nota nota,Instant chegadaReal,List<ItemDevolucao> itens,String motivo,Boolean resolverPendentes) {
+            this(operacaoId,versao,referencia,nota,chegadaReal,itens,motivo,resolverPendentes,null);
         }
     }
 

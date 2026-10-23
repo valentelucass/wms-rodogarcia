@@ -1,5 +1,25 @@
 # Decisões e pendências do WMS Rodogarcia
 
+## FE02-PRODUTOS-UX01 — compactar disponibilidade por produto, 23/10/2026
+
+Lucas pediu reduzir o tamanho e melhorar a leitura, permitindo escolher outra apresentação. Rejeitou expressamente a tentativa com tabela espalhada e grupo recolhível. Escolha final: gráfico compacto de composição ao lado do SKU/total, todos os produtos visíveis, detalhe único ao selecionar por mouse ou teclado; duas colunas em tela larga e uma no celular. Zero é indicado somente quando total e parcelas são zerados. Barras representam proporção dentro do próprio SKU; valores e unidades permanecem exatos e separados por produto. Paginação/contagens e escopo preservados. Evidências e limites em orchestracao/.runtime/product-availability-20261023/validation-summary.json.
+
+## FE11-FATURA-LISTA-UX02 — lista de fechamentos, 23/10/2026
+
+Lucas pediu reorganizar a apresentação inicial de Últimos fechamentos. Filtros compactos com controles e botões alinhados, Atualizar lista junto das ações após consulta pertinente e orientação inicial sem contagem zero antes da consulta. Resultado vazio e erro continuam diferentes; restaurar filtros ausentes não deve apresentar tabela/contador antigos. Sem alteração de cálculos, valores, períodos, permissões ou fluxo de preparação/aprovação. Validação visual local em orchestracao/.runtime/invoice-list-layout-20261023/validation-summary.json.
+
+## FE02-GRAFICOS-UX01 — apresentação dos dois gráficos, 23/10/2026
+
+Lucas rejeitou as barras de Ocupação física/Fila de saída e pediu gráficos mais claros e atraentes, com linhas. Implementação escolhida: pontos ligados e área preenchida suave, azul/violeta, quantidade exata e seleção com detalhe. A solicitação posterior removeu a faixa azul lateral e o fundo cinza desse detalhe. Áreas e etapas são categorias da consulta atual; não criar série temporal, taxa de conversão ou percentual de ocupação a partir do desenho. Capacidade e posições livres permanecem dados próprios autorizados, sem deduzir disponibilidade pelo espaço visual restante. Contratos, estoque, pedidos, acesso e gráfico por produto preservados. Validação local em orchestracao/.runtime/operation-charts-20261023/validation-summary.json.
+
+## FE02-KPI-CORES01 — cores semânticas no Início, 23/10/2026
+
+Lucas pediu fundo em cada KPI, principalmente vermelho para problemas, verde para situações favoráveis e amarelo para alertas. Apresentação implementada: quarentena com unidades vermelha/zero verde; posições livres verdes/ausência com capacidade ativa amarela; financeiro completo verde, incompleto amarelo e erro de consulta da previsão vermelho. Azul/turquesa/violeta distinguem volumes operacionais informativos, sem presumir atraso, liberação de estoque ou meta de ocupação. Sem dados/acesso, usar neutro. Valores e estados continuam vindo das consultas autorizadas; ajuda central explica as cores. Validação local e limites em orchestracao/.runtime/dashboard-kpi-colors-20261023/validation-summary.json.
+
+## FE12-INVENTARIO-UX03 — organização visual, 23/10/2026
+
+Lucas pediu organizar a visão geral do inventário e apontou o desalinhamento dos filtros; rejeitou a faixa cinza que agrupava as visões. Ajuste de apresentação: rótulos e controles alinhados, alturas iguais, busca na grade, ações na mesma base e abas simples com sublinhado ativo. Preservar contratos, regras, filtros e acesso secundário a ajustes/carga inicial. Validação visual isolada e evidências em orchestracao/.runtime/inventory-layout-20261023/, sem nova operação de banco ou homologação integrada.
+
 ## FE12-INVENTARIO-UX02 / BE14-INVENTARIO01 — inventários por escopo, 23/10/2026
 
 Demanda expressa de Lucas amplia o recorte inicial de contagem simples: Inventário passa a reunir a visão do estoque e os inventários realizados, com Realizar inventário e três escolhas. Às cegas abrange as mercadorias do cliente no armazém escolhido; por SKU abrange esse produto no mesmo contexto; por posição abrange as mercadorias encontradas na posição escolhida. Somente SKU ou posição exigidos pelo tipo podem ser informados. A referência Stokki orienta a organização visual, preservando o desenho do WMS.
@@ -8,7 +28,9 @@ Escolhas de implementação: uma etiqueta logística é registrada uma vez, com 
 
 A API consulta escopo e perfil, serializa comandos por inventário, controla revisão e repetição de chave, e mantém o relatório concluído. Cancelar exige Supervisor/Gestor. Contagens/ajustes anteriores e carga inicial permanecem em acesso administrativo secundário. O limite de 20.000 mercadorias é proteção técnica explícita da implementação em memória por escopo, não regra comercial aprovada; escopo maior é recusado integralmente e requer revisão de volume/recorte. Visões por posição não multiplicam a quantidade de unidade que ocupa duas posições.
 
-A estrutura nova está somente em proposta V14; não aplicada. Inclui duas tabelas e ampliação dos tipos permitidos de operação/auditoria, preservando as expressões atuais das constraints e os dados históricos. WMS_INVENTARIO_ENABLED=false por padrão; a visão do estoque usa tabelas existentes. A fonte/pacote não comprova ativação ou persistência SQL. Autorização específica e guarda WMS_DEV/WMSDEV atuais precedem DDL/ativação; persistência, concorrência e leitor físico continuam por validar. Código fonte, fotos fictícias, testes e limites em orchestracao/.runtime/inventory-20261023/.
+Lucas autorizou a estrutura e a ativação em 23/10/2026 e esclareceu: “para modo WMS_DEV eu n preciso autorizar”. Ajustes necessários nesse ambiente não exigem nova aprovação por etapa, conservando guardas atuais, preservação de dados e limite de alvo. A V14 foi aplicada por Flyway protegido exclusivamente no WMS_DEV: duas tabelas, 23 colunas e ampliação conservadora das constraints; V1–V13 preservadas. WMSDEV recebeu somente SELECT/INSERT nas duas tabelas e UPDATE em dez colunas mutáveis, sem DELETE/DDL/administração. O padrão geral do recurso permanece false; a configuração exclusiva de DEV o ativa.
+
+O fluxo foi validado com login legítimo de Gestor fictício, dados fictícios criados por API e SQL Server real: três modalidades, diferenças, idempotência, recontagem, cancelamento, concorrência 200/409 e relatório imutável. Um movimento legítimo da fixture durante a contagem foi sinalizado, sem desfazer o movimento. SELECT independente confirmou os cinco inventários/relatórios e operações únicas. O preparador/BAT reconhece a V14 por contrato e replay estrutural com hash exato; SQL dinâmico arbitrário continua recusado. Evidências em orchestracao/.runtime/inventory-activation-20261023/. Leitor físico e volume de 20.000 mercadorias ainda não homologados; nada aplicado em PROD.
 
 ## FE12-INVENTARIO-NOME01 — nome da página, 23/10/2026
 
@@ -28,7 +50,7 @@ O valor listado vem da versão vigente identificada do fechamento, não da previ
 
 ## BE10-NOTAZZ-ALINH01 e FE10-NOTAZZ-ALINH01 — respostas de negócio posteriores, 22/10/2026
 
-As respostas encaminhadas pelo responsável definem emitente como o CNPJ do armazém da entrada, destinatário proprietário, agrupamento segundo cliente (Bracell pode reunir origens), valor proporcional da entrada e retorno fiscal correspondente à operação de origem. Na segunda rodada, informou cancelamento fiscal e reendereçamento até 24 horas mesmo quando a mercadoria saiu e voltou; após o prazo, nota de entrada e novo processo operacional com reendereçamento, inclusive sem retirada. Fiscal primeiro, operador depois; retorno simbólico pode ser somente fiscal. As definições estão no [documento 49](49-alinhamento-fiscal-respostas-e-exemplos.md). Resta validar com Natalina a admissibilidade do cancelamento após circulação, sem inferi-la pelo prazo. Conservar fatos e quantidade física única. Os DANFEs são amostras de Tigre/Castro, não parametrização universal. Levantamento/documentação e prévia visual continuam sem autorizar implementação ou emissão.
+As respostas encaminhadas pelo responsável definem emitente como o CNPJ do armazém da entrada, destinatário proprietário, agrupamento segundo cliente (Bracell pode reunir origens), valor proporcional da entrada e retorno fiscal correspondente à operação de origem. O complemento de 23/10/2026 resolve a dúvida remanescente: havendo circulação que impeça cancelar a NF-e, emitir nova nota de entrada e processar o retorno/reendereçamento, mesmo dentro de 24 horas, mantendo a saída original. Após o prazo, permanece novo processo de entrada com reendereçamento inclusive sem retirada, conservando quantidade física única. Fiscal primeiro, operador depois; retorno simbólico pode ser somente fiscal. As definições e o histórico estão no [documento 49](49-alinhamento-fiscal-respostas-e-exemplos.md); não reabrir essa pergunta ao gestor. Os DANFEs são amostras de Tigre/Castro, não parametrização universal. Levantamento/documentação e prévia visual continuam sem autorizar implementação ou emissão.
 
 ## BE10-NOTAZZ-MAP01 e FE10-NOTAZZ-MAP01 — análise e documentação autorizadas, 22/10/2026
 

@@ -7,7 +7,6 @@ import {
     type Values,
 } from "../../contracts/runtime";
 import { ResolutionReferences } from "./ResolutionReferences";
-import "./historicalResolution.css";
 
 const commitments = {
     PEDIDO_ENTRADA: "Pedido de entrada",

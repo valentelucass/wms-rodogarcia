@@ -24,6 +24,7 @@
 @import "./modules/estoque/countConfirmation.css";
 @import "./modules/saida/dispatchReservations.css";
 @import "./modules/saida/dispatchOrder.css";
+@import "./modules/saida/fiscal.css";
 @import "./modules/financeiro/serviceDetail.css";
 @import "./modules/financeiro/serviceSuggestions.css";
 @import "./modules/financeiro/serviceFact.css";
@@ -34,3 +35,10 @@
 @import "./modules/financeiro/billingTable.css";
 @import "./modules/regularizacao/initialLoad.css";
 @import "./modules/regularizacao/contingencyRegistration.css";
+@import "./modules/regularizacao/inventory.css";
+@import "./modules/financeiro/invoice.css";
+@import "./modules/financeiro/billingApproval.css";
+@import "./modules/financeiro/calculation.css";
+@import "./modules/financeiro/serviceFactDetail.css";
+@import "./modules/financeiro/reopenCycle.css";
+@import "./modules/financeiro/historicalResolution.css";

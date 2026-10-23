@@ -46,9 +46,14 @@
 }
 .overview-metric {
     padding: 14px 16px;
-    border: 1px solid var(--og-border);
+    border: 1px solid
+        color-mix(
+            in srgb,
+            var(--overview-metric-accent, var(--og-border)) 35%,
+            var(--og-border)
+        );
     border-radius: var(--og-radius-card);
-    background: var(--og-surface);
+    background: var(--overview-metric-bg, var(--og-surface-raised));
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -65,7 +70,7 @@
     line-height: 1.4;
 }
 .overview-metric svg {
-    color: var(--og-text-muted);
+    color: var(--overview-metric-accent, var(--og-text-muted));
     flex-shrink: 0;
 }
 .overview-metric-heading > svg {
@@ -182,13 +187,41 @@
 .billing-preview-pendencies p {
     overflow-wrap: anywhere;
 }
-.overview-metric--0 {
-    background: var(--og-selection);
-    color: var(--og-selection-text);
-    border-color: transparent;
+.overview-metric--info {
+    --overview-metric-bg: var(--og-selection);
+    --overview-metric-accent: var(--og-link);
 }
-.overview-metric--0 small,
-.overview-metric--0 svg {
+.overview-metric--success {
+    --overview-metric-bg: var(--og-success-bg);
+    --overview-metric-accent: var(--og-positive-text);
+}
+.overview-metric--warning {
+    --overview-metric-bg: var(--og-warning-bg);
+    --overview-metric-accent: var(--og-warning-text);
+}
+.overview-metric--danger {
+    --overview-metric-bg: var(--og-danger-bg);
+    --overview-metric-accent: var(--og-negative-text);
+}
+.overview-metric--teal {
+    --overview-metric-bg: color-mix(
+        in srgb,
+        var(--wms-action-refresh-text) 16%,
+        var(--og-surface)
+    );
+    --overview-metric-accent: var(--wms-action-refresh-text);
+}
+.overview-metric--purple {
+    --overview-metric-bg: var(--wms-action-details-bg);
+    --overview-metric-accent: var(--wms-action-details-text);
+}
+.overview-metric small {
+    color: var(--og-text);
+}
+.overview-metric--info {
+    color: var(--og-selection-text);
+}
+.overview-metric--info small {
     color: inherit;
 }
 .warehouse-map {

@@ -24,7 +24,14 @@
       "limite": "Validar transicao temporal, fato real e aderencia do fornecedor; nao impor schema tributario universal nesta analise"
     }
   ],
-  "conclusao": "Regra geral encontrada. Encaminhamento remanescente e conciliar com Natalina o procedimento informado para mercadoria que realmente saiu e voltou, identificando documento/evento aplicavel",
+  "conclusaoPesquisa20261022": "Regra geral encontrada. Na data da pesquisa, faltava conciliar o procedimento informado para mercadoria que realmente saiu e voltou, identificando documento/evento aplicavel com o fiscal responsavel",
+  "resolucaoPosterior": {
+    "data": "2026-10-23",
+    "fonte": "Resposta do gestor encaminhada pelo usuario nesta conversa",
+    "resposta": "Sim, nesse cenario, caso tenha circulacao da NFe e impeca o cancelamento dela, temos que seguir aquele processo de emitir uma nova nota de entrada dessa mercadoria no armazem como se tivesse saido e voltado realmente.",
+    "efeito": "Pendencia operacional encerrada: nova nota de entrada e processo de retorno/reenderecamento, com saida original preservada e quantidade retornada contabilizada uma unica vez",
+    "novaPerguntaAoGestor": false
+  },
   "naoConcluido": [
     "Nao foi comprovado regime especial que autorize cancelamento da operacao concreta apos circulacao",
     "Nao foi escolhido CFOP ou emitente de regularizacao por analogia com outra operacao",

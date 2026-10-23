@@ -1,12 +1,12 @@
 # Mapeamento da integração fiscal Notazz
 
-Atualizado em 22/10/2026. Escopo BE10-NOTAZZ-MAP01 e FE10-NOTAZZ-MAP01: documentar as regras e preparar a implementação solicitada para Fiscal e retirada. Código, configurações, migrations, bancos e documentos fiscais permanecem sem alteração nesta análise.
+Atualizado em 23/10/2026, com levantamento técnico de 22/10/2026. Escopo BE10-NOTAZZ-MAP01 e FE10-NOTAZZ-MAP01: documentar as regras e preparar a implementação solicitada para Fiscal e retirada. Código, configurações, migrations, bancos e documentos fiscais permanecem sem alteração nesta análise.
 
 A mudança exige uma jornada de emissão rastreável, além da reorganização da tela. O WMS atual registra documentos já emitidos; ainda não transmite NF-e à Notazz. A base de reservas, cobertura documental, retirada integral e auditoria pode ser aproveitada, preservando a independência entre autorização fiscal, movimentação física e cobrança.
 
 O inventário de regras está no [documento 47](47-regras-de-negocio-fiscal-notazz.md). Os cenários, verificações e limites estão no [documento 48](48-cenarios-e-validacao-fiscal-notazz.md). Estes três documentos formam o levantamento da futura implementação; propostas técnicas não constituem parâmetros tributários aprovados.
 
-As [respostas posteriores do gestor e os exemplos conferidos](49-alinhamento-fiscal-respostas-e-exemplos.md) fecham emitente, destinatário, agrupamento, valor proporcional, procedimento de desistência, sequência fiscal antes do operador e possibilidade de operação somente fiscal. Esse alinhamento prevalece sobre as pendências iniciais correspondentes. Resta validar com Natalina a admissibilidade do cancelamento informado quando a mercadoria já circulou e retornou dentro de 24 horas.
+As [respostas posteriores do gestor e os exemplos conferidos](49-alinhamento-fiscal-respostas-e-exemplos.md) fecham emitente, destinatário, agrupamento, valor proporcional, procedimento de desistência, sequência fiscal antes do operador e possibilidade de operação somente fiscal. O complemento de 23/10/2026 resolve o último caso: se houve circulação que impeça cancelar a NF-e, emitir nova nota de entrada e seguir o retorno/reendereçamento, mesmo dentro de 24 horas. Esse alinhamento prevalece sobre as pendências iniciais correspondentes.
 
 ## Pedido recebido
 
@@ -191,9 +191,9 @@ O parser atual da expedição, `NfeXmlService`, extrai identidade e itens. Ele n
 
 ## Insumos que não podem ser inventados
 
-A investigação e as respostas posteriores resolvem a jornada principal, os invariantes de estoque, o emitente, o destinatário, o critério de agrupamento, a fonte do valor fiscal e a sequência operacional da regularização. Após o prazo, haverá novo processo de entrada e reendereçamento, mesmo sem retirada; retorno simbólico pode ser somente fiscal. Permanecem insumos de implantação: conta de homologação, credenciais protegidas, XMLs completos e parâmetros tributários aplicáveis por operação/estabelecimento. Natalina/Controladoria é a referência fiscal, inclusive para validar o cancelamento após circulação informado pelo gestor.
+A investigação e as respostas posteriores resolvem a jornada principal, os invariantes de estoque, o emitente, o destinatário, o critério de agrupamento, a fonte do valor fiscal e a sequência operacional da regularização. Após o prazo, haverá novo processo de entrada e reendereçamento, mesmo sem retirada; retorno simbólico pode ser somente fiscal. Se a circulação impedir cancelamento, nova nota de entrada registra o retorno, inclusive antes de 24 horas. Permanecem insumos de implantação: conta de homologação, credenciais protegidas, XMLs completos e parâmetros tributários aplicáveis por operação/estabelecimento, com fiscal/contabilidade e suporte do emissor.
 
-Os DANFEs 316 e 319 fornecem exemplos de Tigre/Castro com uma origem. Emitente, destinatário, valor proporcional e consolidação Bracell já foram respondidos. Obter os XMLs e a configuração fiscal aplicável para conferir campos completos; exemplos de várias origens, regularização e operação apenas fiscal completam os casos ainda não demonstrados. O [documento 49](49-alinhamento-fiscal-respostas-e-exemplos.md) separa esses insumos técnicos/fiscais das definições operacionais já respondidas e da validação específica de cancelamento após circulação.
+Os DANFEs 316 e 319 fornecem exemplos de Tigre/Castro com uma origem. Emitente, destinatário, valor proporcional e consolidação Bracell já foram respondidos. Obter os XMLs e a configuração fiscal aplicável para conferir campos completos; exemplos de várias origens, regularização e operação apenas fiscal completam os casos ainda não demonstrados. O [documento 49](49-alinhamento-fiscal-respostas-e-exemplos.md) separa esses insumos técnicos/fiscais das definições operacionais respondidas, incluindo a resolução do retorno com cancelamento impedido.
 
 ## Verificações desta entrega
 

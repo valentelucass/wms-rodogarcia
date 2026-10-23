@@ -105,6 +105,14 @@ export function BillingPreviewCard({
             : preview.conhecido
         : null;
     const partial = !!preview && !preview.completo && amount != null;
+    const tone =
+        !permitted || loading
+            ? "neutral"
+            : error
+              ? "danger"
+              : preview?.completo && amount != null
+                ? "success"
+                : "warning";
     const note = loading
         ? "Consultando prévia…"
         : error
@@ -121,7 +129,7 @@ export function BillingPreviewCard({
     return (
         <>
             <article
-                className={`overview-metric overview-metric--9 overview-billing${partial ? " overview-billing--partial" : ""}`}
+                className={`overview-metric overview-metric--9 overview-metric--${tone} overview-billing${partial ? " overview-billing--partial" : ""}`}
                 aria-label={information.billing.title}
                 aria-busy={loading}
             >

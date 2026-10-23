@@ -58,23 +58,23 @@
     "revisaoIndependente": true
   },
   "alinhamentoGestor": {
-    "data": "2026-10-22",
+    "data": "2026-10-23",
     "regrasAtuais": 107,
     "cenariosPlanejadosAtuais": 75,
     "danfesConferidos": 2,
     "verificacoesDocumentais": 30,
     "verificacoesDocumentaisAprovadas": 30,
     "autorizacaoFiscalAtualConsultada": false,
-    "rodadasRespondidas": 2,
+    "rodadasRespondidas": 3,
     "definicoesOperacionaisConfirmadas": [
-      "Procedimento informado ate 24 horas: cancelar saida fiscal e reenderecar, inclusive apos saida e retorno; admissibilidade fiscal especifica pendente",
+      "Ate 24 horas: cancelamento apenas quando cabivel e confirmado; se a circulacao impedir cancelar, nova nota de entrada e processo de retorno com reenderecamento, preservando saida original",
       "Apos 24 horas: nota de entrada, novo processo operacional e reenderecamento mesmo sem retirada, conservando quantidade fisica unica",
       "Fiscal primeiro; operador depois nos enderecamentos",
       "Retorno simbolico pode ser somente fiscal"
     ],
-    "validacaoFiscalEspecificaPendente": [
-      "Natalina/Controladoria: admissibilidade do cancelamento quando houve circulacao e retorno dentro de 24 horas; prazo isolado nao comprova permissao"
-    ],
+    "validacaoFiscalEspecificaPendente": [],
+    "ultimaDuvidaOperacionalResolvida": true,
+    "resolucao": "Resposta do gestor em 2026-10-23: se a circulacao impedir cancelamento, emitir nova nota de entrada da mercadoria e processar o retorno mesmo dentro de 24 horas",
     "previaVisual": "ILUSTRATIVA_SEM_APLICAR_CODIGO",
     "testeAplicacaoNovo": false
   }

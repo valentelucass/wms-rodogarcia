@@ -1,6 +1,6 @@
 # Documentação do WMS Rodogarcia
 
-**BE10-NOTAZZ-ALINH01 e FE10-NOTAZZ-ALINH01:** [respostas do gestor e exemplos fiscais](49-alinhamento-fiscal-respostas-e-exemplos.md), com emitente, destinatário, agrupamento, valor, regularização, sequência fiscal/operador e possibilidade de operação apenas fiscal definidos. Resta validação específica de cancelamento após circulação. Incorpora os DANFEs Tigre/Castro sem generalizar seus tributos.
+**BE10-NOTAZZ-ALINH01 e FE10-NOTAZZ-ALINH01:** [respostas do gestor e exemplos fiscais](49-alinhamento-fiscal-respostas-e-exemplos.md), com emitente, destinatário, agrupamento, valor, regularização, sequência fiscal/operador e possibilidade de operação apenas fiscal definidos. Complemento de 23/10/2026 encerra a dúvida de circulação: cancelamento impedido exige nova nota de entrada, mesmo antes de 24 horas. Incorpora os DANFEs Tigre/Castro sem generalizar seus tributos.
 
 **BE10-NOTAZZ-MAP01 e FE10-NOTAZZ-MAP01:** [mapeamento da integração fiscal Notazz](46-mapeamento-fiscal-notazz.md), [inventário das regras de negócio](47-regras-de-negocio-fiscal-notazz.md) e [cenários e verificações](48-cenarios-e-validacao-fiscal-notazz.md). Levantamento de 22/10/2026 para unir as primeiras etapas de Fiscal e retirada e preparar a emissão; nenhum código ou banco alterado.
 

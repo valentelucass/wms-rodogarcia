@@ -4,7 +4,6 @@ import { information } from "../../content/information";
 import { display } from "../../domain/labels";
 import { formatDate } from "../../domain/referencePresentation";
 import { StatusBadge } from "../../design-system/StatusBadge";
-import "./billingApproval.css";
 
 export const billingValue = (value: unknown) =>
     value === "" || value == null ? "Não informado" : display(value);

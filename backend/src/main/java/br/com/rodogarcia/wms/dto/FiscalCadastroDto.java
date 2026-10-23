@@ -35,9 +35,23 @@ public final class FiscalCadastroDto {
             @Email @Size(max = 160) String contatoEmail,
             @Size(max = 30) String contatoTelefone,
             @Email @Size(max = 160) String faturamentoEmail,
-            @Size(max = 500) String faturamentoReferencia) {
+            @Size(max = 500) String faturamentoReferencia,
+            @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL) @Pattern(regexp = "[0-9]{7}") String codigoMunicipio,
+            @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL) @jakarta.validation.constraints.Max(9) @Min(1) Integer indicadorIe,
+            @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL) @Pattern(regexp = "CONSOLIDAR|POR_NOTA") String agrupamentoNfe) {
+        @jakarta.validation.constraints.AssertTrue(message="Indicador de IE deve ser 1, 2 ou 9.")
+        @com.fasterxml.jackson.annotation.JsonIgnore
+        public boolean isIndicadorIeValido() { return indicadorIe==null || java.util.Set.of(1,2,9).contains(indicadorIe); }
+        public Dados(String razaoSocial, String inscricaoEstadual, String logradouro,
+                String numeroEndereco, String complemento, String bairro, String cidade,
+                String uf, String cep, String pais, String contatoNome, String contatoEmail,
+                String contatoTelefone, String faturamentoEmail, String faturamentoReferencia) {
+            this(razaoSocial,inscricaoEstadual,logradouro,numeroEndereco,complemento,bairro,
+                    cidade,uf,cep,pais,contatoNome,contatoEmail,contatoTelefone,
+                    faturamentoEmail,faturamentoReferencia,null,null,null);
+        }
         public ComplementoFiscal modelo() {
-            return new ComplementoFiscal(
+            var result = new ComplementoFiscal(
                     razaoSocial,
                     inscricaoEstadual,
                     logradouro,
@@ -49,6 +63,8 @@ public final class FiscalCadastroDto {
                     contatoNome,
                     contatoEmail,
                     contatoTelefone);
+            result.configurarNfe(codigoMunicipio,indicadorIe,agrupamentoNfe);
+            return result;
         }
 
         public static Dados de(
@@ -85,7 +101,10 @@ public final class FiscalCadastroDto {
                             c.getContatoEmail(),
                             c.getContatoTelefone(),
                             email,
-                            referencia);
+                            referencia,
+                            c.getCodigoMunicipio(),
+                            c.getIndicadorIe(),
+                            c.getAgrupamentoNfe());
         }
     }
 
@@ -94,6 +113,24 @@ public final class FiscalCadastroDto {
             @NotNull @Min(0) Long versao,
             @NotNull @Valid Dados dados,
             @NotBlank @Size(min = 5, max = 500) String motivo) {}
+
+    public record Tributacao(
+            @NotBlank @Pattern(regexp = "[0-8]") String origem,
+            @NotBlank @Pattern(regexp = "[0-9]{2,3}") String icmsCst,
+            @Pattern(regexp = "[0-9]{2}") String ipiCst,
+            @NotBlank @Pattern(regexp = "[0-9]{2}") String pisCst,
+            @NotBlank @Pattern(regexp = "[0-9]{2}") String cofinsCst,
+            @DecimalMin("0") @DecimalMax("100") BigDecimal aliquotaPis,
+            @DecimalMin("0") @DecimalMax("100") BigDecimal aliquotaCofins,
+            @Size(max = 40) String codigoBeneficio,
+            @Size(max = 6) String unidadeTributavel,
+            @DecimalMin(value = "0", inclusive = false) @Digits(integer = 9, fraction = 6) BigDecimal fatorTributavel,
+            @DecimalMin("0") @DecimalMax("100") BigDecimal aliquotaIbsUf,
+            @DecimalMin("0") @DecimalMax("100") BigDecimal aliquotaIbsMunicipio,
+            @DecimalMin("0") @DecimalMax("100") BigDecimal aliquotaCbs,
+            @DecimalMin("0") @DecimalMax("100") BigDecimal aliquotaIs,
+            @Pattern(regexp = "[0-9]{6}") String classificacaoIbsCbs,
+            @Pattern(regexp = "[0-9]{3,6}") String classificacaoIs) {}
 
     public record Complemento(
             Long id, long versao, String codigo, String documentoFiscal, Dados dados) {}
@@ -115,7 +152,16 @@ public final class FiscalCadastroDto {
             @NotBlank @Size(max = 200) String fonte,
             @Size(max = 200) String conferidaPor,
             Instant conferidaEm,
-            @NotBlank @Size(min = 5, max = 500) String motivo) {}
+            @NotBlank @Size(min = 5, max = 500) String motivo,
+            @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL) @Valid Tributacao tributacao) {
+        public Referenciar(UUID operacaoId, Long armazemId, String operacao, Long versao,
+                String ncm, String cfop, String cest, String enquadramento,
+                BigDecimal aliquotaIcms, BigDecimal aliquotaIpi, String fonte,
+                String conferidaPor, Instant conferidaEm, String motivo) {
+            this(operacaoId,armazemId,operacao,versao,ncm,cfop,cest,enquadramento,
+                    aliquotaIcms,aliquotaIpi,fonte,conferidaPor,conferidaEm,motivo,null);
+        }
+    }
 
     public record Referencia(
             Long id,
@@ -131,7 +177,8 @@ public final class FiscalCadastroDto {
             BigDecimal aliquotaIpi,
             String fonte,
             String conferidaPor,
-            Instant conferidaEm) {
+            Instant conferidaEm,
+            Tributacao tributacao) {
         public static Referencia de(ReferenciaFiscalProduto r) {
             return new Referencia(
                     r.getId(),
@@ -147,7 +194,8 @@ public final class FiscalCadastroDto {
                     r.getAliquotaIpi(),
                     r.getFonte(),
                     r.getConferidaPor(),
-                    r.getConferidaEm());
+                    r.getConferidaEm(),
+                    r.getTributacaoNfe() == null ? null : new tools.jackson.databind.json.JsonMapper().readValue(r.getTributacaoNfe(),Tributacao.class));
         }
     }
 }

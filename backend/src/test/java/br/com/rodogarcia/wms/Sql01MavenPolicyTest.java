@@ -50,7 +50,10 @@ class Sql01MavenPolicyTest {
                         "PrevisaoMotorTest",
                         "PrevisaoFontesTest",
                         "InventarioConferenciaTest",
-                        "InventarioServiceTest");
+                        "InventarioServiceTest",
+                        "FiscalNfeValoresTest", "FiscalNfeXmlTest", "NotazzGatewayTest",
+                        "FiscalNfePreparacaoServiceTest", "FiscalNfeTransacaoServiceTest", "FiscalNfeServiceTest",
+                        "FiscalRegularizacaoServiceTest");
         assertThat(
                         text(
                                 pom,

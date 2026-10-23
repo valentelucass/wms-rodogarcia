@@ -11,6 +11,10 @@ import {
 } from "../information/InformationPopup";
 import { Pagination } from "../layout/Pagination";
 import { useReferenceCatalog } from "../context/ReferenceCatalog";
+import { OperationLineChart } from "./OperationLineChart";
+import { formatQuantity } from "./chartFormatting";
+import { ProductAvailability } from "./ProductAvailability";
+export { barShare, formatQuantity } from "./chartFormatting";
 
 const areaNames: Record<string, string> = {
     ARMAZENAGEM: "Armazenagem",
@@ -24,70 +28,12 @@ const queueNames: Record<string, string> = {
     EM_SEPARACAO: "Em separação",
     SEPARADO: "Aguardando retirada",
 };
-const segments = [
-    ["disponivel", "Disponível"],
-    ["reservado", "Reservado"],
-    ["indisponivel", "Demais indisponíveis"],
-    ["pendenteUnitizacao", "Sem unitização"],
-] as const;
-
-export function formatQuantity(value: string): string {
-    const [whole, fraction] = value.split(".");
-    const decimals = (fraction ?? "").replace(/0+$/, "");
-    return (
-        whole.replace(/\B(?=(\d{3})+(?!\d))/g, ".") +
-        (decimals ? "," + decimals : "")
-    );
-}
-
-/** Só geometria: preserva os lexemas exatos nos rótulos, inclusive Long acima de 2^53. */
-export function barShare(value: string, maximum: string): number {
-    const scale = Math.max(
-        value.split(".")[1]?.length ?? 0,
-        maximum.split(".")[1]?.length ?? 0,
-    );
-    const integer = (v: string) => {
-        const [whole, fraction = ""] = v.split(".");
-        return BigInt(whole + fraction.padEnd(scale, "0"));
-    };
-    const total = integer(maximum),
-        part = integer(value);
-    if (total <= 0n || part <= 0n) return 0;
-    return (
-        Number(
-            (part * 100000n) / total > 100000n
-                ? 100000n
-                : (part * 100000n) / total,
-        ) / 100
-    );
-}
-
-function SingleBar({
-    value,
-    maximum,
-    series = "blue",
-}: {
-    value: string;
-    maximum: string;
-    series?: string;
-}) {
-    return (
-        <svg
-            className="dashboard-bar"
-            viewBox="0 0 1000 16"
-            preserveAspectRatio="none"
-            aria-hidden="true"
-        >
-            <rect className="dashboard-track" width="1000" height="16" rx="3" />
-            <rect
-                className={`dashboard-series dashboard-series--${series}`}
-                width={barShare(value, maximum)}
-                height="16"
-                rx="3"
-            />
-        </svg>
-    );
-}
+const queueShortNames: Record<string, string> = {
+    RASCUNHO: "Elaboração",
+    RESERVADO: "Reservados",
+    EM_SEPARACAO: "Separação",
+    SEPARADO: "Retirada",
+};
 
 export function OperationDashboard({
     transport,
@@ -173,10 +119,6 @@ export function OperationDashboard({
     }, [loading, data]);
     const areas = data?.areas ?? [],
         fila = data?.fila ?? [];
-    const maximum = (values: string[]) =>
-        values.reduce((a, b) => (BigInt(a) > BigInt(b) ? a : b), "0");
-    const areaMax = maximum(areas.map((a) => a.posicoesCliente));
-    const queueMax = maximum(fila.map((f) => f.pedidos));
     const products = data?.produtos.itens ?? [];
     return (
         <section
@@ -344,45 +286,29 @@ export function OperationDashboard({
                                         </p>
                                     </div>
                                 </header>
-                                <div className="dashboard-rows">
-                                    {areas.map((a) => (
-                                        <div
-                                            className="dashboard-row"
-                                            key={a.tipo}
-                                        >
-                                            <div className="dashboard-row-label">
-                                                <span>{areaNames[a.tipo]}</span>
-                                                <strong>
-                                                    {formatQuantity(
-                                                        a.posicoesCliente,
-                                                    )}{" "}
-                                                    <small>posições</small>
-                                                </strong>
-                                            </div>
-                                            <SingleBar
-                                                value={a.posicoesCliente}
-                                                maximum={areaMax}
-                                            />
-                                            {data.visaoArmazem && (
-                                                <small>
-                                                    {formatQuantity(
-                                                        a.livresArmazem ?? "0",
-                                                    )}{" "}
-                                                    livres de{" "}
-                                                    {formatQuantity(
-                                                        a.capacidadeAtiva ??
-                                                            "0",
-                                                    )}{" "}
-                                                    posições ativas no armazém
-                                                </small>
-                                            )}
-                                        </div>
-                                    ))}
-                                </div>
-                                <p className="dashboard-scale">
-                                    Escala de 0 a {formatQuantity(areaMax)}{" "}
-                                    posições no contexto.
-                                </p>
+                                <OperationLineChart
+                                    variant="physical"
+                                    total={data.posicoesCliente}
+                                    unit="posições"
+                                    points={areas.map((a) => ({
+                                        id: a.tipo,
+                                        label: areaNames[a.tipo] ?? a.tipo,
+                                        shortLabel:
+                                            {
+                                                ARMAZENAGEM: "Armaz.",
+                                                TRIAGEM: "Triagem",
+                                                QUARENTENA: "Quarent.",
+                                                SEPARACAO: "Separação",
+                                            }[a.tipo] ?? a.tipo,
+                                        value: a.posicoesCliente,
+                                        note:
+                                            data.visaoArmazem &&
+                                            a.capacidadeAtiva != null &&
+                                            a.livresArmazem != null
+                                                ? `${formatQuantity(a.livresArmazem)} livres de ${formatQuantity(a.capacidadeAtiva)} posições ativas no armazém`
+                                                : `${formatQuantity(a.posicoesCliente)} posições ocupadas no contexto.`,
+                                    }))}
+                                />
                                 <footer>
                                     <span>
                                         {data.posicoesCliente === "0"
@@ -418,37 +344,21 @@ export function OperationDashboard({
                                         </p>
                                     </div>
                                 </header>
-                                <div className="dashboard-rows">
-                                    {fila.map((f) => (
-                                        <div
-                                            className="dashboard-row"
-                                            key={f.situacao}
-                                        >
-                                            <div className="dashboard-row-label">
-                                                <span>
-                                                    {queueNames[f.situacao]}
-                                                </span>
-                                                <strong>
-                                                    {formatQuantity(f.pedidos)}{" "}
-                                                    <small>pedidos</small>
-                                                </strong>
-                                            </div>
-                                            <SingleBar
-                                                value={f.pedidos}
-                                                maximum={queueMax}
-                                                series={
-                                                    f.situacao === "SEPARADO"
-                                                        ? "orange"
-                                                        : "blue"
-                                                }
-                                            />
-                                        </div>
-                                    ))}
-                                </div>
-                                <p className="dashboard-scale">
-                                    Escala de 0 a {formatQuantity(queueMax)}{" "}
-                                    pedidos.
-                                </p>
+                                <OperationLineChart
+                                    variant="queue"
+                                    total={data.pedidosAbertos}
+                                    unit="pedidos"
+                                    points={fila.map((f) => ({
+                                        id: f.situacao,
+                                        label:
+                                            queueNames[f.situacao] ??
+                                            f.situacao,
+                                        shortLabel:
+                                            queueShortNames[f.situacao] ??
+                                            f.situacao,
+                                        value: f.pedidos,
+                                    }))}
+                                />
                                 <footer>
                                     <span>
                                         {data.pedidosAbertos === "0"
@@ -483,103 +393,22 @@ export function OperationDashboard({
                                             <InformationHint topic="productChart" />
                                         </div>
                                         <p>
-                                            Composição do saldo físico de cada
-                                            SKU, na sua unidade de medida.
+                                            Selecione um SKU para conferir a
+                                            composição do saldo.
                                         </p>
                                     </div>
                                 </header>
-                                <div className="dashboard-legend">
-                                    {segments.map(([field, label]) => (
-                                        <span key={field}>
-                                            <i
-                                                className={`dashboard-swatch dashboard-series--${field}`}
-                                            />
-                                            {label}
-                                        </span>
-                                    ))}
-                                </div>
-                                <div className="dashboard-product-rows">
-                                    {products.map((p) => {
-                                        let offset = 0;
-                                        return (
-                                            <div
-                                                className="dashboard-product"
-                                                key={p.produtoId}
-                                            >
-                                                <div className="dashboard-row-label">
-                                                    <strong>{p.sku}</strong>
-                                                    <span>
-                                                        {formatQuantity(
-                                                            p.fisicoTotal,
-                                                        )}{" "}
-                                                        <small>
-                                                            {p.unidadeMedida}
-                                                        </small>
-                                                    </span>
-                                                </div>
-                                                {!clienteId && (
-                                                    <small>
-                                                        {catalog?.clientes.find(
-                                                            (c) =>
-                                                                c.id ===
-                                                                p.clienteId,
-                                                        )?.nome ??
-                                                            `Cliente ${p.clienteId}`}
-                                                    </small>
-                                                )}
-                                                <svg
-                                                    className="dashboard-bar"
-                                                    viewBox="0 0 1000 16"
-                                                    preserveAspectRatio="none"
-                                                    aria-hidden="true"
-                                                >
-                                                    <rect
-                                                        className="dashboard-track"
-                                                        width="1000"
-                                                        height="16"
-                                                        rx="3"
-                                                    />
-                                                    {segments.map(([field]) => {
-                                                        const width = barShare(
-                                                                p[field],
-                                                                p.fisicoTotal,
-                                                            ),
-                                                            x = offset;
-                                                        offset += width;
-                                                        return (
-                                                            <rect
-                                                                key={field}
-                                                                className={`dashboard-series dashboard-series--${field}`}
-                                                                x={x}
-                                                                width={width}
-                                                                height="16"
-                                                            />
-                                                        );
-                                                    })}
-                                                </svg>
-                                                <div className="dashboard-product-values">
-                                                    {segments.map(
-                                                        ([field, label]) => (
-                                                            <span key={field}>
-                                                                {label}:{" "}
-                                                                <strong>
-                                                                    {formatQuantity(
-                                                                        p[
-                                                                            field
-                                                                        ],
-                                                                    )}{" "}
-                                                                    {
-                                                                        p.unidadeMedida
-                                                                    }
-                                                                </strong>
-                                                            </span>
-                                                        ),
-                                                    )}
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
+                                <ProductAvailability
+                                    key={`${scope}/${data.produtos.pagina}`}
+                                    products={products}
+                                    clientName={(id) =>
+                                        clienteId
+                                            ? undefined
+                                            : (catalog?.clientes.find(
+                                                  (client) => client.id === id,
+                                              )?.nome ?? `Cliente ${id}`)
+                                    }
+                                />
                                 {!products.length && (
                                     <p className="dashboard-empty">
                                         Nenhum produto nesta página do contexto.

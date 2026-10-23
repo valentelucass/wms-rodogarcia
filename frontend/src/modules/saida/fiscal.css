@@ -1,0 +1,26 @@
+.fiscal-workspace { display: grid; gap: 1.25rem; }
+.fiscal-heading { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.fiscal-heading h2 { margin: 0 0 .3rem; }
+.fiscal-heading p { margin: 0; color: var(--og-text-muted); }
+.fiscal-filters { display: flex; flex-wrap: wrap; gap: .8rem; align-items: end; padding: 1rem; background: var(--og-surface-raised); border: 1px solid var(--og-border); border-radius: .65rem; }
+.fiscal-filters label { display: grid; gap: .35rem; min-width: 12rem; flex: 1; }
+.fiscal-table-scroll { overflow-x: auto; width: 100%; }
+.fiscal-table { width: 100%; border-collapse: collapse; text-align: left; font-size: .875rem; }
+.fiscal-table th { color: var(--og-text-muted); background: var(--og-surface-raised); font-weight: 600; }
+.fiscal-table :is(th,td) { padding: .8rem; border-bottom: 1px solid var(--og-border); vertical-align: middle; }
+.fiscal-table td:last-child { min-width: 9rem; }
+.fiscal-link { color: var(--og-action, #2563eb); font-weight: 600; background: transparent; border: 0; padding: .35rem 0; text-align: left; }
+.fiscal-detail { display: grid; gap: 1rem; padding: 1.25rem; border: 1px solid var(--og-border); border-radius: .75rem; }
+.fiscal-detail details { border-top: 1px solid var(--og-border); padding-top: .9rem; }
+.fiscal-actions { display: flex; flex-wrap: wrap; gap: .65rem; align-items: center; }
+.fiscal-note { display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap; gap: 1rem; padding: 1rem; background: var(--og-surface-raised); border: 1px solid var(--og-border); border-radius: .6rem; }
+.fiscal-note > div { min-width: 0; }
+.fiscal-note p { margin: .4rem 0 0; }
+.fiscal-note strong { display: inline-block; margin-right: .65rem; }
+.fiscal-key { overflow-wrap: anywhere; font-size: .8rem; }
+.fiscal-summary { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: .8rem 1.2rem; }
+.fiscal-summary dt { font-size: .8rem; color: var(--og-text-muted); }
+.fiscal-summary dd { margin: .25rem 0 0; overflow-wrap: anywhere; }
+.fiscal-confirm { display: flex; align-items: start; gap: .6rem; margin: 1rem 0; }
+.fiscal-confirm input { width: auto; }
+@media (max-width: 640px) { .fiscal-heading { align-items: start; } .fiscal-filters label { width: 100%; } .fiscal-detail { padding: .8rem; } .fiscal-summary { grid-template-columns: 1fr; } .fiscal-actions button { flex: 1 1 12rem; } .fiscal-table { min-width: 40rem; } }

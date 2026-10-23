@@ -5,7 +5,6 @@ import type { Perfil } from "../../contracts/runtime";
 import { isFieldDisabled } from "../../domain/fieldPresentation";
 import { information } from "../../content/information";
 import { HistoricalResolutionField } from "./HistoricalResolutionField";
-import "./reopenCycle.css";
 
 type Group = Omit<ComponentProps<typeof Fields>, "perfil">;
 const assigned = ["numero", "calculoId", "motivo", "resolucao"];

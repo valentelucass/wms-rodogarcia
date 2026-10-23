@@ -20,7 +20,6 @@ import {
     inventoryRead,
 } from "./inventoryApi";
 import { InventoryDialog } from "./InventoryDialog";
-import "./inventory.css";
 
 type Props = ComponentProps<typeof JourneyPage>;
 type Filters = Record<string, unknown>;
@@ -236,70 +235,78 @@ export function InventoryWorkspace(props: Props) {
                         >
                             <fieldset disabled={state.pending}>
                                 <legend>Filtros</legend>
-                                <Fields
-                                    fields={endpoint(
-                                        "InventarioController.visao",
-                                    ).query.filter((f) =>
-                                        [
-                                            "clienteId",
-                                            "armazemId",
-                                            "produtoId",
-                                            "enderecoId",
-                                        ].includes(f.name),
+                                <div className="inventory-filter-fields">
+                                    <Fields
+                                        fields={endpoint(
+                                            "InventarioController.visao",
+                                        ).query.filter((f) =>
+                                            [
+                                                "clienteId",
+                                                "armazemId",
+                                                "produtoId",
+                                                "enderecoId",
+                                            ].includes(f.name),
+                                        )}
+                                        values={filters}
+                                        onChange={setFilters}
+                                        perfil={perfil}
+                                    />
+                                </div>
+                                <div className="inventory-filter-footer">
+                                    {view !== "HISTORICO" && (
+                                        <label className="inventory-search">
+                                            Pesquisar
+                                            <input
+                                                type="search"
+                                                value={String(
+                                                    filters.pesquisa ?? "",
+                                                )}
+                                                onChange={(e) =>
+                                                    setFilters((v) => ({
+                                                        ...v,
+                                                        pesquisa:
+                                                            e.target.value,
+                                                    }))
+                                                }
+                                                placeholder="SKU ou descrição do produto"
+                                                maxLength={100}
+                                            />
+                                        </label>
                                     )}
-                                    values={filters}
-                                    onChange={setFilters}
-                                    perfil={perfil}
-                                />
-                                {view !== "HISTORICO" && (
-                                    <label className="inventory-search">
-                                        Pesquisar
-                                        <input
-                                            type="search"
-                                            value={String(
-                                                filters.pesquisa ?? "",
-                                            )}
-                                            onChange={(e) =>
-                                                setFilters((v) => ({
-                                                    ...v,
-                                                    pesquisa: e.target.value,
-                                                }))
-                                            }
-                                            placeholder="SKU ou descrição do produto"
-                                            maxLength={100}
-                                        />
-                                    </label>
-                                )}
-                                <div className="button-row">
-                                    <button type="submit" className="primary">
-                                        Aplicar filtros
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            const initial = {
-                                                clienteId:
-                                                    context.clienteId ?? "",
-                                                armazemId:
-                                                    context.armazemId ?? "",
-                                                produtoId: "",
-                                                enderecoId: "",
-                                                pesquisa: "",
-                                            };
-                                            setFilters(initial);
-                                            setApplied(initial);
-                                            setPage(0);
-                                            refresh();
-                                        }}
-                                    >
-                                        Restaurar filtros
-                                    </button>
+                                    <div className="button-row inventory-filter-actions">
+                                        <button
+                                            type="submit"
+                                            className="primary"
+                                        >
+                                            Aplicar filtros
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                const initial = {
+                                                    clienteId:
+                                                        context.clienteId ?? "",
+                                                    armazemId:
+                                                        context.armazemId ?? "",
+                                                    produtoId: "",
+                                                    enderecoId: "",
+                                                    pesquisa: "",
+                                                };
+                                                setFilters(initial);
+                                                setApplied(initial);
+                                                setPage(0);
+                                                refresh();
+                                            }}
+                                        >
+                                            Restaurar filtros
+                                        </button>
+                                    </div>
                                 </div>
                             </fieldset>
                         </form>
                         <div className="inventory-toolbar">
                             <div
-                                className="button-row"
+                                className="button-row inventory-views"
                                 aria-label="Visões do inventário"
                             >
                                 {[
@@ -330,10 +337,18 @@ export function InventoryWorkspace(props: Props) {
                             </button>
                         </div>
                         {!ready && (
-                            <p role="status">
-                                Selecione o cliente e o armazém para consultar
-                                as mercadorias.
-                            </p>
+                            <div className="inventory-empty" role="status">
+                                <Icon name="estoque" />
+                                <div>
+                                    <strong>
+                                        Selecione o cliente e o armazém
+                                    </strong>
+                                    <p>
+                                        Aplique os filtros para consultar as
+                                        mercadorias e os inventários realizados.
+                                    </p>
+                                </div>
+                            </div>
                         )}
                         {state.pending && (
                             <p role="status">Consultando registros…</p>

@@ -83,6 +83,7 @@ public class ExpedicaoService {
     private final JsonMapper mapper;
     private final Clock clock;
     private final HistoricoOperacaoTemporalService temporal;
+    private final FiscalRegularizacaoService regularizacaoFiscal;
 
     public ExpedicaoService(
             PedidoSaidaService pedidos,
@@ -109,7 +110,8 @@ public class ExpedicaoService {
             AuditoriaService auditoria,
             JsonMapper mapper,
             Clock clock,
-            HistoricoOperacaoTemporalService temporal) {
+            HistoricoOperacaoTemporalService temporal,
+            FiscalRegularizacaoService regularizacaoFiscal) {
         this.pedidos = pedidos;
         this.pedidoRepository = pedidoRepository;
         this.reservas = reservas;
@@ -135,6 +137,7 @@ public class ExpedicaoService {
         this.mapper = mapper;
         this.clock = clock;
         this.temporal = temporal;
+        this.regularizacaoFiscal = regularizacaoFiscal;
     }
 
     public ExpedicaoDto.Detalhe consultar(@NotNull @Positive Long id) {
@@ -318,6 +321,7 @@ public class ExpedicaoService {
         if (!doc.getPedido().getId().equals(id)) throw RegraNegocioException.naoEncontrado();
         if (!doc.getSituacao().equals("AUTORIZADO"))
             throw conflito("SITUACAO_INVALIDA", "Documento já cancelado.");
+        regularizacaoFiscal.impedirCancelamentoLocal(id,documentoId);
         var antes = detalhe(p);
         doc.cancelar(agora());
         p.atualizar(p.getSituacao(), agora());
@@ -380,6 +384,7 @@ public class ExpedicaoService {
                             "Reserva/leitura/separação precisam anteceder a retirada comprovada.");
             }
         }
+        regularizacaoFiscal.conferirRetirada(id);
         conferirComprovantes(p, d.xmls());
         var destinos = destinos(d.remanescentes());
         var parciais =
@@ -461,11 +466,7 @@ public class ExpedicaoService {
                 SituacaoPedidoSaida.RESERVADO,
                 SituacaoPedidoSaida.EM_SEPARACAO,
                 SituacaoPedidoSaida.SEPARADO);
-        if (documentos.findByPedidoIdOrderById(id).stream()
-                .anyMatch(doc -> doc.getSituacao().equals("AUTORIZADO")))
-            throw conflito(
-                    "DOCUMENTO_ATIVO",
-                    "Registre cancelamento dos documentos antes de cancelar o pedido.");
+        regularizacaoFiscal.conferirRetorno(p,d.regularizacoesFiscais());
         var linhas = ativas(p);
         var dest = destinos(d.unidades());
         var separadas =
@@ -506,6 +507,7 @@ public class ExpedicaoService {
             u.reservarSaida(null, agora());
             r.encerrar(SituacaoReservaSaida.CANCELADA, agora());
         }
+        regularizacaoFiscal.concluir(p,d.regularizacoesFiscais(),d.operacaoId(),null);
         p.atualizar(SituacaoPedidoSaida.CANCELADO, agora());
         return concluir(p, antes, d.operacaoId(), hash, "RETORNO_INTERNO", d.motivo(), null);
     }
@@ -521,7 +523,9 @@ public class ExpedicaoService {
         if (replay != null) return replay;
         conferir(p, d.versao(), d.resolverPendentes(), SituacaoPedidoSaida.RETIRADO);
         var antes = detalhe(p);
+        regularizacaoFiscal.conferirDevolucao(p,d);
         Long novo = retornos.registrar(p, d, hash, agora());
+        if(d.solicitacaoEntradaId()!=null)regularizacaoFiscal.concluir(p,List.of(d.solicitacaoEntradaId()),d.operacaoId(),novo);
         p.atualizar(p.getSituacao(), agora());
         return concluir(p, antes, d.operacaoId(), hash, "DEVOLUCAO_SAIDA", d.motivo(), novo);
     }

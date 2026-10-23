@@ -6,6 +6,25 @@ import org.hibernate.annotations.Nationalized;
 
 @Embeddable
 public class ComplementoFiscal {
+    @Column(name = "codigo_municipio", length = 7)
+    private String codigoMunicipio;
+
+    @Column(name = "indicador_ie")
+    private Integer indicadorIe;
+
+    @Column(name = "agrupamento_nfe", length = 16)
+    private String agrupamentoNfe;
+
+    public void configurarNfe(String municipio, Integer indicador, String agrupamento) {
+        codigoMunicipio = municipio;
+        indicadorIe = indicador;
+        agrupamentoNfe = agrupamento;
+    }
+
+    public String getCodigoMunicipio() { return codigoMunicipio; }
+    public Integer getIndicadorIe() { return indicadorIe; }
+    public String getAgrupamentoNfe() { return agrupamentoNfe; }
+
     @Nationalized
     @Column(name = "razao_social", length = 160)
     private String razaoSocial;

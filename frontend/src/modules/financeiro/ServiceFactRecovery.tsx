@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
 import { information } from "../../content/information";
 import { Icon } from "../../design-system/Icon";
-import "./serviceFactDetail.css";
 
 export function ServiceFactRecovery({
     verifying,

@@ -27,6 +27,13 @@ import org.hibernate.type.SqlTypes;
                     columnNames = {"produto_id", "armazem_id", "operacao"})
         })
 public class ReferenciaFiscalProduto {
+    @Nationalized
+    @Column(name = "tributacao_nfe", columnDefinition = "nvarchar(max)")
+    private String tributacaoNfe;
+
+    public String getTributacaoNfe() { return tributacaoNfe; }
+    public void configurarTributacaoNfe(String value) { tributacaoNfe = value; }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

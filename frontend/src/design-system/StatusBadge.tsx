@@ -3,6 +3,8 @@ import type { ReactNode } from "react";
 
 const states: Record<string, Record<string, string>> = {
     success: {
+        FINALIZADO: "Finalizado",
+        AUTORIZADA: "Autorizada",
         APROVADO: "Aprovado",
         APROVADA: "Aprovada",
         ATIVO: "Ativo",
@@ -24,6 +26,11 @@ const states: Record<string, Record<string, string>> = {
         RETIRADA: "Retirada",
     },
     warning: {
+        PREPARADA: "Aguardando envio",
+        ENVIANDO: "Enviando",
+        PROCESSANDO: "Processando",
+        DESCONHECIDO: "Aguardando confirmação",
+        CANCELANDO: "Cancelamento em análise",
         ENCERRAMENTO_PENDENTE: "Encerramento pendente",
         PENDENTE: "Pendente",
         PENDENTE_RESERVA: "Pendente de reserva",
@@ -33,6 +40,8 @@ const states: Record<string, Record<string, string>> = {
         CONFERIDO_COM_DIVERGENCIA: "Conferido com divergência",
     },
     danger: {
+        REJEITADA: "Rejeitada",
+        CONFLITO: "Conferência necessária",
         DIVERGENTE: "Divergente",
         BLOQUEADO: "Bloqueado",
         BLOQUEADA: "Bloqueada",

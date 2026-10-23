@@ -142,6 +142,40 @@ function Overview({
     const client = catalog?.clientes.find(
         (p) => p.id === String(context.clienteId),
     )?.nome;
+    const noFreePositions =
+        data?.capacidade != null &&
+        data.posicoesLivres != null &&
+        BigInt(data.capacidade) > 0n &&
+        BigInt(data.posicoesLivres) === 0n;
+    const measureTone = (topic: InformationKey) => {
+        if (!data) return "neutral";
+        switch (topic) {
+            case "occupancy":
+                return data.ocupacao == null
+                    ? "neutral"
+                    : noFreePositions
+                      ? "warning"
+                      : "info";
+            case "free":
+                return data.posicoesLivres == null
+                    ? "neutral"
+                    : BigInt(data.posicoesLivres) > 0n
+                      ? "success"
+                      : noFreePositions
+                        ? "warning"
+                        : "neutral";
+            case "quarantine":
+                return BigInt(data.emQuarentena) > 0n ? "danger" : "success";
+            case "stored":
+            case "inbound":
+                return "teal";
+            case "reservations":
+            case "outbound":
+                return "purple";
+            default:
+                return "info";
+        }
+    };
     const measures: [InformationKey, string, string, string, string][] = [
         [
             "occupancy",
@@ -207,7 +241,7 @@ function Overview({
         <InformationCard
             content={metricInformation(topic, value, note)}
             key={label}
-            className={`overview-metric overview-metric--${index}`}
+            className={`overview-metric overview-metric--${index} overview-metric--${measureTone(topic)}`}
         >
             <div className="overview-metric-heading">
                 <span>{label}</span>

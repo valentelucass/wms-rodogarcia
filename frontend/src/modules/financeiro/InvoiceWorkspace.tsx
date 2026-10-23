@@ -18,7 +18,6 @@ import { StatusBadge } from "../../design-system/StatusBadge";
 import { Icon } from "../../design-system/Icon";
 import { invoiceMoney, invoicePeriod } from "./invoicePresentation";
 import { checkInvoiceVersion, invoiceRead } from "./invoiceRead";
-import "./invoice.css";
 
 type Props = ComponentProps<typeof JourneyPage>;
 const noRows: Values[] = [];
@@ -191,21 +190,34 @@ export function InvoiceWorkspace(props: Props) {
                         </p>
                     </div>
                     {query.allowed && (
-                        <button
-                            type="button"
-                            className="primary"
-                            onClick={() => {
-                                setCalculationReady(false);
-                                setOpening({
-                                    action: "CalculoCobrancaController.calcular",
-                                });
-                            }}
-                        >
-                            <Icon name="plus" />
-                            {perfil === "GESTOR"
-                                ? "Novo fechamento"
-                                : "Conferir serviços e valores"}
-                        </button>
+                        <div className="invoice-heading-actions">
+                            {(query.receipt || query.error) &&
+                                !query.needsFilters && (
+                                    <button
+                                        type="button"
+                                        onClick={query.refresh}
+                                        disabled={query.pending}
+                                    >
+                                        <Icon name="refresh" />
+                                        Atualizar lista
+                                    </button>
+                                )}
+                            <button
+                                type="button"
+                                className="primary"
+                                onClick={() => {
+                                    setCalculationReady(false);
+                                    setOpening({
+                                        action: "CalculoCobrancaController.calcular",
+                                    });
+                                }}
+                            >
+                                <Icon name="plus" />
+                                {perfil === "GESTOR"
+                                    ? "Novo fechamento"
+                                    : "Conferir serviços e valores"}
+                            </button>
+                        </div>
                     )}
                 </header>
                 {!query.allowed ? (
@@ -222,22 +234,26 @@ export function InvoiceWorkspace(props: Props) {
                             }}
                         >
                             <fieldset disabled={query.pending}>
-                                <legend>Cliente e armazém</legend>
-                                <Fields
-                                    fields={[
-                                        ...query.e.params,
-                                        ...query.e.query,
-                                    ].filter(
-                                        (field) =>
-                                            !["pagina", "tamanho"].includes(
-                                                field.name,
-                                            ),
-                                    )}
-                                    values={query.filters}
-                                    onChange={query.setFilters}
-                                    perfil={perfil}
-                                />
-                                <div className="button-row">
+                                <legend className="sr-only">
+                                    Filtros dos fechamentos
+                                </legend>
+                                <div className="invoice-filter-fields">
+                                    <Fields
+                                        fields={[
+                                            ...query.e.params,
+                                            ...query.e.query,
+                                        ].filter(
+                                            (field) =>
+                                                !["pagina", "tamanho"].includes(
+                                                    field.name,
+                                                ),
+                                        )}
+                                        values={query.filters}
+                                        onChange={query.setFilters}
+                                        perfil={perfil}
+                                    />
+                                </div>
+                                <div className="button-row invoice-filter-actions">
                                     <button type="submit" className="primary">
                                         Aplicar filtros
                                     </button>
@@ -247,191 +263,220 @@ export function InvoiceWorkspace(props: Props) {
                                 </div>
                             </fieldset>
                         </form>
-                        <div className="invoice-list-tools">
-                            <span role="status">
-                                {query.pending
-                                    ? "Consultando fechamentos…"
-                                    : `${rows.length} nesta página`}
-                            </span>
-                            <button
-                                type="button"
-                                onClick={query.refresh}
-                                disabled={query.pending}
-                            >
-                                <Icon name="refresh" />
-                                Atualizar lista
-                            </button>
-                        </div>
+                        {!query.needsFilters &&
+                            !query.error &&
+                            rows.length > 0 && (
+                                <div className="invoice-list-tools">
+                                    <h3>Faturas</h3>
+                                    <span role="status">
+                                        {query.pending
+                                            ? "Consultando fechamentos…"
+                                            : `${rows.length} ${rows.length === 1 ? "fechamento" : "fechamentos"} nesta página`}
+                                    </span>
+                                </div>
+                            )}
                         {query.needsFilters && (
-                            <p role="status">
-                                Selecione o cliente e o armazém para consultar
-                                as faturas.
-                            </p>
-                        )}
-                        {query.error && <p role="alert">{query.error}</p>}
-                        {!query.pending && query.receipt && !rows.length && (
-                            <p>
-                                Nenhum fechamento encontrado para os filtros
-                                informados.
-                            </p>
-                        )}
-                        {rows.length > 0 && (
-                            <div className="invoice-table-scroll">
-                                <table
-                                    className="invoice-table"
-                                    aria-label="Fechamentos · faturas"
-                                >
-                                    <thead>
-                                        <tr>
-                                            <th>Cliente</th>
-                                            <th>Período de fechamento</th>
-                                            <th>Valor da fatura</th>
-                                            <th>
-                                                <span className="sr-only">
-                                                    Acessar fatura
-                                                </span>
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {rows.map((row) => {
-                                            const amount =
-                                                amounts.rows === rows
-                                                    ? amounts.values[
-                                                          String(row.id)
-                                                      ]
-                                                    : undefined;
-                                            return (
-                                                <tr
-                                                    key={String(row.id)}
-                                                    data-record-id={String(
-                                                        row.id,
-                                                    )}
-                                                >
-                                                    <td>
-                                                        <ReferenceValue
-                                                            field="clienteId"
-                                                            value={
-                                                                row.clienteId
-                                                            }
-                                                            row={row}
-                                                            type="FechamentoCobrancaDto.Fechamento"
-                                                        />
-                                                        <div className="invoice-row-status">
-                                                            <StatusBadge
-                                                                value={
-                                                                    row.situacao
-                                                                }
-                                                            />
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        {invoicePeriod(
-                                                            row.periodoInicio,
-                                                            row.periodoFim,
-                                                        )}
-                                                    </td>
-                                                    <td>
-                                                        {amount?.error ? (
-                                                            <span
-                                                                title={
-                                                                    amount.error
-                                                                }
-                                                            >
-                                                                Valor
-                                                                indisponível{" "}
-                                                                <button
-                                                                    className="invoice-retry"
-                                                                    type="button"
-                                                                    onClick={() => {
-                                                                        setAmounts(
-                                                                            {
-                                                                                rows: noRows,
-                                                                                values: {},
-                                                                            },
-                                                                        );
-                                                                        setAmountRevision(
-                                                                            (
-                                                                                value,
-                                                                            ) =>
-                                                                                value +
-                                                                                1,
-                                                                        );
-                                                                    }}
-                                                                >
-                                                                    Consultar
-                                                                    novamente
-                                                                </button>
-                                                            </span>
-                                                        ) : amount?.data ? (
-                                                            <>
-                                                                {invoiceMoney(
-                                                                    amount.data
-                                                                        .saldo,
-                                                                )}
-                                                                {amount.data
-                                                                    .saldo ==
-                                                                    null && (
-                                                                    <span>
-                                                                        {" "}
-                                                                        Pendente
-                                                                        de
-                                                                        cálculo
-                                                                    </span>
-                                                                )}
-                                                                {amount.data
-                                                                    .natureza ===
-                                                                    "CREDITO" && (
-                                                                    <small>
-                                                                        {" "}
-                                                                        ·
-                                                                        Crédito
-                                                                    </small>
-                                                                )}
-                                                            </>
-                                                        ) : (
-                                                            "Consultando…"
-                                                        )}
-                                                    </td>
-                                                    <td>
-                                                        <button
-                                                            type="button"
-                                                            className="primary"
-                                                            disabled={
-                                                                query.pending
-                                                            }
-                                                            onClick={() => {
-                                                                onRecord(
-                                                                    row,
-                                                                    "FechamentoCobrancaDto.Fechamento",
-                                                                );
-                                                                setOpening({
-                                                                    row,
-                                                                    type: "FechamentoCobrancaDto.Fechamento",
-                                                                });
-                                                            }}
-                                                        >
-                                                            Acessar fatura
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            );
-                                        })}
-                                    </tbody>
-                                </table>
+                            <div className="invoice-list-empty" role="status">
+                                <Icon name="fechamento" />
+                                <h3>Consulte as faturas</h3>
+                                <p>
+                                    Selecione o cliente e o armazém e aplique os
+                                    filtros.
+                                </p>
                             </div>
                         )}
-                        {isObject(data) && Array.isArray(data.itens) && (
-                            <Pagination
-                                page={Number(data.pagina)}
-                                pages={Number(data.totalPaginas)}
-                                total={String(data.totalItens ?? rows.length)}
-                                count={rows.length}
-                                size={Number(data.tamanho)}
-                                disabled={query.pending}
-                                onPage={query.page}
-                            />
+                        {query.pending && !rows.length && (
+                            <div className="invoice-list-empty" role="status">
+                                <p>Consultando fechamentos…</p>
+                            </div>
                         )}
+                        {query.error && (
+                            <p className="invoice-list-error" role="alert">
+                                {query.error}
+                            </p>
+                        )}
+                        {!query.pending &&
+                            !query.needsFilters &&
+                            !query.error &&
+                            query.receipt &&
+                            !rows.length && (
+                                <div
+                                    className="invoice-list-empty"
+                                    role="status"
+                                >
+                                    <Icon name="fechamento" />
+                                    <h3>Nenhum fechamento encontrado</h3>
+                                    <p>
+                                        Confira o cliente e o armazém
+                                        selecionados.
+                                    </p>
+                                </div>
+                            )}
+                        {!query.needsFilters &&
+                            !query.error &&
+                            rows.length > 0 && (
+                                <div className="invoice-table-scroll">
+                                    <table
+                                        className="invoice-table"
+                                        aria-label="Fechamentos · faturas"
+                                    >
+                                        <thead>
+                                            <tr>
+                                                <th>Cliente</th>
+                                                <th>Período de fechamento</th>
+                                                <th>Valor da fatura</th>
+                                                <th>
+                                                    <span className="sr-only">
+                                                        Acessar fatura
+                                                    </span>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {rows.map((row) => {
+                                                const amount =
+                                                    amounts.rows === rows
+                                                        ? amounts.values[
+                                                              String(row.id)
+                                                          ]
+                                                        : undefined;
+                                                return (
+                                                    <tr
+                                                        key={String(row.id)}
+                                                        data-record-id={String(
+                                                            row.id,
+                                                        )}
+                                                    >
+                                                        <td>
+                                                            <ReferenceValue
+                                                                field="clienteId"
+                                                                value={
+                                                                    row.clienteId
+                                                                }
+                                                                row={row}
+                                                                type="FechamentoCobrancaDto.Fechamento"
+                                                            />
+                                                            <div className="invoice-row-status">
+                                                                <StatusBadge
+                                                                    value={
+                                                                        row.situacao
+                                                                    }
+                                                                />
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            {invoicePeriod(
+                                                                row.periodoInicio,
+                                                                row.periodoFim,
+                                                            )}
+                                                        </td>
+                                                        <td>
+                                                            {amount?.error ? (
+                                                                <span
+                                                                    title={
+                                                                        amount.error
+                                                                    }
+                                                                >
+                                                                    Valor
+                                                                    indisponível{" "}
+                                                                    <button
+                                                                        className="invoice-retry"
+                                                                        type="button"
+                                                                        onClick={() => {
+                                                                            setAmounts(
+                                                                                {
+                                                                                    rows: noRows,
+                                                                                    values: {},
+                                                                                },
+                                                                            );
+                                                                            setAmountRevision(
+                                                                                (
+                                                                                    value,
+                                                                                ) =>
+                                                                                    value +
+                                                                                    1,
+                                                                            );
+                                                                        }}
+                                                                    >
+                                                                        Consultar
+                                                                        novamente
+                                                                    </button>
+                                                                </span>
+                                                            ) : amount?.data ? (
+                                                                <>
+                                                                    {invoiceMoney(
+                                                                        amount
+                                                                            .data
+                                                                            .saldo,
+                                                                    )}
+                                                                    {amount.data
+                                                                        .saldo ==
+                                                                        null && (
+                                                                        <span>
+                                                                            {" "}
+                                                                            Pendente
+                                                                            de
+                                                                            cálculo
+                                                                        </span>
+                                                                    )}
+                                                                    {amount.data
+                                                                        .natureza ===
+                                                                        "CREDITO" && (
+                                                                        <small>
+                                                                            {" "}
+                                                                            ·
+                                                                            Crédito
+                                                                        </small>
+                                                                    )}
+                                                                </>
+                                                            ) : (
+                                                                "Consultando…"
+                                                            )}
+                                                        </td>
+                                                        <td>
+                                                            <button
+                                                                type="button"
+                                                                className="primary"
+                                                                disabled={
+                                                                    query.pending
+                                                                }
+                                                                onClick={() => {
+                                                                    onRecord(
+                                                                        row,
+                                                                        "FechamentoCobrancaDto.Fechamento",
+                                                                    );
+                                                                    setOpening({
+                                                                        row,
+                                                                        type: "FechamentoCobrancaDto.Fechamento",
+                                                                    });
+                                                                }}
+                                                            >
+                                                                Acessar fatura
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            })}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            )}
+                        {!query.needsFilters &&
+                            !query.error &&
+                            isObject(data) &&
+                            Array.isArray(data.itens) && (
+                                <Pagination
+                                    page={Number(data.pagina)}
+                                    pages={Number(data.totalPaginas)}
+                                    total={String(
+                                        data.totalItens ?? rows.length,
+                                    )}
+                                    count={rows.length}
+                                    size={Number(data.tamanho)}
+                                    disabled={query.pending}
+                                    onPage={query.page}
+                                />
+                            )}
                     </>
                 )}
                 {message && <p role="status">{message}</p>}

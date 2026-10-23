@@ -3,7 +3,6 @@ import { isObject, type Values } from "../../contracts/runtime";
 import { display } from "../../domain/labels";
 import { formatDate } from "../../domain/referencePresentation";
 import { StatusBadge } from "../../design-system/StatusBadge";
-import "./serviceFactDetail.css";
 
 const shown = (value: unknown) =>
     value === "" || value == null ? "Não informado" : display(value);
