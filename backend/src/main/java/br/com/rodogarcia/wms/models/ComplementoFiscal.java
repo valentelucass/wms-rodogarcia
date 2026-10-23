@@ -21,9 +21,17 @@ public class ComplementoFiscal {
         agrupamentoNfe = agrupamento;
     }
 
-    public String getCodigoMunicipio() { return codigoMunicipio; }
-    public Integer getIndicadorIe() { return indicadorIe; }
-    public String getAgrupamentoNfe() { return agrupamentoNfe; }
+    public String getCodigoMunicipio() {
+        return codigoMunicipio;
+    }
+
+    public Integer getIndicadorIe() {
+        return indicadorIe;
+    }
+
+    public String getAgrupamentoNfe() {
+        return agrupamentoNfe;
+    }
 
     @Nationalized
     @Column(name = "razao_social", length = 160)

@@ -1,5 +1,19 @@
 # Decisões e pendências do WMS Rodogarcia
 
+## NOTAZZ-HOM01 — DALGA e isolamento da homologação, 23/10/2026
+
+**Fonte:** resposta do gestor encaminhada por Lucas, seguida do pedido explícito de registrar o aviso sobre produção. A operação fiscal do WMS será realizada pela DALGA, empresa do grupo voltada a serviços logísticos. O emitente permanece vinculado ao estabelecimento do armazém da entrada.
+
+| Estabelecimento | CNPJ | Ambiente da API informado pelo gestor | Uso nesta etapa |
+| --- | --- | --- | --- |
+| DALGA SPO — Osasco | 04.547.874/0001-14 | Homologação | Único estabelecimento permitido para testes, após conferência atual |
+| DALGA CAS — Castro | 04.547.874/0002-03 | **Produção** | **Excluído de sondas e testes da API** |
+| DALGA AGU — Agudos | 04.547.874/0003-86 | **Produção** | **Excluído de sondas e testes da API** |
+
+O gestor disponibilizou acessos para a verificação. Seus valores não integram este registro, o código ou as evidências. Não alterar ambientes, emitir ou cancelar documentos de produção. Não utilizar o CNPJ de Osasco para uma operação de outro armazém. A informação recebida não é, por si só, prova técnica de ambiente: a conferência atual da empresa e do ambiente deve preceder qualquer emissão de homologação. Regra permanente de execução em [AGENTS.md](../AGENTS.md).
+
+**Conferência no portal em 23/10/2026:** login autorizado bem-sucedido na conta DALGA; a lista de empresas confirmou Osasco em Homologação e Castro/Agudos em Produção. A chave fornecida de Osasco foi comparada com o cadastro e corresponde, sem divulgar seu conteúdo. **Castro está marcada como empresa padrão**, exigindo seleção explícita da empresa de homologação e da chave correta em qualquer teste. Nenhuma configuração, nota ou documento foi alterado nessa conferência.
+
 ## FE02-PRODUTOS-UX01 — compactar disponibilidade por produto, 23/10/2026
 
 Lucas pediu reduzir o tamanho e melhorar a leitura, permitindo escolher outra apresentação. Rejeitou expressamente a tentativa com tabela espalhada e grupo recolhível. Escolha final: gráfico compacto de composição ao lado do SKU/total, todos os produtos visíveis, detalhe único ao selecionar por mouse ou teclado; duas colunas em tela larga e uma no celular. Zero é indicado somente quando total e parcelas são zerados. Barras representam proporção dentro do próprio SKU; valores e unidades permanecem exatos e separados por produto. Paginação/contagens e escopo preservados. Evidências e limites em orchestracao/.runtime/product-availability-20261023/validation-summary.json.

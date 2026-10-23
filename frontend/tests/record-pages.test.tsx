@@ -447,7 +447,12 @@ describe("REG01 Clientes por registro", () => {
     });
 });
 describe("REG01 expansão das páginas reais", () => {
-    it.each(journeys.map((journey) => [journey.id, journey] as const))(
+    // A tela fiscal unificada tem navegação e comandos conferidos em fiscal-workspace.test.tsx.
+    it.each(
+        journeys
+            .filter((journey) => journey.id !== "fiscal")
+            .map((journey) => [journey.id, journey] as const),
+    )(
         "%s carrega a fonte de cada etapa e mantém todos os comandos mapeados",
         async (_id, journey) => {
             const requests: Request[] = [];

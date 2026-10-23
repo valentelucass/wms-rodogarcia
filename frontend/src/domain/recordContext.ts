@@ -61,7 +61,7 @@ export function rowContext(
         (controller === "ConfiguracaoCobrancaController" &&
             type.startsWith("ConfiguracaoCobrancaDto."));
     const values: Values = { ...derived, ...(sameSubject ? root : {}) };
-    if(action === "ExpedicaoController.devolver") {
+    if (action === "ExpedicaoController.devolver") {
         // Itens do pedido não são itens de devolução. Preservar somente o comando por baixa.
         values.itens = derived.itens;
     }

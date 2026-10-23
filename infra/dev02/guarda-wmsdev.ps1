@@ -38,7 +38,7 @@ public static class WmsDev02Checksum {
 
 function Invoke-WmsDev02Guard {
     [CmdletBinding()]
-    param([switch]$CadastroPreGrant)
+    param([switch]$CadastroPreGrant,[switch]$NotazzPreMigration)
     $ErrorActionPreference = 'Stop'
     . (Join-Path $script:WmsDev02Root 'infra/dev/espera-conexao.ps1')
     $waitPolicy = Get-WmsDevConnectionWaitPolicy
@@ -116,6 +116,13 @@ function Invoke-WmsDev02Guard {
             $baseline=Add-WmsInventoryExpectedContract $baseline ($migrations | Where-Object {$_.version -ceq '14'})
             $report.oraculo['inventarioSha256']=(Get-FileHash -LiteralPath (Join-Path $script:WmsDev02Root 'infra/inventario/contrato-banco.ps1') -Algorithm SHA256).Hash
         }
+        if (@($migrations | Where-Object {$_.version -ceq '15'}).Count -eq 1) {
+            . (Join-Path $script:WmsDev02Root 'infra/notazz/contrato-banco.ps1')
+            $notazzExpected=Add-WmsNotazzExpectedContract $baseline ($migrations|Where-Object version -ceq '15')
+            if($NotazzPreMigration){$migrations=@($migrations|Where-Object version -cne '15')}else{$baseline=$notazzExpected}
+            $report.oraculo['notazzSha256']=(Get-FileHash -LiteralPath (Join-Path $script:WmsDev02Root 'infra/notazz/contrato-banco.ps1') -Algorithm SHA256).Hash
+            $report.oraculo['notazzPreMigration']=[bool]$NotazzPreMigration
+        } elseif($NotazzPreMigration){throw 'DEV02_NOTAZZ_MIGRATION_MISSING'}
         Assert-Dev02 'inventario local completo conforme contrato versionado' (Compare-Dev02Rows $migrations @($baseline.historico|Where-Object {$_.type -ceq 'SQL'}) @('version','script'))
         . (Join-Path $script:WmsDev02Root 'infra/cadastros/contrato-edicao.ps1')
         $cadastroBefore=$baseline

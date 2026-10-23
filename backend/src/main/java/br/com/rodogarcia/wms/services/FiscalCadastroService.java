@@ -228,7 +228,11 @@ public class FiscalCadastroService {
                     d.conferidaPor(),
                     d.conferidaEm(),
                     agora);
-        r.configurarTributacaoNfe(d.tributacao() == null ? null : new tools.jackson.databind.json.JsonMapper().writeValueAsString(d.tributacao()));
+        r.configurarTributacaoNfe(
+                d.tributacao() == null
+                        ? null
+                        : new tools.jackson.databind.json.JsonMapper()
+                                .writeValueAsString(d.tributacao()));
         referencias.flush();
         var resposta = FiscalCadastroDto.Referencia.de(r);
         auditoria.registrar(

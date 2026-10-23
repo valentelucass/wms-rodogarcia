@@ -43,7 +43,7 @@ try {
     Assert-Cad ((Get-FileHash -LiteralPath $baselinePath).Hash -ceq 'C22AABF54F839D4B6E139A598A8478530F92F8911FEEE46BB2F92BC85313EA90') 'BASELINE_DIVERGENTE'
     $baseline=Get-Content -LiteralPath $baselinePath -Raw -Encoding UTF8|ConvertFrom-Json
     $migrations=@(Get-WmsDev02Migrations)
-    Assert-Cad ($migrations.Count -in @(11,12,13,14)) 'MIGRATIONS_INESPERADAS'
+    Assert-Cad ($migrations.Count -in @(11,12,13,14,15)) 'MIGRATIONS_INESPERADAS'
     $v11=@($migrations|Where-Object {$_.version -ceq '11'})[0]
     $before=Add-WmsAuthExpectedContract $baseline $v11
     if ($migrations.Count -ge 12) {
@@ -54,9 +54,13 @@ try {
         . (Join-Path $root 'infra/tabelas/contrato-banco.ps1')
         $before=Add-WmsBillingTableExpectedContract $before ($migrations | Where-Object {$_.version -ceq '13'})
     }
-    if ($migrations.Count -eq 14) {
+    if ($migrations.Count -ge 14) {
         . (Join-Path $root 'infra/inventario/contrato-banco.ps1')
         $before=Add-WmsInventoryExpectedContract $before ($migrations | Where-Object {$_.version -ceq '14'})
+    }
+    if ($migrations.Count -eq 15) {
+        . (Join-Path $root 'infra/notazz/contrato-banco.ps1')
+        $before=Add-WmsNotazzExpectedContract $before ($migrations | Where-Object {$_.version -ceq '15'})
     }
     $legacy=Add-WmsCadastroEditExpectedContract $before -SomenteBase
     $expected=Add-WmsCadastroEditExpectedContract $before

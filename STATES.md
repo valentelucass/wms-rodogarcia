@@ -1,5 +1,9 @@
 # Estado e trilha de implementação do WMS Rodogarcia
 
+## NOTAZZ-HOM01 — atenção aos ambientes DALGA, 23/10/2026
+
+**Orientação registrada e acesso de leitura conferido:** o gestor confirmou DALGA como empresa da operação. O portal confirmou DALGA SPO / Osasco (04.547.874/0001-14) em homologação via API. **Castro (04.547.874/0002-03) e Agudos (04.547.874/0003-86) estão em produção e não podem ser utilizados nos testes; Castro é a empresa padrão do portal.** Chave de Osasco confere com o cadastro e foi aceita em consulta de identidade inexistente: HTTP 200/código 202, sem ler nota existente, emitir, cancelar ou salvar configurações. O responsável reforçou o cuidado; por enquanto seguir somente com testes internos WMS. Credenciais fora dos arquivos do projeto e dos relatórios. [Regra e fonte](docs/06-decisoes-e-pendencias.md#notazz-hom01--dalga-e-isolamento-da-homologacao-23102026); evidência sanitizada em orchestracao/.runtime/notazz-implementation-20261023/verificacao-acesso-osasco.json. V15/direitos mínimos e leitura integrada conferidos somente WMS_DEV; fonte atual aberta pelo BAT. Emissão externa continua desabilitada e homologação de emissão/cancelamento não foi executada.
+
 ## FE02-DADOS-AUD01 — auditoria real dos gráficos, 23/10/2026
 
 **Status:** conferência de leitura concluída. SQL independente, API autenticada e navegador real em quatro contextos conferem: ocupação 89/3/8/0 = 100 posições; fila 43/20/0/0 = 63 pedidos. Cinco retirados e doze cancelados permanecem no histórico. 28 reservas pertencem a 20 pedidos; 92 unidades endereçadas ocupam 100 posições. Das 1.354 unidades ativas, 1.262 não têm endereço, sendo 1.250 das massas REG01; existem no banco e não entram na ocupação física.
@@ -10,13 +14,22 @@ Guarda atual 26 checks, 22 SELECTs incluindo identidade; sem escrita de negócio
 
 ## BE10-NOTAZZ-IMP01 e FE10-NOTAZZ-IMP01 — implementação autorizada, 23/10/2026
 
-**Status:** em implementação, a pedido expresso do responsável: “pode implementar de forma testada e rigorosa”. Esta autorização substitui a restrição anterior de somente documentação para esta frente. Dependências: BE05/BE09/BE10/BE11 e FE04/FE09/FE10; levantamento 46–49 e resposta final sobre retorno com cancelamento impedido.
+**Status:** fonte implementada e ativa no DEV, com testes locais e leitura integrada aprovados; homologação do ciclo fiscal pendente. Pedido expresso do responsável: “pode implementar de forma testada e rigorosa”. Esta autorização substitui a restrição anterior de somente documentação para esta frente. Dependências: BE05/BE09/BE10/BE11 e FE04/FE09/FE10; levantamento 46–49 e resposta final sobre retorno com cancelamento impedido.
 
-- [ ] Solicitação fiscal persistida antes do envio, identidade estável, snapshot, concorrência, conciliação e proteção contra duplicidade.
-- [ ] Completar dados fiscais com fonte explícita e bloqueio de emissão incompleta; emitente da origem, destinatário proprietário e valores proporcionais.
-- [ ] Unificar emissão/conferência na tela Retirada fiscal da mercadoria; listar pedidos, situação e números, mantendo retirada física distinta.
-- [ ] Cancelamento externo confirmado e nova entrada vinculada quando cancelamento é impedido, preservando fatos e estoque.
-- [ ] Testes puros, contratos, build, conferência visual e integração SQL guardada proporcional; Notazz real exige configuração/ambiente próprios comprovados.
+**Conferência em 23/10/2026:** 65 testes puros backend aprovados; frontend completo com 104 arquivos/863 testes, tipagem, lint, formatação e build aprovados. Após ajustar o iniciador/compilador protegido, 87 testes focados de identidade/abertura e tipagem/lint passaram; seis casos estruturais de artefato e 27 de reinício isolado aprovados. Navegador fictício explícito: oito layouts e cinco estados/interações aprovados. Contrato V15: 13 verificações locais. Primeira execução SQL teve erro 207 e rollback íntegro atestado; fonte corrigida antes da aplicação, hash/checksum revistos. Nova execução protegida: V15/direitos mínimos somente WMS_DEV, quatro etapas Flyway aprovadas, catálogo com 1.473 itens/74 tabelas/792 colunas e guarda final 26 checks aprovados.
+
+**Fonte ativa e leitura real:** BAT normal abriu o run `35717d30-bd55-4bc6-ad00-ea98ddbd0ae1`, backend 23132/25580 e frontend 33064/25581. Cadeia de fonte/pacote/processos/JDBC/TLS conferida; nenhum processo preexistente encerrado. Cliente/armazém 67/33 sem pedidos e 49/23 com oito pedidos existentes foram conferidos em navegador real, desktop/celular. Sete conferências HTTP autenticadas aprovaram proteção, listagem, detalhe, filtros e prévia bloqueada com integração desabilitada, sem criar solicitações. Correção de quebra de linha/min-width no detalhe resolveu transbordamento com referência maior: página de 390 px permaneceu com scrollWidth 390; tabelas têm rolagem própria. Build final aprovado. Guardas novas para leitura ativa foram vinculadas ao mesmo processo SQL/certificado/fonte, preservando os recibos imutáveis de partida. Nenhuma fixture, movimentação de negócio ou emissão/cancelamento Notazz executada. Persistência das novas solicitações e ciclo fiscal/retorno integrado continuam pendentes. [Relatório](orchestracao/.runtime/notazz-implementation-20261023/validacao.md).
+
+Mapa estrutural atualizado sem force: 15.403 nós/51.126 relações. O extrator preservou dados e registrou 444 alertas de esquema herdados (410 fontes ausentes/34 outros), com nomes de comunidades provisórios; isso limita a precisão do mapa e não altera o aceite dos testes. Documentos novos continuam fonte primária, sem afirmar atualização semântica integral do mapa.
+
+- [x] Implementar solicitação fiscal antes do envio, identidade estável, snapshot, locks, conciliação e proteção contra duplicidade; testes puros aprovados.
+- [x] Completar contratos dos dados fiscais e bloquear emissão incompleta; emitente da origem, proprietário e valores proporcionais conferidos em testes puros.
+- [x] Unificar a tela Retirada fiscal da mercadoria; lista, prévia, situação e números, com retirada física distinta; interface/contratos/visual aprovados.
+- [x] Implementar conciliação de cancelamento e nova entrada vinculada, preservando fatos e estoque; testes locais com retornos controlados aprovados.
+- [x] Testes puros, contratos, build, conferência visual e V15/direitos/catálogo SQL DEV guardados.
+- [x] Validar leitura da fonte nova em HTTP/SQL real e navegador, com prévia e emissão bloqueada.
+- [ ] Validar persistência das solicitações e o ciclo integrado de emissão/cancelamento/retorno operacional.
+- [ ] Conferir parâmetros fiscais e executar emissão/cancelamento de homologação em Osasco, quando retomados os testes externos; nunca usar Castro/Agudos.
 
 Preservar as alterações preexistentes das demais frentes. Somente WMS_DEV, com guardas atuais; sem PROD, emissão fiscal de produção, commit ou push. Credenciais externas protegidas, nunca no navegador/log/repositório. Evidências próprias em orchestracao/.runtime/notazz-implementation-20261023/; fonte, testes locais, ambiente ativo e homologação externa serão relatados separadamente.
 

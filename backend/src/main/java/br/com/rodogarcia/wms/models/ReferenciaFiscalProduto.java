@@ -31,8 +31,13 @@ public class ReferenciaFiscalProduto {
     @Column(name = "tributacao_nfe", columnDefinition = "nvarchar(max)")
     private String tributacaoNfe;
 
-    public String getTributacaoNfe() { return tributacaoNfe; }
-    public void configurarTributacaoNfe(String value) { tributacaoNfe = value; }
+    public String getTributacaoNfe() {
+        return tributacaoNfe;
+    }
+
+    public void configurarTributacaoNfe(String value) {
+        tributacaoNfe = value;
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -89,7 +89,7 @@ export function dispatchReferences(
         ];
     }
     if (action === "devolver") {
-        if(ctx.solicitacaoEntradaId && Array.isArray(ctx.itens)) return;
+        if (ctx.solicitacaoEntradaId && Array.isArray(ctx.itens)) return;
         const detail = s["ExpedicaoDto.Detalhe"];
         const rows =
             detail && Array.isArray(detail.baixas) ? detail.baixas : [];

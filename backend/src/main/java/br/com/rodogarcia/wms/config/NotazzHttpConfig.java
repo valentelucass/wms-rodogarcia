@@ -9,7 +9,9 @@ import org.springframework.context.annotation.Configuration;
 public class NotazzHttpConfig {
     @Bean("notazzHttpClient")
     HttpClient notazzHttpClient() {
-        return HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NEVER)
-                .connectTimeout(Duration.ofSeconds(5)).build();
+        return HttpClient.newBuilder()
+                .followRedirects(HttpClient.Redirect.NEVER)
+                .connectTimeout(Duration.ofSeconds(5))
+                .build();
     }
 }

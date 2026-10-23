@@ -39,6 +39,7 @@ function currentFixture() {
         "backend/pom.xml",
         configSource,
         "infra/dev/preparar-backend-dev.ps1",
+        "infra/dev/compilar-backend-protegido.ps1",
         "infra/dev/artefato-backend.ps1",
         "infra/sql01/launcher-backend.ps1",
         "infra/sql01/Sql01Bootstrap.java",
@@ -357,6 +358,16 @@ describe("BE02 validator puro: zero banco/browser/processo real", () => {
         expect(() =>
             validateReadyChain(g.environment, 25581, g.dependencies),
         ).toThrow("CONTEXT_MISMATCH");
+    });
+    it("recusa compilador protegido alterado depois do preparo", () => {
+        const f = currentFixture();
+        f.files.set(
+            join(f.root, "infra/dev/compilar-backend-protegido.ps1"),
+            Buffer.from("CHANGED"),
+        );
+        expect(() =>
+            validateReadyChain(f.environment, 25581, f.dependencies),
+        ).toThrow("HASH_MISMATCH");
     });
 });
 

@@ -4,6 +4,8 @@ BEGIN TRANSACTION;
 ALTER TABLE wms.cliente ADD codigo_municipio varchar(7) NULL, indicador_ie int NULL, agrupamento_nfe varchar(16) NULL;
 ALTER TABLE wms.armazem ADD codigo_municipio varchar(7) NULL, indicador_ie int NULL, agrupamento_nfe varchar(16) NULL;
 ALTER TABLE wms.referencia_fiscal_produto ADD tributacao_nfe nvarchar(max) NULL;
+GO
+
 ALTER TABLE wms.cliente ADD CONSTRAINT ck_cliente_indicador_ie CHECK(indicador_ie IS NULL OR indicador_ie IN(1,2,9)), CONSTRAINT ck_cliente_agrupamento_nfe CHECK(agrupamento_nfe IS NULL OR agrupamento_nfe IN('CONSOLIDAR','POR_NOTA'));
 ALTER TABLE wms.armazem ADD CONSTRAINT ck_armazem_indicador_ie CHECK(indicador_ie IS NULL OR indicador_ie IN(1,2,9));
 ALTER TABLE wms.referencia_fiscal_produto ADD CONSTRAINT ck_referencia_tributacao_nfe CHECK(tributacao_nfe IS NULL OR ISJSON(tributacao_nfe)=1);

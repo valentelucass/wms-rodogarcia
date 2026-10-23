@@ -27,9 +27,9 @@ if(Test-Path -LiteralPath $target){throw 'DEV_CURRENT_BUILD_TARGET_EXISTS'}
 $null=New-Item -ItemType Directory -Path $evidence
 $wrapper=Join-Path $repository 'backend/mvnw.cmd'
 foreach($path in @($wrapper,$target,$evidence)){if($path -match '["\r\n%!]'){throw 'DEV_CURRENT_BUILD_PATH_INVALID'}}
-$info=[Diagnostics.ProcessStartInfo]::new();$info.FileName=Join-Path $env:SystemRoot 'System32/cmd.exe'
-$info.Arguments='/d /c ""'+$wrapper+'" -B "-Dwms.build.directory='+$target+'" "-Dwms.test.evidencias.dir='+$evidence+'" '+
-    '"-Dmaven.test.skip=true" "-Ppure-no-db,!h2-historical,!sqlserver-it,!migrations,!migrations-wrapper-confirmado,!bootstrap-local,!bootstrap-local-wrapper-confirmado" package"'
+$info=[Diagnostics.ProcessStartInfo]::new();$info.FileName=Join-Path $env:SystemRoot 'System32/WindowsPowerShell/v1.0/powershell.exe'
+$compiler=Join-Path $PSScriptRoot 'compilar-backend-protegido.ps1'
+$info.Arguments='-NoProfile -File "'+$compiler+'" -RunDirectory "'+$run+'"'
 $info.WorkingDirectory=Join-Path $repository 'backend';$info.UseShellExecute=$false;$info.CreateNoWindow=$true
 $info.RedirectStandardOutput=$true;$info.RedirectStandardError=$true;$info.EnvironmentVariables.Clear()
 foreach($name in @('SystemRoot','WINDIR','ComSpec','PATH','PATHEXT','TEMP','TMP','USERPROFILE','HOMEDRIVE','HOMEPATH','APPDATA','LOCALAPPDATA','PROGRAMDATA')){

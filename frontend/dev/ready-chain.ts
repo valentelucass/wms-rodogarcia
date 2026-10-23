@@ -211,6 +211,7 @@ function currentBackendProof(
     ]);
     const helpers = new Set([
         "infra/dev/preparar-backend-dev.ps1",
+        "infra/dev/compilar-backend-protegido.ps1",
         "infra/dev/artefato-backend.ps1",
         "infra/sql01/launcher-backend.ps1",
         "infra/sql01/Sql01Bootstrap.java",

@@ -80,9 +80,14 @@ export const unknownStoredValueReason = {
 export const information = {
     fiscalWithdrawal: {
         title: "Retirada fiscal da mercadoria",
-        description: "Confira os dados antes de emitir. PENDENTE inclui notas ainda não autorizadas; FINALIZADO indica a documentação fiscal completa. A retirada física é confirmada separadamente.",
+        description:
+            "Confira os dados antes de emitir. PENDENTE inclui notas ainda não autorizadas; FINALIZADO indica a documentação fiscal completa. A retirada física é confirmada separadamente.",
     },
-    fiscalReturn: { title: "Retorno e regularização", description: "O fiscal regulariza os documentos primeiro. Se a circulação impedir cancelar a nota de saída, emita nova nota de entrada, mesmo dentro de 24 horas. Depois, o operador confirma o retorno e o reendereçamento, mantendo registrada a saída original." },
+    fiscalReturn: {
+        title: "Retorno e regularização",
+        description:
+            "O fiscal regulariza os documentos primeiro. Se a circulação impedir cancelar a nota de saída, emita nova nota de entrada, mesmo dentro de 24 horas. Depois, o operador confirma o retorno e o reendereçamento, mantendo registrada a saída original.",
+    },
     operationErrorDetails: {
         title: "Detalhes técnicos",
         description:

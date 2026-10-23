@@ -1,6 +1,7 @@
 const labels: Record<string, string> = {
     codigoMunicipio: "Código IBGE do município",
-    indicadorIe: "Indicador de IE (1: contribuinte; 2: isento; 9: não contribuinte)",
+    indicadorIe:
+        "Indicador de IE (1: contribuinte; 2: isento; 9: não contribuinte)",
     agrupamentoNfe: "Agrupamento de NF-e (CONSOLIDAR ou POR_NOTA)",
     tributacao: "Tributação da NF-e conferida pelo fiscal",
     icmsCst: "CST / CSOSN do ICMS",

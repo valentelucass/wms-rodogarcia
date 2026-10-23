@@ -114,9 +114,14 @@ describe("Jornadas e segurança de apresentação", () => {
                 name: "Registrar documento existente",
             }),
         ).not.toBeInTheDocument();
-        await user.click(
-            screen.getByRole("button", { name: "2. Retirada física integral" }),
-        );
+        expect(
+            screen.getByRole("heading", {
+                name: "Retirada fiscal da mercadoria",
+            }),
+        ).toBeInTheDocument();
+        expect(
+            screen.queryByRole("button", { name: "Conferir e emitir NF-e" }),
+        ).not.toBeInTheDocument();
         expect(
             screen.queryByRole("button", { name: "Confirmar retirada física" }),
         ).not.toBeInTheDocument();

@@ -1,5 +1,5 @@
 import { it, expect, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { ApiError, type Request, type Transport } from "../src/api/client";
 import { Operation } from "../src/components/Operation";
 import {
@@ -50,6 +50,34 @@ it("FE10 cobertura de duas notas no documento simbólico conserva reserva origem
     const t: Transport = {
         send: vi.fn(async (r) => {
             calls.push(r);
+            if (r.endpoint.id === "FiscalNfeController.listar")
+                return receipt(r, {
+                    itens: [
+                        {
+                            id: "601",
+                            versao: order.versao,
+                            referencia: "SAI-FISCAL-TESTE",
+                            criadoEm: "2026-10-23T12:00:00Z",
+                            clienteId: "1",
+                            cliente: "Cliente fictício",
+                            armazemId: "1",
+                            situacaoOperacional: "SEPARADO",
+                            situacaoFiscal: "PENDENTE",
+                            numerosNfe: [],
+                            podeEmitir: true,
+                        },
+                    ],
+                    pagina: 0,
+                    tamanho: 25,
+                    totalItens: "1",
+                    totalPaginas: 1,
+                });
+            if (r.endpoint.id === "FiscalNfeController.andamento")
+                return receipt(r, {
+                    pedidoId: "601",
+                    situacao: "PENDENTE",
+                    solicitacoes: [],
+                });
             if (r.endpoint.id === "PedidoSaidaController.listar")
                 return receipt(r, {
                     itens: [order],
@@ -95,8 +123,15 @@ it("FE10 cobertura de duas notas no documento simbólico conserva reserva origem
     fill("Identificador *", "601");
     await consult();
     await click("Fiscal e retirada");
-    await consult();
-    await click("Registrar documento existente");
+    fireEvent.click(
+        await screen.findByRole("button", { name: "SAI-FISCAL-TESTE" }),
+    );
+    fireEvent.click(
+        await screen.findByText("Documentos já registrados", {
+            selector: "summary",
+        }),
+    );
+    await click("Registrar nota existente");
     await click(
         "Adicionar cobertura da unidade 00000000-0000-4000-8000-000000000501 · Referência indisponível",
     );
@@ -136,10 +171,8 @@ it("FE10 cobertura de duas notas no documento simbólico conserva reserva origem
         (body(lastMutation(calls)).nota as Record<string, unknown>).chaveAcesso,
     ).toBeNull();
     expect(
-        screen.getByRole("region", {
-            name: "Fiscal e físico do pedido selecionado",
-        }),
-    ).toHaveTextContent("Retirada física: não registrada");
+        screen.getByText("Retirada física ainda não confirmada."),
+    ).toBeInTheDocument();
     expect(
         calls.some((r) => r.endpoint.id === "ExpedicaoController.retirar"),
     ).toBe(false);

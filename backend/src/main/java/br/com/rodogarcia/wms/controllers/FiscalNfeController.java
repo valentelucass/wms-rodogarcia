@@ -16,28 +16,64 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1/pedidos-saida")
-@ConditionalOnProperty(name="wms.cadastros.enabled",havingValue="true")
+@ConditionalOnProperty(name = "wms.cadastros.enabled", havingValue = "true")
 public class FiscalNfeController {
     private final FiscalNfeService service;
-    public FiscalNfeController(FiscalNfeService service) {this.service=service;}
-    @GetMapping("/fiscal")
-    public PaginaResponse<FiscalNfeDto.Linha> listar(@RequestParam Long clienteId,@RequestParam Long armazemId,
-            @RequestParam(defaultValue="TODOS") String situacao,@RequestParam(defaultValue="") String busca,
-            @RequestParam(defaultValue="0") int pagina,@RequestParam(defaultValue="25") int tamanho) {
-        return service.listar(clienteId,armazemId,situacao,busca,pagina,tamanho);
+
+    public FiscalNfeController(FiscalNfeService service) {
+        this.service = service;
     }
+
+    @GetMapping("/fiscal")
+    public PaginaResponse<FiscalNfeDto.Linha> listar(
+            @RequestParam Long clienteId,
+            @RequestParam Long armazemId,
+            @RequestParam(defaultValue = "TODOS") String situacao,
+            @RequestParam(defaultValue = "") String busca,
+            @RequestParam(defaultValue = "0") int pagina,
+            @RequestParam(defaultValue = "25") int tamanho) {
+        return service.listar(clienteId, armazemId, situacao, busca, pagina, tamanho);
+    }
+
     @PostMapping("/{id}/fiscal/previa")
-    public FiscalNfeDto.Previa previa(@PathVariable Long id,@Valid @RequestBody FiscalNfeDto.Preparar d) {return service.previa(id,d);}
+    public FiscalNfeDto.Previa previa(
+            @PathVariable Long id, @Valid @RequestBody FiscalNfeDto.Preparar d) {
+        return service.previa(id, d);
+    }
+
     @PostMapping("/{id}/fiscal/emissoes")
-    public FiscalNfeDto.Andamento confirmar(@PathVariable Long id,@Valid @RequestBody FiscalNfeDto.Confirmar d) {return service.confirmar(id,d);}
+    public FiscalNfeDto.Andamento confirmar(
+            @PathVariable Long id, @Valid @RequestBody FiscalNfeDto.Confirmar d) {
+        return service.confirmar(id, d);
+    }
+
     @GetMapping("/{id}/fiscal")
-    public FiscalNfeDto.Andamento andamento(@PathVariable Long id) {return service.andamento(id);}
+    public FiscalNfeDto.Andamento andamento(@PathVariable Long id) {
+        return service.andamento(id);
+    }
+
     @PostMapping("/{id}/fiscal/{solicitacaoId}/processamento")
-    public FiscalNfeDto.Andamento processar(@PathVariable Long id,@PathVariable UUID solicitacaoId) {return service.processar(id,solicitacaoId);}
+    public FiscalNfeDto.Andamento processar(
+            @PathVariable Long id, @PathVariable UUID solicitacaoId) {
+        return service.processar(id, solicitacaoId);
+    }
+
     @PostMapping("/{id}/fiscal/{solicitacaoId}/cancelamento")
-    public FiscalNfeDto.Andamento cancelar(@PathVariable Long id,@PathVariable UUID solicitacaoId,@Valid @RequestBody FiscalNfeDto.Comando d) {return service.cancelar(id,solicitacaoId,d);}
+    public FiscalNfeDto.Andamento cancelar(
+            @PathVariable Long id,
+            @PathVariable UUID solicitacaoId,
+            @Valid @RequestBody FiscalNfeDto.Comando d) {
+        return service.cancelar(id, solicitacaoId, d);
+    }
+
     @GetMapping("/{id}/fiscal/{solicitacaoId}/xml")
-    public FiscalNfeDto.Arquivo arquivo(@PathVariable Long id,@PathVariable UUID solicitacaoId) {return service.arquivo(id,solicitacaoId);}
+    public FiscalNfeDto.Arquivo arquivo(@PathVariable Long id, @PathVariable UUID solicitacaoId) {
+        return service.arquivo(id, solicitacaoId);
+    }
+
     @GetMapping("/{id}/fiscal/{solicitacaoId}/retorno")
-    public FiscalNfeDto.RetornoOperacional retorno(@PathVariable Long id,@PathVariable UUID solicitacaoId) {return service.retorno(id,solicitacaoId);}
+    public FiscalNfeDto.RetornoOperacional retorno(
+            @PathVariable Long id, @PathVariable UUID solicitacaoId) {
+        return service.retorno(id, solicitacaoId);
+    }
 }

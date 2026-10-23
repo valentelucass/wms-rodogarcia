@@ -67,16 +67,23 @@ function Require-PublicIdentity {
     # D32: login proprio passa a ser o padrao. Externo continua explicito.
     if ($env:WMS_AUTH_MODE -ne 'externo') {
         . (Join-Path $repository 'infra/auth/login-protegido.ps1')
+        $nativeAuthStage='METADADOS_PRIVADOS'
         try {
             # Somente metadados/ACL antes da guarda. DPAPI apenas no canal SQL01 apos gates.
             $nativePath=Get-WmsLoginMaterialPath
             Assert-WmsLoginPrivatePath (Split-Path $nativePath -Parent);Assert-WmsLoginPrivatePath $nativePath
+            $nativeAuthStage='ACESSO_PUBLICO'
             . (Join-Path $PSScriptRoot 'acesso-dev.ps1')
             $access=Get-WmsDevAccess $FrontendPort
             $native=@{native=$true;issuer='https://wms.localhost';jwkSetUri='https://wms.localhost/api/auth/jwks';audience='wms-dev';origin=$access.origin;proxyOrigin=$access.proxyOrigin;secureCookie=$access.secureCookie;accessMode=$access.mode}
             $receipt['identityConfiguration'] = @{ mode='native'; protectedMaterialPresent=$true }
             return $native
         } catch {
+            $receipt['nativeAuthFailure']=@{stage=$nativeAuthStage;type=$_.Exception.GetType().FullName;script=[IO.Path]::GetFileName($_.InvocationInfo.ScriptName);line=$_.InvocationInfo.ScriptLineNumber;rawMessageSaved=$false}
+            if($_.Exception -is [System.Management.Automation.CommandNotFoundException]) {
+                Write-Host '[WMS DEV] Ferramentas locais de seguranca indisponiveis nesta sessao. Preserve a configuracao do login e execute o BAT pelo Windows.'
+                Fail-Startup 40 'AUTH_NATIVE_TOOLS_UNAVAILABLE'
+            }
             if($_.Exception.Message -eq 'AUTH_DEV_ACCESS_MODE_INVALIDO') {
                 Write-Host '[WMS DEV] Confira modo em infra\dev\acesso-dev.json: use local ou tunnel.'
                 Fail-Startup 40 'AUTH_DEV_ACCESS_MODE_INVALIDO'
@@ -261,7 +268,12 @@ try {
         }
         Start-Sleep -Milliseconds 300
     }
-    if (-not $frontendReady) { Fail-Startup 60 'FRONTEND_NOT_READY' }
+    if (-not $frontendReady) {
+        $frontendCodes=@()
+        if($frontendHandle.HasExited -and $frontendErr.IsCompleted){$frontendCodes=@([regex]::Matches($frontendErr.Result,'WMS_DEV_[A-Z0-9_]+')|ForEach-Object Value|Select-Object -Unique)}
+        $receipt['frontendFailure']=@{processExited=$frontendHandle.HasExited;codes=$frontendCodes;rawOutputSaved=$false}
+        Fail-Startup 60 'FRONTEND_NOT_READY'
+    }
     $receipt['frontend']=@{ pid=$frontendHandle.Id; startUtc=$frontendHandle.StartTime.ToUniversalTime().ToString('o'); listenerOwned=$true; mode='real'; chainPath=$chainPath; chainSha256=$chainHash; cssVerificationPending=$true }
     $tunnelMode=$identity.Contains('native') -and $identity.native -and $identity.accessMode -eq 'tunnel'
     $receipt['frontendUrl']='http://127.0.0.1:'+$FrontendPort

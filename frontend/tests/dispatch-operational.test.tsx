@@ -215,7 +215,7 @@ it("FE09 exceção FIFO integral duas reservas leitura UUID/revisões próprias 
         if (index === 0) {
             expect(
                 screen.queryByRole("button", {
-                    name: "Registrar documento existente deste pedido",
+                    name: "Conferir emissão fiscal deste pedido",
                 }),
             ).toBeNull();
             await click("Selecionar e ler outra reserva deste pedido");
@@ -223,7 +223,7 @@ it("FE09 exceção FIFO integral duas reservas leitura UUID/revisões próprias 
     }
     expect(
         screen.getByRole("button", {
-            name: "Registrar documento existente deste pedido",
+            name: "Conferir emissão fiscal deste pedido",
         }),
     ).toBeInTheDocument();
     saveProof("FE09-01-02-duas-reservas", calls);

@@ -15,7 +15,7 @@ function Get-WmsDevInputFingerprint([string]$Repository) {
         @(Get-Item -LiteralPath (Join-Path $root 'backend/mvnw.cmd'))+
         @(Get-ChildItem -LiteralPath (Join-Path $root 'backend/.mvn') -Recurse -File)+
         @(Get-ChildItem -LiteralPath (Join-Path $root 'backend/src/main') -Recurse -File)
-    foreach($path in @('infra/dev/preparar-backend-dev.ps1','infra/dev/artefato-backend.ps1','infra/sql01/launcher-backend.ps1','infra/sql01/Sql01Bootstrap.java','infra/dev/acesso-dev.ps1','infra/dev/acesso-dev.json')){$files+=Get-Item -LiteralPath (Join-Path $root $path)}
+    foreach($path in @('infra/dev/preparar-backend-dev.ps1','infra/dev/compilar-backend-protegido.ps1','infra/dev/artefato-backend.ps1','infra/sql01/launcher-backend.ps1','infra/sql01/Sql01Bootstrap.java','infra/dev/acesso-dev.ps1','infra/dev/acesso-dev.json')){$files+=Get-Item -LiteralPath (Join-Path $root $path)}
     $records=@($files|ForEach-Object{
         $cursor=$_.FullName
         while($cursor.Length -gt $root.Length){

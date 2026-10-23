@@ -56,7 +56,7 @@ export const referenceTypes: Record<string, string[]> = {
     justificativaId: ["PedidoSaidaDto.Justificativa"],
 };
 export const technicalField = (key: string) =>
-    /^(operacaoId|idOperacao|versao|versaoPedido|versaoDestino|versaoUnidade|revisaoConteudo)$/.test(
+    /^(operacaoId|idOperacao|versao|versaoPedido|versaoDestino|versaoUnidade|revisaoConteudo|solicitacaoEntradaId|regularizacoesFiscais)$/.test(
         key,
     );
 export const referenceField = (key: string) => key === "id" || /Id$/.test(key);
@@ -163,6 +163,11 @@ export function businessTitle(
             .join(" · ") || undefined;
     if (row.referencia) return String(row.referencia);
     if (row.nome) return join(row.nome, row.codigo);
+    if (type === "ExpedicaoDto.DocumentoRegistrado" && isObject(row.nota))
+        return join(
+            `NF-e ${row.nota.numero} · série ${row.nota.serie}`,
+            row.situacao,
+        );
     if (type === "PedidoEntradaDto.Nota")
         return row.numero != null
             ? `NF ${row.numero} · série ${row.serie ?? "—"}`

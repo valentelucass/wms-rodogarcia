@@ -82,7 +82,20 @@ export function JourneyPage({
         }));
     const references = journey.references;
     if (journey.id === "fiscal")
-        return <FiscalWorkspace key={`${context.clienteId}:${context.armazemId}:${perfil}`} journey={journey} transport={transport} context={context} perfil={perfil} workflow={workflow} onRecord={onRecord} onReceipt={onReceipt} startAction={startAction} onNavigate={onNavigate} />;
+        return (
+            <FiscalWorkspace
+                key={`${context.clienteId}:${context.armazemId}:${perfil}`}
+                journey={journey}
+                transport={transport}
+                context={context}
+                perfil={perfil}
+                workflow={workflow}
+                onRecord={onRecord}
+                onReceipt={onReceipt}
+                startAction={startAction}
+                onNavigate={onNavigate}
+            />
+        );
     if (journey.id === "contagem")
         return (
             <InventoryWorkspace
