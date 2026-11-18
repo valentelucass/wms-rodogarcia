@@ -52,6 +52,7 @@ public class UnidadeLogisticaService {
     private final Clock clock;
     private final EstoqueService estoque;
     private final ConferenciaBobinasService bobinas;
+    private final TarefaColetorRegistro tarefas;
 
     public UnidadeLogisticaService(
             PedidoEntradaService pedidos,
@@ -64,7 +65,9 @@ public class UnidadeLogisticaService {
             JsonMapper mapper,
             Clock clock,
             EstoqueService estoque,
-            ConferenciaBobinasService bobinas) {
+            ConferenciaBobinasService bobinas,
+            TarefaColetorRegistro tarefas) {
+        this.tarefas = tarefas;
         this.bobinas = bobinas;
         this.pedidos = pedidos;
         this.entradas = entradas;
@@ -141,6 +144,10 @@ public class UnidadeLogisticaService {
             criadas.add(unidade);
         }
         entrada.marcarUnitizada(agora);
+        unidades.flush();
+        for (var u : criadas)
+            tarefas.registrar(
+                    "ENDERECAMENTO", u.getId(), p.getCliente().getId(), p.getArmazem().getId());
         return concluir(
                 p,
                 antes,

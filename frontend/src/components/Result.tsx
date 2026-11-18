@@ -1,3 +1,4 @@
+import { ResponsiveTable } from "./layout/ResponsiveTable";
 import { isLosslessNumber } from "lossless-json";
 import { isObject, records, listType, type Values } from "../contracts/runtime";
 import { label, display } from "../domain/labels";
@@ -318,7 +319,7 @@ function ResultTable({
             }
             aria-busy={pending}
         >
-            <table>
+            <ResponsiveTable>
                 <caption>
                     {resultName(type)} · {data.length}{" "}
                     {notes
@@ -478,7 +479,7 @@ function ResultTable({
                         );
                     })}
                 </tbody>
-            </table>
+            </ResponsiveTable>
         </div>
     );
 }

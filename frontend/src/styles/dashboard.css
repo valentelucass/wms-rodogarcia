@@ -355,21 +355,31 @@
         grid-template-columns: minmax(0, 1fr);
     }
 }
-@media (max-width: 520px) {
+@media (max-width: 767px) {
     .dashboard-availability-row {
-        gap: var(--og-space-2);
-        grid-template-columns: minmax(0, 1.2fr) minmax(40px, 0.8fr) minmax(
-                64px,
-                auto
-            );
+        gap: var(--og-space-3);
+        grid-template-columns: minmax(0, 1fr) auto;
+        padding-block: var(--og-space-4);
+    }
+    .dashboard-availability-identity {
+        grid-column: 1 / -1;
+    }
+    .dashboard-availability-total {
+        white-space: nowrap;
+    }
+    .dashboard-availability-detail {
+        gap: var(--og-space-4);
+        padding-top: var(--og-space-4);
     }
     .dashboard-availability-detail dl {
         display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: minmax(0, 1fr);
+        gap: var(--og-space-3);
     }
     .dashboard-availability-detail dl > div {
         display: grid;
-        gap: var(--og-space-1);
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: var(--og-space-3);
     }
     .dashboard-availability-detail dt {
         white-space: normal;

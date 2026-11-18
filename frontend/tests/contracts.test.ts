@@ -181,6 +181,28 @@ describe("Fronteira contratual exata", () => {
             "arquivo",
             "retorno",
         ].map((handler) => `FiscalNfeController.${handler}`);
+        const nativeCollector = [
+            "disponibilidade",
+            "porPedido",
+            "totais",
+            "listar",
+            "consultar",
+            "destinos",
+            "unidade",
+            "iniciar",
+            "liberar",
+            "enderecar",
+            "separar",
+            "contar",
+            "finalizar",
+            "cancelarInventario",
+        ].map((handler) => `TarefaColetorController.${handler}`);
+        expect(
+            endpoints
+                .filter((e) => e.id.startsWith("TarefaColetorController."))
+                .map((e) => e.id)
+                .toSorted(),
+        ).toEqual(nativeCollector.toSorted());
         expect(
             endpoints
                 .filter((e) => e.id.startsWith("FiscalNfeController."))
@@ -220,7 +242,8 @@ describe("Fronteira contratual exata", () => {
                 (e) =>
                     !nativeAuth.includes(e.id) &&
                     !nativeDashboard.includes(e.id) &&
-                    !nativeXml.includes(e.id),
+                    !nativeXml.includes(e.id) &&
+                    !nativeCollector.includes(e.id),
             ),
         ).toHaveLength(179);
         expect(
@@ -230,8 +253,11 @@ describe("Fronteira contratual exata", () => {
                     !nativeDashboard.includes(e.id) &&
                     !nativeXml.includes(e.id) &&
                     !nativeFiscal.includes(e.id) &&
+                    !nativeCollector.includes(e.id) &&
                     e.id !== "StatusController.consultar" &&
                     e.id !== "EstoqueController.posicionar" &&
+                    e.id !== "ExpedicaoController.ler" &&
+                    e.id !== "ExpedicaoController.separar" &&
                     !used.has(e.id),
             ),
         ).toEqual([]);

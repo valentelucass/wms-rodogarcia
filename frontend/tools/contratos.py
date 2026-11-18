@@ -171,6 +171,7 @@ for e in endpoints:
     if c=='AvariaController': e['permission']='GESTOR' if h=='reconhecer' else ('OPERACAO' if e['method']=='GET' else 'SUPERVISOR')
     if c=='PedidoSaidaController' and h=='reservar': e['permission']='OPERACAO'
     if c=='ExpedicaoController': e['permission']='OPERACAO' if e['method']=='GET' or h in ['ler','separar'] else 'SUPERVISOR'
+    if c=='TarefaColetorController': e['permission']='SUPERVISOR' if h=='cancelarInventario' else 'OPERACAO'
     if e['permission']!=derived:
         e['permissionOverride']={'derived':derived,'reviewed':e['permission'],'source':'frontend/tools/contratos.py#base-role-overrides'}
 def ts(t):

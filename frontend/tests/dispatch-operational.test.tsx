@@ -38,7 +38,7 @@ const rows = [
         quantidade: "70.000000",
     }),
 ];
-it("FE09 exceção FIFO integral duas reservas leitura UUID/revisões próprias separação completa e continuação", async () => {
+it("FE09 exceção FIFO integral de duas reservas encaminha a tarefa exata ao Coletor", async () => {
     const calls: Request[] = [];
     let stage = 0;
     const order = (revision: string, status: string, reserves: unknown[]) =>
@@ -68,6 +68,43 @@ it("FE09 exceção FIFO integral duas reservas leitura UUID/revisões próprias 
         send: vi.fn(async (r) => {
             calls.push(r);
             const id = r.endpoint.id;
+            if (id.startsWith("TarefaColetorController.")) {
+                const task = {
+                    id: "901",
+                    origemId: "601",
+                    tipo: "SEPARACAO",
+                    versao: "0",
+                    referencia: "SAI-601",
+                    situacao: stage < 2 ? "AGUARDANDO_RESERVA" : "PENDENTE",
+                    clienteId: "1",
+                    armazemId: "1",
+                    minha: false,
+                    responsavel: null,
+                };
+                if (id.endsWith("disponibilidade"))
+                    return receipt(r, { disponivel: true });
+                if (id.endsWith("totais"))
+                    return receipt(r, {
+                        enderecamento: "0",
+                        separacao: "1",
+                        inventario: "0",
+                    });
+                if (id.endsWith("listar"))
+                    return receipt(r, {
+                        itens: [task],
+                        pagina: 0,
+                        tamanho: 20,
+                        totalItens: "1",
+                        totalPaginas: 1,
+                    });
+                if (id.endsWith("consultar"))
+                    return receipt(r, {
+                        tarefa: task,
+                        pedido: prepared[stage],
+                        separacoes: [],
+                    });
+                return receipt(r, task);
+            }
             let data: unknown;
             if (id === "PedidoSaidaController.listar")
                 return receipt(r, {
@@ -171,61 +208,20 @@ it("FE09 exceção FIFO integral duas reservas leitura UUID/revisões próprias 
     );
     await confirm();
     expect(body(lastMutation(calls)).justificativaId).toBe(justification);
-    await click("Ler a etiqueta da reserva confirmada");
-    expect(screen.getByLabelText("Reserva *")).toHaveValue("");
-    for (let index = 0; index < 2; index++) {
-        await click(`Selecionar reserva da unidade ${codes[index]}`);
-        selected("Reserva *", String(701 + index));
-        selected("Código lido *", codes[index]);
-        await click("Consultar etiqueta da unidade");
-        await screen.findByText(index === 0 ? "11" : "12", { exact: true });
-
-        selected(
-            "Revisão do conteúdo da etiqueta *",
-            index === 0 ? "11" : "12",
-        );
-        fill(
-            "Motivo / justificativa *",
-            "Leitura fictícia da etiqueta consultada",
-        );
-        await confirm();
-        expect(lastMutation(calls).params.id).toBe("601");
-        expect(body(lastMutation(calls)).reservaId).toBe(String(701 + index));
-        expect(body(lastMutation(calls)).codigoLido).toBe(codes[index]);
-        await click("Confirmar destino da reserva lida");
-        await click("Consultar posições para separação");
-        await screen.findByRole("button", { name: "Selecionar registro 1" });
-        await click("Selecionar registro 1");
-
-        selected("Destinacao / Reserva *", String(701 + index));
-        fill(
-            "Motivo / justificativa *",
-            "Destino fictício conferido para esta reserva",
-        );
-        await confirm();
-        expect(
-            (body(lastMutation(calls)).destinacao as { reservaId: string })
-                .reservaId,
-        ).toBe(String(701 + index));
-        expect(
-            screen.getByRole("region", {
-                name: "Referências confirmadas da jornada",
-            }),
-        ).toHaveTextContent(index === 0 ? "EM_SEPARACAO" : "SEPARADO");
-        if (index === 0) {
-            expect(
-                screen.queryByRole("button", {
-                    name: "Conferir emissão fiscal deste pedido",
-                }),
-            ).toBeNull();
-            await click("Selecionar e ler outra reserva deste pedido");
-        }
-    }
+    await click("Abrir tarefa no Coletor");
+    const taskDialog = await screen.findByRole("dialog");
+    await within(taskDialog).findByRole("button", { name: "Iniciar tarefa" });
     expect(
-        screen.getByRole("button", {
-            name: "Conferir emissão fiscal deste pedido",
-        }),
-    ).toBeInTheDocument();
+        calls.find((r) => r.endpoint.id === "TarefaColetorController.porPedido")
+            ?.params,
+    ).toEqual({ pedidoId: "601" });
+    expect(
+        calls.some(
+            (r) =>
+                r.endpoint.id === "ExpedicaoController.ler" ||
+                r.endpoint.id === "ExpedicaoController.separar",
+        ),
+    ).toBe(false);
     saveProof("FE09-01-02-duas-reservas", calls);
 }, 20000);
 it("FE09 bobinas4/6 pedido6 usa sugestão e justificativa recebidas sem fracionar unidade no cliente", async () => {
@@ -259,6 +255,8 @@ it("FE09 bobinas4/6 pedido6 usa sugestão e justificativa recebidas sem fraciona
         send: vi.fn(async (r) => {
             calls.push(r);
             let data: unknown;
+            if (r.endpoint.id === "TarefaColetorController.disponibilidade")
+                return receipt(r, { disponivel: false });
             if (r.endpoint.id === "EstoqueController.listar")
                 return receipt(r, {
                     itens: [],
@@ -386,6 +384,8 @@ it("FE09 avaria/conflito não libera reserva; reversão recebe revisão própria
     const t: Transport = {
         send: vi.fn(async (r) => {
             calls.push(r);
+            if (r.endpoint.id === "TarefaColetorController.disponibilidade")
+                return receipt(r, { disponivel: false });
             if (r.endpoint.id === "PedidoSaidaController.revalidar")
                 throw new ApiError(
                     "Avaria recebida: expedição impedida; reservas preservadas",
@@ -457,7 +457,7 @@ it("FE09 avaria/conflito não libera reserva; reversão recebe revisão própria
             .filter((b) => screen.getByRole("dialog").contains(b)),
     ).toHaveLength(2);
     expect(calls.filter((r) => r.endpoint.method !== "GET")).toHaveLength(1);
-    await click("4. Reversão e cancelamento");
+    await click("3. Reversão e cancelamento");
     await click("Reverter reserva");
     selected("Revisão atual *", "2");
     fill(
@@ -468,7 +468,11 @@ it("FE09 avaria/conflito não libera reserva; reversão recebe revisão própria
     await click("1. Pedido integral");
     await click("Consultar detalhe");
     await consult();
-    expect(calls.at(-1)?.params.id).toBe("601");
+    expect(
+        calls.findLast(
+            (r) => r.endpoint.id === "PedidoSaidaController.consultar",
+        )?.params.id,
+    ).toBe("601");
     expect(screen.getByRole("dialog")).toHaveTextContent("DEMO-01");
     expect(
         screen.queryByRole("region", { name: "Reservas atuais do pedido" }),

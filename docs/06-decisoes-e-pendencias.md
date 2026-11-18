@@ -1,5 +1,33 @@
 # Decisões e pendências do WMS Rodogarcia
 
+## PROD-ATUALIZA01 — publicação completa pelo PM2, 03/11/2026
+
+Lucas pediu explicitamente subir todas as atualizações do WMS em produção pelo BAT existente. Isso autoriza o fluxo documentado `pm2-wms.bat atualizar`, incluindo preparo DEV antes de PROD, migrations pendentes e direitos mínimos correspondentes, com guardas atuais, snapshots e preservação dos dados e demais projetos. Não autoriza testes de negócio, fixtures, limpeza, emissão fiscal ou mudança de ambiente fiscal em PROD. O contrato de produção foi atualizado da V13 para as extensões revisadas V14–V16; baseline e V10 própria permanecem imutáveis. Sessão administrativa do mesmo usuário Windows é requisito real do PM2. [Estado, provas e resultado operacional](../STATES.md#prod-atualiza01--publicação-integral-solicitada-03112026).
+
+## MOBILE-GERAL01 — revisão de todas as páginas em celular, 29/10/2026
+
+Lucas ampliou a correção móvel para todo o menu, etapas, consultas, tabelas e ações; destacou os botões de usuários, fechamento e disponibilidade por produto. Padrão até 767 px aplica registros rotulados às tabelas e empilha controles que estavam apertados, preservando o desktop. A correção expressa posterior mantém os atalhos compactos do Início no formato anterior: empilhamento não deve ser aplicado indiscriminadamente. Mudança de apresentação, sem novas regras ou dados. [Resultado e limites](../STATES.md#mobile-geral01--auditoria-de-todas-as-páginas-em-celular-29102026): 896 testes e cobertura visual de todas as páginas/etapas em 320/390 px, formulários e desktop; provas anteriores não renovadas por inferência.
+
+## COLETOR-MOBILE-PAINEL01 — legibilidade e áreas de toque, 29/10/2026
+
+Lucas pediu testar no navegador ao lado e corrigir botões apertados/encostados, tabelas cortadas e o rodapé mobile. Capturas explicitaram estoque por posição e os botões Contagens/ajustes anteriores e Carga inicial excepcional. Apresentação móvel passa a blocos rotulados, ações empilhadas e de largura inteira, espaçamento consistente e rodapé separado. Desktop mantém tabelas. Mudança de apresentação, sem regra nova de estoque ou autorização. [Resultado atual](../STATES.md#coletor-mobile-painel01--revisão-ao-vivo-de-tabelas-botões-e-rodapé-29102026).
+
+## COLETOR-PROFUNDO01 — aprofundamento e revisão móvel, 29/10/2026
+
+Lucas solicitou teste local profundo das duas implementações e, ao ver as capturas, determinou corrigir os textos verticais/cortados no celular. Corrigidos o contexto de posições do inventário por tarefa e dois conflitos de CSS nos diálogos. Testes reais incluem contagem, recontagem, encerramento/cancelamento, leitura/separação de duas reservas, reversão/cancelamento administrativo, permissões, concorrência, resposta perdida e retomada após reiniciar. Mantidos inventário cego e reserva antes de iniciar. Aceite DEV documentado em [estado](../STATES.md#coletor-profundo01--validação-conjunta-das-duas-telas-29102026); leitor físico permanece pendente, sem ampliar para PROD ou emissão fiscal externa.
+
+## SAIDA-COLETOR01 — remover etapa operacional da tela de saída, 29/10/2026
+
+Lucas encaminhou o complemento de Caio e determinou sua aplicação após a avaliação: a leitura/separação passa a ser executada pelo Coletor. Saída/FIFO/reserva conserva pedido integral, sugestão/confirmação de reserva e reversão/cancelamento, renumerada para etapa 3. Acompanhar a situação da tarefa no detalhe e abrir a identidade exata no Coletor; após reservar, o encaminhamento usa o pedido confirmado. Histórico sem tarefa mantém alternativa manual, sem criar tarefas retroativas. Reserva continua obrigatória para iniciar e estoque/fiscal conservam seus serviços e controles.
+
+## COLETOR-TAREFAS01 — três cards e tarefas integradas, 28/10/2026
+
+**Fonte:** demanda de Lucas com capturas da tela e aprovação expressa para implementar, testar e devolver validado. Preservar a operação manual do Coletor e incluir acima dela cards coloridos de Endereçamento/Movimentação, Separação para Saída e Inventário, com quantidade pendente, detalhes e início simples para uso operacional no coletor.
+
+Escolha aprovada: criar a tarefa junto ao pedido rascunho, mas liberar início da separação somente depois da reserva confirmada. Inventário conserva contagem às cegas. Implementação: tarefa por nova unidade de entrada unitizada, novo pedido e novo inventário; zero quando não há pendência, erro de consulta distinto de zero. Fila segue cliente/armazém aplicados e permissões. Responsável persistente, retomada após reinício, devolução pelo próprio operador ou redistribuição pelo supervisor, com controle de versão e chave de operação. Se a reserva deixar de estar confirmada, a execução fica bloqueada e o responsável pode devolver a tarefa à fila. Operações continuam passando pelos serviços de negócio existentes; não há preenchimento retroativo do histórico.
+
+**Resultado:** V16/direitos mínimos aplicados e solução ativa somente no DEV. Conferências locais, SQL real/API e navegador aprovadas; estoque e histórico preservados. [Estado e evidência final](../STATES.md#coletor-tarefas01--tarefas-integradas-no-coletor-28102026). Falta somente exercício com o equipamento físico; tamanhos de coletor, toque e teclado/web foram conferidos. Este resultado não amplia o aceite para produção ou homologação fiscal.
+
 ## NOTAZZ-HOM01 — DALGA e isolamento da homologação, 23/10/2026
 
 **Fonte:** resposta do gestor encaminhada por Lucas, seguida do pedido explícito de registrar o aviso sobre produção. A operação fiscal do WMS será realizada pela DALGA, empresa do grupo voltada a serviços logísticos. O emitente permanece vinculado ao estabelecimento do armazém da entrada.
@@ -13,6 +41,8 @@
 O gestor disponibilizou acessos para a verificação. Seus valores não integram este registro, o código ou as evidências. Não alterar ambientes, emitir ou cancelar documentos de produção. Não utilizar o CNPJ de Osasco para uma operação de outro armazém. A informação recebida não é, por si só, prova técnica de ambiente: a conferência atual da empresa e do ambiente deve preceder qualquer emissão de homologação. Regra permanente de execução em [AGENTS.md](../AGENTS.md).
 
 **Conferência no portal em 23/10/2026:** login autorizado bem-sucedido na conta DALGA; a lista de empresas confirmou Osasco em Homologação e Castro/Agudos em Produção. A chave fornecida de Osasco foi comparada com o cadastro e corresponde, sem divulgar seu conteúdo. **Castro está marcada como empresa padrão**, exigindo seleção explícita da empresa de homologação e da chave correta em qualquer teste. Nenhuma configuração, nota ou documento foi alterado nessa conferência.
+
+**Pendência concreta BE10-NOTAZZ-SQL01, 23/10/2026:** os XMLs de entrada da Bracell para Osasco indicam Av. Juscelino Kubitschek de Oliveira, 320; o portal da mesma filial informa Avenida Presidente Medici, número 515 (há também 939 no texto do logradouro). A IE coincide, mas não resolve a divergência do endereço. Os CFOPs gerais 5905/6905 são de remessa e não aprovam o retorno. Solicitação encaminhada a Lucas para o responsável fiscal confirmar o endereço vigente e fornecer uma nota de retorno Bracell/Osasco, preferencialmente XML. As regras operacionais já respondidas permanecem válidas. Não preencher cadastros reais escolhendo uma dessas fontes, copiar tributos da entrada ou usar exemplos/credenciais de Castro para contornar a pendência. [Levantamento e limites](50-integracao-notazz-implementacao.md#cadastros-encontrados-em-osasco).
 
 ## FE02-PRODUTOS-UX01 — compactar disponibilidade por produto, 23/10/2026
 

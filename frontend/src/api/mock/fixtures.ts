@@ -75,6 +75,11 @@ const baseValues: Values = {
     conteudoHash: "a".repeat(64),
 };
 export function fixture(type: string, depth = 0): unknown {
+    if (type === "TarefaColetorDto.Disponibilidade")
+        return {
+            disponivel: false,
+            mensagem: "Tarefas não disponíveis neste exercício.",
+        };
     if (type === "InventarioDto.Disponibilidade")
         return {
             disponivel: false,

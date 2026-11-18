@@ -18,7 +18,7 @@ import { useRequestScope } from "../../hooks/useRequestScope";
 
 export type InventoryEndpoint = Extract<
     keyof ApiContracts,
-    `InventarioController.${string}`
+    `InventarioController.${string}` | `TarefaColetorController.${string}`
 >;
 export function inventoryRequest(
     id: InventoryEndpoint,
@@ -135,7 +135,10 @@ export function useInventoryWrite(
                     perfil,
                     params,
                     {},
-                    { ...body, operacaoId: crypto.randomUUID() },
+                    {
+                        ...body,
+                        operacaoId: body.operacaoId ?? crypto.randomUUID(),
+                    },
                 );
                 void execute(request, success);
             } catch (e) {

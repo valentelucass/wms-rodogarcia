@@ -245,7 +245,13 @@ public class FiscalNfeTransacaoService {
         }
         Instant agora = agora();
         if (!repository.ocuparCanal(
-                s.emitenteCnpj(), s.ambiente(), dono, agora, agora.plusSeconds(45))) return null;
+                s.emitenteCnpj(), s.ambiente(), dono, agora, agora.plusSeconds(45))) {
+            if (acao.equals("CANCELAR"))
+                throw conflito(
+                        "CANAL_FISCAL_OCUPADO",
+                        "O emissor está atendendo outra solicitação. O cancelamento ainda não foi enviado; aguarde e repita a confirmação.");
+            return null;
+        }
         if (acao.equals("CRIAR"))
             repository.estado(
                     id,

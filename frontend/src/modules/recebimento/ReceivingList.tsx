@@ -1,3 +1,4 @@
+import { ResponsiveTable } from "../../components/layout/ResponsiveTable";
 import { useEffect, useState } from "react";
 import { StatusBadge, statusLabel } from "../../design-system/StatusBadge";
 import { call, type Transport } from "../../api/client";
@@ -256,7 +257,7 @@ export function ReceivingList({
                     aria-label="Pedidos de entrada, tabela com rolagem horizontal"
                     tabIndex={0}
                 >
-                    <table>
+                    <ResponsiveTable>
                         <caption>
                             Pedidos de entrada · {filtered.length} de{" "}
                             {rows.length} registros nesta página
@@ -433,7 +434,7 @@ export function ReceivingList({
                                 );
                             })}
                         </tbody>
-                    </table>
+                    </ResponsiveTable>
                 </div>
             )}
         </section>

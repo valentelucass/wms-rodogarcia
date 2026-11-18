@@ -1,0 +1,214 @@
+@media (max-width: 767px) {
+    main,
+    .journey-workspace,
+    .journey-sidebar,
+    .workspace-panel,
+    .operation,
+    .record-header-controls,
+    .reference-lookup {
+        min-width: 0;
+        max-width: 100%;
+    }
+    .journey-navigation .steps,
+    .steps,
+    .action-tabs,
+    .shortcuts,
+    .actions,
+    .button-row,
+    .page-actions,
+    .record-header-actions,
+    .record-filter-actions,
+    .record-context-actions,
+    .record-toolbar,
+    .receiving-sections,
+    .invoice-heading-actions,
+    .fiscal-actions,
+    .billing-detail-actions,
+    .saved-nfe-actions,
+    .historical-resolution-actions,
+    .contract-service-actions,
+    .service-fact-recovery-toolbar,
+    .nfe-file-actions {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: var(--og-space-3);
+        width: 100%;
+        min-width: 0;
+    }
+    .journey-navigation .steps button,
+    .steps button,
+    .action-tabs > button,
+    .shortcuts > button,
+    .actions > button,
+    .button-row > button,
+    .page-actions > button,
+    .record-header-actions > button,
+    .record-filter-actions > button,
+    .record-context-actions > button,
+    .receiving-sections > button,
+    .invoice-heading-actions > button,
+    .fiscal-actions > button,
+    .billing-detail-actions > button,
+    .saved-nfe-actions > button,
+    .historical-resolution-actions > button,
+    .contract-service-actions > button,
+    .service-fact-recovery-toolbar > button,
+    .nfe-file-actions > button {
+        width: 100%;
+        min-width: 0;
+        min-height: 48px;
+        max-width: 100%;
+        margin-inline: 0;
+        flex: none;
+    }
+    .record-workspace[data-record-source] .record-filters > fieldset,
+    .operation .operation-fields,
+    .operation .structured-fields,
+    .structured-fields {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        min-width: 0;
+        gap: var(--og-space-4);
+    }
+    .record-filter-actions {
+        padding-top: 0;
+    }
+    .record-toolbar > label,
+    .record-toolbar > button {
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+    }
+    .operation-fields
+        :is(
+            input:not([type="checkbox"]):not([type="radio"]),
+            select,
+            textarea
+        ) {
+        min-width: 0;
+        max-width: 100%;
+    }
+    .table-scroll:has(> .mobile-records) {
+        overflow: visible;
+        border: 0;
+    }
+    .mobile-records.mobile-records {
+        display: block;
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+    }
+    .mobile-records > colgroup {
+        display: none;
+    }
+    .mobile-records > thead {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+    }
+    .mobile-records > caption {
+        display: block;
+        margin-bottom: var(--og-space-4);
+        border: 1px solid var(--og-border);
+        border-radius: var(--og-radius-control);
+    }
+    .mobile-records > tbody,
+    .mobile-records > tfoot {
+        display: grid;
+        gap: var(--og-space-4);
+    }
+    .mobile-records > tbody > tr,
+    .mobile-records > tfoot > tr {
+        display: block;
+        min-width: 0;
+        padding: var(--og-space-4);
+        border: 1px solid var(--og-border);
+        border-radius: var(--og-radius-control);
+        background: var(--og-surface);
+    }
+    .mobile-records.mobile-records :is(td, tbody th, tfoot th) {
+        display: block;
+        width: 100%;
+        height: auto;
+        min-width: 0;
+        padding: var(--og-space-3) 0;
+        overflow-wrap: anywhere;
+        white-space: normal;
+    }
+    .mobile-records :is(td, tbody th, tfoot th)[data-label]::before {
+        content: attr(data-label);
+        display: block;
+        margin-bottom: var(--og-space-2);
+        color: var(--og-text-muted);
+        font-size: var(--og-type-caption);
+        font-weight: var(--og-font-medium);
+    }
+    .mobile-records td:is([data-label="Ações"], [data-label="Ação"])::before {
+        display: none;
+    }
+    .mobile-records .record-row-actions {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: var(--og-space-3);
+    }
+    .mobile-records .row-actions,
+    .mobile-records .receiving-row-actions {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: var(--og-space-3);
+        min-width: 0;
+        width: 100%;
+    }
+    .mobile-records :is(.row-actions, .receiving-row-actions) > button {
+        width: 100%;
+        min-width: 0;
+        min-height: 48px;
+        white-space: normal;
+    }
+    .pagination-controls {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: var(--og-space-3);
+    }
+    .pagination-controls > span {
+        grid-column: 1 / -1;
+        grid-row: 1;
+        text-align: center;
+    }
+    .pagination-controls > button {
+        width: 100%;
+        min-width: 0;
+        min-height: 48px;
+        justify-content: center;
+    }
+    .mobile-records td:is([data-label="Ações"], [data-label="Ação"]) button {
+        width: 100%;
+        min-height: 48px;
+        max-width: 100%;
+        padding: var(--og-space-3);
+        white-space: normal;
+    }
+    .mobile-records .receiving-order-identity .record-link {
+        width: 100%;
+        max-width: 100%;
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+    .mobile-records .record-row-actions > button {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: var(--og-space-2);
+        flex: none;
+    }
+    .mobile-records .record-row-actions .sr-only {
+        position: static;
+        width: auto;
+        height: auto;
+        overflow: visible;
+        clip-path: none;
+        white-space: normal;
+    }
+}

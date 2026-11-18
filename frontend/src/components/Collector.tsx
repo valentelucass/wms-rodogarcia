@@ -4,15 +4,18 @@ import { isObject, type Values, type Perfil } from "../contracts/runtime";
 import type { Receipt, Transport } from "../api/client";
 import { Result } from "./Result";
 import { Operation } from "./Operation";
-import { useLayoutEffect } from "react";
+import { useEffect, useLayoutEffect } from "react";
 import { PageHeader } from "./layout/PageHeader";
 import { Icon } from "../design-system/Icon";
+import { CollectorTasks } from "../modules/coletor/CollectorTasks";
 export function Collector({
     transport,
     context,
     perfil,
     onReceipt,
     taskContexts = {},
+    taskScope = context,
+    startAction = "",
 }: {
     transport: Transport;
     context: Values;
@@ -24,6 +27,8 @@ export function Collector({
         request: Pick<Request, "endpoint" | "params" | "query">,
     ) => void;
     taskContexts?: Record<string, Values>;
+    taskScope?: Values;
+    startAction?: string;
 }) {
     const {
         code,
@@ -46,6 +51,10 @@ export function Collector({
         load,
         match,
     } = useCollectorReading(transport, context, perfil);
+    useEffect(() => {
+        if (startAction === "ExpedicaoController.ler") setMode("ler");
+        if (startAction === "ExpedicaoController.separar") setMode("separar");
+    }, [startAction, setMode]);
     useLayoutEffect(() => {
         if (unit && captured.current === code && mode === "posicionar")
             posRef.current?.focus();
@@ -64,6 +73,22 @@ export function Collector({
                 title="Coletor"
                 icon="coletor"
                 description="Leitura por teclado/scanner web. Confirmações aguardam resposta; equipamento real ainda não validado. Interromper espera não comprova desfazer uma operação."
+            />
+            <CollectorTasks
+                startAction={startAction}
+                onManualSeparation={() => setMode("ler")}
+                key={JSON.stringify([
+                    taskScope.clienteId,
+                    taskScope.armazemId,
+                    perfil,
+                ])}
+                transport={transport}
+                context={taskScope}
+                perfil={perfil}
+                onReceipt={(r, _type, id, request) => {
+                    // A tarefa mantém sua seleção própria; atualizar referências não deve trocar a operação manual.
+                    onReceipt?.(r, "unknown", id, request);
+                }}
             />
             <div className="collector-workspace">
                 <section

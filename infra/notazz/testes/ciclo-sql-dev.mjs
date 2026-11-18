@@ -2,12 +2,13 @@ import {readFile,writeFile,rename,access} from 'node:fs/promises';
 import {randomUUID} from 'node:crypto';
 import path from 'node:path';
 import assert from 'node:assert/strict';
-const area=process.argv[2],base='http://127.0.0.1:25582',origin='http://localhost:25581';
+const area=process.argv[2],base='http://127.0.0.1:25582',origin=base;
 let privateText='';for await(const c of process.stdin)privateText+=c;
 const secret=JSON.parse(privateText);privateText='';
 const resultFile=path.join(area,'ciclo.json');
-let report;try{report=JSON.parse(await readFile(resultFile,'utf8'));}catch{report={id:'BE10-NOTAZZ-SQL01',prefix:'NFH23-'+randomUUID().slice(0,8),state:'RUNNING',checks:[],fixtures:{},commands:{},attempts:[],http:[],externalCalls:0,sql:'WMS_DEV/WMSDEV'};}
-report.attempts.push({started:new Date().toISOString(),previous:report.state});report.state='RUNNING';
+let report;try{report=JSON.parse(await readFile(resultFile,'utf8'));}catch{report={id:'BE10-NOTAZZ-SQL01',prefix:'NFH23-'+randomUUID().slice(0,8),entryNumberBase:100000000+Number.parseInt(randomUUID().slice(0,8),16)%800000000,state:'RUNNING',checks:[],fixtures:{},commands:{},attempts:[],http:[],externalCalls:0,sql:'WMS_DEV/WMSDEV'};}
+if(report.attempts.length)await writeFile(path.join(area,'ciclo-anterior-'+randomUUID()+'.json'),JSON.stringify(report,null,2));
+report.attempts.push({started:new Date().toISOString(),previous:report.state,failure:report.failure,checks:report.checks.length,sourceHash:secret.sourceHash,jarSha256:secret.jarSha256,scriptSha256:secret.scriptSha256});report.state='RUNNING';delete report.failure;delete report.lastError;
 let token='',csrf='',csrfHeader='';const cookies=new Map();
 const save=()=>writeFile(resultFile,JSON.stringify(report,null,2));
 const reason='Teste interno ficticio de persistencia fiscal '+report.prefix;
@@ -26,7 +27,7 @@ async function req(method,url,data,expected=200,auth=true){
 }
 async function command(name,method,url,data,expected=200){
  const prior=report.commands[name];
- if(prior?.done)return prior.response;
+ if(prior?.done){assert.equal(prior.method,method,'METODO_DO_COMANDO_PRESERVADO');assert.equal(prior.url,url,'ROTA_DO_COMANDO_PRESERVADA_'+name);return prior.response;}
  if(prior?.uncertain)throw new Error('COMANDO_INCERTO_'+name);
  const body=prior?.body??data;
  report.commands[name]={method,url,body,uncertain:true};await save();
@@ -50,7 +51,8 @@ async function createCase(name,index,client,warehouse){
  const storage=await address(name+'Arm','ARMAZENAGEM',index*3,warehouse),separation=await address(name+'Sep','SEPARACAO',index*3+1,warehouse),returnAddress=await address(name+'Ret','ARMAZENAGEM',index*3+2,warehouse);
  for(const [n,cfop] of [['RETORNO_MERCADORIA','5906'],['RETORNO_SIMBOLICO','5907'],['REGULARIZACAO_ENTRADA','1905']])await post(name+'Ref'+n,`/api/v1/produtos/${product.id}/referencias-fiscais`,{operacaoId:uuid(),armazemId:warehouse.id,operacao:n,versao:0,ncm:'39269090',cfop,aliquotaIcms:0,aliquotaIpi:0,fonte:'FICTICIO TRANSPORTE CONTROLADO, SEM VALIDACAO TRIBUTARIA',conferidaPor:'Runner interno ficticio',conferidaEm:new Date(Date.now()-1000).toISOString(),motivo:reason,tributacao:{origem:'0',icmsCst:'41',ipiCst:'99',pisCst:'08',cofinsCst:'08',aliquotaPis:0,aliquotaCofins:0}});
  const entry=await post(name+'Entrada','/api/v1/pedidos-entrada',{clienteId:client.id,armazemId:warehouse.id,referencia:report.prefix+'-E'+index},201);
- let e=await post(name+'Nota',`/api/v1/pedidos-entrada/${entry.id}/notas`,{versao:entry.versao,serie:999,numero:907000+index,emissao:'2026-10-23',chaveAcesso:key(cpfOwner,907000+index),itens:[{numeroItem:1,produtoId:product.id,quantidadePrevista:10,valorMercadoria:100}]});
+ const originNumber=(report.entryNumberBase??907000)+index;
+ let e=await post(name+'Nota',`/api/v1/pedidos-entrada/${entry.id}/notas`,{versao:entry.versao,serie:999,numero:originNumber,emissao:'2026-10-23',chaveAcesso:key(cpfOwner,originNumber),itens:[{numeroItem:1,produtoId:product.id,quantidadePrevista:10,valorMercadoria:100}]});
  e=await post(name+'Conferencia',`/api/v1/pedidos-entrada/${entry.id}/iniciar-conferencia`,{versao:e.versao,motivo:reason});
  const ed=await get(`/api/v1/pedidos-entrada/${entry.id}`);
  e=await post(name+'Chegada',`/api/v1/pedidos-entrada/${entry.id}/chegadas`,{operacaoId:uuid(),versao:e.versao,chegouEm:new Date(Date.now()-1000).toISOString(),observacao:reason,itens:[{itemNotaId:ed.notas[0].itens[0].id,quantidadeBoa:10,quantidadeAvariada:0}]});
@@ -61,20 +63,20 @@ async function createCase(name,index,client,warehouse){
  await post(name+'Posicionar',`/api/v1/unidades-logisticas/${unit.codigo}/movimentos`,{operacaoId:uuid(),versaoUnidade:unit.versao,medidas:{pesoKg:1,alturaMetros:1,larguraMetros:1,profundidadeMetros:1,empilhamento:1,posicoesNecessarias:1},destinos:[dest(storage)],motivo:reason});
  let order=(await post(name+'Saida','/api/v1/pedidos-saida',{operacaoId:uuid(),clienteId:client.id,armazemId:warehouse.id,referencia:report.prefix+'-'+name,itens:[{produtoId:product.id,quantidade:4}],motivo:reason},201)).pedido;
  order=(await post(name+'Reservar',`/api/v1/pedidos-saida/${order.id}/reserva`,{operacaoId:uuid(),versao:order.versao,motivo:reason})).pedido;
- const u=await get(`/api/v1/unidades-logisticas/${unit.codigo}/estoque`),reservation=order.reservas[0];
- let detail=(await post(name+'Ler',`/api/v1/pedidos-saida/${order.id}/leituras`,{operacaoId:uuid(),versao:order.versao,reservaId:reservation.id,codigoLido:unit.codigo,revisaoConteudo:u.unidade.revisaoConteudo,motivo:reason})).expedicao;
+ const label=await get(`/api/v1/unidades-logisticas/${unit.codigo}/etiqueta`),reservation=order.reservas[0];
+ let detail=(await post(name+'Ler',`/api/v1/pedidos-saida/${order.id}/leituras`,{operacaoId:uuid(),versao:order.versao,reservaId:reservation.id,codigoLido:unit.codigo,revisaoConteudo:label.versaoConteudo,motivo:reason})).expedicao;
  detail=(await post(name+'Separar',`/api/v1/pedidos-saida/${order.id}/separacoes`,{operacaoId:uuid(),versao:detail.pedido.versao,destinacao:{reservaId:reservation.id,destinos:[dest(separation)]},motivo:reason})).expedicao;
  check(detail.pedido.situacao==='SEPARADO','PEDIDO_'+name+'_SEPARADO_SQL');
  const f={product,pack,storage,separation,returnAddress,entry,unit,order:detail.pedido,reservation};report.fixtures[name]=f;await save();return f;
 }
 async function status(f){return get(`/api/v1/pedidos-saida/${f.order.id}/fiscal`);}
-async function issue(f,nature,source,name){
+async function issue(f,nature,source,name,value=40){
  const url=`/api/v1/pedidos-saida/${f.order.id}/fiscal`,d=await get(`/api/v1/pedidos-saida/${f.order.id}/expedicao`);
  if(!report.commands[name+'Confirmar']?.done){
   const p=await req('POST',url+'/previa',{versao:d.pedido.versao,natureza:nature,documentoOrigemId:source??null});
   report.previews??={};report.previews[name]=p;await save();
   check(p.podeEmitir,'PREVIA_'+name+'_SEM_PENDENCIAS');
-  check(Number(p.documentos[0].valorTotal)===40,'VALOR_'+name+'_PROPORCIONAL_40');
+  check(Number(p.documentos[0].valorTotal)===value,'VALOR_'+name+'_PROPORCIONAL_'+value);
   const stock=await get(`/api/v1/unidades-logisticas/${f.unit.codigo}/estoque`);
   const cmd={operacaoId:uuid(),versao:p.versao,hash:p.hash,natureza:nature,documentoOrigemId:source??null,motivo:reason};
   await post(name+'Confirmar',url+'/emissoes',cmd);
@@ -109,7 +111,9 @@ try{
  const csrfData=await req('GET','/api/auth/csrf',undefined,200,false);csrf=csrfData.token;csrfHeader=csrfData.header;
  const login=await req('POST','/api/auth/entrar',{email:secret.email,senha:secret.senha},200,false);secret.senha='';token=login.accessToken;
  check(login.usuario.perfil==='GESTOR'&&!login.usuario.trocarSenha,'GESTOR_FICTICIO_AUTENTICADO');
- const client=await post('Cliente','/api/v1/clientes',{codigo:report.prefix,nome:'Cliente ficticio '+report.prefix,documentoFiscal:cpfOwner},201);
+ let baseFixture;try{baseFixture=JSON.parse(await readFile(path.join(area,'fixture-base.json'),'utf8'));}catch{}
+ const client=baseFixture?.cliente?.id?await get(`/api/v1/clientes/${baseFixture.cliente.id}`):await post('Cliente','/api/v1/clientes',{codigo:report.prefix,nome:'Cliente ficticio '+report.prefix,documentoFiscal:cpfOwner},201);
+ check(client.documentoFiscal===cpfOwner&&client.codigo.startsWith('NFH23-'),'CLIENTE_FICTICIO_COMPROVADO');
  const warehouse=await post('Armazem','/api/v1/armazens',{codigo:report.prefix,nome:'Armazem ficticio '+report.prefix,documentoFiscal:cpfIssuer,cidade:'Osasco',uf:'SP'},201);
  for(const [name,type,obj] of [['CFCliente','clientes',client],['CFArmazem','armazens',warehouse]]){
   const c=await get(`/api/v1/${type}/${obj.id}/complemento-fiscal`);
@@ -128,12 +132,20 @@ try{
  if(!report.cancelled){
   const s=await issue(cancel,'RETORNO_MERCADORIA',null,'CANCEL');
   await req('POST',`/api/v1/pedidos-saida/${cancel.order.id}/documentos/${s.documentoId}/cancelamento`,{operacaoId:uuid(),versao:(await get(`/api/v1/pedidos-saida/${cancel.order.id}/expedicao`)).pedido.versao,motivo:reason},409);
-  const commandData={operacaoId:uuid(),motivo:reason+' desistência antes da retirada'};
-  await post('CANCELCancelamento',`/api/v1/pedidos-saida/${cancel.order.id}/fiscal/${s.id}/cancelamento`,commandData);
+  const cancelUrl=`/api/v1/pedidos-saida/${cancel.order.id}/fiscal/${s.id}/cancelamento`;
+  const commandData=report.cancelCommand??={operacaoId:uuid(),motivo:reason+' desistência antes da retirada'};await save();
+  if(!report.checks.includes('CANCELAMENTO_OCUPADO_RECUSADO_EXPLICITAMENTE')){
+   await new Promise(r=>setTimeout(r,850));
+   await req('POST',`/api/v1/pedidos-saida/${cancel.order.id}/fiscal/${s.id}/processamento`);
+   const busy=await req('POST',cancelUrl,commandData,409);
+   check(busy.codigo==='CANAL_FISCAL_OCUPADO','CANCELAMENTO_OCUPADO_RECUSADO_EXPLICITAMENTE');
+  }
+  await new Promise(r=>setTimeout(r,850));
+  await post('CANCELCancelamentoConferido',cancelUrl,commandData);
   check((await status(cancel)).solicitacoes.find(x=>x.id===s.id).situacao==='CANCELADA','CANCELAMENTO_CONFIRMADO_POR_EVENTO_XML');
   const detail=await get(`/api/v1/pedidos-saida/${cancel.order.id}/expedicao`);
   check(detail.pedido.situacao==='SEPARADO','CANCELAMENTO_FISCAL_PRESERVA_FATO_FISICO');
-  const body={operacaoId:uuid(),versao:detail.pedido.versao,unidades:[{reservaId:cancel.reservation.id,destinos:[dest(cancel.returnAddress)]}],motivo:reason};
+  const body=report.commands.CANCELRetorno?.body??{operacaoId:uuid(),versao:detail.pedido.versao,unidades:[{reservaId:cancel.reservation.id,destinos:[dest(cancel.returnAddress)]}],motivo:reason};
   const restored=await post('CANCELRetorno',`/api/v1/pedidos-saida/${cancel.order.id}/retorno-interno`,body);
   check(restored.expedicao.pedido.situacao==='CANCELADO','CANCELAMENTO_E_REENDERECAMENTO_CONFIRMADOS');
   check(Number((await get(`/api/v1/unidades-logisticas/${cancel.unit.codigo}/estoque`)).unidade.quantidade)===10,'CANCELAMENTO_ESTOQUE_ORIGINAL_10');
@@ -145,12 +157,19 @@ try{
   await req('POST',`/api/v1/pedidos-saida/${aged.order.id}/fiscal/${s.id}/cancelamento`,{operacaoId:uuid(),motivo:reason+' após prazo de cancelamento'},409);
   const incoming=await issue(aged,'REGULARIZACAO_ENTRADA',s.documentoId,'AGEDENTRY');
   const detail=await get(`/api/v1/pedidos-saida/${aged.order.id}/expedicao`);
-  const body={operacaoId:uuid(),versao:detail.pedido.versao,unidades:[{reservaId:aged.reservation.id,destinos:[dest(aged.returnAddress)]}],regularizacoesFiscais:[incoming.id],motivo:reason};
-  await post('AGEDRetorno',`/api/v1/pedidos-saida/${aged.order.id}/retorno-interno`,body);
+  const body=report.commands.AGEDRetorno?.body??{operacaoId:uuid(),versao:detail.pedido.versao,unidades:[{reservaId:aged.reservation.id,destinos:[dest(aged.returnAddress)]}],regularizacoesFiscais:[incoming.id],motivo:reason};
+  const regularized=await post('AGEDRetorno',`/api/v1/pedidos-saida/${aged.order.id}/retorno-interno`,body);
+  check(!!regularized.pedidoEntradaId,'SEM_TRANSITO_CRIA_NOVO_PROCESSO_DE_ENTRADA');
   await req('POST',`/api/v1/pedidos-saida/${aged.order.id}/retorno-interno`,body);
   const after=await get(`/api/v1/pedidos-saida/${aged.order.id}/expedicao`);
   check(after.documentos.find(d=>String(d.id)===String(s.documentoId)).situacao==='AUTORIZADO','APOS_24H_SAIDA_FISCAL_ORIGINAL_PRESERVADA');
   check(Number((await get(`/api/v1/unidades-logisticas/${aged.unit.codigo}/estoque`)).unidade.quantidade)===10,'REGULARIZACAO_SEM_TRANSITO_NAO_DUPLICA_ESTOQUE');
+  check((await get(`/api/v1/unidades-logisticas/${aged.unit.codigo}/estoque`)).unidade.dataFifo===aged.unit.dataFifo,'REGULARIZACAO_PRESERVA_FIFO_ORIGINAL');
+  const received=await get(`/api/v1/pedidos-entrada/${regularized.pedidoEntradaId}`);
+  check(Number(received.notas[0].itens[0].valorMercadoria)===40,'SEM_TRANSITO_CONSERVA_VALOR_DA_PARCELA');
+  const receivedEntries=await get(`/api/v1/pedidos-entrada/${regularized.pedidoEntradaId}/entradas`);
+  const denied=await req('POST',`/api/v1/pedidos-entrada/${regularized.pedidoEntradaId}/entradas/${receivedEntries.itens[0].id}/unitizacao`,{operacaoId:uuid(),versaoPedido:received.pedido.versao,motivo:reason,unidades:[{embalagemId:aged.pack.id,tipo:'VOLUME',condicao:'BOA',quantidade:4}]},409);
+  check(denied.codigo==='ENTRADA_JA_UNITIZADA','SEM_TRANSITO_IMPEDE_UNITIZAR_O_MESMO_ESTOQUE_NOVAMENTE');
   report.aged=true;await save();
  }
  if(!report.returned){
@@ -160,18 +179,19 @@ try{
   check(Number((await get(`/api/v1/unidades-logisticas/${returned.unit.codigo}/estoque`)).unidade.quantidade)===6,'RETIRADA_PARCIAL_DEZ_MENOS_QUATRO_IGUAL_SEIS');
   await req('POST',`/api/v1/pedidos-saida/${returned.order.id}/fiscal/${s.id}/cancelamento`,{operacaoId:uuid(),motivo:reason+' circulação impede cancelamento'},409);
   const incoming=await issue(returned,'REGULARIZACAO_ENTRADA',s.documentoId,'RETURNENTRY');
-  const op=await get(`/api/v1/pedidos-saida/${returned.order.id}/fiscal/${incoming.id}/retorno`);
+  const priorReturn=report.commands.RETURNDevolver?.body;
+  const op=priorReturn?{...priorReturn,houveRetirada:true}:await get(`/api/v1/pedidos-saida/${returned.order.id}/fiscal/${incoming.id}/retorno`);
   check(op.houveRetirada&&op.itens.length===1,'NOVA_ENTRADA_VINCULADA_AO_RETORNO_REAL');
-  const body={operacaoId:uuid(),versao:op.versao,referencia:report.prefix+'-DEV',nota:op.nota,chegadaReal:new Date(Date.now()-1000).toISOString(),itens:op.itens,solicitacaoEntradaId:incoming.id,motivo:reason};
+  const body=priorReturn??{operacaoId:uuid(),versao:op.versao,referencia:report.prefix+'-DEV',nota:op.nota,chegadaReal:new Date(Date.now()-1000).toISOString(),itens:op.itens,solicitacaoEntradaId:incoming.id,motivo:reason};
   const response=await post('RETURNDevolver',`/api/v1/pedidos-saida/${returned.order.id}/devolucoes`,body);
   const replay=await req('POST',`/api/v1/pedidos-saida/${returned.order.id}/devolucoes`,body);
   check(String(replay.pedidoEntradaId)===String(response.pedidoEntradaId),'DEVOLUCAO_IDEMPOTENTE_MESMA_ENTRADA');
   const e=await get(`/api/v1/pedidos-entrada/${response.pedidoEntradaId}`);
   check(Number(e.notas[0].itens[0].valorMercadoria)===40,'RETORNO_CONSERVA_VALOR_DA_PARCELA_ORIGINAL');
   const entries=await get(`/api/v1/pedidos-entrada/${response.pedidoEntradaId}/entradas`);
-  await post('RETURNUnitizar',`/api/v1/pedidos-entrada/${response.pedidoEntradaId}/entradas/${entries.itens[0].id}/unitizacao`,{operacaoId:uuid(),versaoPedido:e.pedido.versao,motivo:reason,unidades:[{embalagemId:returned.pack.id,tipo:'VOLUME',condicao:'BOA',quantidade:4}]});
+  await post('RETURNRecebidaUnitizar',`/api/v1/pedidos-entrada/${response.pedidoEntradaId}/entradas/${entries.itens[0].id}/unitizacao`,{operacaoId:uuid(),versaoPedido:e.pedido.versao,motivo:reason,unidades:[{embalagemId:returned.pack.id,tipo:'VOLUME',condicao:'BOA',quantidade:4}]});
   const units=await get(`/api/v1/pedidos-entrada/${response.pedidoEntradaId}/unidades`),unit=units.itens[0];
-  await post('RETURNPosicionar',`/api/v1/unidades-logisticas/${unit.codigo}/movimentos`,{operacaoId:uuid(),versaoUnidade:unit.versao,medidas:{pesoKg:1,alturaMetros:1,larguraMetros:1,profundidadeMetros:1,empilhamento:1,posicoesNecessarias:1},destinos:[dest(returned.storage)],motivo:reason});
+  await post('RETURNRecebidaPosicionar',`/api/v1/unidades-logisticas/${unit.codigo}/movimentos`,{operacaoId:uuid(),versaoUnidade:unit.versao,medidas:{pesoKg:1,alturaMetros:1,larguraMetros:1,profundidadeMetros:1,empilhamento:1,posicoesNecessarias:1},destinos:[dest(returned.storage)],motivo:reason});
   detail=await get(`/api/v1/pedidos-saida/${returned.order.id}/expedicao`);
   check(detail.pedido.situacao==='RETIRADO'&&detail.documentos.find(d=>String(d.id)===String(s.documentoId)).situacao==='AUTORIZADO','RETORNO_PRESERVA_SAIDA_E_NOTA_ORIGINAIS');
   report.returned={pedidoEntradaId:response.pedidoEntradaId,unit};await save();
@@ -181,6 +201,27 @@ try{
   await issue(symbolic,'RETORNO_SIMBOLICO',null,'SYMBOLIC');
   check(JSON.stringify(await get(`/api/v1/unidades-logisticas/${symbolic.unit.codigo}/estoque`))===JSON.stringify(before),'RETORNO_SIMBOLICO_PODE_SER_SOMENTE_FISCAL');
   report.symbolic=true;await save();
+ }
+ if(!report.reissueAfterRegularization){
+  // Mercadoria regularizada sem transito deve continuar utilizavel em uma nova saida.
+  let next=(await post('AGEDNovaSaida','/api/v1/pedidos-saida',{operacaoId:uuid(),clienteId:client.id,armazemId:warehouse.id,referencia:report.prefix+'-AGED-NOVA',itens:[{produtoId:aged.product.id,quantidade:10}],motivo:reason},201)).pedido;
+  next=(await post('AGEDNovaReserva',`/api/v1/pedidos-saida/${next.id}/reserva`,{operacaoId:uuid(),versao:next.versao,motivo:reason})).pedido;
+  const label=await get(`/api/v1/unidades-logisticas/${aged.unit.codigo}/etiqueta`),reservation=next.reservas[0];
+  let detail=(await post('AGEDNovaLeitura',`/api/v1/pedidos-saida/${next.id}/leituras`,{operacaoId:uuid(),versao:next.versao,reservaId:reservation.id,codigoLido:aged.unit.codigo,revisaoConteudo:label.versaoConteudo,motivo:reason})).expedicao;
+  detail=(await post('AGEDNovaSeparacao',`/api/v1/pedidos-saida/${next.id}/separacoes`,{operacaoId:uuid(),versao:detail.pedido.versao,destinacao:{reservaId:reservation.id,destinos:[dest(aged.separation)]},motivo:reason})).expedicao;
+  const p=await req('POST',`/api/v1/pedidos-saida/${next.id}/fiscal/previa`,{versao:detail.pedido.versao,natureza:'RETORNO_MERCADORIA',documentoOrigemId:null});
+  report.previews.AGEDNOVA=p;await save();
+  check(p.podeEmitir,'MERCADORIA_REGULARIZADA_PERMITE_NOVA_SAIDA_INTEGRAL');
+  check(Number(p.documentos[0].valorTotal)===100,'NOVA_SAIDA_CONSERVA_VALOR_CEM');
+  check(p.documentos[0].chavesReferenciadas.includes(report.issued.AGEDENTRY.chaveAcesso),'NOVA_SAIDA_REFERENCIA_ENTRADA_DE_REGULARIZACAO');
+  check(p.documentos[0].itens.length===2,'NOVA_SAIDA_SEPARA_ORIGEM_ANTIGA_E_NOVA_ENTRADA');
+  const finalFiscal=await issue({...aged,order:detail.pedido},'RETORNO_MERCADORIA',null,'AGEDNOVA',100);
+  detail=await get(`/api/v1/pedidos-saida/${next.id}/expedicao`);
+  await post('AGEDNovaRetirada',`/api/v1/pedidos-saida/${next.id}/retirada`,{operacaoId:uuid(),versao:detail.pedido.versao,xmls:[finalFiscal.xml],remanescentes:[],motivo:reason});
+  const finalStock=await get(`/api/v1/unidades-logisticas/${aged.unit.codigo}/estoque`);
+  check(Number(finalStock.unidade.quantidade)===0&&!finalStock.unidade.ativa,'NOVA_SAIDA_INTEGRAL_BAIXA_EXATAMENTE_DEZ');
+  check((await get(`/api/v1/pedidos-saida/${next.id}/expedicao`)).pedido.situacao==='RETIRADO','NOVA_SAIDA_REGULARIZADA_CONCLUIDA');
+  report.reissueAfterRegularization={pedidoId:next.id};await save();
  }
  const rows=await get(`/api/v1/pedidos-saida/fiscal?clienteId=${client.id}&armazemId=${warehouse.id}&situacao=FINALIZADO&pagina=0&tamanho=25`);
  check(rows.itens.some(x=>String(x.id)===String(returned.order.id)&&x.numerosNfe.length>0),'LISTAGEM_FINALIZADA_COM_NUMERO_NFE');

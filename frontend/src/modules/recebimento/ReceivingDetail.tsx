@@ -1,3 +1,4 @@
+import { ResponsiveTable } from "../../components/layout/ResponsiveTable";
 import { SavedNfeDocument } from "./NfeDocument";
 import type { Transport } from "../../api/client";
 import { isObject, type Values } from "../../contracts/runtime";
@@ -160,7 +161,7 @@ export function ReceivingDetail({
                                     aria-label={`Itens da nota ${String(note.numero)}`}
                                     tabIndex={0}
                                 >
-                                    <table>
+                                    <ResponsiveTable>
                                         <caption>
                                             Itens da nota {String(note.numero)}
                                         </caption>
@@ -272,7 +273,7 @@ export function ReceivingDetail({
                                                     </tr>
                                                 ))}
                                         </tbody>
-                                    </table>
+                                    </ResponsiveTable>
                                 </div>
                                 {Boolean(note.xmlVinculado) && (
                                     <SavedNfeDocument

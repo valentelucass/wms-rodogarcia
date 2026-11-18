@@ -6,6 +6,7 @@ $ErrorActionPreference='Stop'
 $root=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 . (Join-Path $root 'infra/prod/guarda-wmsprod.ps1')
 . (Join-Path $PSScriptRoot 'contrato-edicao.ps1')
+. (Join-Path $root 'infra/prod/contrato-atualizacao.ps1')
 $out=Join-Path $root ('orchestracao/.runtime/cadastros-etiqueta-20261014/ativacao-prod-'+[Guid]::NewGuid().ToString('N'))
 $null=New-Item -ItemType Directory -Path $out
 $report=[ordered]@{demanda='CAD-EDIT01';modo=$Modo;inicioUtc=[DateTime]::UtcNow.ToString('o');estado='PREPARO';fase='FONTES';banco='WMS_PROD';loginAplicacao='WMSPROD';grantsAplicados=$false;colunas=23;adminAberturas=0;prod=$true;ddl=$false;dml=$false;recapturaTLS=$false}
@@ -41,29 +42,15 @@ try {
     $baselinePath=Join-Path $root 'infra/prod/contrato-aplicacao.json'
     $baseline=Get-Content -LiteralPath $baselinePath -Raw -Encoding UTF8|ConvertFrom-Json
     $migrations=@(Get-WmsProdMigrations)
-    Assert-Cad ($migrations.Count -in @(11,12,13)) 'MIGRATIONS_INESPERADAS'
     Assert-Cad ($baseline.schema -eq 1 -and $baseline.database -ceq 'WMS_PROD' -and $baseline.login -ceq 'WMSPROD') 'BASELINE_DIVERGENTE'
-    $before=$baseline
-    if ($migrations.Count -ge 12) {
-        . (Join-Path $root 'infra/tipos-unidade/contrato-banco.ps1')
-        $before=Add-WmsUnitTypesExpectedContract $before ($migrations | Where-Object {$_.version -ceq '12'})
-    }
-    if ($migrations.Count -eq 13) {
-        . (Join-Path $root 'infra/tabelas/contrato-banco.ps1')
-        $before=Add-WmsBillingTableExpectedContract $before ($migrations | Where-Object {$_.version -ceq '13'})
-    }
-    $legacy=Add-WmsCadastroEditExpectedContract $before -SomenteBase
-    $expected=Add-WmsCadastroEditExpectedContract $before
+    $expected=Get-WmsProductionReleaseContract $baseline $migrations
     Assert-Cad (Same-CadRows @($expected.historico|Where-Object {$_.type -ceq 'SQL'}) $migrations @('version','script','checksum')) 'MIGRATIONS_DIVERGENTES'
-    $delta=Get-WmsCadastroEditableColumns
-    $sql=@($delta.Keys|Sort-Object|ForEach-Object {
-        $table=$_;Assert-Cad ($table -cmatch '^[a-z_]+$') 'TABELA_INVALIDA'
-        $columns=@($delta[$table]|ForEach-Object {Assert-Cad ($_ -cmatch '^[a-z_]+$') 'COLUNA_INVALIDA';'['+$_+']'})
-        'GRANT UPDATE ('+($columns -join ',')+') ON OBJECT::[wms].['+$table+'] TO [WMSPROD];'
-    }) -join "`n"
-    Assert-Cad (@($expected.rights.explicit).Count-@($before.rights.explicit).Count -eq 23) 'DELTA_DIVERGENTE'
+    $sql=@(Get-WmsProductionMissingGrants $baseline.rights.explicit $expected.rights.explicit $baseline.rights.explicit) -join "`n"
     $sourceHash=(Get-FileHash -LiteralPath (Join-Path $PSScriptRoot 'contrato-edicao.ps1')).Hash
+    $releaseContractPath=Join-Path $root 'infra/prod/contrato-atualizacao.ps1'
+    $releaseContractHash=(Get-FileHash -LiteralPath $releaseContractPath).Hash
     $report.contratoSha256=$sourceHash
+    $report.atualizacaoSha256=$releaseContractHash
     [IO.File]::WriteAllText((Join-Path $out 'permissoes.sql'),$sql,[Text.UTF8Encoding]::new($false))
     if($Modo -eq 'Plan'){$report.estado='PLANO_LOCAL_VALIDADO';return}
 
@@ -103,10 +90,11 @@ try {
     $rights=@(Select-Cad $rightsSql)
     Assert-Cad (Same-CadRows $rights $pre.direitos.explicit $rightsFields) 'DIREITOS_MUDARAM'
     $alreadyGranted=Same-CadRows $rights $expected.rights.explicit $rightsFields
-    Assert-Cad ($alreadyGranted -or (Same-CadRows $rights $before.rights.explicit $rightsFields) -or (Same-CadRows $rights $legacy.rights.explicit $rightsFields)) 'DIREITOS_INESPERADOS'
+    $sql=@(Get-WmsProductionMissingGrants $rights $expected.rights.explicit $baseline.rights.explicit) -join "`n"
     $report.antes=$rights
     if(-not $alreadyGranted){
         Assert-Cad ((Get-FileHash -LiteralPath (Join-Path $PSScriptRoot 'contrato-edicao.ps1')).Hash -ceq $sourceHash) 'CONTRATO_MUDOU'
+        Assert-Cad ((Get-FileHash -LiteralPath $releaseContractPath).Hash -ceq $releaseContractHash) 'CONTRATO_MUDOU'
         $cmd=$connection.CreateCommand();$cmd.Transaction=$transaction;$cmd.CommandTimeout=30
         try{$cmd.CommandText=$sql;$null=$cmd.ExecuteNonQuery()}finally{$cmd.Dispose()}
     }
@@ -124,7 +112,7 @@ try {
     $report.estado='DIREITOS_PROD_APLICADOS_E_CONFERIDOS'
 } catch {
     $report.estado='INTERROMPIDO';$ex=$_.Exception;$code='CAD_FALHA';$number=$null
-    while($ex){if($ex.Message -cmatch '^(CAD|SQL|PROD)_[A-Z0-9_]+$'){$code=$ex.Message};if($ex.GetType().FullName -ceq 'Microsoft.Data.SqlClient.SqlException'){$number=$ex.Number};$ex=$ex.InnerException}
+    while($ex){if($ex.Message -cmatch '^(CAD|SQL|PROD|INVENTORY|NOTAZZ|COLETOR)_[A-Z0-9_]+$'){$code=$ex.Message};if($ex.GetType().FullName -ceq 'Microsoft.Data.SqlClient.SqlException'){$number=$ex.Number};$ex=$ex.InnerException}
     $report.erro=[ordered]@{codigo=$code;sqlNumber=$number;linha=$_.InvocationInfo.ScriptLineNumber;mensagemBrutaPublicada=$false}
 } finally {
     if($transaction){try{$transaction.Rollback()}finally{$transaction.Dispose()}}

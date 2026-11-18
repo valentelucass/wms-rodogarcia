@@ -33,6 +33,8 @@ export function CurrentPage({
     if (page === "coletor")
         return (
             <Collector
+                startAction={startAction}
+                taskScope={s.context}
                 transport={s.transport}
                 context={ctx("EstoqueController.posicionar")}
                 perfil={s.perfil}

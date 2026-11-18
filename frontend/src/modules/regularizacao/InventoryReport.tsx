@@ -156,7 +156,7 @@ export function InventoryReport({
             </div>
             <div className="inventory-table-scroll">
                 <table
-                    className="inventory-table"
+                    className="inventory-table inventory-table--mobile"
                     aria-label="Resultado do inventário"
                 >
                     <thead>
@@ -187,43 +187,55 @@ export function InventoryReport({
                                   .slice(page * 50, page * 50 + 50)
                                   .map((r) => (
                                       <tr key={String(r.produtoId)}>
-                                          <td>
+                                          <td data-label="Produto / SKU">
                                               <strong>{r.descricao}</strong>
                                               <small>{r.sku}</small>
                                           </td>
-                                          <td>{r.unidadeMedida}</td>
-                                          <td>{quantity(r.esperado)}</td>
-                                          <td>{quantity(r.contado)}</td>
-                                          <td>{quantity(r.diferenca)}</td>
-                                          <td>{r.mercadoriasDivergentes}</td>
+                                          <td data-label="Unidade">
+                                              {r.unidadeMedida}
+                                          </td>
+                                          <td data-label="Esperado">
+                                              {quantity(r.esperado)}
+                                          </td>
+                                          <td data-label="Contado">
+                                              {quantity(r.contado)}
+                                          </td>
+                                          <td data-label="Diferença">
+                                              {quantity(r.diferenca)}
+                                          </td>
+                                          <td data-label="Mercadorias com ocorrências">
+                                              {r.mercadoriasDivergentes}
+                                          </td>
                                       </tr>
                                   ))
                             : rows.slice(page * 50, page * 50 + 50).map((r) => (
                                   <tr key={r.codigoUnidade}>
-                                      <td>
+                                      <td data-label="Mercadoria / SKU">
                                           <strong>
                                               {r.sku} · {r.descricao}
                                           </strong>
                                           <small>{r.codigoUnidade}</small>
                                       </td>
-                                      <td>
+                                      <td data-label="Esperado">
                                           {quantity(r.esperado)}{" "}
                                           {r.unidadeMedida}
                                       </td>
-                                      <td>
+                                      <td data-label="Contado">
                                           {quantity(r.contado)}{" "}
                                           {r.unidadeMedida}
                                       </td>
-                                      <td>{quantity(r.diferenca)}</td>
-                                      <td>
+                                      <td data-label="Diferença">
+                                          {quantity(r.diferenca)}
+                                      </td>
+                                      <td data-label="Posições esperadas">
                                           {r.posicoesEsperadas ||
                                               "Sem endereço"}
                                       </td>
-                                      <td>
+                                      <td data-label="Posição encontrada">
                                           {r.posicaoEncontrada ||
                                               "Sem endereço informado"}
                                       </td>
-                                      <td>
+                                      <td data-label="Ocorrências">
                                           {(r.ocorrencias ?? []).length
                                               ? (r.ocorrencias ?? [])
                                                     .map((x) => reasons[x] ?? x)

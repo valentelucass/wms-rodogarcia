@@ -329,6 +329,8 @@ function Workspace({
                     />
                 ) : page === "coletor" ? (
                     <Collector
+                        startAction={nav.startAction}
+                        taskScope={context}
                         transport={transport}
                         context={operationContext(
                             "EstoqueController.posicionar",

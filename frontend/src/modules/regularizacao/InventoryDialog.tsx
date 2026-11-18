@@ -27,6 +27,7 @@ type Props = Pick<
     "transport" | "perfil" | "context" | "onReceipt"
 > & {
     initial?: InventarioDto_Resumo;
+    taskId?: string;
     presetProduct?: string;
     onClose: () => void;
     onChanged: () => void;
@@ -208,8 +209,10 @@ export function InventoryDialog(props: Props) {
         }
         setReadError("");
         writer.run(
-            "InventarioController.ler",
-            { id: summary.id },
+            props.taskId
+                ? "TarefaColetorController.contar"
+                : "InventarioController.ler",
+            { id: props.taskId ?? summary.id },
             {
                 versao: summary.versao,
                 codigoUnidade: code.trim(),
@@ -243,8 +246,10 @@ export function InventoryDialog(props: Props) {
         event.preventDefault();
         if (!summary) return;
         writer.run(
-            "InventarioController.finalizar",
-            { id: summary.id },
+            props.taskId
+                ? "TarefaColetorController.finalizar"
+                : "InventarioController.finalizar",
+            { id: props.taskId ?? summary.id },
             {
                 versao: summary.versao,
                 confirmarNaoLidas: confirmMissing,
@@ -562,7 +567,7 @@ export function InventoryDialog(props: Props) {
                                         </p>
                                     ) : (
                                         <div className="inventory-table-scroll">
-                                            <table className="inventory-table">
+                                            <table className="inventory-table inventory-table--mobile">
                                                 <thead>
                                                     <tr>
                                                         <th>Mercadoria</th>
@@ -581,7 +586,7 @@ export function InventoryDialog(props: Props) {
                                                                 r.codigoUnidade
                                                             }
                                                         >
-                                                            <td>
+                                                            <td data-label="Mercadoria">
                                                                 <strong>
                                                                     {r.sku} ·{" "}
                                                                     {
@@ -594,7 +599,7 @@ export function InventoryDialog(props: Props) {
                                                                     }
                                                                 </small>
                                                             </td>
-                                                            <td>
+                                                            <td data-label="Quantidade informada">
                                                                 {inventoryQuantity(
                                                                     r.contado,
                                                                 )}{" "}
@@ -602,7 +607,7 @@ export function InventoryDialog(props: Props) {
                                                                     r.unidadeMedida
                                                                 }
                                                             </td>
-                                                            <td>
+                                                            <td data-label="Posição informada">
                                                                 {r.posicao ||
                                                                     "Sem endereço"}
                                                             </td>
@@ -689,8 +694,14 @@ export function InventoryDialog(props: Props) {
                                             }
                                             onClick={() =>
                                                 writer.run(
-                                                    "InventarioController.cancelar",
-                                                    { id: summary.id },
+                                                    props.taskId
+                                                        ? "TarefaColetorController.cancelarInventario"
+                                                        : "InventarioController.cancelar",
+                                                    {
+                                                        id:
+                                                            props.taskId ??
+                                                            summary.id,
+                                                    },
                                                     {
                                                         versao: summary.versao,
                                                         motivo: finishReason,

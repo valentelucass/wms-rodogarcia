@@ -531,7 +531,9 @@ Fontes de comandos: [backend/src/main/java/br/com/rodogarcia/wms/controllers/Ped
 
 Regras e permissões: `backend/src/main/java/br/com/rodogarcia/wms/services/PedidoSaidaService.java#sugerir`, `backend/src/main/java/br/com/rodogarcia/wms/services/PedidoSaidaService.java#justificar`, `backend/src/main/java/br/com/rodogarcia/wms/services/PedidoSaidaService.java#reservar`, `backend/src/main/java/br/com/rodogarcia/wms/services/PedidoSaidaService.java#revalidar`.
 
-### saida-3 — 3. Leitura e separação
+### saida-3 — Leitura e separação transferidas ao Coletor
+
+**Atualização SAIDA-COLETOR01, 29/10/2026:** esta etapa deixou a página Saída/FIFO/reserva. O registro abaixo documenta os contratos preservados para a operação manual no Coletor. Tarefas executam a separação por `TarefaColetorController.separar`; `porPedido` consulta a tarefa vinculada, inclusive concluída, sem criar histórico retroativo. A página administrativa mantém somente pedido, FIFO/reserva e reversão/cancelamento, com acompanhamento no detalhe e encaminhamento ao Coletor.
 
 Visão principal: `PedidoSaidaController.listar`. Detalhe: `ExpedicaoController.consultar`.
 
@@ -552,7 +554,9 @@ Fontes de comandos: [backend/src/main/java/br/com/rodogarcia/wms/controllers/Exp
 
 Regras e permissões: `backend/src/main/java/br/com/rodogarcia/wms/services/ExpedicaoService.java#consultar`, `backend/src/main/java/br/com/rodogarcia/wms/services/ExpedicaoService.java#ler`, `backend/src/main/java/br/com/rodogarcia/wms/services/ExpedicaoService.java#separar`.
 
-### saida-4 — 4. Reversão e cancelamento
+### saida-4 — 3. Reversão e cancelamento
+
+Renumerada de 4 para 3 em SAIDA-COLETOR01; o identificador documental `saida-4` foi preservado para manter as referências anteriores.
 
 Visão principal: `PedidoSaidaController.listar`. Detalhe: `PedidoSaidaController.consultar`.
 

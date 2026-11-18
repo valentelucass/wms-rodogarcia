@@ -35,6 +35,7 @@ public class FiscalRegularizacaoService {
     private final JsonMapper mapper;
     private final AcessoService acesso;
     private final Clock clock;
+    private final RegistroRegularizacaoInternaService regularizacaoInterna;
 
     public FiscalRegularizacaoService(
             FiscalNfeRepository repository,
@@ -43,7 +44,8 @@ public class FiscalRegularizacaoService {
             DevolucaoSaidaRepository devolucoes,
             JsonMapper mapper,
             AcessoService acesso,
-            Clock clock) {
+            Clock clock,
+            RegistroRegularizacaoInternaService regularizacaoInterna) {
         this.repository = repository;
         this.documentos = documentos;
         this.baixas = baixas;
@@ -51,6 +53,7 @@ public class FiscalRegularizacaoService {
         this.mapper = mapper;
         this.acesso = acesso;
         this.clock = clock;
+        this.regularizacaoInterna = regularizacaoInterna;
     }
 
     public void conferirRetorno(PedidoSaida pedido, List<String> ids) {
@@ -122,7 +125,15 @@ public class FiscalRegularizacaoService {
                     "Confira as quantidades efetivamente retornadas; elas devem corresponder à nova nota de entrada vinculada.");
     }
 
-    public void concluir(PedidoSaida pedido, List<String> ids, UUID operacao, Long pedidoEntrada) {
+    public Long concluir(PedidoSaida pedido, List<String> ids, UUID operacao, Long pedidoEntrada) {
+        Long entradaEfetiva = pedidoEntrada;
+        if (pedidoEntrada == null && !ids.isEmpty())
+            entradaEfetiva =
+                    regularizacaoInterna.registrar(
+                            pedido,
+                            ids.stream().map(id -> entrada(pedido, id)).toList(),
+                            operacao,
+                            clock.instant());
         for (var id : ids) {
             var s = entrada(pedido, id);
             if (pedidoEntrada != null) {
@@ -155,7 +166,7 @@ public class FiscalRegularizacaoService {
                 }
             }
             repository.concluirRegularizacao(
-                    id, operacao.toString(), pedidoEntrada, clock.instant());
+                    id, operacao.toString(), entradaEfetiva, clock.instant());
             repository.evento(
                     id,
                     "REGULARIZACAO_FISICA",
@@ -165,6 +176,7 @@ public class FiscalRegularizacaoService {
                             : "Retorno recebido em nova entrada vinculada à saída original.",
                     clock.instant());
         }
+        return entradaEfetiva;
     }
 
     public void conferirRetirada(Long pedido) {

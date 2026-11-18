@@ -1,3 +1,4 @@
+import { ResponsiveTable } from "../../components/layout/ResponsiveTable";
 import { useEffect, useId, useState } from "react";
 import { call, type Transport } from "../../api/client";
 import { formatProductQuantity } from "../../domain/quantityPresentation";
@@ -129,7 +130,7 @@ export function NfeDocument({
                 aria-label="Itens originais da nota"
                 tabIndex={0}
             >
-                <table>
+                <ResponsiveTable>
                     <caption>Itens originais da nota · sem agrupamento</caption>
                     <thead>
                         <tr>
@@ -195,7 +196,7 @@ export function NfeDocument({
                             </tr>
                         ))}
                     </tbody>
-                </table>
+                </ResponsiveTable>
             </div>
             <details
                 className="nfe-document-additional"

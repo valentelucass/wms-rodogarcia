@@ -1,3 +1,4 @@
+import { ResponsiveTable } from "../components/layout/ResponsiveTable";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import type { AuthClient, User, UsersPage as Page } from "./client";
 import { AuthError } from "./client";
@@ -428,7 +429,7 @@ export function UsersPage({
                         <p role="status">Nenhum usuário encontrado.</p>
                     )}
                     <div className="table-scroll">
-                        <table>
+                        <ResponsiveTable>
                             <caption>Contas cadastradas</caption>
                             <thead>
                                 <tr>
@@ -510,7 +511,7 @@ export function UsersPage({
                                     </tr>
                                 ))}
                             </tbody>
-                        </table>
+                        </ResponsiveTable>
                     </div>
                     <Pagination
                         page={page}

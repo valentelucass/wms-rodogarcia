@@ -66,6 +66,7 @@ public class PedidoSaidaService {
     private final br.com.rodogarcia.wms.repositories.CargaInicialRepository cargas;
     private final br.com.rodogarcia.wms.repositories.ConteudoUnidadeRepository conteudos;
     private final OperacaoAdministrativaService administrativas;
+    private final TarefaColetorRegistro tarefas;
 
     public PedidoSaidaService(
             PedidoSaidaRepository pedidos,
@@ -85,7 +86,9 @@ public class PedidoSaidaService {
             br.com.rodogarcia.wms.repositories.ResolucaoRemanescenteRepository resolucoes,
             br.com.rodogarcia.wms.repositories.CargaInicialRepository cargas,
             br.com.rodogarcia.wms.repositories.ConteudoUnidadeRepository conteudos,
-            OperacaoAdministrativaService administrativas) {
+            OperacaoAdministrativaService administrativas,
+            TarefaColetorRegistro tarefas) {
+        this.tarefas = tarefas;
         this.pedidos = pedidos;
         this.itens = itens;
         this.reservas = reservas;
@@ -165,6 +168,7 @@ public class PedidoSaidaService {
         }
         itens.flush();
         var itensPedido = itens.buscarDoPedido(p.getId());
+        tarefas.registrar("SEPARACAO", p.getId(), p.getCliente().getId(), p.getArmazem().getId());
         var disponiveis = candidatas(p, itensPedido);
         for (var i : itensPedido) {
             var saldo =

@@ -1,3 +1,4 @@
+import { ResponsiveTable } from "../../components/layout/ResponsiveTable";
 import { useEffect, useRef, useState, type ComponentProps } from "react";
 import { isObject, type Values } from "../../contracts/runtime";
 import type { RecordDialog } from "../../components/records/RecordDialog";
@@ -182,7 +183,7 @@ export function InvoiceDetail(props: Props) {
                         <h3>Serviços cobrados</h3>
                         {services.length > 0 ? (
                             <div className="invoice-table-scroll">
-                                <table className="invoice-table">
+                                <ResponsiveTable className="invoice-table">
                                     <thead>
                                         <tr>
                                             <th>Serviço</th>
@@ -230,7 +231,7 @@ export function InvoiceDetail(props: Props) {
                                             </tr>
                                         ))}
                                     </tbody>
-                                </table>
+                                </ResponsiveTable>
                             </div>
                         ) : (
                             <p>
@@ -243,7 +244,7 @@ export function InvoiceDetail(props: Props) {
                         <details className="invoice-section">
                             <summary>Armazenagem por dia</summary>
                             <div className="invoice-table-scroll">
-                                <table className="invoice-table">
+                                <ResponsiveTable className="invoice-table">
                                     <thead>
                                         <tr>
                                             <th>Dia</th>
@@ -272,7 +273,7 @@ export function InvoiceDetail(props: Props) {
                                             </tr>
                                         ))}
                                     </tbody>
-                                </table>
+                                </ResponsiveTable>
                             </div>
                         </details>
                     )}

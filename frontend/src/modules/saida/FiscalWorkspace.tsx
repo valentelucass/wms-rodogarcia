@@ -1,3 +1,4 @@
+import { ResponsiveTable } from "../../components/layout/ResponsiveTable";
 import {
     useEffect,
     useEffectEvent,
@@ -454,7 +455,7 @@ export function FiscalWorkspace(props: Props) {
                 {list && (
                     <>
                         <div className="fiscal-table-scroll">
-                            <table
+                            <ResponsiveTable
                                 className="fiscal-table"
                                 aria-label="Pedidos de saída e NF-e"
                             >
@@ -537,7 +538,7 @@ export function FiscalWorkspace(props: Props) {
                                         </tr>
                                     ))}
                                 </tbody>
-                            </table>
+                            </ResponsiveTable>
                         </div>
                         {!list.itens.length && !loading && (
                             <p>
@@ -633,7 +634,7 @@ export function FiscalWorkspace(props: Props) {
                                 : "Retirada física ainda não confirmada."}
                         </p>
                         <div className="fiscal-table-scroll">
-                            <table
+                            <ResponsiveTable
                                 className="fiscal-table"
                                 aria-label="Itens do pedido"
                             >
@@ -663,7 +664,7 @@ export function FiscalWorkspace(props: Props) {
                                         </tr>
                                     ))}
                                 </tbody>
-                            </table>
+                            </ResponsiveTable>
                         </div>
                         <h3>Notas e acompanhamento</h3>
                         {!tracking?.solicitacoes.length && (
@@ -903,7 +904,7 @@ export function FiscalWorkspace(props: Props) {
                                 </div>
                             </dl>
                             <div className="fiscal-table-scroll">
-                                <table
+                                <ResponsiveTable
                                     className="fiscal-table"
                                     aria-label={`Itens da nota ${index + 1}`}
                                 >
@@ -944,7 +945,7 @@ export function FiscalWorkspace(props: Props) {
                                             </tr>
                                         ))}
                                     </tbody>
-                                </table>
+                                </ResponsiveTable>
                             </div>
                             <details>
                                 <summary>

@@ -223,12 +223,22 @@ export function RecordTable({
     const keys = candidateKeys.filter(
         (key) => !technicalField(key) && key !== "id",
     );
+    const labelFor = (key: string) =>
+        (
+            ({
+                documentoFiscal: "CPF/CNPJ",
+                sku: "SKU",
+                condicao: "Condição",
+                tipoLocalizacao: "Localização",
+                situacao: "Situação",
+            }) as Record<string, string>
+        )[key] ?? (key === "id" ? "Registro" : presentationLabel(key));
     return (
         <div
             className="table-scroll record-table"
             style={{ "--record-column-count": keys.length } as CSSProperties}
         >
-            <table>
+            <table className="mobile-records">
                 <colgroup>
                     {keys.map((key) => (
                         <col key={key} />
@@ -251,18 +261,7 @@ export function RecordTable({
                     <tr>
                         {keys.map((key) => (
                             <th scope="col" key={key}>
-                                {(
-                                    {
-                                        documentoFiscal: "CPF/CNPJ",
-                                        sku: "SKU",
-                                        condicao: "Condição",
-                                        tipoLocalizacao: "Localização",
-                                        situacao: "Situação",
-                                    } as Record<string, string>
-                                )[key] ??
-                                    (key === "id"
-                                        ? "Registro"
-                                        : presentationLabel(key))}
+                                {labelFor(key)}
                             </th>
                         ))}
                         <th scope="col">Ações</th>
@@ -285,6 +284,7 @@ export function RecordTable({
                                 {keys.map((key, i) => (
                                     <td
                                         key={key}
+                                        data-label={labelFor(key)}
                                         className={
                                             i === 0
                                                 ? "record-cell-identity"
@@ -334,7 +334,10 @@ export function RecordTable({
                                         )}
                                     </td>
                                 ))}
-                                <td className="record-cell-actions">
+                                <td
+                                    className="record-cell-actions"
+                                    data-label="Ações"
+                                >
                                     <div className="record-row-actions">
                                         <button
                                             className="record-action-icon action-details"

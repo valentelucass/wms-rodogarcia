@@ -8,6 +8,17 @@ export function dispatchContinuation(
 ): NextAction | undefined {
     const data = receipt.data;
     if (
+        id === "PedidoSaidaController.reservar" &&
+        isObject(data) &&
+        isObject(data.pedido) &&
+        data.pedido.id
+    )
+        return {
+            page: "coletor",
+            action: `pedido:${data.pedido.id}`,
+            title: "Abrir tarefa no Coletor",
+        };
+    if (
         id === "ExpedicaoController.separar" &&
         isObject(data) &&
         isObject(data.expedicao) &&
@@ -15,7 +26,7 @@ export function dispatchContinuation(
         data.expedicao.pedido.situacao !== "SEPARADO"
     )
         return {
-            page: "saida",
+            page: "coletor",
             action: "ExpedicaoController.ler",
             title: "Selecionar e ler outra reserva deste pedido",
         };

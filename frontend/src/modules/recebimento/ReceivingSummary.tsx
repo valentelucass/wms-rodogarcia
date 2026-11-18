@@ -1,3 +1,4 @@
+import { ResponsiveTable } from "../../components/layout/ResponsiveTable";
 import { isObject, type Values } from "../../contracts/runtime";
 import type { Workflow } from "../../domain/workflow";
 import { display } from "../../domain/labels";
@@ -36,7 +37,7 @@ export function ReceivingSummary({
                 chegada.
             </p>
             <div className="table-scroll">
-                <table>
+                <ResponsiveTable>
                     <caption>
                         Previsto, recebido e diferença por item da nota
                     </caption>
@@ -116,7 +117,7 @@ export function ReceivingSummary({
                                 )),
                         )}
                     </tbody>
-                </table>
+                </ResponsiveTable>
             </div>
         </section>
     );

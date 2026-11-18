@@ -27,6 +27,7 @@ import { Result } from "../Result";
 import type { NextAction, Journey } from "../../domain/journeys";
 import { ReferenceLookup } from "../ReferenceLookup";
 import { DispatchReservations } from "../../modules/saida/DispatchReservations";
+import { DispatchTaskStatus } from "../../modules/saida/DispatchTaskStatus";
 import { AdjustmentOrigin } from "../../modules/financeiro/AdjustmentOrigin";
 import { ServiceDetail } from "../../modules/financeiro/ServiceDetail";
 import { ServiceFactRecovery } from "../../modules/financeiro/ServiceFactRecovery";
@@ -686,6 +687,23 @@ export function RecordDialog({
                                 </button>
                             </div>
                         )}
+                        {journey.id === "saida" &&
+                            record &&
+                            workingWorkflow.current.selected[
+                                "PedidoSaidaDto.Detalhe"
+                            ] && (
+                                <DispatchTaskStatus
+                                    order={
+                                        workingWorkflow.current.selected[
+                                            "PedidoSaidaDto.Detalhe"
+                                        ]
+                                    }
+                                    transport={transport}
+                                    perfil={perfil}
+                                    disabled={locked}
+                                    onNavigate={onNavigate}
+                                />
+                            )}
                         {action && (
                             <>
                                 {action ===

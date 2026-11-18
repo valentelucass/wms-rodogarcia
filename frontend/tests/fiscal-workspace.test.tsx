@@ -297,6 +297,75 @@ it("perfil operacional consulta sem apresentar emissão ou cancelamento", async 
     ).not.toBeInTheDocument();
     expect(p.requests.every((r) => r.endpoint.method === "GET")).toBe(true);
 });
+it("mantém o cancelamento aberto quando o emissor ocupado recusa o envio", async () => {
+    const p = prepared();
+    const commands: Request[] = [];
+    let cancelled = false;
+    const andamento = () => ({
+        pedidoId: row.id,
+        situacao: "FINALIZADO",
+        solicitacoes: [
+            {
+                id: "00000000-0000-4000-8000-000000000001",
+                planoId: "00000000-0000-4000-8000-000000000002",
+                natureza: "RETORNO_MERCADORIA",
+                situacao: cancelled ? "CANCELADA" : "AUTORIZADA",
+                numero: "123",
+                serie: "1",
+                mensagem: "Documento fictício conferido",
+                podeProcessar: false,
+                podeCancelar: !cancelled,
+                xmlDisponivel: false,
+            },
+        ],
+    });
+    const transport: Transport = {
+        send: async (r) => {
+            if (r.endpoint.id === "FiscalNfeController.andamento")
+                return receipt(andamento());
+            if (r.endpoint.id === "FiscalNfeController.cancelar") {
+                commands.push(r);
+                if (commands.length === 1)
+                    throw new ApiError(
+                        "O cancelamento ainda não foi enviado; aguarde e repita a confirmação.",
+                        409,
+                        "CANAL_FISCAL_OCUPADO",
+                        "FISCAL-TESTE",
+                        false,
+                    );
+                cancelled = true;
+                return receipt(andamento());
+            }
+            return p.transport.send(r);
+        },
+    };
+    render(<Harness transport={transport} />);
+    fireEvent.click(await screen.findByRole("button", { name: "SAI-TESTE" }));
+    fireEvent.click(
+        await screen.findByRole("button", { name: "Solicitar cancelamento" }),
+    );
+    const dialog = screen.getByRole("dialog", { name: "Cancelar NF-e 123" });
+    fireEvent.change(within(dialog).getByLabelText("Motivo do cancelamento"), {
+        target: {
+            value: "Desistência do cliente antes da retirada da mercadoria",
+        },
+    });
+    const button = within(dialog).getByRole("button", {
+        name: "Confirmar solicitação de cancelamento",
+    });
+    fireEvent.click(button);
+    expect((await within(dialog).findAllByRole("alert"))[0]).toHaveTextContent(
+        "cancelamento ainda não foi enviado",
+    );
+    expect(dialog).toBeInTheDocument();
+    expect(button).toBeEnabled();
+    fireEvent.click(button);
+    await waitFor(() => expect(dialog).not.toBeInTheDocument());
+    expect(commands).toHaveLength(2);
+    expect((commands[1].body as { motivo: string }).motivo).toBe(
+        (commands[0].body as { motivo: string }).motivo,
+    );
+});
 it("trocar cliente descarta detalhes e respostas do contexto anterior", async () => {
     const p = prepared();
     const view = render(<Harness transport={p.transport} />);

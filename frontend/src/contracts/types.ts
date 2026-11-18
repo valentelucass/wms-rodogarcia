@@ -2161,6 +2161,65 @@ export interface StatusResponse {
   status: string | null;
   instante: string | null;
 }
+export interface TarefaColetorDto_Disponibilidade {
+  disponivel: boolean;
+  mensagem: string | null;
+}
+export interface TarefaColetorDto_Totais {
+  enderecamento: string;
+  separacao: string;
+  inventario: string;
+}
+export interface TarefaColetorDto_Unidade {
+  estoque: EstoqueDto_Unidade | null;
+  revisaoConteudo: string;
+}
+export interface TarefaColetorDto_Destinos {
+  destinos: Array<EstoqueDto_Destino> | null;
+  conjuntoId: string | null;
+}
+export interface TarefaColetorDto_Tarefa {
+  id: string | null;
+  versao: string;
+  tipo: string | null;
+  origemId: string | null;
+  clienteId: string | null;
+  cliente: string | null;
+  armazemId: string | null;
+  armazem: string | null;
+  referencia: string | null;
+  sku: string | null;
+  descricao: string | null;
+  codigoUnidade: string | null;
+  situacao: string | null;
+  impedimento: string | null;
+  criadaEm: string | null;
+  responsavel: string | null;
+  iniciadaEm: string | null;
+  minha: boolean;
+}
+export interface TarefaColetorDto_Detalhe {
+  tarefa: TarefaColetorDto_Tarefa | null;
+  unidade: EstoqueDto_Unidade | null;
+  pedido: PedidoSaidaDto_Detalhe | null;
+  separacoes: Array<ExpedicaoDto_Separacao> | null;
+  inventario: InventarioDto_Resumo | null;
+}
+export interface TarefaColetorDto_Comando {
+  operacaoId: string;
+  versao: string;
+  motivo: string;
+}
+export interface TarefaColetorDto_Enderecar {
+  operacaoId: string;
+  codigoLido: string;
+  posicionar: EstoqueDto_Posicionar;
+}
+export interface TarefaColetorDto_Separar {
+  operacaoId: string;
+  leitura: ExpedicaoDto_Leitura;
+  destinacao: ExpedicaoDto_Destinacao;
+}
 export interface UnidadeLogisticaDto_NovaUnidade {
   embalagemId: string;
   tipo: TipoUnidadeLogistica;
@@ -2578,6 +2637,20 @@ export interface ApiContracts {
   "ProdutoController.encerrar": { request: RevisaoCadastroRequest; response: ProdutoDto_Resposta };
   "ProdutoController.reativar": { request: RevisaoCadastroRequest; response: ProdutoDto_Resposta };
   "StatusController.consultar": { request: undefined; response: StatusResponse };
+  "TarefaColetorController.disponibilidade": { request: undefined; response: TarefaColetorDto_Disponibilidade };
+  "TarefaColetorController.totais": { request: undefined; response: TarefaColetorDto_Totais };
+  "TarefaColetorController.listar": { request: undefined; response: PaginaResponse<TarefaColetorDto_Tarefa> };
+  "TarefaColetorController.consultar": { request: undefined; response: TarefaColetorDto_Detalhe };
+  "TarefaColetorController.porPedido": { request: undefined; response: TarefaColetorDto_Tarefa };
+  "TarefaColetorController.destinos": { request: undefined; response: TarefaColetorDto_Destinos };
+  "TarefaColetorController.unidade": { request: undefined; response: TarefaColetorDto_Unidade };
+  "TarefaColetorController.iniciar": { request: TarefaColetorDto_Comando; response: TarefaColetorDto_Detalhe };
+  "TarefaColetorController.liberar": { request: TarefaColetorDto_Comando; response: TarefaColetorDto_Detalhe };
+  "TarefaColetorController.enderecar": { request: TarefaColetorDto_Enderecar; response: TarefaColetorDto_Detalhe };
+  "TarefaColetorController.separar": { request: TarefaColetorDto_Separar; response: TarefaColetorDto_Detalhe };
+  "TarefaColetorController.contar": { request: InventarioDto_Ler; response: InventarioDto_Registro };
+  "TarefaColetorController.finalizar": { request: InventarioDto_Encerrar; response: InventarioDto_Relatorio };
+  "TarefaColetorController.cancelarInventario": { request: InventarioDto_Encerrar; response: InventarioDto_Resumo };
   "UnidadeLogisticaController.unitizar": { request: UnidadeLogisticaDto_Unitizar; response: UnidadeLogisticaDto_Resultado };
   "UnidadeLogisticaController.dividir": { request: UnidadeLogisticaDto_Dividir; response: UnidadeLogisticaDto_Resultado };
   "UnidadeLogisticaController.reagrupar": { request: UnidadeLogisticaDto_Reagrupar; response: UnidadeLogisticaDto_Resultado };

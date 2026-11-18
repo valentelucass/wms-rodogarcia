@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { expect, vi } from "vitest";
-import { JourneyPage } from "../../src/components/JourneyPage";
+import { CurrentPage } from "../../src/pages/CurrentPage";
 import { Navigation } from "../../src/components/shell/Navigation";
-import { journeys } from "../../src/domain/journeys";
 import { useExerciseSession } from "../../src/hooks/useExerciseSession";
 import type { Perfil, Values } from "../../src/contracts/runtime";
 import type { Transport, Request } from "../../src/api/client";
@@ -49,19 +48,21 @@ export function Harness({
                     })
                 }
             />
-            <JourneyPage
+            <CurrentPage
                 key={navigation.revision}
-                journey={journeys.find((j) => j.id === navigation.page)!}
-                transport={transport}
-                context={s.context}
-                perfil={perfil}
-                workflow={s.workflow}
-                onRecord={s.onRecord}
-                onReceipt={s.onReceipt}
+                session={{
+                    ...s,
+                    transport: Object.assign(s.transport, {
+                        send: (r: Request) => transport.send(r),
+                    }),
+                    perfil,
+                }}
+                page={navigation.page}
                 startAction={navigation.action}
-                onNavigate={(next) =>
+                navigate={(page, action = "") =>
                     setNavigation({
-                        ...next,
+                        page,
+                        action,
                         revision: navigation.revision + 1,
                     })
                 }

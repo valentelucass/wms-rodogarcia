@@ -52,6 +52,7 @@ public class InventarioService {
     private final JsonMapper mapper;
     private final Clock clock;
     private final boolean habilitado;
+    private final TarefaColetorRegistro tarefas;
     private static final int LIMITE = 20000;
 
     public InventarioService(
@@ -67,7 +68,9 @@ public class InventarioService {
             AuditoriaService auditoria,
             JsonMapper mapper,
             Clock clock,
-            @Value("${wms.inventario.enabled:false}") boolean habilitado) {
+            @Value("${wms.inventario.enabled:false}") boolean habilitado,
+            TarefaColetorRegistro tarefas) {
+        this.tarefas = tarefas;
         this.inventarios = inventarios;
         this.unidades = unidades;
         this.ocupacoes = ocupacoes;
@@ -171,6 +174,7 @@ public class InventarioService {
         var bases = bases(d.clienteId(), d.armazemId(), d.produtoId(), d.enderecoId());
         Long id = inventarios.criar(d, acesso.usuario(), agora());
         inventarios.guardarBase(id, bases);
+        tarefas.registrar("INVENTARIO", id, d.clienteId(), d.armazemId());
         var resposta = resumo(inventarios.consultar(id, false));
         auditoria.registrar("INVENTARIO", id, "CRIACAO", d.motivo(), null, resposta);
         operacoes.salvar(d.operacaoId(), "INICIO_INVENTARIO", cliente, armazem, id, hash, resposta);

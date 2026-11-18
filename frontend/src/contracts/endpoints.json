@@ -4732,6 +4732,362 @@
     ]
   },
   {
+    "id": "TarefaColetorController.disponibilidade",
+    "method": "GET",
+    "path": "/api/v1/tarefas-coletor/disponibilidade",
+    "request": null,
+    "response": "TarefaColetorDto.Disponibilidade",
+    "query": [],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/TarefaColetorController.java",
+    "handler": "disponibilidade",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/TarefaColetorService.java#disponibilidade"
+    ]
+  },
+  {
+    "id": "TarefaColetorController.totais",
+    "method": "GET",
+    "path": "/api/v1/tarefas-coletor/resumo",
+    "request": null,
+    "response": "TarefaColetorDto.Totais",
+    "query": [
+      {
+        "name": "clienteId",
+        "type": "Long",
+        "required": false
+      },
+      {
+        "name": "armazemId",
+        "type": "Long",
+        "required": false
+      }
+    ],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/TarefaColetorController.java",
+    "handler": "totais",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/TarefaColetorService.java#totais"
+    ]
+  },
+  {
+    "id": "TarefaColetorController.listar",
+    "method": "GET",
+    "path": "/api/v1/tarefas-coletor",
+    "request": null,
+    "response": "PaginaResponse<TarefaColetorDto.Tarefa>",
+    "query": [
+      {
+        "name": "tipo",
+        "type": "String",
+        "required": true
+      },
+      {
+        "name": "clienteId",
+        "type": "Long",
+        "required": false
+      },
+      {
+        "name": "armazemId",
+        "type": "Long",
+        "required": false
+      },
+      {
+        "name": "pagina",
+        "type": "int",
+        "required": false,
+        "default": "0"
+      },
+      {
+        "name": "tamanho",
+        "type": "int",
+        "required": false,
+        "default": "20"
+      }
+    ],
+    "params": [],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/TarefaColetorController.java",
+    "handler": "listar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/TarefaColetorService.java#listar"
+    ]
+  },
+  {
+    "id": "TarefaColetorController.consultar",
+    "method": "GET",
+    "path": "/api/v1/tarefas-coletor/{id}",
+    "request": null,
+    "response": "TarefaColetorDto.Detalhe",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/TarefaColetorController.java",
+    "handler": "consultar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/TarefaColetorService.java#consultar"
+    ]
+  },
+  {
+    "id": "TarefaColetorController.porPedido",
+    "method": "GET",
+    "path": "/api/v1/tarefas-coletor/pedido-saida/{pedidoId}",
+    "request": null,
+    "response": "TarefaColetorDto.Tarefa",
+    "query": [],
+    "params": [
+      {
+        "name": "pedidoId",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/TarefaColetorController.java",
+    "handler": "porPedido",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/TarefaColetorService.java#porPedido"
+    ]
+  },
+  {
+    "id": "TarefaColetorController.destinos",
+    "method": "GET",
+    "path": "/api/v1/tarefas-coletor/{id}/destinos",
+    "request": null,
+    "response": "TarefaColetorDto.Destinos",
+    "query": [
+      {
+        "name": "codigo",
+        "type": "String",
+        "required": true
+      },
+      {
+        "name": "segundoCodigo",
+        "type": "String",
+        "required": false
+      }
+    ],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/TarefaColetorController.java",
+    "handler": "destinos",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/TarefaColetorService.java#destinos"
+    ]
+  },
+  {
+    "id": "TarefaColetorController.unidade",
+    "method": "GET",
+    "path": "/api/v1/tarefas-coletor/{id}/unidade",
+    "request": null,
+    "response": "TarefaColetorDto.Unidade",
+    "query": [
+      {
+        "name": "codigo",
+        "type": "UUID",
+        "required": true
+      }
+    ],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/TarefaColetorController.java",
+    "handler": "unidade",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/TarefaColetorService.java#unidade"
+    ]
+  },
+  {
+    "id": "TarefaColetorController.iniciar",
+    "method": "POST",
+    "path": "/api/v1/tarefas-coletor/{id}/iniciar",
+    "request": "TarefaColetorDto.Comando",
+    "response": "TarefaColetorDto.Detalhe",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/TarefaColetorController.java",
+    "handler": "iniciar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/TarefaColetorService.java#iniciar"
+    ]
+  },
+  {
+    "id": "TarefaColetorController.liberar",
+    "method": "POST",
+    "path": "/api/v1/tarefas-coletor/{id}/liberar",
+    "request": "TarefaColetorDto.Comando",
+    "response": "TarefaColetorDto.Detalhe",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/TarefaColetorController.java",
+    "handler": "liberar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/TarefaColetorService.java#liberar"
+    ],
+    "permissionOverride": {
+      "derived": "SUPERVISOR",
+      "reviewed": "OPERACAO",
+      "source": "frontend/tools/contratos.py#base-role-overrides"
+    }
+  },
+  {
+    "id": "TarefaColetorController.enderecar",
+    "method": "POST",
+    "path": "/api/v1/tarefas-coletor/{id}/enderecar",
+    "request": "TarefaColetorDto.Enderecar",
+    "response": "TarefaColetorDto.Detalhe",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/TarefaColetorController.java",
+    "handler": "enderecar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/TarefaColetorService.java#enderecar"
+    ]
+  },
+  {
+    "id": "TarefaColetorController.separar",
+    "method": "POST",
+    "path": "/api/v1/tarefas-coletor/{id}/separar",
+    "request": "TarefaColetorDto.Separar",
+    "response": "TarefaColetorDto.Detalhe",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/TarefaColetorController.java",
+    "handler": "separar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/TarefaColetorService.java#separar"
+    ]
+  },
+  {
+    "id": "TarefaColetorController.contar",
+    "method": "POST",
+    "path": "/api/v1/tarefas-coletor/{id}/inventario/leituras",
+    "request": "InventarioDto.Ler",
+    "response": "InventarioDto.Registro",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/TarefaColetorController.java",
+    "handler": "contar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/TarefaColetorService.java#contar"
+    ]
+  },
+  {
+    "id": "TarefaColetorController.finalizar",
+    "method": "POST",
+    "path": "/api/v1/tarefas-coletor/{id}/inventario/finalizar",
+    "request": "InventarioDto.Encerrar",
+    "response": "InventarioDto.Relatorio",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/TarefaColetorController.java",
+    "handler": "finalizar",
+    "permission": "OPERACAO",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/TarefaColetorService.java#finalizar"
+    ]
+  },
+  {
+    "id": "TarefaColetorController.cancelarInventario",
+    "method": "POST",
+    "path": "/api/v1/tarefas-coletor/{id}/inventario/cancelar",
+    "request": "InventarioDto.Encerrar",
+    "response": "InventarioDto.Resumo",
+    "query": [],
+    "params": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": true
+      }
+    ],
+    "multipart": false,
+    "source": "backend/src/main/java/br/com/rodogarcia/wms/controllers/TarefaColetorController.java",
+    "handler": "cancelarInventario",
+    "permission": "SUPERVISOR",
+    "permissionSource": [
+      "backend/src/main/java/br/com/rodogarcia/wms/services/TarefaColetorService.java#cancelarInventario"
+    ],
+    "permissionOverride": {
+      "derived": "OPERACAO",
+      "reviewed": "SUPERVISOR",
+      "source": "frontend/tools/contratos.py#base-role-overrides"
+    }
+  },
+  {
     "id": "UnidadeLogisticaController.unitizar",
     "method": "POST",
     "path": "/api/v1/pedidos-entrada/{pedidoId}/entradas/{entradaId}/unitizacao",

@@ -1,3 +1,9 @@
+# Migrações — COLETOR-TAREFAS01, 28/10/2026
+
+**V16 aplicada e conferida exclusivamente em WMS_DEV.** [V16__tarefas_coletor.sql](V16__tarefas_coletor.sql) acrescenta tarefas e recibos imutáveis de operações do Coletor, com origem única e controle concorrente de responsável. Sem backfill de tarefas históricas. V1–V15/checksums/dados preservados; contrato final 76 tabelas, 809 colunas e 1.506 itens estruturais. Checksum V16 `-1071438601`; SHA256 `2A304B6E90736021FB417E0D4CDE8E78D816A56CAC8D071EC6C3E951854E53DF`.
+
+Direitos mínimos de WMSDEV conferidos pelo helper DEV, sem concessão administrativa à aplicação. Aplicação e evidências em `orchestracao/.runtime/coletor-tarefas-20261028/` a partir da raiz; [estado e limites](../../STATES.md#coletor-tarefas01--tarefas-integradas-no-coletor-28102026). Sem migração de PROD nesta demanda. Não editar/reaplicar migrations já aplicadas ou usar repair/clean/reset. As seções abaixo são registros históricos e não descrevem o estado corrente do DEV.
+
 # Migrações — TAB-EDIT01, 15/10/2026
 
 **V13 preparada, não aplicada.** [V13__historico_itens_tabela_cobranca.sql](V13__historico_itens_tabela_cobranca.sql) mantém itens antigos das tabelas para as memórias financeiras e permite substitutos ativos sem apagar registros. Ativação exige liberação do alvo, executor WMS, guardas atuais e seis permissões por coluna descritas no [contrato](../../docs/design-system/etapa-18-tabelas-cobranca.md). V1–V12 preservadas; aplicação de V12 pelo operador continua sem resultado confirmado. Não atualizar o backend com V13 ausente.

@@ -507,9 +507,10 @@ public class ExpedicaoService {
             u.reservarSaida(null, agora());
             r.encerrar(SituacaoReservaSaida.CANCELADA, agora());
         }
-        regularizacaoFiscal.concluir(p, d.regularizacoesFiscais(), d.operacaoId(), null);
+        Long novaEntrada =
+                regularizacaoFiscal.concluir(p, d.regularizacoesFiscais(), d.operacaoId(), null);
         p.atualizar(SituacaoPedidoSaida.CANCELADO, agora());
-        return concluir(p, antes, d.operacaoId(), hash, "RETORNO_INTERNO", d.motivo(), null);
+        return concluir(p, antes, d.operacaoId(), hash, "RETORNO_INTERNO", d.motivo(), novaEntrada);
     }
 
     @Transactional

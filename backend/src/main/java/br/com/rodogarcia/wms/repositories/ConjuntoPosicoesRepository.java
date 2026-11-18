@@ -31,6 +31,10 @@ public interface ConjuntoPosicoesRepository extends JpaRepository<ConjuntoPosico
     Optional<Long> buscarArmazemId(Long id);
 
     @Query(
+            "select c from ConjuntoPosicoes c where c.situacao = br.com.rodogarcia.wms.models.SituacaoCadastro.ATIVO and ((c.enderecoA.id=:a and c.enderecoB.id=:b) or (c.enderecoA.id=:b and c.enderecoB.id=:a))")
+    Optional<ConjuntoPosicoes> buscarAtivoPorPar(Long a, Long b);
+
+    @Query(
             "select count(c) from ConjuntoPosicoes c where (c.enderecoA.id = :id or c.enderecoB.id = :id) and c.situacao = br.com.rodogarcia.wms.models.SituacaoCadastro.ATIVO")
     long contarAtivosDoEndereco(Long id);
 

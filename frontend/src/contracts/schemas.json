@@ -11998,6 +11998,285 @@
         "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/StatusResponse.java"
       }
     ],
+    "TarefaColetorDto.Disponibilidade": [
+      {
+        "name": "disponivel",
+        "type": "boolean",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/TarefaColetorDto.java"
+      },
+      {
+        "name": "mensagem",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/TarefaColetorDto.java"
+      }
+    ],
+    "TarefaColetorDto.Totais": [
+      {
+        "name": "enderecamento",
+        "type": "long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/TarefaColetorDto.java"
+      },
+      {
+        "name": "separacao",
+        "type": "long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/TarefaColetorDto.java"
+      },
+      {
+        "name": "inventario",
+        "type": "long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/TarefaColetorDto.java"
+      }
+    ],
+    "TarefaColetorDto.Unidade": [
+      {
+        "name": "estoque",
+        "type": "EstoqueDto.Unidade",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/TarefaColetorDto.java"
+      },
+      {
+        "name": "revisaoConteudo",
+        "type": "long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/TarefaColetorDto.java"
+      }
+    ],
+    "TarefaColetorDto.Destinos": [
+      {
+        "name": "destinos",
+        "type": "List<EstoqueDto.Destino>",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/TarefaColetorDto.java",
+        "element": {
+          "name": "element",
+          "type": "EstoqueDto.Destino",
+          "required": false,
+          "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/TarefaColetorDto.java"
+        }
+      },
+      {
+        "name": "conjuntoId",
+        "type": "Long",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/TarefaColetorDto.java"
+      }
+    ],
+    "TarefaColetorDto.Tarefa": [
+      {
+        "name": "id",
+        "type": "Long",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/TarefaColetorDto.java"
+      },
+      {
+        "name": "versao",
+        "type": "long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/TarefaColetorDto.java"
+      },
+      {
+        "name": "tipo",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/TarefaColetorDto.java"
+      },
+      {
+        "name": "origemId",
+        "type": "Long",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/TarefaColetorDto.java"
+      },
+      {
+        "name": "clienteId",
+        "type": "Long",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/TarefaColetorDto.java"
+      },
+      {
+        "name": "cliente",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/TarefaColetorDto.java"
+      },
+      {
+        "name": "armazemId",
+        "type": "Long",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/TarefaColetorDto.java"
+      },
+      {
+        "name": "armazem",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/TarefaColetorDto.java"
+      },
+      {
+        "name": "referencia",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/TarefaColetorDto.java"
+      },
+      {
+        "name": "sku",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/TarefaColetorDto.java"
+      },
+      {
+        "name": "descricao",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/TarefaColetorDto.java"
+      },
+      {
+        "name": "codigoUnidade",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/TarefaColetorDto.java"
+      },
+      {
+        "name": "situacao",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/TarefaColetorDto.java"
+      },
+      {
+        "name": "impedimento",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/TarefaColetorDto.java"
+      },
+      {
+        "name": "criadaEm",
+        "type": "Instant",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/TarefaColetorDto.java"
+      },
+      {
+        "name": "responsavel",
+        "type": "String",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/TarefaColetorDto.java"
+      },
+      {
+        "name": "iniciadaEm",
+        "type": "Instant",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/TarefaColetorDto.java"
+      },
+      {
+        "name": "minha",
+        "type": "boolean",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/TarefaColetorDto.java"
+      }
+    ],
+    "TarefaColetorDto.Detalhe": [
+      {
+        "name": "tarefa",
+        "type": "TarefaColetorDto.Tarefa",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/TarefaColetorDto.java"
+      },
+      {
+        "name": "unidade",
+        "type": "EstoqueDto.Unidade",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/TarefaColetorDto.java"
+      },
+      {
+        "name": "pedido",
+        "type": "PedidoSaidaDto.Detalhe",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/TarefaColetorDto.java"
+      },
+      {
+        "name": "separacoes",
+        "type": "List<ExpedicaoDto.Separacao>",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/TarefaColetorDto.java",
+        "element": {
+          "name": "element",
+          "type": "ExpedicaoDto.Separacao",
+          "required": false,
+          "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/TarefaColetorDto.java"
+        }
+      },
+      {
+        "name": "inventario",
+        "type": "InventarioDto.Resumo",
+        "required": false,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/TarefaColetorDto.java"
+      }
+    ],
+    "TarefaColetorDto.Comando": [
+      {
+        "name": "operacaoId",
+        "type": "UUID",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/TarefaColetorDto.java"
+      },
+      {
+        "name": "versao",
+        "type": "Long",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/TarefaColetorDto.java",
+        "Min": "0"
+      },
+      {
+        "name": "motivo",
+        "type": "String",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/TarefaColetorDto.java",
+        "notBlank": true,
+        "Size": "min = 5, max = 500"
+      }
+    ],
+    "TarefaColetorDto.Enderecar": [
+      {
+        "name": "operacaoId",
+        "type": "UUID",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/TarefaColetorDto.java"
+      },
+      {
+        "name": "codigoLido",
+        "type": "UUID",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/TarefaColetorDto.java"
+      },
+      {
+        "name": "posicionar",
+        "type": "EstoqueDto.Posicionar",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/TarefaColetorDto.java"
+      }
+    ],
+    "TarefaColetorDto.Separar": [
+      {
+        "name": "operacaoId",
+        "type": "UUID",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/TarefaColetorDto.java"
+      },
+      {
+        "name": "leitura",
+        "type": "ExpedicaoDto.Leitura",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/TarefaColetorDto.java"
+      },
+      {
+        "name": "destinacao",
+        "type": "ExpedicaoDto.Destinacao",
+        "required": true,
+        "source": "backend/src/main/java/br/com/rodogarcia/wms/dto/TarefaColetorDto.java"
+      }
+    ],
     "UnidadeLogisticaDto.NovaUnidade": [
       {
         "name": "embalagemId",

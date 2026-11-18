@@ -1,6 +1,241 @@
 .collector {
     min-width: 0;
 }
+.collector-queue {
+    margin-bottom: var(--og-space-6);
+    min-width: 0;
+}
+.collector-queue-heading,
+.collector-queue-list > header,
+.collector-queue-list nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--og-space-3);
+}
+.collector-queue-heading {
+    margin-bottom: var(--og-space-3);
+}
+.collector-queue-heading h2 {
+    font-size: var(--og-type-section);
+    margin: 0;
+}
+.collector-queue-heading button {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--og-space-2);
+    min-height: 44px;
+}
+.collector .collector-queue-heading button {
+    width: auto;
+    flex-shrink: 0;
+}
+.collector .dialog-close {
+    width: var(--og-touch-height);
+    min-height: var(--og-touch-height);
+    height: var(--og-touch-height);
+}
+.collector-queue-cards {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--og-space-4);
+}
+.collector-queue-card {
+    --queue-bg: var(--og-selection);
+    --queue-text: var(--og-selection-text);
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr) auto;
+    grid-template-areas: "icon title count" "icon caption arrow";
+    align-items: center;
+    gap: var(--og-space-2) var(--og-space-3);
+    padding: var(--og-space-5);
+    min-height: 112px;
+    text-align: left;
+    border: 1px solid var(--og-border);
+    border-radius: var(--og-radius-card);
+    background: var(--queue-bg);
+    color: var(--queue-text);
+}
+.collector-queue-card--separacao {
+    --queue-bg: var(--wms-action-details-bg);
+    --queue-text: var(--wms-action-details-text);
+}
+.collector-queue-card--inventario {
+    --queue-bg: var(--og-success-bg);
+    --queue-text: var(--og-positive-text);
+}
+.collector-queue-card[aria-pressed="true"] {
+    outline: 2px solid var(--queue-text);
+    outline-offset: 2px;
+}
+.collector-queue-icon {
+    grid-area: icon;
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    background: var(--og-surface);
+    border-radius: var(--og-radius-control);
+}
+.collector-queue-name {
+    grid-area: title;
+    font-weight: var(--og-font-semibold);
+    font-size: var(--og-type-input-touch);
+}
+.collector-queue-count {
+    grid-area: count;
+    font-size: 28px;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    justify-self: end;
+}
+.collector-queue-caption {
+    grid-area: caption;
+    font-size: var(--og-type-caption);
+}
+.collector-queue-arrow {
+    grid-area: arrow;
+    justify-self: end;
+}
+.collector-queue-help {
+    margin-top: var(--og-space-3);
+    font-size: var(--og-type-caption);
+    color: var(--og-text-muted);
+}
+.collector-queue-help p {
+    max-width: 85ch;
+}
+.collector-queue-list {
+    margin-top: var(--og-space-4);
+    padding: var(--og-space-4);
+}
+.collector-queue-list h3 {
+    margin: 0;
+    font-size: var(--og-type-section);
+}
+.collector-queue-list article {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--og-space-4);
+    padding: var(--og-space-4) 0;
+    border-bottom: 1px solid var(--og-border);
+    overflow-wrap: anywhere;
+}
+.collector-queue-list article p {
+    margin: var(--og-space-1) 0;
+    color: var(--og-text-muted);
+}
+.collector-queue-list article button {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--og-space-2);
+}
+.collector-task-dialog {
+    max-width: 720px;
+}
+.collector-task-dialog input,
+.collector-task-dialog select,
+.collector-task-dialog button {
+    min-height: 52px;
+    font-size: var(--og-type-input-touch);
+}
+.collector-task-dialog > div {
+    min-width: 0;
+}
+.collector-task-dialog label {
+    display: grid;
+    gap: var(--og-space-2);
+    font-size: var(--og-type-input-touch);
+}
+.collector-task-dialog input,
+.collector-task-dialog select {
+    width: 100%;
+    min-width: 0;
+}
+.collector-task-summary {
+    padding-bottom: var(--og-space-4);
+    border-bottom: 1px solid var(--og-border);
+    margin-bottom: var(--og-space-4);
+    overflow-wrap: anywhere;
+}
+.collector-task-summary p {
+    margin: var(--og-space-1) 0;
+}
+.collector-task-dialog-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--og-space-3);
+    margin-top: var(--og-space-5);
+}
+.collector-task-execution {
+    display: grid;
+    gap: var(--og-space-4);
+    margin-bottom: var(--og-space-4);
+}
+.collector-task-execution form {
+    display: grid;
+    gap: var(--og-space-4);
+}
+.collector-task-instruction,
+.collector-task-confirm {
+    padding: var(--og-space-4);
+    border: 1px solid var(--og-border);
+    border-radius: var(--og-radius-control);
+    background: var(--og-surface-raised);
+}
+.collector-task-instruction p {
+    margin: var(--og-space-2) 0 0;
+}
+.collector-task-code {
+    overflow-wrap: anywhere;
+}
+.collector-task-measures {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--og-space-3);
+    min-width: 0;
+}
+.collector-task-measures > p {
+    grid-column: 1/-1;
+    margin: 0;
+}
+@media (max-width: 800px) {
+    .collector-queue-cards {
+        grid-template-columns: 1fr;
+        gap: var(--og-space-3);
+    }
+    .collector-queue-card {
+        min-height: 88px;
+        padding: var(--og-space-4);
+    }
+    .collector-queue-heading h2 {
+        font-size: var(--og-type-input-touch);
+    }
+    .collector-queue-list article {
+        grid-template-columns: 1fr;
+    }
+    .collector-queue-list > header {
+        align-items: flex-start;
+    }
+    .collector-queue-list > header button {
+        width: auto;
+    }
+    .collector-task-dialog-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .collector-task-dialog-actions button {
+        flex: 0 0 auto;
+        width: 100%;
+    }
+    .collector-task-dialog {
+        width: calc(100% - 16px);
+    }
+    .collector-task-measures {
+        grid-template-columns: 1fr;
+    }
+}
 .collector-workspace {
     width: 100%;
     display: grid;
@@ -260,6 +495,13 @@
     }
 }
 @media (max-width: 540px) {
+    .collector-queue-list > header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .collector-queue-list > header button {
+        width: 100%;
+    }
     .collector-unit .record,
     .collector .operation .operation-fields,
     .collector .structured-fields {

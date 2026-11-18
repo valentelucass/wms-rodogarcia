@@ -371,7 +371,7 @@ export function InventoryWorkspace(props: Props) {
                         {result && (result.itens?.length ?? 0) > 0 && (
                             <div className="inventory-table-scroll">
                                 <table
-                                    className="inventory-table"
+                                    className="inventory-table inventory-table--mobile"
                                     aria-label={
                                         view === "HISTORICO"
                                             ? "Inventários realizados"
@@ -404,7 +404,7 @@ export function InventoryWorkspace(props: Props) {
                                     <tbody>
                                         {history.map((row) => (
                                             <tr key={String(row.id)}>
-                                                <td>
+                                                <td data-label="Inventário">
                                                     <strong>
                                                         #{String(row.id)}
                                                     </strong>
@@ -412,22 +412,22 @@ export function InventoryWorkspace(props: Props) {
                                                         {row.responsavel}
                                                     </small>
                                                 </td>
-                                                <td>
+                                                <td data-label="Tipo">
                                                     {row.tipo === "CEGAS"
                                                         ? "Às cegas"
                                                         : row.tipo === "SKU"
                                                           ? "Por SKU"
                                                           : "Por posição"}
                                                 </td>
-                                                <td>
+                                                <td data-label="Início">
                                                     {inventoryDate(
                                                         row.iniciadoEm,
                                                     )}
                                                 </td>
-                                                <td>
+                                                <td data-label="Etiquetas lidas">
                                                     {String(row.unidadesLidas)}
                                                 </td>
-                                                <td>
+                                                <td data-label="Situação">
                                                     <StatusBadge
                                                         value={row.situacao}
                                                     />
@@ -443,7 +443,7 @@ export function InventoryWorkspace(props: Props) {
                                                             </small>
                                                         )}
                                                 </td>
-                                                <td>
+                                                <td data-label="Ações">
                                                     <button
                                                         type="button"
                                                         className="primary"
@@ -466,30 +466,32 @@ export function InventoryWorkspace(props: Props) {
                                             <tr
                                                 key={`${row.produtoId}/${row.posicoes}/${index}`}
                                             >
-                                                <td>
+                                                <td data-label="Produto / SKU">
                                                     <strong>
                                                         {row.descricao}
                                                     </strong>
                                                     <small>SKU {row.sku}</small>
                                                 </td>
                                                 {view === "POSICAO" && (
-                                                    <td>
+                                                    <td data-label="Posição">
                                                         {row.posicoes ||
                                                             "Sem endereço"}
                                                     </td>
                                                 )}
-                                                <td>{row.unidadeMedida}</td>
-                                                <td>
+                                                <td data-label="Unidade">
+                                                    {row.unidadeMedida}
+                                                </td>
+                                                <td data-label="Em estoque">
                                                     <span className="inventory-stock-quantity">
                                                         {inventoryQuantity(
                                                             row.quantidade,
                                                         )}
                                                     </span>
                                                 </td>
-                                                <td>
+                                                <td data-label="Mercadorias">
                                                     {String(row.mercadorias)}
                                                 </td>
-                                                <td>
+                                                <td data-label="Ações">
                                                     <button
                                                         type="button"
                                                         disabled={!available}

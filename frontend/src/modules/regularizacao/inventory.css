@@ -2,7 +2,12 @@
 .inventory-dialog-content,
 .inventory-report {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--og-space-4);
+    min-width: 0;
+}
+.inventory-dialog-content > *,
+.inventory-report > * {
     min-width: 0;
 }
 .inventory-heading,
@@ -293,7 +298,92 @@
         grid-template-columns: 1fr;
     }
 }
-@media (max-width: 640px) {
+@media (max-width: 767px) {
+    .inventory-filter-actions,
+    .inventory-views,
+    .inventory-dialog .button-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: var(--og-space-3);
+        width: 100%;
+    }
+    .inventory-filter-actions > button,
+    .inventory-dialog .button-row > button,
+    .inventory-views > button {
+        width: 100%;
+        min-height: 48px;
+    }
+    .inventory-admin .button-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: var(--og-space-3);
+        margin-top: var(--og-space-4);
+    }
+    .inventory-admin .button-row > button {
+        width: 100%;
+        min-height: 48px;
+        padding: var(--og-space-3) var(--og-space-4);
+    }
+    .inventory-table-scroll:has(> .inventory-table--mobile) {
+        overflow: visible;
+        border: 0;
+    }
+    .inventory-table.inventory-table--mobile,
+    .inventory-table--mobile tbody {
+        display: block;
+        width: 100%;
+        min-width: 0;
+    }
+    .inventory-table--mobile thead {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+    }
+    .inventory-table--mobile tbody {
+        display: grid;
+        gap: var(--og-space-4);
+    }
+    .inventory-table--mobile tbody tr {
+        display: block;
+        min-width: 0;
+        padding: var(--og-space-4);
+        border: 1px solid var(--og-border);
+        border-radius: var(--og-radius-control);
+        background: var(--og-surface);
+    }
+    .inventory-table--mobile td[data-label] {
+        display: block;
+        height: auto;
+        padding: var(--og-space-3) 0;
+        overflow-wrap: anywhere;
+    }
+    .inventory-table--mobile td[data-label]::before {
+        content: attr(data-label);
+        display: block;
+        margin-bottom: var(--og-space-1);
+        color: var(--og-text-muted);
+        font-size: var(--og-type-caption);
+        font-weight: var(--og-font-medium);
+    }
+    .inventory-table--mobile td[data-label] > * {
+        min-width: 0;
+    }
+    .inventory-table--mobile td[data-label] > small {
+        margin-top: 0;
+    }
+    .inventory-table--mobile td[data-label="Ações"] {
+        display: block;
+        padding-bottom: 0;
+    }
+    .inventory-table--mobile td[data-label="Ações"]::before {
+        display: none;
+    }
+    .inventory-table--mobile td[data-label="Ações"] button {
+        width: 100%;
+        min-height: 48px;
+    }
     .inventory-filter-fields {
         grid-template-columns: 1fr;
     }

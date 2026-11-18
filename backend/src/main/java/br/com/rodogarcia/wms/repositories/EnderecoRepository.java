@@ -24,6 +24,8 @@ public interface EnderecoRepository extends JpaRepository<Endereco, Long> {
 
     Page<Endereco> findByArmazemId(Long armazemId, Pageable pageable);
 
+    Optional<Endereco> findByArmazemIdAndCodigo(Long armazemId, String codigo);
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select c from Endereco c where c.id = :id")
     Optional<Endereco> buscarParaAtualizar(@Param("id") Long id);

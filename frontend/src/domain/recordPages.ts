@@ -169,7 +169,6 @@ export const recordPages: Record<string, RecordPage[]> = {
             ],
         ),
         page("PedidoSaidaController.listar", "PedidoSaidaController.consultar"),
-        page("PedidoSaidaController.listar", "ExpedicaoController.consultar"),
         page("PedidoSaidaController.listar", "PedidoSaidaController.consultar"),
     ],
     fiscal: [

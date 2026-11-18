@@ -33,12 +33,31 @@ public class FiscalSqlDev {
         } finally { Arrays.fill(b, (byte) 0); }
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
+        try { executar(args); }
+        catch (Throwable failure) {
+            var chain=new ArrayList<Map<String,Object>>();
+            for(Throwable e=failure;e!=null&&chain.size()<20;e=e.getCause()) {
+                var item=new LinkedHashMap<String,Object>();item.put("type",e.getClass().getName());
+                if(e instanceof org.springframework.beans.factory.BeanCreationException bean)
+                    item.put("bean",Objects.toString(bean.getBeanName(),""));
+                if(e.getMessage()!=null&&e.getMessage().matches("[A-Z][A-Z0-9_]{2,100}"))item.put("code",e.getMessage());
+                if(e instanceof java.sql.SQLException sql){item.put("sqlCode",sql.getErrorCode());item.put("sqlState",Objects.toString(sql.getSQLState(),""));}
+                item.put("frames",Arrays.stream(e.getStackTrace()).limit(3).map(x->x.getClassName()+"."+x.getMethodName()+":"+x.getLineNumber()).toList());
+                chain.add(item);
+            }
+            try { if(area!=null)Files.writeString(area.resolve("runner-failure-"+UUID.randomUUID()+".json"),JSON.writeValueAsString(Map.of("state","FAIL","chain",chain,"rawMessages",false)),StandardOpenOption.CREATE_NEW); }
+            catch(Exception ignored) { /* Nao publicar erro bruto se a prova estiver indisponivel. */ }
+            System.err.println("NFH_RUNNER_RECUSADO");System.exit(20);
+        }
+    }
+
+    static void executar(String[] args) throws Exception {
         // Todos os argumentos sao publicos. Material privado somente pelo stdin herdado.
         area = Path.of(args[0]).toRealPath();
         var gate = JSON.readTree(Files.readString(area.resolve("gate.json")));
-        if (!gate.path("allowed").asBoolean() || !gate.path("database").asText().equals("WMS_DEV")
-                || !gate.path("login").asText().equals("WMSDEV")
+        if (!gate.path("allowed").asBoolean() || !gate.path("database").asString().equals("WMS_DEV")
+                || !gate.path("login").asString().equals("WMSDEV")
                 || gate.path("externalCalls").asInt() != 0) throw new IllegalStateException("GATE_INVALIDO");
         var input = new DataInputStream(System.in);
         if (input.readInt() != 0x574d5301) throw new IllegalStateException("FRAME_INVALIDO");
@@ -56,13 +75,13 @@ public class FiscalSqlDev {
                 "--wms.database.host=127.0.0.1", "--wms.database.port=1433",
                 "--wms.database.name=WMS_DEV", "--wms.database.user=WMSDEV",
                 "--wms.database.confirmed-target=127.0.0.1:1433/WMS_DEV",
-                "--wms.database.confirmed-server=" + gate.path("server").asText(),
-                "--wms.database.tls.certificate-host=" + gate.path("certificateHost").asText(),
-                "--wms.database.tls.trust-store=" + gate.path("truststore").asText(),
+                "--wms.database.confirmed-server=" + gate.path("server").asString(),
+                "--wms.database.tls.certificate-host=" + gate.path("certificateHost").asString(),
+                "--wms.database.tls.trust-store=" + gate.path("truststore").asString(),
                 "--wms.identity.issuer=https://wms.localhost",
                 "--wms.identity.jwk-set-uri=https://wms.localhost/api/auth/jwks",
                 "--wms.identity.audience=wms-dev", "--wms.auth.enabled=true",
-                "--wms.auth.origin=http://localhost:25581", "--wms.auth.proxy-origin=",
+                "--wms.auth.origin=http://127.0.0.1:25582", "--wms.auth.proxy-origin=",
                 "--wms.auth.secure-cookie=false", "--wms.sql01.observation.enabled=false",
                 "--wms.notazz.enabled=false", "--wms.notazz.production-enabled=false",
                 "--logging.level.root=OFF", "--spring.main.banner-mode=off"));
@@ -113,9 +132,38 @@ public class FiscalSqlDev {
 
     @Configuration(proxyBeanMethods=false)
     public static class Controlado {
+        @Bean
+        DiagnosticoIntegridade diagnosticoIntegridade(br.com.rodogarcia.wms.exceptions.ApiExceptionHandler handler) { return new DiagnosticoIntegridade(handler); }
         @Bean @Primary
         NotazzGateway emissorControlado(FiscalNfeRepository repository, NotazzProperties properties) {
             return new Emissor(repository, properties);
+        }
+    }
+
+    @org.springframework.web.bind.annotation.RestControllerAdvice
+    @org.springframework.core.annotation.Order(org.springframework.core.Ordered.HIGHEST_PRECEDENCE)
+    static class DiagnosticoIntegridade {
+        final br.com.rodogarcia.wms.exceptions.ApiExceptionHandler handler;
+        DiagnosticoIntegridade(br.com.rodogarcia.wms.exceptions.ApiExceptionHandler handler) { this.handler=handler; }
+        @org.springframework.web.bind.annotation.ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
+        public org.springframework.http.ResponseEntity<Object> tratar(org.springframework.dao.DataIntegrityViolationException failure,org.springframework.web.context.request.WebRequest request) {
+            var chain=new ArrayList<Map<String,Object>>();
+            for(Throwable e=failure;e!=null&&chain.size()<12;e=e.getCause()) {
+                var item=new LinkedHashMap<String,Object>();item.put("type",e.getClass().getName());
+                if(e instanceof java.sql.SQLException sql){item.put("sqlCode",sql.getErrorCode());item.put("sqlState",Objects.toString(sql.getSQLState(),""));}
+                if(e instanceof org.hibernate.exception.ConstraintViolationException constraint) {
+                    var name=constraint.getConstraintName();if(name!=null&&name.matches("[A-Za-z_][A-Za-z0-9_.]{0,120}"))item.put("constraint",name);
+                }
+                if(e.getMessage()!=null) {
+                    var names=new ArrayList<String>();
+                    var matches=java.util.regex.Pattern.compile("(?i)(?:constraint|column|table|restrição|coluna|tabela)[^A-Za-z_]{1,6}([A-Za-z_][A-Za-z0-9_.]{0,100})").matcher(e.getMessage());
+                    while(matches.find()&&names.size()<6)names.add(matches.group(1));
+                    if(!names.isEmpty())item.put("schemaIdentifiers",names);
+                }
+                item.put("frames",Arrays.stream(e.getStackTrace()).limit(2).map(x->x.getClassName()+"."+x.getMethodName()+":"+x.getLineNumber()).toList());chain.add(item);
+            }
+            try {Files.writeString(area.resolve("integridade-"+UUID.randomUUID()+".json"),JSON.writeValueAsString(Map.of("chain",chain,"rawMessages",false)),StandardOpenOption.CREATE_NEW);}catch(Exception ignored){}
+            return handler.tratarIntegridade(request);
         }
     }
 
@@ -130,7 +178,7 @@ public class FiscalSqlDev {
                 try {
                     var old=JSON.readTree(Files.readString(ledger));
                     old.path("criacoes").properties().forEach(x->criacoes.put(x.getKey(),x.getValue().asInt()));
-                    for(var id:old.path("canceladas"))canceladas.add(id.asText());
+                    for(var id:old.path("canceladas"))canceladas.add(id.asString());
                 } catch(java.io.IOException ex) {throw new IllegalStateException("LEDGER_INDISPONIVEL");}
             }
         }

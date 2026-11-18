@@ -114,6 +114,7 @@ public class CadastrosSegurancaConfig {
                                                 "/api/v1/unidades-logisticas/**",
                                                 "/api/v1/contagens/**",
                                                 "/api/v1/inventarios/**",
+                                                "/api/v1/tarefas-coletor/**",
                                                 "/api/v1/cargas-iniciais/**",
                                                 "/api/v1/contingencias/**",
                                                 "/api/v1/indicadores-estoque/**",

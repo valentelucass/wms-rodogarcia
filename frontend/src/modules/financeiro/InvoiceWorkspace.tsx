@@ -1,3 +1,4 @@
+import { ResponsiveTable } from "../../components/layout/ResponsiveTable";
 import { useEffect, useMemo, useState, type ComponentProps } from "react";
 import type { JourneyPage } from "../../components/JourneyPage";
 import { PageHeader } from "../../components/layout/PageHeader";
@@ -316,7 +317,7 @@ export function InvoiceWorkspace(props: Props) {
                             !query.error &&
                             rows.length > 0 && (
                                 <div className="invoice-table-scroll">
-                                    <table
+                                    <ResponsiveTable
                                         className="invoice-table"
                                         aria-label="Fechamentos · faturas"
                                     >
@@ -458,7 +459,7 @@ export function InvoiceWorkspace(props: Props) {
                                                 );
                                             })}
                                         </tbody>
-                                    </table>
+                                    </ResponsiveTable>
                                 </div>
                             )}
                         {!query.needsFilters &&

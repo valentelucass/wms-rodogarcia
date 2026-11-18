@@ -99,19 +99,11 @@ function Invoke-WmsProdGuard {
         Assert-Prod 'contrato esperado exclusivo PROD; nao e prova de ambiente' ($baseline.schema -eq 1 -and $baseline.database -ceq 'WMS_PROD' -and $baseline.login -ceq 'WMSPROD')
         $report.oraculo=[ordered]@{arquivo='infra/prod/contrato-aplicacao.json';sha256=(Get-FileHash -LiteralPath $baselinePath -Algorithm SHA256).Hash;uso='contrato esperado comparado com metadados atuais; nao transporta aceite DEV'}
         $migrations=@(Get-WmsProdMigrations)
-        if (@($migrations | Where-Object {$_.version -ceq '12'}).Count -eq 1) {
-            . (Join-Path $script:WmsProdRoot 'infra/tipos-unidade/contrato-banco.ps1')
-            $baseline=Add-WmsUnitTypesExpectedContract $baseline ($migrations | Where-Object {$_.version -ceq '12'})
-            $report.oraculo['tiposUnidadeSha256']=(Get-FileHash -LiteralPath (Join-Path $script:WmsProdRoot 'infra/tipos-unidade/contrato-banco.ps1') -Algorithm SHA256).Hash
-        }
-        if (@($migrations | Where-Object {$_.version -ceq '13'}).Count -eq 1) {
-            . (Join-Path $script:WmsProdRoot 'infra/tabelas/contrato-banco.ps1')
-            $baseline=Add-WmsBillingTableExpectedContract $baseline ($migrations | Where-Object {$_.version -ceq '13'})
-        }
+        $minimum=$baseline
+        . (Join-Path $script:WmsProdRoot 'infra/prod/contrato-atualizacao.ps1')
+        $baseline=Get-WmsProductionReleaseContract $baseline $migrations
+        $report.oraculo['atualizacaoSha256']=(Get-FileHash -LiteralPath (Join-Path $script:WmsProdRoot 'infra/prod/contrato-atualizacao.ps1')).Hash
         Assert-Prod 'inventario local completo conforme contrato versionado' (Compare-ProdRows $migrations @($baseline.historico|Where-Object {$_.type -ceq 'SQL'}) @('version','script'))
-        . (Join-Path $script:WmsProdRoot 'infra/cadastros/contrato-edicao.ps1')
-        $cadastroBefore=$baseline
-        $baseline=Add-WmsCadastroEditExpectedContract $baseline
         $report.oraculo['edicaoCadastrosSha256']=(Get-FileHash -LiteralPath (Join-Path $script:WmsProdRoot 'infra/cadastros/contrato-edicao.ps1') -Algorithm SHA256).Hash
         $report.migrationsLocais=$migrations
         $metadata=Get-WmsProductionCredentialMetadata
@@ -180,13 +172,8 @@ function Invoke-WmsProdGuard {
         $rights.columns=@(Select-Prod 'colunas_wms_update_efetivo' "SELECT t.name tabela,c.name coluna,HAS_PERMS_BY_NAME(N'wms.'+t.name,N'OBJECT',N'UPDATE',c.name,N'COLUMN') permitido FROM sys.tables t JOIN sys.columns c ON c.object_id=t.object_id WHERE t.schema_id=SCHEMA_ID(N'wms') ORDER BY t.name,c.column_id")
         $report.direitos=$rights
         if ($CadastroPreGrant) {
-            $alreadyCurrent=Compare-ProdRows $rights.explicit $baseline.rights.explicit @('class_desc','esquema','objeto','minor_id','coluna','permission_name','state_desc')
-            $report.cadastroEdicao=[ordered]@{modo='PRE_GRANT';direitosAtuais=if($alreadyCurrent){'NOVOS'}else{'ANTERIORES'};liberaBackend=$false}
-            if (-not $alreadyCurrent) {
-                $legacy=Add-WmsCadastroEditExpectedContract $cadastroBefore -SomenteBase
-                $isLegacy=Compare-ProdRows $rights.explicit $legacy.rights.explicit @('class_desc','esquema','objeto','minor_id','coluna','permission_name','state_desc')
-                $baseline=if($isLegacy){$legacy}else{$cadastroBefore}
-            }
+            $baseline=Get-WmsProductionPreGrantContract $baseline $minimum $rights
+            $report.cadastroEdicao=[ordered]@{modo='PRE_GRANT';direitosAtuais='SUBCONJUNTO_REVISADO';liberaBackend=$false;catalogoVisivelSemNovosGrants=$true}
         }
         Assert-Prod 'nenhuma role/ownership/schema amplo; server somente CONNECT SQL/VIEW ANY DATABASE; database CONNECT' ($rights.roles.Count -eq 0 -and $rights.serverRoles.Count -eq 0 -and $rights.ownership.Count -eq 0 -and $rights.schema.Count -eq 0 -and (Compare-ProdRows $rights.server @([pscustomobject]@{permission_name='CONNECT SQL'},[pscustomobject]@{permission_name='VIEW ANY DATABASE'}) @('permission_name')) -and (Compare-ProdRows $rights.database @([pscustomobject]@{permission_name='CONNECT'}) @('permission_name')))
         foreach ($kind in @('server','database','roles','serverRoles','ownership','schema','explicit','objects','columns')) {

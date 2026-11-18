@@ -19,24 +19,11 @@ export const journeys: Journey[] = [
                 ["sugerir", "justificar", "reservar", "revalidar"],
             ),
             s(
-                "3. Leitura e separação",
-                "Confirme UUID e revisão do conteúdo da etiqueta. Destino de separação e remanescente são explícitos. Avaria pode bloquear a expedição.",
-                "ExpedicaoController",
-                ["consultar", "ler", "separar"],
-            ),
-            s(
-                "4. Reversão e cancelamento",
+                "3. Reversão e cancelamento",
                 "A reserva não vence automaticamente. Consulte consequências antes de cancelar ou reverter.",
                 "PedidoSaidaController",
                 ["reverter", "cancelar"],
             ),
-        ],
-        lookups: [
-            ["Consultar posições para separação", "EnderecoController.listar"],
-            [
-                "Consultar etiqueta da unidade",
-                "UnidadeLogisticaController.etiqueta",
-            ],
         ],
         references: [
             ["Unidade logística", "UnidadeLogisticaDto.Resumo"],
@@ -109,12 +96,12 @@ export const nextActions: Record<string, NextAction> = {
         title: "Confirmar reserva da sugestão do servidor",
     },
     "PedidoSaidaController.reservar": {
-        page: "saida",
-        action: "ExpedicaoController.ler",
-        title: "Ler a etiqueta da reserva confirmada",
+        page: "coletor",
+        action: "SEPARACAO",
+        title: "Abrir tarefa no Coletor",
     },
     "ExpedicaoController.ler": {
-        page: "saida",
+        page: "coletor",
         action: "ExpedicaoController.separar",
         title: "Confirmar destino da reserva lida",
     },

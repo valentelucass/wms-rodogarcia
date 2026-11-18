@@ -1,5 +1,5 @@
 [CmdletBinding()]
-param([Parameter(Mandatory=$true)][string]$EvidenceDirectory,[switch]$Executar)
+param([Parameter(Mandatory=$true)][string]$EvidenceDirectory,[Parameter(Mandatory=$true)][string]$RuntimeReceipt,[switch]$Executar,[switch]$NovaRodada)
 $ErrorActionPreference='Stop'
 $root=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 $area=[IO.Path]::GetFullPath($EvidenceDirectory)
@@ -7,19 +7,22 @@ $allowed=Join-Path $root 'orchestracao\.runtime\notazz-lifecycle-20261023'
 if($area -ine $allowed){throw 'NFH_EVIDENCIA_FORA_DO_ESCOPO'}
 [void][IO.Directory]::CreateDirectory($area)
 if(-not $Executar){
- & (Join-Path $root '../.runtime/memory-control/Executar-Batch.ps1') -Executable (Join-Path $env:SystemRoot 'System32/WindowsPowerShell/v1.0/powershell.exe') -ArgumentList @('-NoProfile','-File',$PSCommandPath,'-EvidenceDirectory',$area,'-Executar') -WorkingDirectory $root -ReceiptPath (Join-Path $area ('memoria-'+[guid]::NewGuid().ToString('N')+'.json')) -MaxMinutes 35
+ $childArguments=@('-NoProfile','-File',$PSCommandPath,'-EvidenceDirectory',$area,'-RuntimeReceipt',$RuntimeReceipt,'-Executar')
+ if($NovaRodada){$childArguments+=,'-NovaRodada'}
+ & (Join-Path $root '../.runtime/memory-control/Executar-Batch.ps1') -Executable (Join-Path $env:SystemRoot 'System32/WindowsPowerShell/v1.0/powershell.exe') -ArgumentList $childArguments -WorkingDirectory $root -ReceiptPath (Join-Path $area ('memoria-'+[guid]::NewGuid().ToString('N')+'.json')) -MaxMinutes 35
  exit $LASTEXITCODE
 }
 Set-Location -LiteralPath $root
-. (Join-Path $root 'orchestracao/.runtime/notazz-implementation-20261023/active-read-runtime.ps1')
+. (Join-Path $root 'infra/dev/artefato-backend.ps1')
+. (Join-Path $PSScriptRoot 'runtime-validacao.ps1')
 . (Join-Path $root 'infra/dev02/guarda-wmsdev.ps1')
 . (Join-Path $root 'database/scripts/d26-credencial-aplicacao.ps1')
 . (Join-Path $root 'infra/auth/login-protegido.ps1')
 . (Join-Path $root 'infra/sql01/transporte-privado.ps1')
-$javaProcess=$null;$nodeProcess=$null;$credential=$null;$signing=$null;$login=$null
-$phase='GUARDAS';$report=[ordered]@{id='BE10-NOTAZZ-SQL01';started=[DateTime]::UtcNow.ToString('o');state='PREPARO';database='WMS_DEV';login='WMSDEV';port=25582;production=$false;externalCalls=0;businessFixtures='Somente HTTP autenticado';rawLogsSaved=$false}
+$javaProcess=$null;$nodeProcess=$null;$credential=$null;$signing=$null;$login=$null;$javaStarted=$false;$nodeStarted=$false
+$phase='GUARDAS';$report=[ordered]@{id='BE10-NOTAZZ-SQL01';started=[DateTime]::UtcNow.ToString('o');state='PREPARO';phase=$null;failure=$null;database='WMS_DEV';login='WMSDEV';port=25582;production=$false;externalCalls=0;businessFixtures='Somente HTTP autenticado';rawLogsSaved=$false}
 try{
- $runtime=Assert-NotazzActiveReadRuntime
+ $runtime=Assert-NotazzCurrentRuntime $RuntimeReceipt
  if(!$runtime.fullCurrentSourceEquivalent -or !$runtime.allRecordedSourceHashesEqual){throw 'NFH_FONTE_ATIVA_DIVERGENTE'}
  $guard=Invoke-WmsDev02Guard
  if(!$guard.guardaRealAprovada -or @($guard.checks).Count -ne 26 -or @($guard.checks|Where-Object {!$_.passou}).Count){throw 'NFH_GUARDA_RECUSADA'}
@@ -27,6 +30,19 @@ try{
  $guardPath=Join-Path $area ('guarda-'+[guid]::NewGuid().ToString('N')+'.json')
  Write-WmsDevCreateOnlyJson $guardPath $guard
  if(@(Get-NetTCPConnection -State Listen -LocalPort 25582 -ErrorAction SilentlyContinue).Count){throw 'NFH_PORTA_OCUPADA'}
+ if($NovaRodada){
+  $previousPath=Join-Path $area 'ciclo.json'
+  if(!(Test-Path -LiteralPath $previousPath)){throw 'NFH_RODADA_ANTERIOR_AUSENTE'}
+  $previous=Get-Content -LiteralPath $previousPath -Raw -Encoding UTF8|ConvertFrom-Json
+  if($previous.prefix -cnotmatch '^NFH23-[a-f0-9]{8}$' -or !$previous.fixtures.cliente.id){throw 'NFH_FIXTURE_BASE_INVALIDA'}
+  [IO.File]::WriteAllText((Join-Path $area 'fixture-base.json'),(@{cliente=$previous.fixtures.cliente;rodadaAnterior=$previous.prefix;sqlPreservado=$true}|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false))
+  $suffix=[guid]::NewGuid().ToString('N')
+  foreach($name in @('ciclo.json','fixture-plan.json','provider-ledger.json')){
+   $prior=[IO.Path]::GetFullPath((Join-Path $area $name));$preserved=[IO.Path]::GetFullPath((Join-Path $area ($name+'.preservado-'+$suffix)))
+   if([IO.Path]::GetDirectoryName($prior) -ine $area -or [IO.Path]::GetDirectoryName($preserved) -ine $area){throw 'NFH_ARQUIVO_FORA_DA_AREA'}
+   if(Test-Path -LiteralPath $prior){Move-Item -LiteralPath $prior -Destination $preserved}
+  }
+ }
  foreach($name in @('server-ready.json','provider-ready.json','stop')){
   $old=Join-Path $area $name
   if(Test-Path -LiteralPath $old){Move-Item -LiteralPath $old -Destination ($old+'.anterior-'+[guid]::NewGuid().ToString('N'))}
@@ -68,6 +84,7 @@ try{
  $info.Arguments=(@($arguments|ForEach-Object {'"'+$_+'"'}) -join ' ')
  $javaProcess=[Diagnostics.Process]::new();$javaProcess.StartInfo=$info
  if(!$javaProcess.Start()){throw 'NFH_RUNNER_NAO_INICIOU'}
+ $javaStarted=$true
  $jout=$javaProcess.StandardOutput.ReadToEndAsync();$jerr=$javaProcess.StandardError.ReadToEndAsync()
  Send-WmsSql01PrivateMaterial $javaProcess.StandardInput.BaseStream $credential.Password $signing
  $javaProcess.StandardInput.Close();$credential.Password.Dispose();$credential=$null;$signing.Dispose();$signing=$null
@@ -94,9 +111,10 @@ try{
  $nodeInfo.RedirectStandardInput=$true;$nodeInfo.RedirectStandardOutput=$true;$nodeInfo.RedirectStandardError=$true
  $nodeProcess=[Diagnostics.Process]::new();$nodeProcess.StartInfo=$nodeInfo
  if(!$nodeProcess.Start()){throw 'NFH_HTTP_NAO_INICIOU'}
+ $nodeStarted=$true
  $nout=$nodeProcess.StandardOutput.ReadToEndAsync();$nerr=$nodeProcess.StandardError.ReadToEndAsync()
  $plain=[Management.Automation.PSCredential]::new($login.email,$login.senha)
- $payload=@{email=$plain.UserName;senha=$plain.GetNetworkCredential().Password}|ConvertTo-Json -Compress
+ $payload=@{email=$plain.UserName;senha=$plain.GetNetworkCredential().Password;sourceHash=$gate.sourceHash;jarSha256=$gate.jarSha256;scriptSha256=(Get-FileHash -LiteralPath (Join-Path $PSScriptRoot 'testes/ciclo-sql-dev.mjs')).Hash}|ConvertTo-Json -Compress
  $nodeProcess.StandardInput.Write($payload);$nodeProcess.StandardInput.Close();$payload=$null;$plain=$null;$login.senha.Dispose();$login=$null
  while(!$nodeProcess.WaitForExit(500)) {if($javaProcess.HasExited){throw 'NFH_SERVIDOR_ENCERROU_DURANTE_TESTE'}}
  Write-Output $nout.Result
@@ -109,8 +127,9 @@ try{
  $report.failure=@{code=$code;line=$_.InvocationInfo.ScriptLineNumber;type=$_.Exception.GetType().FullName}
 }finally{
  if($credential){$credential.Password.Dispose()};if($signing){$signing.Dispose()};if($login){$login.senha.Dispose()}
- if($javaProcess -and !$javaProcess.HasExited){[IO.File]::WriteAllText((Join-Path $area 'stop'),'');if(!$javaProcess.WaitForExit(15000)){$javaProcess.Kill();$javaProcess.WaitForExit()}}
- if($javaProcess){$report.runnerExit=$javaProcess.ExitCode;$javaProcess.Dispose()};if($nodeProcess){$nodeProcess.Dispose()}
+ if($nodeStarted -and !$nodeProcess.HasExited){$nodeProcess.Kill();$nodeProcess.WaitForExit()}
+ if($javaStarted -and !$javaProcess.HasExited){[IO.File]::WriteAllText((Join-Path $area 'stop'),'');if(!$javaProcess.WaitForExit(15000)){$javaProcess.Kill();$javaProcess.WaitForExit()}}
+ if($javaStarted){$report.runnerExit=$javaProcess.ExitCode};if($javaProcess){$javaProcess.Dispose()};if($nodeProcess){$nodeProcess.Dispose()}
  $report.finished=[DateTime]::UtcNow.ToString('o')
  $out=Join-Path $area ('execucao-'+[guid]::NewGuid().ToString('N')+'.json')
  [IO.File]::WriteAllText($out,($report|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false))

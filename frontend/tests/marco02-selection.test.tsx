@@ -120,38 +120,27 @@ it("UI troca pedido601/reserva701 por pedido602 sem conservar ID, revisão ou op
     });
     expect(refs).toHaveTextContent("Pedido de saída: SAI-000601");
     expect(refs).toHaveTextContent(String(reserve.codigoUnidade));
+    expect(
+        screen.queryByRole("button", { name: "3. Leitura e separação" }),
+    ).toBeNull();
     fireEvent.click(
-        screen.getByRole("button", { name: "3. Leitura e separação" }),
+        screen.getByRole("button", { name: "2. Sugestão FIFO e reserva" }),
     );
     await selectOrder(1);
-    await click("Conferir leitura da reserva");
+    await click("Consultar sugestão FIFO");
     expect(
         screen.getByLabelText("Identificador *", { exact: true }),
     ).toHaveValue("601");
-    expect(screen.getByLabelText("Reserva *", { exact: true })).toHaveValue(
-        "701",
-    );
-    expect(
-        screen.getByLabelText("Revisão atual *", { exact: true }),
-    ).toHaveValue("3");
     fireEvent.click(screen.getByRole("button", { name: "1. Pedido integral" }));
     await selectOrder(2);
     expect(refs).toHaveTextContent("Pedido de saída: SAI-000602");
     expect(refs).not.toHaveTextContent(String(reserve.codigoUnidade));
-    fireEvent.click(
-        screen.getByRole("button", { name: "3. Leitura e separação" }),
-    );
-    await selectOrder(2);
-    expect(
-        within(screen.getByRole("dialog")).queryByRole("button", {
-            name: "Conferir leitura da reserva",
-        }),
-    ).toBeNull();
     expect(screen.getByRole("dialog")).toHaveTextContent("SAI-000602");
     expect(
         screen.queryByRole("option", { name: String(reserve.codigoUnidade) }),
     ).toBeNull();
 });
+
 it("UI consulta FIFO mantém ID imutável do pai selecionado", async () => {
     render(<Harness transport={transportWith()} />);
     await selectOrder(1);

@@ -9,9 +9,22 @@ it.each(["código", "modo", "contexto", "desmontagem"])(
     async (change) => {
         const resolvers: ((r: Receipt) => void)[] = [];
         const transport: Transport = {
-            send: vi.fn(
-                () =>
-                    new Promise<Receipt>((resolve) => resolvers.push(resolve)),
+            send: vi.fn((request) =>
+                request.endpoint.id.startsWith("TarefaColetorController.")
+                    ? Promise.resolve({
+                          data: {
+                              disponivel: false,
+                              mensagem:
+                                  "Tarefas não ativadas neste teste de leitura.",
+                          },
+                          raw: "",
+                          requestId: "tasks",
+                          ficticio: true,
+                          replay: false,
+                      })
+                    : new Promise<Receipt>((resolve) =>
+                          resolvers.push(resolve),
+                      ),
             ),
         };
         const { unmount, rerender } = render(

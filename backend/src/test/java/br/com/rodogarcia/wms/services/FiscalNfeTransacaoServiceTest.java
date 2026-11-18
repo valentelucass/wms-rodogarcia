@@ -193,6 +193,34 @@ class FiscalNfeTransacaoServiceTest {
     }
 
     @Test
+    void cancelamentoComCanalOcupadoNaoPodeParecerConfirmado() {
+        var s = FiscalNfeTestFixture.solicitacao("AUTORIZADA");
+        when(repository.consultar(eq(s.id()), anyBoolean())).thenReturn(s);
+        when(repository.ocuparCanal(any(), anyInt(), any(), any(), any())).thenReturn(false);
+        when(xml.conferir(any(), any()))
+                .thenReturn(
+                        new FiscalNfeXml.Autorizacao(
+                                null,
+                                "123456789012345",
+                                FiscalNfeTestFixture.AGORA.minusSeconds(60)));
+        assertThatThrownBy(
+                        () ->
+                                service()
+                                        .adquirir(
+                                                61L,
+                                                s.id(),
+                                                "CANCELAR",
+                                                new FiscalNfeDto.Comando(
+                                                        UUID.randomUUID(),
+                                                        "Desistência antes da retirada da carga"),
+                                                "dono"))
+                .isInstanceOf(br.com.rodogarcia.wms.exceptions.RegraNegocioException.class)
+                .hasMessageContaining("cancelamento ainda não foi enviado");
+        verify(repository, never()).estado(any(), any(), any(), any());
+        verify(repository, never()).evento(any(), any(), any(), any(), any());
+    }
+
+    @Test
     void resultadoPerdidoNaoEhRejeicaoOuCancelamentoConfirmado() {
         var s = FiscalNfeTestFixture.solicitacao("ENVIANDO");
         when(repository.consultar(eq(s.id()), anyBoolean())).thenReturn(s);

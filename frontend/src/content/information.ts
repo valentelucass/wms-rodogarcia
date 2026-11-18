@@ -78,6 +78,11 @@ export const unknownStoredValueReason = {
 };
 
 export const information = {
+    collectorTasks: {
+        title: "Tarefas do coletor",
+        description:
+            "Os cards contam tarefas pendentes e em andamento do cliente e dos armazéns permitidos. Uma tarefa corresponde a uma unidade a endereçar, um pedido de saída ou um inventário. O pedido aguarda reserva antes da separação. Iniciar identifica o responsável; devolver à fila permite redistribuir. Operações confirmadas pelo fluxo manual também encerram a pendência. Zero indica consulta sem pendências; falha de consulta não equivale a zero. Inventário mantém a contagem às cegas. Reimpressão de etiqueta não cria tarefa.",
+    },
     fiscalWithdrawal: {
         title: "Retirada fiscal da mercadoria",
         description:
@@ -548,7 +553,7 @@ export const information = {
     shippingShortcut: {
         title: "Reservar e separar",
         description:
-            "Acesse pedidos de saída, reserva e separação do estoque. Confirme as referências e a disponibilidade antes de concluir cada etapa.",
+            "Crie o pedido e confirme a reserva nesta tela. A leitura das etiquetas e a separação são realizadas no Coletor, pela tarefa vinculada ao pedido.",
     },
     closingShortcut: {
         title: "Conferir fechamento",

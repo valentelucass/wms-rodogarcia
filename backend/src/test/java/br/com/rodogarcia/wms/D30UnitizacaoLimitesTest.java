@@ -122,8 +122,9 @@ class D30UnitizacaoLimitesTest {
                             Clock.fixed(AGORA, ZoneOffset.UTC),
                             estoque,
                             org.mockito.Mockito.mock(
-                                    br.com.rodogarcia.wms.services.ConferenciaBobinasService
-                                            .class));
+                                    br.com.rodogarcia.wms.services.ConferenciaBobinasService.class),
+                            org.mockito.Mockito.mock(
+                                    br.com.rodogarcia.wms.services.TarefaColetorRegistro.class));
         }
     }
 

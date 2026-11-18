@@ -156,7 +156,8 @@ class InventarioServiceTest {
                 audit,
                 JsonMapper.builder().build(),
                 clock,
-                enabled);
+                enabled,
+                mock(TarefaColetorRegistro.class));
     }
 
     InventarioSessao session(String situacao) {
