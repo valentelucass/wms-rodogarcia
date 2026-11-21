@@ -33,3 +33,17 @@ A análise sintática dos 45 scripts PowerShell atuais não encontrou erros; `gi
 Esta entrega valida conexão administrativa, criação/migrations e catálogo real. BE03/BE15 continuam com pendências de identidade própria da aplicação, teste integrado de operações/concorrência, backup/restauração e homologação. O backend, frontend, equipamentos e processos de negócio não foram iniciados ou homologados por este trabalho. `sa` permanece restrito ao executor administrativo; não deve ser usado pela aplicação.
 
 Novos projetos devem seguir o [guia compartilhado](../../.runtime/sql-server/README.md). Para o WMS, a configuração já está pronta: executar [iniciar-bancos.bat](../database/iniciar-bancos.bat) quando houver migrations autorizadas, seguindo o [guia do operador](../database/README.md). Não repetir provisionamento de credencial a cada execução.
+
+## Como conferir o WMS durante uma mudança em outro banco
+
+Anotar banco, ambiente e horário. Conferir a saúde da API, a abertura da interface e uma leitura de negócio com acesso autorizado. A consulta abaixo usa apenas totais, sem expor pedidos e notas. Executá-la no banco WMS que corresponde ao ambiente acompanhado.
+
+```sql
+SELECT DB_NAME() AS banco,
+       (SELECT COUNT_BIG(*) FROM wms.pedido_entrada) AS pedidos,
+       (SELECT COUNT_BIG(*) FROM wms.item_nota_entrada) AS itens;
+```
+
+Na auditoria de 20/11/2026, essa leitura em produção devolveu 20 pedidos e 70 itens. API e interface responderam HTTP 200 na mesma conferência. Para uma próxima rodada, registrar o resultado observado e os recebimentos que ocorreram entre as leituras. Para provar uma alteração do próprio WMS, completar o teste de negócio em DEV com os mesmos pedidos, itens e saldos nas duas versões. [Ensaios de leitura em DEV](40-testes-backend-e-leitura-sql-dev.md)
+
+Na análise de disco, identificar os pacotes ativos e sua referência no manifesto antes de examinar arquivos antigos. Cópias idênticas e imutáveis de testes podem compartilhar espaço quando a identidade, o conteúdo e a alocação física são conferidos. Contabilizar os bytes físicos liberados à parte dos bytes lógicos de arquivos removidos.
