@@ -1,0 +1,6 @@
+{
+  "java": {
+    "path": "%LOCALAPPDATA%\\Programs\\Eclipse Adoptium\\jdk-21\\bin\\java.exe",
+    "sha256": "82051fdab26319d77d20cc0065045d05ec00b3e3d05f44935d7c06b96b621d55"
+  }
+}

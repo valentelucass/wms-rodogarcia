@@ -7,7 +7,7 @@ $root=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 . (Join-Path $root 'infra/prod/guarda-wmsprod.ps1')
 . (Join-Path $PSScriptRoot 'contrato-edicao.ps1')
 . (Join-Path $root 'infra/prod/contrato-atualizacao.ps1')
-$out=Join-Path $root ('orchestracao/.runtime/cadastros-etiqueta-20261014/ativacao-prod-'+[Guid]::NewGuid().ToString('N'))
+$out=Join-Path $root ('.runtime/database/permissoes/prod-'+[Guid]::NewGuid().ToString('N'))
 $null=New-Item -ItemType Directory -Path $out
 $report=[ordered]@{demanda='CAD-EDIT01';modo=$Modo;inicioUtc=[DateTime]::UtcNow.ToString('o');estado='PREPARO';fase='FONTES';banco='WMS_PROD';loginAplicacao='WMSPROD';grantsAplicados=$false;colunas=23;adminAberturas=0;prod=$true;ddl=$false;dml=$false;recapturaTLS=$false}
 $connection=$null;$credential=$null;$transaction=$null;$builder=$null

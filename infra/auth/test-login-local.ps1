@@ -2,7 +2,7 @@
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'contrato-banco.ps1')
 $root = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
-$historicalPath = Join-Path $root 'orchestracao/.runtime/d29-farol-retomada-preflight.json'
+$historicalPath = Join-Path $root 'database/contratos/contrato-dev.json'
 $before = (Get-FileHash -LiteralPath $historicalPath).Hash
 $historical = Get-Content -LiteralPath $historicalPath -Raw -Encoding UTF8 | ConvertFrom-Json
 $migration = [pscustomobject]@{version='11';script='V11__login_usuarios_e_sessoes.sql';checksum=123}

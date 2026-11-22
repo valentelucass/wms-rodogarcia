@@ -91,7 +91,7 @@ test("Início nativo preserva Long exato, Bearer e valores restritos ao perfil",
         .toBe(clienteId);
     expect(calls.at(-1)?.searchParams.get("armazemId")).toBe("2");
     await expect(charts.locator(".dashboard-chart")).toHaveCount(3);
-    await expect(charts.getByText("DEMO-BOBINA")).toBeVisible();
+    await expect(charts.getByRole("button", { name: /^DEMO-BOBINA, total físico/ })).toBeVisible();
     expect(chartCalls.at(-1)?.searchParams.get("clienteId")).toBe(clienteId);
     expect(chartCalls.at(-1)?.searchParams.get("armazemId")).toBe("2");
     await expect(charts).toContainText("Cliente de teste · Armazém de teste");
@@ -99,12 +99,12 @@ test("Início nativo preserva Long exato, Bearer e valores restritos ao perfil",
     await expect(overview.locator(".overview-metric")).toHaveCount(10);
     await charts.getByRole("button", { name: "Próxima", exact: true }).focus();
     await page.keyboard.press("Enter");
-    await expect(charts.getByText("DEMO-VOLUME")).toBeVisible();
+    await expect(charts.getByRole("button", { name: /^DEMO-VOLUME, total físico/ })).toBeVisible();
     await expect(
         charts.getByRole("heading", { name: "Disponibilidade por produto" }),
     ).toBeFocused();
     await charts.getByRole("button", { name: "Anterior", exact: true }).click();
-    await expect(charts.getByText("DEMO-BOBINA")).toBeVisible();
+    await expect(charts.getByRole("button", { name: /^DEMO-BOBINA, total físico/ })).toBeVisible();
     for (const theme of ["light", "dark"]) {
         if (theme === "dark")
             await page.getByRole("button", { name: /tema escuro/i }).click();
@@ -158,7 +158,7 @@ test("Início nativo preserva Long exato, Bearer e valores restritos ao perfil",
     );
     denied = true;
     await overview.getByRole("button", { name: "Atualizar visão" }).click();
-    await expect(overview.getByRole("alert")).toContainText(
+    await expect(overview.getByRole("alert").filter({ hasText: "Seu acesso não permite consultar este contexto." })).toContainText(
         "Seu acesso não permite",
     );
     await charts.getByRole("button", { name: "Atualizar gráficos" }).click();

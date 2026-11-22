@@ -8,6 +8,7 @@ import {
     lstat,
     copyFile,
     symlink,
+    rm,
 } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -53,7 +54,7 @@ export function buildArguments(args) {
         !/^[a-zA-Z0-9-]{1,100}$/.test(result["run-id"] ?? "")
     )
         fail("WMS_PROD_BUILD_ARGUMENTS_INVALID");
-    const base = path.join(project, "orchestracao/.runtime/launcher-producao");
+    const base = path.join(project, ".runtime/prod");
     const relative = path.relative(base, result.release);
     if (!relative || relative.startsWith("..") || path.isAbsolute(relative))
         fail("WMS_PROD_RELEASE_OUTSIDE_SCOPE");
@@ -122,7 +123,7 @@ export async function typecheckSnapshot(source) {
 export async function buildRelease(options) {
     const releaseParent = await realpath(path.dirname(options.release));
     const base = await realpath(
-        path.join(project, "orchestracao/.runtime/launcher-producao"),
+        path.join(project, ".runtime/prod"),
     );
     const relative = path.relative(base, releaseParent);
     if (relative.startsWith("..") || path.isAbsolute(relative))
@@ -134,71 +135,77 @@ export async function buildRelease(options) {
     const output = path.join(options.release, "dist");
     // mkdir sem recursive impede reaproveitar fonte/dist de candidato anterior.
     await mkdir(source);
-    await mkdir(output);
-    const initial = await inputs();
-    for (const item of initial) {
-        const target = path.join(source, item.path);
-        await mkdir(path.dirname(target), { recursive: true });
-        await copyFile(path.join(frontend, item.path), target);
-        if (hash(await readFile(target)) !== item.sha256)
-            fail("WMS_PROD_SOURCE_CHANGED_DURING_CAPTURE");
-    }
-    await symlink(
-        path.join(frontend, "node_modules"),
-        path.join(source, "node_modules"),
-        process.platform === "win32" ? "junction" : "dir",
-    );
-    assertSourceUnchanged(initial, await inputs(), "CAPTURE");
-    await typecheckSnapshot(source);
-    await build({
-        root: source,
-        configFile: path.join(source, "vite.prod.config.ts"),
-        // Evita config compilada/cache temporária dentro do node_modules compartilhado.
-        configLoader: "native",
-        cacheDir: path.join(options.release, "vite-cache"),
-        mode: "production",
-        define: {
-            "import.meta.env.VITE_WMS_PRODUCTION_RUN_ID": JSON.stringify(
-                options.runId,
-            ),
-        },
-        build: { outDir: output, emptyOutDir: false },
-    });
-    assertSourceUnchanged(initial, await inputs(), "BUILD");
-    const artifacts = [];
-    for (const name of await list(output)) {
-        const bytes = await readFile(path.join(output, name));
-        artifacts.push({
-            path: name,
-            bytes: bytes.length,
-            sha256: hash(bytes),
+    try {
+        await mkdir(output);
+        const initial = await inputs();
+        for (const item of initial) {
+            const target = path.join(source, item.path);
+            await mkdir(path.dirname(target), { recursive: true });
+            await copyFile(path.join(frontend, item.path), target);
+            if (hash(await readFile(target)) !== item.sha256)
+                fail("WMS_PROD_SOURCE_CHANGED_DURING_CAPTURE");
+        }
+        await symlink(
+            path.join(frontend, "node_modules"),
+            path.join(source, "node_modules"),
+            process.platform === "win32" ? "junction" : "dir",
+        );
+        assertSourceUnchanged(initial, await inputs(), "CAPTURE");
+        await typecheckSnapshot(source);
+        await build({
+            root: source,
+            configFile: path.join(source, "vite.prod.config.ts"),
+            // Evita config compilada/cache temporária dentro do node_modules compartilhado.
+            configLoader: "native",
+            cacheDir: path.join(options.release, "vite-cache"),
+            mode: "production",
+            define: {
+                "import.meta.env.VITE_WMS_PRODUCTION_RUN_ID": JSON.stringify(
+                    options.runId,
+                ),
+            },
+            build: { outDir: output, emptyOutDir: false },
         });
+        assertSourceUnchanged(initial, await inputs(), "BUILD");
+        const artifacts = [];
+        for (const name of await list(output)) {
+            const bytes = await readFile(path.join(output, name));
+            artifacts.push({
+                path: name,
+                bytes: bytes.length,
+                sha256: hash(bytes),
+            });
+        }
+        const manifest = {
+            natureza: "WMS_PROD_FRONTEND_BUILD",
+            runId: options.runId,
+            sourceHash: sourceHash(initial),
+            buildmode: "real",
+            builtUtc: new Date().toISOString(),
+            artifacts,
+            inputs: initial.map((item) => ({
+                ...item,
+                sourcePath: `frontend/${item.path}`,
+            })),
+            typecheck: "PASS",
+            liveSourceUnchangedThroughBuild: true,
+        };
+        const manifestPath = path.join(output, "build-manifest.json");
+        await writeFile(manifestPath, JSON.stringify(manifest, null, 2) + "\n", {
+            flag: "wx",
+        });
+        return {
+            ...manifest,
+            dist: output,
+            manifestPath,
+            manifestSha256: hash(await readFile(manifestPath)),
+        };
+    } finally {
+        if ((await realpath(source)) !== source || path.dirname(source) !== options.release)
+            fail("WMS_PROD_RELEASE_LINK_REJECTED");
+        // fs.rm removes the node_modules junction itself. Its target belongs to frontend.
+        await rm(source, { recursive: true, force: true });
     }
-    const manifest = {
-        natureza: "WMS_PROD_FRONTEND_BUILD",
-        runId: options.runId,
-        sourceHash: sourceHash(initial),
-        buildmode: "real",
-        builtUtc: new Date().toISOString(),
-        artifacts,
-        inputs: initial.map((item) => ({
-            ...item,
-            sourcePath: `frontend/${item.path}`,
-            usedPath: path.join(source, item.path),
-        })),
-        typecheck: "PASS",
-        liveSourceUnchangedThroughBuild: true,
-    };
-    const manifestPath = path.join(output, "build-manifest.json");
-    await writeFile(manifestPath, JSON.stringify(manifest, null, 2) + "\n", {
-        flag: "wx",
-    });
-    return {
-        ...manifest,
-        dist: output,
-        manifestPath,
-        manifestSha256: hash(await readFile(manifestPath)),
-    };
 }
 
 if (

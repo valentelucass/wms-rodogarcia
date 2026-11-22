@@ -90,7 +90,7 @@ Check 'direito_duplicado_recusado' {
 Check 'contrato_final_nao_modificado_pelo_preparo' {
     Need (($expected | ConvertTo-Json -Depth 40 -Compress) -ceq $expectedJson)
 }
-$area=Join-Path $repository ('orchestracao/.runtime/prod-atualiza-20261103/contrato-'+[guid]::NewGuid().ToString('N'))
+$area=Join-Path $repository ('.runtime/testes/prod-atualiza-20261103/contrato-'+[guid]::NewGuid().ToString('N'))
 $null=New-Item -ItemType Directory -Path $area
 [IO.File]::WriteAllText((Join-Path $area 'resultado.json'),($results.ToArray() | ConvertTo-Json -Depth 4),[Text.UTF8Encoding]::new($false))
 Write-Output ('Contrato PROD: '+$results.Count+' verificacoes aprovadas, sem SQL. '+$area)

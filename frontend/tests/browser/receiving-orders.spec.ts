@@ -287,7 +287,7 @@ async function api(page: Page, perfil = "SUPERVISOR", longText = false) {
             data = details[params[0]];
         } else if (contract.id === "PedidoEntradaController.criar") {
             const created = {
-                ...makeOrder("103", "RASCUNHO", String(body!.referencia)),
+                ...makeOrder("103", "RASCUNHO", "PED-NOVO-XML"),
                 versao: "0",
             };
             orders.push(created);
@@ -359,7 +359,7 @@ async function open(page: Page, theme: string, width = 1440) {
     await page.getByRole("option", { name: /Armazém de ensaio/ }).click();
     await context.getByRole("button", { name: "Aplicar contexto" }).click();
     await expect(
-        page.getByRole("cell", { name: "Divergente", exact: true }),
+        page.getByRole("cell", { name: /^(Conferência )?Divergente$/ }),
     ).toBeVisible();
 }
 async function ready(page: Page) {
@@ -386,22 +386,13 @@ for (const [width, theme] of [
             name: "Pedidos de entrada, tabela com rolagem horizontal",
         });
         const row = table.locator("tbody tr").first();
-        const identity = await row
-            .locator(".receiving-order-identity > *")
-            .evaluateAll((elements) =>
-                elements.map((element) => {
-                    const rect = element.getBoundingClientRect();
-                    return {
-                        center: rect.top + rect.height / 2,
-                        left: rect.left,
-                        right: rect.right,
-                    };
-                }),
-            );
-        expect(
-            Math.abs(identity[0].center - identity[1].center),
-        ).toBeLessThanOrEqual(1);
-        expect(identity[1].left - identity[0].right).toBeGreaterThanOrEqual(7);
+        const reference = row.getByRole("button", { name: /Ver detalhes de PED-ENT-01/ });
+        await expect(reference).toBeVisible();
+        await expect(reference).toHaveAttribute("title", /Referência extensa/);
+        const identity = await row.locator(".receiving-order-identity").boundingBox();
+        const button = await reference.boundingBox();
+        expect(button!.x).toBeGreaterThanOrEqual(identity!.x - 1);
+        expect(button!.x + button!.width).toBeLessThanOrEqual(identity!.x + identity!.width + 1);
         const client = row.locator("td").nth(0).locator(".record-text");
         await expect(client).toHaveAttribute("tabindex", "0");
         await expect(client).toHaveCSS("text-overflow", "ellipsis");
@@ -417,23 +408,29 @@ for (const [width, theme] of [
             .locator("td")
             .nth(6)
             .locator(".record-text");
-        await expect(conference).toHaveAttribute("tabindex", "0");
-        await conference.focus();
-        await expect(page.getByRole("tooltip")).toHaveText(
-            "Conferido com divergência",
-        );
-        await page.keyboard.press("Escape");
+        await expect(conference).toHaveText("Conferido com divergência");
+        if (width < 600) {
+            expect(await conference.evaluate(el => el.scrollWidth <= el.clientWidth)).toBe(true);
+        } else {
+            await expect(conference).toHaveAttribute("tabindex", "0");
+            await conference.focus();
+            await expect(page.getByRole("tooltip")).toHaveText("Conferido com divergência");
+            await page.keyboard.press("Escape");
+        }
         await client.focus();
         await expect(page.getByRole("tooltip")).toHaveText(
             await client.innerText(),
         );
         await page.keyboard.press("Escape");
         const notes = row.locator("td").nth(3).locator(".record-text");
-        await notes.focus();
-        await expect(page.getByRole("tooltip")).toContainText(
-            "9007199254740994",
-        );
-        await page.keyboard.press("Escape");
+        await expect(notes).toContainText("9007199254740994");
+        if (width < 600) {
+            expect(await notes.evaluate(el => el.scrollWidth <= el.clientWidth)).toBe(true);
+        } else {
+            await notes.focus();
+            await expect(page.getByRole("tooltip")).toContainText("9007199254740994");
+            await page.keyboard.press("Escape");
+        }
         const warehouse = row.locator("td").nth(1).locator(".record-text");
         await warehouse.hover();
         await expect(page.getByRole("tooltip")).toHaveText(
@@ -450,25 +447,22 @@ for (const [width, theme] of [
                 (cell) => getComputedStyle(cell).whiteSpace,
             ),
         }));
-        expect(dimensions.scrollWidth).toBeGreaterThan(dimensions.clientWidth);
-        expect(dimensions.wraps.every((value) => value === "nowrap")).toBe(
-            true,
-        );
         await info.attach("dimensoes-tabela", {
             body: JSON.stringify(dimensions),
             contentType: "application/json",
         });
-        dimensions.rows.forEach((height) =>
-            expect(height).toBeLessThanOrEqual(64),
-        );
-        await table.focus();
-        await table.evaluate((element) => {
-            element.scrollLeft = 0;
-        });
-        await page.keyboard.press("ArrowRight");
-        await expect
-            .poll(() => table.evaluate((element) => element.scrollLeft))
-            .toBeGreaterThan(0);
+        if (width < 600) {
+            expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth + 1);
+            await expect(row.locator("td").first()).toHaveCSS("white-space", "normal");
+        } else {
+            expect(dimensions.scrollWidth).toBeGreaterThan(dimensions.clientWidth);
+            expect(dimensions.wraps.every((value) => value === "nowrap")).toBe(true);
+            dimensions.rows.forEach((height) => expect(height).toBeLessThanOrEqual(64));
+            await table.focus();
+            await table.evaluate((element) => { element.scrollLeft = 0; });
+            await page.keyboard.press("ArrowRight");
+            await expect.poll(() => table.evaluate((element) => element.scrollLeft)).toBeGreaterThan(0);
+        }
         const more = row.getByRole("button", { name: /Mais ações/ });
         await more.scrollIntoViewIfNeeded();
         await expect(more.locator(".receiving-more-icon")).toHaveText("⋮");
@@ -499,28 +493,22 @@ for (const [width, theme] of [
                 }),
             );
         expect(positions).toHaveLength(3);
-        expect(new Set(positions.map((button) => button.top)).size).toBe(1);
-        const actionsRight = await row
-            .locator(".receiving-row-actions")
-            .evaluate((element) => element.getBoundingClientRect().right);
-        expect(Math.abs(actionsRight - positions[2].right)).toBeLessThanOrEqual(
-            1,
-        );
-        await expect(table.locator("thead th").last()).toHaveCSS(
-            "text-align",
-            "right",
-        );
         expect(positions.every((button) => !button.overflow)).toBe(true);
-        expect(positions[1].left - positions[0].right).toBeGreaterThanOrEqual(
-            7,
-        );
-        expect(positions[2].left - positions[1].right).toBeGreaterThanOrEqual(
-            7,
-        );
-        if (width < 600)
-            positions.forEach((button) =>
-                expect(button.height).toBeGreaterThanOrEqual(44),
-            );
+        if (width < 600) {
+            positions.forEach((button, i) => {
+                expect(button.height).toBeGreaterThanOrEqual(44);
+                expect(button.left).toBe(positions[0].left);
+                if (i) expect(button.top).toBeGreaterThanOrEqual(positions[i - 1].top + positions[i - 1].height);
+            });
+        } else {
+            expect(new Set(positions.map((button) => button.top)).size).toBe(1);
+            const actionsRight = await row.locator(".receiving-row-actions")
+                .evaluate((element) => element.getBoundingClientRect().right);
+            expect(Math.abs(actionsRight - positions[2].right)).toBeLessThanOrEqual(1);
+            await expect(table.locator("thead th").last()).toHaveCSS("text-align", "right");
+            expect(positions[1].left - positions[0].right).toBeGreaterThanOrEqual(7);
+            expect(positions[2].left - positions[1].right).toBeGreaterThanOrEqual(7);
+        }
         const height = await row.evaluate(
             (element) => element.getBoundingClientRect().height,
         );
@@ -588,13 +576,11 @@ test.describe("PED01 toque na tabela", () => {
             name: "Ações do pedido 9007199254740993",
         });
         await expect(menu).toBeVisible();
-        await row.getByRole("cell", { name: "Quarentena", exact: true }).tap();
+        await row.getByRole("cell", { name: /^(Situação )?Quarentena$/ }).tap();
         await expect(menu).not.toBeVisible();
         await more.tap();
         await expect(menu).toBeVisible();
-        await table.evaluate((element) => {
-            element.scrollLeft -= 30;
-        });
+        await page.evaluate(() => window.scrollBy(0, -80));
         await expect(menu).not.toBeVisible();
         expect(mock.calls.every((call) => !call.body)).toBe(true);
         expect(mock.errors).toEqual([]);
@@ -669,7 +655,7 @@ for (const [width, theme] of [
             .getByRole("button", { name: "Registrar chegada física" })
             .click();
         await expect(
-            dialog.getByLabel("Itens / Item 1 / Item da nota (ID) *", {
+            dialog.getByLabel("Itens / Item 1 / Item da nota *", {
                 exact: true,
             }),
         ).toHaveValue("402");
@@ -703,9 +689,7 @@ test("PED01 criação continua com XML no pedido novo e atualiza a fila sem exig
         .getByRole("button", { name: "Criar manualmente", exact: true })
         .click();
     const dialog = page.getByRole("dialog");
-    await dialog
-        .getByLabel("Referência *", { exact: true })
-        .fill("PED-NOVO-XML");
+    await expect(dialog.getByText("O código será gerado automaticamente ao confirmar.")).toBeVisible();
     await dialog.getByRole("button", { name: "Conferir e confirmar" }).click();
     await dialog.getByRole("button", { name: "Confirmar agora" }).click();
     await expect(

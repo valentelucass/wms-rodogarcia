@@ -1,5 +1,21 @@
 # Bancos WMS — conexão compartilhada
 
+## Acesso da aplicação em desenvolvimento
+
+O banco de desenvolvimento é `WMS_DEV`. O servidor identifica a aplicação pelo login SQL `WMSDEV`, mapeado ao usuário de mesmo nome nesse banco. O backend e a verificação de ambiente exigem essa identidade. O serviço de produção tem seu próprio banco `WMS_PROD` e seu próprio login `WMSPROD`. Testes da aplicação usam DEV.
+
+O Windows guarda a credencial de desenvolvimento em `%LOCALAPPDATA%\Rodogarcia\WMS\api-dev\wmsdev-app.clixml`, com DPAPI e permissões para o usuário Windows responsável e SYSTEM. O preparador usa separadamente a credencial administrativa compartilhada. Nesta instalação, a variável `RODOGARCIA_SQL_ADMIN_CREDENTIAL_FILE` aponta para o mesmo arquivo administrativo que o módulo compartilhado abre. A credencial do ETL pertence a outro serviço.
+
+Se o Windows recusar a abertura da credencial DEV com `D26_CREDENCIAL_DPAPI_USUARIO_MAQUINA_RECUSADA`, confira primeiro o usuário Windows, o computador e as permissões do arquivo. Esse erro ocorre antes da autenticação no SQL Server. Em 22/11/2026 Lucas autorizou a renovação da senha de `WMSDEV` para recuperar o acesso da aplicação em DEV. O procedimento gera a senha localmente, preserva o usuário e suas permissões e dispensa digitação em uso normal. Outras instalações DEV que compartilhem esse login precisam usar a credencial renovada.
+
+Na raiz do projeto, execute em Windows PowerShell 5.1 sob a conta que roda o WMS DEV. Sem argumentos o script mostra o plano. Para renovar:
+
+```powershell
+powershell.exe -NoProfile -File database/scripts/renovar-credencial-dev.ps1 -Renovar
+```
+
+O script prepara uma cópia protegida, abre uma conexão com o certificado fixado do servidor, altera exclusivamente a senha de `WMSDEV` e testa a nova credencial com uma consulta de identidade em `WMS_DEV`. Depois da confirmação, instala o arquivo de forma atômica e guarda a cópia anterior cifrada no diretório privado. A saída esperada é `WMSDEV_RENOVACAO_VALIDADA`. Se houver interrupção depois da troca no SQL e antes da instalação local, use `-ConcluirPendente` para testar e instalar a mesma credencial preparada. Se o teste falhar, preserve os arquivos e verifique a fase indicada. A recuperação de DEV não requer iniciar o publicador conjunto DEV/PROD.
+
 ## Preparação integrada em 15/10/2026
 
 `iniciar-dev.bat` prepara fonte e somente WMS_DEV antes da guarda. `pm2-wms.bat atualizar` e `iniciar` preparam a fonte e executam DEV completo antes de PROD pelo bootstrap protegido, depois as permissões e guarda final antes de trocar os processos. Não precisa executar este BAT de bancos à parte para subir a aplicação. Os bancos devem existir; faltantes são recusados na subida. Mutex comum impede execução simultânea; aguarda até180s antes de SQL e registra tempo/PID observado se o limite vencer. Plan local não adquire trava. Não há repetição de conexão ou migration após falha. O BAT de bancos manual conserva seu bootstrap DEV → PROD. Aplicação continua com identidade própria e migrationsOFF; admin somente no preparador protegido. Recibos em `orchestracao/.runtime/preparo-ambiente/`.

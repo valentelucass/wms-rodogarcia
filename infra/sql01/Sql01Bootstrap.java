@@ -56,7 +56,7 @@ class Sql01Bootstrap {
                 || !"25580".equals(args[2])
                 || !java.util.UUID.fromString(args[10]).toString().equals(args[10])) throw new IllegalStateException();
         Path root = Path.of(args[6]).toRealPath();
-        Path output = root.resolve("orchestracao/.runtime/be02-dev-fonte01/prumo/runs").resolve(args[10]);
+        Path output = root.resolve(".runtime/dev/runs").resolve(args[10]);
         if (!output.equals(Path.of(args[7]).toAbsolutePath().normalize()) || !Files.isDirectory(output)
                 || Files.exists(output.resolve("jdbc-provider.json"))) throw new IllegalStateException();
         if (!output.resolve("target/wms-backend-0.0.1-SNAPSHOT.jar").equals(Path.of(args[0]).toRealPath())

@@ -23,6 +23,12 @@ O [recebimento](docs/18-recebimento-e-conferencia.md) fornece contratos FE05; as
 
 ## Pastas
 
+O código da aplicação fica em `backend/` e `frontend/`. Os scripts e as migrações do SQL Server ficam em `database/`. Os BATs da raiz usam os scripts de `infra/` para iniciar e conferir o WMS.
+
+As novas execuções usam `.runtime/dev/runs/` e `.runtime/prod/runs/`. Cada versão de produção guarda o JAR, a configuração da aplicação, os arquivos estáticos da interface e os registros de verificação. A compilação descarta as cópias temporárias dos fontes. O PM2 continua reconhecendo uma versão antiga selecionada em `orchestracao/` até a próxima atualização operacional. O histórico de revisões desta máquina fica em `Documents/Armazenamento-Projetos/wms-rodogarcia/`.
+
+O comando `.\infra\arquivar-execucoes.ps1` lista as execuções encerradas que podem sair da pasta do projeto. Com `-Aplicar`, ele as transfere para o arquivo histórico no mesmo volume. Preserva as execuções recentes, selecionadas, em uso ou citadas na documentação e nos scripts consultados. O arquivamento atua somente em arquivos locais.
+
 | Pasta | Finalidade |
 | --- | --- |
 | [backend](backend/README.md) | Backend Java/Spring e orientação sobre suas camadas |

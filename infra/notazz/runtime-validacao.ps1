@@ -6,7 +6,7 @@ function Assert-NotazzCurrentRuntime {
  . (Join-Path $root 'infra/sql01/launcher-backend.ps1')
  . (Join-Path $root 'infra/dev/reiniciar-instancia.ps1')
  . (Join-Path $root 'infra/dev/acesso-dev.ps1')
- $runtimePath=Resolve-WmsSql01Path $RuntimeReceipt (Join-Path $root 'orchestracao/.runtime/be02-dev-fonte01/prumo/runs')
+ $runtimePath=Resolve-WmsSql01Path $RuntimeReceipt (Join-Path $root '.runtime/dev/runs')
  if([IO.Path]::GetFileName($runtimePath) -cne 'runtime-prumo.json'){throw 'NFH_RUNTIME_PATH_INVALIDO'}
  $run=Split-Path $runtimePath -Parent;$runId=[IO.Path]::GetFileName($run);$uuid=[guid]::Empty
  if(![guid]::TryParseExact($runId,'D',[ref]$uuid)){throw 'NFH_RUN_INVALIDO'}

@@ -54,6 +54,16 @@ BAT, backend e frontend reais foram conferidos no [run ce0bf9dd](../orchestracao
 
 ### Procedimento técnico de preparação de um ambiente novo
 
+#### Recuperação da assinatura de um DEV já configurado
+
+Se o iniciador aprovar o banco `WMS_DEV` e depois registrar `CryptographicException` na fase `PROTECTED_MATERIAL`, confira a leitura da identidade com `Get-WmsLoginIdentity` no usuário Windows que executa o serviço. A credencial SQL de `WMSDEV` e a chave de assinatura do site ficam em arquivos distintos. Em 22/11/2026 Lucas autorizou a recuperação da assinatura do site DEV após confirmar essa falha.
+
+Na raiz do WMS, use `powershell.exe -NoProfile -File infra/auth/recuperar-assinatura-dev.ps1` para conferir o plano. Com `-Aplicar`, o script preserva um arquivo já legível. Quando o Windows recusa a descriptografia, gera uma chave RSA de 3072 bits, testa a leitura da nova cópia cifrada e substitui o arquivo local atomicamente. A cópia anterior fica cifrada na pasta privada `%LOCALAPPDATA%\Rodogarcia\WMS\auth-dev`. Os usuários e as senhas cadastrados no banco são preservados. Tokens emitidos com a chave anterior deixam de validar quando a nova chave entra em serviço. Inicie o ambiente com `iniciar-dev.bat` e confira a chave pública em `http://127.0.0.1:25580/api/auth/jwks`.
+
+No modo `tunnel`, a prévia neste computador usa `http://localhost:25581/`. A tela de login, a consulta de CSRF e a renovação sem sessão foram verificadas nessa origem. A origem numérica `http://127.0.0.1:25581` exibe a página, mas a proteção de origem recusa a renovação com HTTP 403. Para acesso pelo túnel, use o endereço HTTPS atual do VS Code.
+
+#### Instalação inicial
+
 1. Aplicar, mediante autorização específica e procedimento protegido exclusivamente WMS_DEV, a [V11](../database/migrations/V11__login_usuarios_e_sessoes.sql). V1–V10 permanecem intocadas. Não usar o launcher administrativo DEV → PROD para este recorte.
 2. Aplicar somente os direitos mínimos do [contrato D32](../database/contratos/D32-permissoes-login-dev.sql) à identidade WMSDEV. São 22 direitos adicionais por objeto/coluna; nenhuma role, DELETE ou administração. A guarda compara o estado esperado 68 tabelas/716 colunas e histórico V11 com a leitura atual. O oráculo D29 permanece imutável e é estendido somente em memória por `infra/auth/contrato-banco.ps1`.
 3. Na pasta raiz do projeto, executar uma única vez `infra\auth\configurar-login-dev.bat`, informando a senha inicial diretamente no console com entrada oculta. O auxiliar fica junto aos arquivos de autenticação, fora da raiz, e resolve seus caminhos pelo próprio diretório. O configurador cria chave e hash e cifra o conjunto em `%LOCALAPPDATA%/Rodogarcia/WMS/auth-dev/login.clixml`, com ACL privada; não sobrescreve configuração existente e não acessa SQL. A senha solicitada pelo responsável não é transcrita em nenhum arquivo. Falta desse material interrompe a inicialização antes do SQL com `AUTH_NATIVE_CONFIGURATION_REQUIRED`; a mensagem mostra o comando acima. Essa configuração resolve somente esse pré-requisito, não aplica a V11 nem os direitos pendentes.

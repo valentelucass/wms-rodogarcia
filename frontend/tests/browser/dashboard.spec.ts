@@ -13,7 +13,7 @@ test("visão geral fictícia nos dois temas e mudança de armazém", async ({
     await expect(overview.locator(".overview-metric")).toHaveCount(10);
     const charts = page.getByRole("region", { name: "Gráficos da operação" });
     await expect(charts.locator(".dashboard-chart")).toHaveCount(3);
-    await expect(charts.getByText("DEMO-BOBINA")).toBeVisible();
+    await expect(charts.getByRole("button", { name: /^DEMO-BOBINA, total físico/ })).toBeVisible();
     await expect(charts.locator(".dashboard-metric")).toHaveCount(0);
     await expect(overview.locator(".map-position")).toHaveCount(80);
     await chooseTheme(page, "light");
@@ -81,7 +81,7 @@ test("atualização lenta, vazio e erro conservam os dez cards sem zeros inventa
         .getByLabel("Resposta do exercício fictício")
         .selectOption("falha");
     await overview.getByRole("button", { name: "Atualizar visão" }).click();
-    await expect(overview.getByRole("alert")).toContainText("Não foi possível");
+    await expect(overview.getByRole("alert").filter({ hasText: "Não foi possível consultar a visão da operação" })).toBeVisible();
     await expect(overview.locator(".overview-metric")).toHaveCount(10);
     await expect(overview.locator(".overview-metric--0 strong")).toHaveText(
         "—",

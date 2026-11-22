@@ -3,7 +3,7 @@ param([Parameter(Mandatory=$true)][string]$RunDirectory,[switch]$Executar)
 $ErrorActionPreference='Stop'
 $repository=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 . (Join-Path $PSScriptRoot '../sql01/launcher-backend.ps1')
-$area=Join-Path $repository 'orchestracao/.runtime/be02-dev-fonte01/prumo/runs'
+$area=Join-Path $repository '.runtime/dev/runs'
 $run=Resolve-WmsSql01Path $RunDirectory $area
 $uuid=[guid]::Empty
 if(-not [guid]::TryParseExact([IO.Path]::GetFileName($run),'D',[ref]$uuid) -or !(Test-Path -LiteralPath $run -PathType Container)){throw 'DEV_CURRENT_RUN_INVALID'}

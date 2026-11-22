@@ -4,7 +4,7 @@ param([Parameter(Mandatory=$true)][string]$EvidenceDirectory)
 $ErrorActionPreference='Stop'
 $root=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 $area=[IO.Path]::GetFullPath($EvidenceDirectory)
-if(-not $area.StartsWith((Join-Path $root 'orchestracao/.runtime/'),[StringComparison]::OrdinalIgnoreCase) -or (Test-Path -LiteralPath $area)){throw 'TEST_NEW_OWN_DIRECTORY_REQUIRED'}
+if(-not $area.StartsWith((Join-Path $root '.runtime/testes/'),[StringComparison]::OrdinalIgnoreCase) -or (Test-Path -LiteralPath $area)){throw 'TEST_NEW_OWN_DIRECTORY_REQUIRED'}
 $null=New-Item -ItemType Directory -Path $area
 . (Join-Path $root 'backend/scripts/prod/start-backend-prod.ps1')
 $contract=Get-Content (Join-Path $PSScriptRoot 'contrato-aplicacao.json') -Encoding UTF8 -Raw | ConvertFrom-Json

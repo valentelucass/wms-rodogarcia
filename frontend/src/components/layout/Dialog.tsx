@@ -28,8 +28,19 @@ export function Dialog({
     useLayoutEffect(() => {
         const dialog = ref.current!;
         const trigger = opener.current;
-        if (typeof dialog.showModal === "function") dialog.showModal();
-        else dialog.setAttribute("open", "");
+        // A child layout effect can run before its enclosing dialog mounts.
+        // Open ancestors first so the innermost dialog receives pointer and keyboard input.
+        const chain = [dialog];
+        let ancestor = dialog.parentElement?.closest("dialog");
+        while (ancestor) {
+            chain.unshift(ancestor);
+            ancestor = ancestor.parentElement?.closest("dialog");
+        }
+        for (const modal of chain) {
+            if (modal.open) continue;
+            if (typeof modal.showModal === "function") modal.showModal();
+            else modal.setAttribute("open", "");
+        }
         dialog
             .querySelector<HTMLElement>('[data-dialog-autofocus="true"]')
             ?.focus({ preventScroll: true });
@@ -57,7 +68,12 @@ export function Dialog({
                 if (!locked) onClose();
             }}
             onKeyDown={(event) => {
-                if (event.key !== "Tab") return;
+                if (
+                    event.key !== "Tab" ||
+                    (event.target as HTMLElement).closest("dialog") !==
+                        event.currentTarget
+                )
+                    return;
                 const controls = Array.from(
                     event.currentTarget.querySelectorAll<HTMLElement>(
                         'button:not(:disabled), a[href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), summary, [tabindex]:not([tabindex="-1"])',

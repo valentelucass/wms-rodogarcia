@@ -9,7 +9,7 @@ function Get-WmsProdFlywayLocation([string]$DatabaseRoot){
     $manifest=@($files|Sort-Object Name|ForEach-Object {@{name=$_.Name;sha256=(Get-FileHash -LiteralPath $_.FullName).Hash}})
     $sha=[Security.Cryptography.SHA256]::Create()
     try{$id=([BitConverter]::ToString($sha.ComputeHash([Text.Encoding]::UTF8.GetBytes(($manifest|ConvertTo-Json -Compress))))).Replace('-','').ToLowerInvariant()}finally{$sha.Dispose()}
-    $target=Join-Path $root ('orchestracao/.runtime/migrations-prod/'+$id)
+    $target=Join-Path $root ('.runtime/database/migrations-prod/'+$id)
     $walk=$target
     while($walk){if((Test-Path -LiteralPath $walk) -and ((Get-Item -LiteralPath $walk).Attributes -band [IO.FileAttributes]::ReparsePoint)){throw 'D21_PROD_SOURCE_REPARSE'};$parent=[IO.Directory]::GetParent($walk);if(-not $parent){break};$walk=$parent.FullName}
     if(-not (Test-Path -LiteralPath $target)){

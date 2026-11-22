@@ -4,9 +4,10 @@ import { isObject, type Values, type Perfil } from "../contracts/runtime";
 import type { Receipt, Transport } from "../api/client";
 import { Result } from "./Result";
 import { Operation } from "./Operation";
-import { useEffect, useLayoutEffect } from "react";
+import { useContext, useEffect, useLayoutEffect } from "react";
 import { PageHeader } from "./layout/PageHeader";
 import { Icon } from "../design-system/Icon";
+import { FormReferences } from "./FormReferences";
 import { CollectorTasks } from "../modules/coletor/CollectorTasks";
 export function Collector({
     transport,
@@ -59,6 +60,7 @@ export function Collector({
         if (unit && captured.current === code && mode === "posicionar")
             posRef.current?.focus();
     }, [unit, code, mode, captured, posRef]);
+    const references = useContext(FormReferences);
     const selected =
         unit && isObject(unit.unidade)
             ? {
@@ -256,31 +258,49 @@ export function Collector({
                             </>
                         ) : (
                             <div className="workspace-panel collector-command">
-                                <Operation
-                                    key={mode + code}
-                                    collector
-                                    id={
-                                        mode === "ler"
-                                            ? "ExpedicaoController.ler"
-                                            : mode === "separar"
-                                              ? "ExpedicaoController.separar"
-                                              : "ContagemController.contar"
-                                    }
-                                    transport={transport}
-                                    context={{
-                                        ...context,
-                                        ...taskContexts[mode],
-                                        ...selected,
-                                        codigoLido: code,
-                                        codigoUnidade: code,
+                                <FormReferences.Provider
+                                    value={{
+                                        ...references,
+                                        defaults: {
+                                            ...references.defaults,
+                                            ...context,
+                                            ...taskContexts[mode],
+                                        },
+                                        options: {
+                                            ...references.options,
+                                            enderecoId: addresses.map((a) => ({
+                                                value: String(a.id),
+                                                title: String(a.codigo),
+                                            })),
+                                        },
                                     }}
-                                    perfil={perfil}
-                                    onSelect={() => {
-                                        invalidate();
-                                        setCode("");
-                                    }}
-                                    onReceipt={onReceipt}
-                                />
+                                >
+                                    <Operation
+                                        key={mode + code}
+                                        collector
+                                        id={
+                                            mode === "ler"
+                                                ? "ExpedicaoController.ler"
+                                                : mode === "separar"
+                                                  ? "ExpedicaoController.separar"
+                                                  : "ContagemController.contar"
+                                        }
+                                        transport={transport}
+                                        context={{
+                                            ...context,
+                                            ...taskContexts[mode],
+                                            ...selected,
+                                            codigoLido: code,
+                                            codigoUnidade: code,
+                                        }}
+                                        perfil={perfil}
+                                        onSelect={() => {
+                                            invalidate();
+                                            setCode("");
+                                        }}
+                                        onReceipt={onReceipt}
+                                    />
+                                </FormReferences.Provider>
                             </div>
                         )}
                     </>

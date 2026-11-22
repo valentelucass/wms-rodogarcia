@@ -6,12 +6,12 @@ const { pathToFileURL } = require("node:url");
 const net = require('node:net');
 const { ownApps } = require('./pm2-ownership.cjs');
 const root = path.resolve(__dirname, "../..");
-const area = path.join(root, "orchestracao/.runtime/launcher-producao/pm2");
+const area = path.join(root, ".runtime/prod/pm2");
 const command = process.argv[2] || "atualizar";
 const isolated = process.argv[3] === '--isolado';
-if (!["atualizar", "iniciar", "parar", "status", "logs", "migrar", "retirar-legado"].includes(command) ||
+if (!["atualizar", "atualizar-aplicacao", "iniciar", "parar", "status", "logs", "migrar", "retirar-legado"].includes(command) ||
     process.argv.length > (isolated ? 4 : 3) || (command === 'retirar-legado' && !isolated) || (command === 'migrar' && isolated)) {
-  console.log("Uso: pm2-wms.bat [atualizar|iniciar|parar|status|logs|migrar]"); process.exit(2);
+  console.log("Uso: pm2-wms.bat [atualizar|atualizar-aplicacao|iniciar|parar|status|logs|migrar]"); process.exit(2);
 }
 // O daemon/dump do WMS não recebem variáveis de credenciais de outro ambiente.
 const allowed = new Set(["PATH", "SYSTEMROOT", "WINDIR", "TEMP", "TMP", "COMSPEC", "PATHEXT", "LOCALAPPDATA", "APPDATA", "USERPROFILE", "COMPUTERNAME", "NUMBER_OF_PROCESSORS", "PROCESSOR_ARCHITECTURE", "HOMEDRIVE", "HOMEPATH"]);
@@ -56,7 +56,7 @@ async function ps(file, args = [], quiet = false) {
           try {
             const receipt = JSON.parse(output.replace(/^\uFEFF/, ''));
             const receiptPath = typeof receipt.recibo === 'string' ? path.resolve(receipt.recibo) : '';
-            const relative = path.relative(path.join(root, 'orchestracao/.runtime/preparo-ambiente'), receiptPath);
+            const relative = path.relative(path.join(root, '.runtime/database/preparo'), receiptPath);
             if (receipt.estado === 'INTERROMPIDO' && /^(D20|D21|D22|CAD|SQL|PROD|DEV02|WMS_PREP)_[A-Z0-9_]+$/.test(receipt.codigo) &&
                 receiptPath && !/[\r\n\0]/.test(receiptPath) && relative && !relative.startsWith('..') && !path.isAbsolute(relative)) {
               error.controlledCode = receipt.codigo;
@@ -93,8 +93,16 @@ async function startSelected() {
     console.log(`[WMS PM2] Iniciando ${app.name}...`);
     await invoke("start", app);
     const component = app.args[0];
-    const current = await json(path.join(area, `${component}-current.json`));
-    const selected = await json(path.join(area, "selected.json"));
+    let activeArea = area;
+    let selected;
+    try {
+      selected = await json(path.join(activeArea, "selected.json"));
+    } catch (error) {
+      if (error.code !== "ENOENT") throw error;
+      activeArea = path.join(root, "orchestracao/.runtime/launcher-producao/pm2");
+      selected = await json(path.join(activeArea, "selected.json"));
+    }
+    const current = await json(path.join(activeArea, `${component}-current.json`));
     const active = (await list()).find(a => a.name === app.name);
     if (active?.pm2_env.status !== "online" || current.wrapperPid !== active.pid || current.releaseRunId !== selected.runId)
       throw new Error("PROD_PM2_READINESS_UNCONFIRMED");
@@ -105,7 +113,7 @@ async function startSelected() {
 }
 async function main() {
   await fs.mkdir(area, { recursive: true });
-  await fs.mkdir(path.join(root, "orchestracao/.runtime/pm2/logs"), { recursive: true });
+  await fs.mkdir(path.join(root, ".runtime/prod/logs"), { recursive: true });
   if (!["status", "logs"].includes(command)) {
     try { operationLock = await fs.open(lockPath, "wx"); }
     catch { throw new Error("PROD_PM2_OPERATION_BUSY"); }
@@ -123,7 +131,10 @@ async function main() {
   const apps = await list();
   if (command === "status") return show();
   if (command === "logs") {
-    for (const app of config.apps) for (const file of [app.out_file, app.error_file]) {
+    for (const app of config.apps) for (const file of [
+      apps.find(a => a.name === app.name)?.pm2_env.pm_out_log_path || app.out_file,
+      apps.find(a => a.name === app.name)?.pm2_env.pm_err_log_path || app.error_file,
+    ]) {
       const content = await fs.readFile(file, "utf8").catch(() => "");
       console.log(path.basename(file)+"\n"+content.split(/\r?\n/).slice(-20).join("\n"));
     }
@@ -161,7 +172,7 @@ async function main() {
   console.log("[WMS PM2] Preparando a fonte atual antes de substituir a versao ativa.");
   await ps("iniciar-prod.ps1", ["-PrepareOnly", "-PrepareForPm2"]);
   const selected = await json(path.join(area, "prepared.json"));
-  const expected = path.join(root, "orchestracao/.runtime/launcher-producao/runs", selected.runId, "release.json");
+  const expected = path.join(root, ".runtime/prod/runs", selected.runId, "release.json");
   if (!/^[a-f0-9]{32}$/.test(selected.runId) || path.resolve(selected.releasePath) !== expected ||
       hash(await fs.readFile(expected)).toLowerCase() !== selected.releaseSha256.toLowerCase()) throw new Error("PROD_PM2_PREPARED_INVALID");
   const release = await json(expected);
@@ -177,9 +188,11 @@ async function main() {
     if (hash(await fs.readFile(path.join(root, "backend", item.path))) !== item.sha256) throw new Error("PROD_PM2_SOURCE_CHANGED");
   }
   await assertCurrentSource();
-  console.log("[WMS PM2] Preparando migrations e permissoes antes da interrupcao.");
-  const preparation = JSON.parse((await ps("../../database/scripts/preparar-ambiente.ps1", ["-Ambiente", "PROD", "-Modo", "Apply"], true)).replace(/^\uFEFF/, ""));
-  if (preparation.estado !== "AMBIENTE_ATUALIZADO") throw new Error("PROD_DATABASE_PREPARATION_REFUSED");
+  if (command !== "atualizar-aplicacao") {
+    console.log("[WMS PM2] Preparando migrations e permissoes antes da interrupcao.");
+    const preparation = JSON.parse((await ps("../../database/scripts/preparar-ambiente.ps1", ["-Ambiente", "PROD", "-Modo", "Apply"], true)).replace(/^\uFEFF/, ""));
+    if (preparation.estado !== "AMBIENTE_ATUALIZADO") throw new Error("PROD_DATABASE_PREPARATION_REFUSED");
+  }
   const guardPath = path.join(area, "pre-update-guard-"+randomUUID()+".json");
   console.log("[WMS PM2] Conferindo ambiente antes da interrupcao.");
   await ps("guarda-wmsprod.ps1", ["-EvidencePath", guardPath], true);

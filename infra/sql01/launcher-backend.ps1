@@ -74,7 +74,7 @@ function Read-WmsSql01BootstrapDiagnostic([string]$Path,[string]$RunId,[int]$Pro
     $cor01Run=Join-Path $script:WmsSql01Root 'orchestracao/.runtime/qual-conf01/perf02-inicio01/cor01/prumo/runs/2c86b256-97b9-4fa8-a443-9d438241ee98'
     $cor01=$RunId -ceq '2c86b256-97b9-4fa8-a443-9d438241ee98' -and [IO.Path]::GetFullPath((Split-Path $Path -Parent)) -ieq $cor01Run
     if($cor01){$run=$cor01Run}
-    $devRun=Join-Path $script:WmsSql01Root ('orchestracao/.runtime/be02-dev-fonte01/prumo/runs/'+$RunId)
+    $devRun=Join-Path $script:WmsSql01Root ('.runtime/dev/runs/'+$RunId)
     $dev=[IO.Path]::GetFullPath((Split-Path $Path -Parent)) -ieq $devRun
     if($dev){$run=$devRun}
     $resolved=Resolve-WmsSql01Path $Path $run
@@ -690,7 +690,7 @@ function Stop-WmsSql01Backend([Parameter(Mandatory)]$Handle) {
     if($Handle.Sanitized.id -ceq 'BE02-DEV-FONTE01'){
         . (Join-Path $script:WmsSql01Root 'infra/dev/artefato-backend.ps1')
         . (Join-Path $script:WmsSql01Root 'infra/dev/reiniciar-instancia.ps1')
-        $run=Join-Path $script:WmsSql01Root ('orchestracao/.runtime/be02-dev-fonte01/prumo/runs/'+$Handle.RunId)
+        $run=Join-Path $script:WmsSql01Root ('.runtime/dev/runs/'+$Handle.RunId)
         $path=Read-WmsSql01HashedFile @{path=$Handle.RuntimeReceiptPath;sha256=$Handle.RuntimeReceiptSha256} $run
         $r=Get-Content -LiteralPath $path -Raw|ConvertFrom-Json
         if($r.id -cne 'BE02-DEV-FONTE01' -or $r.runId -cne $Handle.RunId -or $r.backend.pid -ne $Handle.Process.Id -or

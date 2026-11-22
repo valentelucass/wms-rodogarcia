@@ -1,0 +1,901 @@
+.auth-shell.shipping-login {
+    --label-paper: var(--wms-account-surface);
+    --label-ink: var(--og-text);
+    --label-muted: var(--og-text-muted);
+    --label-mast: var(--og-text);
+    --label-backdrop: var(--og-sidebar);
+    --label-edge: color-mix(
+        in srgb,
+        var(--wms-shortcut-fechamento-to) 13%,
+        var(--og-sidebar)
+    );
+    --label-grid: color-mix(
+        in srgb,
+        var(--wms-shortcut-fechamento-to) 10%,
+        transparent
+    );
+    --label-action: var(--og-brand);
+    --label-action-text: var(--og-brand-foreground);
+    --label-action-hover: var(--og-brand-hover);
+    background-color: var(--label-backdrop);
+    background-image:
+        radial-gradient(
+            circle at 1px 1px,
+            var(--label-grid) 0.75px,
+            transparent 1px
+        ),
+        radial-gradient(
+            ellipse at 48% 40%,
+            var(--label-backdrop) 24%,
+            var(--label-edge) 100%
+        );
+    background-size:
+        20px 20px,
+        cover;
+}
+[data-og-theme="dark"] .auth-shell.shipping-login {
+    --label-backdrop: var(--og-sidebar);
+    --label-edge: color-mix(
+        in srgb,
+        var(--og-background) 80%,
+        var(--wms-shortcut-fechamento-to)
+    );
+    --label-grid: color-mix(in srgb, var(--og-text-muted) 10%, transparent);
+    --label-action: var(--og-link);
+    --label-action-text: var(--og-background);
+    --label-action-hover: color-mix(
+        in srgb,
+        var(--og-link) 82%,
+        var(--og-text)
+    );
+    --label-paper: var(--og-surface-raised);
+}
+.shipping-login .auth-header {
+    background: transparent;
+    border: 0;
+}
+.shipping-login .auth-header-content,
+.shipping-login .app-footer-content {
+    max-width: none;
+}
+.shipping-login .auth-header-content,
+.shipping-login .app-footer {
+    padding-inline: clamp(18px, 4.4vw, 72px);
+}
+.shipping-brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    color: var(--label-mast);
+}
+.shipping-wordmark {
+    width: clamp(115px, 14vw, 168px);
+    aspect-ratio: 231 / 27;
+    background: currentColor;
+    mask: url("./rodogarcia.png") center / contain no-repeat;
+}
+.shipping-brand strong {
+    padding: 5px 0 5px 12px;
+    border-left: 1px solid currentColor;
+    font-size: 13px;
+    letter-spacing: 0.075em;
+}
+.shipping-login .support-link,
+.shipping-login .theme-button,
+.shipping-login .app-footer,
+.shipping-login .app-footer a,
+.shipping-login .app-footer-product strong,
+.shipping-login .app-footer-product strong > span {
+    color: var(--label-mast);
+}
+.shipping-login .auth-header-actions {
+    gap: 5px;
+}
+.shipping-login .support-link,
+.shipping-login .theme-button {
+    background: var(--wms-account-surface);
+    color: var(--og-text);
+    border-color: var(--og-border-strong);
+}
+.shipping-login .support-link {
+    padding-inline: 12px;
+    border: 1px solid var(--og-border-strong);
+    border-radius: 22px;
+}
+.shipping-login .support-link:hover,
+.shipping-login .theme-button:hover:not(:disabled) {
+    background: var(--og-selection);
+    color: var(--og-selection-text);
+}
+.shipping-login .app-footer {
+    background: transparent;
+}
+.shipping-login .app-footer-legal,
+.shipping-login .app-footer-credit {
+    font-size: 12px;
+}
+.shipping-login .app-footer-credit {
+    border: 0;
+    padding-top: 0;
+}
+.shipping-login .app-footer-product strong {
+    font:
+        700 11px/1.5 Consolas,
+        monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+.shipping-ticket {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    grid-template-columns: minmax(0, 2.23fr) minmax(0, 1fr);
+    width: min(76%, 930px);
+    filter: drop-shadow(
+        0 12px 15px color-mix(in srgb, var(--og-brand-dark) 24%, transparent)
+    );
+}
+.shipping-ticket .auth-login-card {
+    max-width: none;
+    color: var(--label-ink);
+    background: var(--label-paper);
+    border: 0;
+    border-radius: 8px 0 0 8px;
+    padding: clamp(24px, 3vw, 44px) clamp(24px, 4vw, 54px) 16px;
+}
+.shipping-ticket .auth-card-heading {
+    margin: 0;
+}
+.shipping-ticket .auth-card-heading::before {
+    content: "";
+    display: block;
+    width: 26px;
+    height: 4px;
+    margin-bottom: 14px;
+    border-radius: 2px;
+    background: var(--label-action);
+}
+.shipping-ticket h1 {
+    margin: 0;
+    color: var(--label-ink);
+    font-size: clamp(25px, 2.7vw, 38px);
+    line-height: 1.15;
+    letter-spacing: -0.055em;
+}
+.shipping-ticket .auth-message-slot {
+    min-height: 54px;
+    margin: 4px 0 6px;
+}
+.shipping-ticket .auth-feedback {
+    min-height: 0;
+    font-size: 13px;
+    line-height: 18px;
+}
+.shipping-ticket .auth-feedback--hint {
+    color: var(--label-muted);
+    padding-top: 3px;
+}
+.shipping-ticket .auth-field {
+    gap: 6px;
+}
+.shipping-ticket .auth-field label {
+    color: var(--label-ink);
+    font-size: 13px;
+    font-weight: 600;
+}
+.shipping-ticket .auth-input-wrap input {
+    background: var(--og-surface);
+    color: var(--label-ink);
+    border: 1px solid var(--og-border-strong);
+    border-radius: 7px;
+    padding-left: 12px;
+}
+.shipping-ticket input::placeholder {
+    color: var(--label-muted);
+}
+.shipping-ticket input:focus-visible {
+    outline: 2px solid var(--og-focus-ring);
+    outline-offset: 2px;
+}
+.shipping-ticket .auth-password-toggle {
+    color: var(--label-muted);
+}
+.shipping-ticket .auth-password-toggle:hover {
+    background: color-mix(in srgb, var(--label-paper) 90%, var(--label-ink));
+}
+.shipping-ticket .auth-submit {
+    justify-content: space-between;
+    padding-inline: 16px;
+    background: var(--label-action);
+    color: var(--label-action-text);
+    border-color: transparent;
+    border-radius: 7px;
+}
+.shipping-ticket .auth-submit:hover {
+    background: var(--label-action-hover);
+}
+.shipping-ticket .auth-help {
+    margin-top: 4px;
+    border: 0;
+}
+.shipping-ticket .auth-help button {
+    color: var(--og-link);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+.shipping-stub {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 20px clamp(18px, 2.3vw, 34px);
+    background: var(--label-paper);
+    border-left: 2px dashed var(--og-border-strong);
+    border-radius: 0 8px 8px 0;
+    color: var(--label-ink);
+    mask: radial-gradient(circle 11px at right center, transparent 98%, black);
+}
+.shipping-stub strong {
+    font-size: clamp(16px, 1.6vw, 22px);
+    letter-spacing: -0.06em;
+}
+.shipping-stub-label,
+.shipping-serial {
+    font:
+        700 11px/1.3 Consolas,
+        monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+.shipping-barcode {
+    position: relative;
+    width: 100%;
+    height: clamp(64px, 7vw, 88px);
+    background-image: var(--reader-bars);
+    --reader-bars: repeating-linear-gradient(
+        90deg,
+        currentColor 0 2px,
+        transparent 2px 4px,
+        currentColor 4px 5px,
+        transparent 5px 9px,
+        currentColor 9px 13px,
+        transparent 13px 15px,
+        currentColor 15px 16px,
+        transparent 16px 20px,
+        currentColor 20px 23px,
+        transparent 23px 25px,
+        currentColor 25px 26px,
+        transparent 26px 29px
+    );
+}
+
+.shipping-main {
+    position: relative;
+    isolation: isolate;
+    overflow: clip;
+}
+.shipping-cartons {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    --pile-width: clamp(140px, max(18vw, calc((100vw - 880px) / 2)), 430px);
+    --kraft-face: #d99c61;
+    --kraft-lid: #ebbc88;
+    --kraft-side: #b97b46;
+    --kraft-tape: #eed0a6;
+    --kraft-rule: #94633e;
+    --kraft-label: #f8e8ce;
+    --kraft-print: #795438;
+}
+[data-og-theme="dark"] .shipping-cartons {
+    --kraft-face: #865a3e;
+    --kraft-lid: #a77b55;
+    --kraft-side: #674631;
+    --kraft-tape: #bb946e;
+    --kraft-rule: #49392f;
+    --kraft-label: #cfb395;
+    --kraft-print: #533c2d;
+}
+.aisle-parcels {
+    position: absolute;
+    width: clamp(122px, 21vw, 395px);
+    left: 51.5%;
+    bottom: clamp(2px, 0.8dvh, 9px);
+    transform: translateX(-50%);
+    filter: blur(0.55px);
+}
+.distant-cartons {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    filter: blur(clamp(7px, 0.5vw, 10px));
+    opacity: 0.55;
+    --kraft-face: #967c62;
+    --kraft-lid: #aa947e;
+    --kraft-side: #776451;
+    --kraft-rule: #695440;
+    --kraft-tape: #ba9f80;
+}
+[data-og-theme="dark"] .distant-cartons {
+    opacity: 0.76;
+    --kraft-face: #45382e;
+    --kraft-lid: #4e4136;
+    --kraft-side: #302a26;
+    --kraft-rule: #282423;
+    --kraft-tape: #594838;
+}
+.distant-cartons .parcel-face,
+.distant-cartons .parcel-side {
+    stroke-width: 2px;
+}
+@media (max-width: 600px) {
+    .distant-cartons {
+        filter: blur(5.5px);
+    }
+}
+.shipping-ridge {
+    position: absolute;
+    height: auto;
+    width: var(--ridge-width);
+    bottom: var(--ridge-offset);
+    filter: blur(var(--ridge-blur));
+    --kraft-tape: var(--kraft-lid);
+    --kraft-rule: var(--kraft-side);
+}
+.ridge-far {
+    --ridge-width: min(44vw, 780px);
+    --ridge-blur: clamp(2.5px, 0.29vw, 5px);
+    --ridge-offset: clamp(8px, 1.6vw, 27px);
+    --kraft-face: #947960;
+    --kraft-lid: #ab927a;
+    --kraft-side: #80674f;
+    opacity: 0.83;
+}
+.ridge-mid {
+    --ridge-width: min(31vw, 555px);
+    --ridge-blur: clamp(1.1px, 0.13vw, 2.3px);
+    --ridge-offset: clamp(3px, 0.55vw, 9px);
+    --kraft-face: #b6875d;
+    --kraft-lid: #cba47b;
+    --kraft-side: #9d7451;
+}
+[data-og-theme="dark"] .ridge-far {
+    --kraft-face: #422f26;
+    --kraft-lid: #513d30;
+    --kraft-side: #35271f;
+}
+[data-og-theme="dark"] .ridge-mid {
+    --kraft-face: #644630;
+    --kraft-lid: #805c41;
+    --kraft-side: #523c2c;
+}
+.shipping-ridge.ridge-left {
+    left: -1%;
+}
+.shipping-ridge.ridge-right {
+    right: -2%;
+    width: calc(var(--ridge-width) * 0.82);
+}
+.shipping-ridge.ridge-horizon {
+    --ridge-offset: clamp(26px, 6dvh, 65px);
+    --ridge-blur: clamp(4.5px, 0.4vw, 7px);
+    --kraft-face: #80674f;
+    --kraft-lid: #947a60;
+    --kraft-side: #6a523e;
+    height: 78%;
+    width: auto;
+    opacity: 0.66;
+}
+.ridge-horizon .parcel-face {
+    stroke: color-mix(in srgb, var(--kraft-side) 75%, var(--label-ink));
+    stroke-width: 3px;
+}
+.ridge-horizon > g:nth-child(3n) .parcel-face {
+    fill: var(--kraft-side);
+}
+.ridge-horizon > g:nth-child(4n) .parcel-face {
+    fill: var(--kraft-lid);
+}
+.ridge-horizon .parcel-tape {
+    fill: color-mix(in srgb, var(--kraft-lid) 60%, var(--label-paper));
+}
+.shipping-ridge.ridge-horizon.ridge-right {
+    height: 65%;
+    right: -1%;
+}
+[data-og-theme="dark"] .ridge-horizon {
+    --kraft-face: #342922;
+    --kraft-lid: #49382c;
+    --kraft-side: #2c241f;
+    opacity: 0.88;
+}
+@media (max-width: 600px) {
+    .shipping-ridge.ridge-horizon {
+        height: 48%;
+        --ridge-offset: 13px;
+        --ridge-blur: 3.5px;
+    }
+    .shipping-ridge.ridge-horizon.ridge-right {
+        height: 39%;
+    }
+}
+@media (prefers-reduced-motion: no-preference) {
+    .shipping-ridge .parcel-top,
+    .shipping-ridge .parcel-middle {
+        animation: shipping-ridge-build 8s ease-in-out -1.2s infinite both;
+        animation-play-state: var(--shipping-motion-state);
+    }
+    .shipping-ridge .parcel-top {
+        animation-delay: -0.45s;
+    }
+    .shipping-ridge.ridge-right .parcel-middle {
+        animation-delay: -4.8s;
+    }
+    .shipping-ridge.ridge-right .parcel-top {
+        animation-delay: -4s;
+    }
+    @keyframes shipping-ridge-build {
+        0%,
+        100% {
+            opacity: 0;
+            transform: translateY(-4px);
+        }
+        28%,
+        68% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+}
+@media (max-width: 600px) {
+    .ridge-far {
+        --ridge-width: min(49vw, 200px);
+        --ridge-offset: 4px;
+        --ridge-blur: 2px;
+    }
+    .ridge-mid {
+        --ridge-width: min(42vw, 169px);
+        --ridge-offset: 1px;
+    }
+}
+@media (max-width: 600px) and (max-height: 700px) {
+    .ridge-far {
+        --ridge-width: 112px;
+    }
+    .ridge-mid {
+        --ridge-width: 96px;
+    }
+}
+.shipping-pile {
+    position: absolute;
+    bottom: 0;
+    display: block;
+    width: var(--pile-width);
+    height: auto;
+    color: var(--kraft-rule);
+    stroke-linejoin: round;
+}
+.shipping-pile--left {
+    left: 0;
+    --stack-delay: -0.9s;
+}
+.shipping-pile--right {
+    right: 0;
+    width: calc(var(--pile-width) * 0.78);
+    --stack-delay: -4.3s;
+}
+.parcel-face,
+.parcel-side,
+.parcel-lid {
+    stroke: var(--kraft-rule);
+    stroke-width: 0.85px;
+}
+.parcel-face {
+    fill: var(--kraft-face);
+}
+.parcel-side {
+    fill: var(--kraft-side);
+}
+.parcel-lid {
+    fill: var(--kraft-lid);
+}
+.parcel-tape {
+    fill: var(--kraft-tape);
+}
+.parcel-label {
+    fill: var(--kraft-label);
+}
+.parcel-print {
+    fill: none;
+    stroke: var(--kraft-print);
+    stroke-width: 1.2px;
+    stroke-linecap: round;
+}
+.shipping-pile .parcel-middle,
+.shipping-pile .parcel-top {
+    animation: shipping-stack-middle 7.6s ease-in-out var(--stack-delay)
+        infinite both;
+    animation-play-state: var(--shipping-motion-state);
+}
+.shipping-pile .parcel-top {
+    animation-name: shipping-stack-top;
+}
+@keyframes shipping-stack-middle {
+    0%,
+    4% {
+        opacity: 0;
+        transform: translateY(-9px);
+    }
+    24%,
+    74% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    98%,
+    100% {
+        opacity: 0;
+        transform: translateY(-9px);
+    }
+}
+@keyframes shipping-stack-top {
+    0%,
+    17% {
+        opacity: 0;
+        transform: translateY(-12px);
+    }
+    39%,
+    58% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    91%,
+    100% {
+        opacity: 0;
+        transform: translateY(-12px);
+    }
+}
+.shipping-login {
+    --shipping-motion-state: running;
+}
+.shipping-login[data-motion="paused"] {
+    --shipping-motion-state: paused;
+}
+.shipping-login .shipping-motion {
+    position: absolute;
+    z-index: 1;
+    inset-block-start: 8px;
+    inset-inline-end: 8px;
+    display: grid;
+    place-items: center;
+}
+.shipping-motion > span {
+    width: 10px;
+    height: 12px;
+    border-inline: 3px solid currentColor;
+}
+[data-motion="paused"] .shipping-motion > span {
+    width: 0;
+    height: 0;
+    border: solid transparent;
+    border-width: 6px 0 6px 10px;
+    border-left-color: currentColor;
+}
+@property --reader-position {
+    syntax: "<percentage>";
+    inherits: true;
+    initial-value: 0%;
+}
+.shipping-barcode {
+    --reader-cycle: 3.6s cubic-bezier(0.4, 0, 0.24, 1) -0.8s infinite
+        var(--shipping-motion-state);
+    --reader-color: var(--label-action);
+    --reader-trail: color-mix(in srgb, var(--reader-color) 26%, transparent);
+    animation: shipping-scan var(--reader-cycle);
+}
+.reader-frame {
+    position: absolute;
+    inset: -6px;
+    width: calc(100% + 12px);
+    height: calc(100% + 12px);
+    fill: none;
+    stroke: var(--reader-color);
+    stroke-width: 1.5px;
+    animation: shipping-register var(--reader-cycle);
+}
+.reader-frame path {
+    vector-effect: non-scaling-stroke;
+}
+.reader-ink {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        90deg,
+        transparent calc(var(--reader-position) - 45%),
+        var(--reader-trail) calc(var(--reader-position) - 38%),
+        var(--reader-color) calc(var(--reader-position) - 12%),
+        var(--reader-color) var(--reader-position),
+        transparent calc(var(--reader-position) + 1%)
+    );
+    mask-image: var(--reader-bars);
+}
+.reader-head {
+    position: absolute;
+    top: -4px;
+    bottom: -4px;
+    left: var(--reader-position);
+    width: 2px;
+    transform: translateX(-50%);
+    background: var(--reader-color);
+    box-shadow: 0 0 4px var(--reader-color);
+    animation: shipping-reader-head var(--reader-cycle);
+}
+.reader-head::before,
+.reader-head::after {
+    content: "";
+    position: absolute;
+    left: -3px;
+    width: 8px;
+    height: 4px;
+    background: var(--reader-color);
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+}
+.reader-head::before {
+    bottom: 100%;
+}
+.reader-head::after {
+    top: 100%;
+    transform: rotate(180deg);
+}
+.shipping-serial {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+.shipping-serial::after {
+    content: "";
+    width: 16px;
+    height: 5px;
+    background: repeating-linear-gradient(
+        90deg,
+        var(--label-action) 0 3px,
+        transparent 3px 5px
+    );
+    transform-origin: left;
+    animation: shipping-readout 3.6s steps(4, end) -0.8s infinite
+        var(--shipping-motion-state);
+}
+@keyframes shipping-scan {
+    0%,
+    8% {
+        --reader-position: 0%;
+    }
+    69%,
+    100% {
+        --reader-position: 100%;
+    }
+}
+@keyframes shipping-reader-head {
+    0%,
+    100% {
+        opacity: 0;
+    }
+    8%,
+    69% {
+        opacity: 1;
+    }
+    78% {
+        opacity: 0;
+    }
+}
+@keyframes shipping-register {
+    0%,
+    100% {
+        opacity: 0.35;
+        transform: scale(1.035, 1.06);
+    }
+    12%,
+    66% {
+        opacity: 0.72;
+        transform: scale(1);
+    }
+    76% {
+        opacity: 1;
+        transform: scale(0.98, 0.96);
+    }
+    90% {
+        opacity: 0.45;
+        transform: scale(1);
+    }
+}
+@keyframes shipping-readout {
+    0%,
+    6% {
+        transform: scaleX(0);
+    }
+    69%,
+    91% {
+        transform: scaleX(1);
+    }
+    100% {
+        transform: scaleX(0);
+    }
+}
+.reader-ink {
+    animation: shipping-ink var(--reader-cycle);
+}
+@keyframes shipping-ink {
+    0%,
+    100% {
+        opacity: 0;
+    }
+    12%,
+    72% {
+        opacity: 1;
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .shipping-barcode {
+        --reader-position: 64%;
+    }
+    .reader-frame {
+        opacity: 0.58;
+    }
+    .reader-head {
+        visibility: hidden;
+    }
+    .shipping-barcode .reader-ink {
+        display: flex;
+        background: none;
+    }
+    .reader-ink i {
+        flex: 1;
+        background: var(--reader-color);
+        animation: shipping-reader-light 3.6s ease-in-out var(--phase, -0.7s)
+            infinite var(--shipping-motion-state) !important;
+    }
+    .reader-ink i:nth-child(2) {
+        --phase: -0.1s;
+    }
+    .reader-ink i:nth-child(3) {
+        --phase: -3.1s;
+    }
+    .reader-ink i:nth-child(4) {
+        --phase: -2.5s;
+    }
+    @keyframes shipping-reader-light {
+        0%,
+        63%,
+        100% {
+            opacity: 0;
+        }
+        25% {
+            opacity: 1;
+        }
+    }
+}
+@media (max-width: 600px) {
+    .shipping-serial::after {
+        display: none;
+    }
+}
+@media (prefers-reduced-motion: no-preference) {
+    .shipping-ticket .auth-submit svg {
+        transition: transform 160ms ease-out;
+    }
+    .shipping-ticket .auth-submit:is(:hover, :focus-visible) svg {
+        transform: translateX(3px);
+    }
+}
+@media (max-width: 800px) {
+    .shipping-ticket {
+        width: min(100%, 700px);
+    }
+}
+@media (max-width: 600px) {
+    .shipping-login .shipping-main {
+        padding: 14px 18px;
+    }
+    .shipping-ticket {
+        grid-template-columns: minmax(0, 1fr);
+        width: min(100%, 420px);
+    }
+    .shipping-ticket .auth-login-card {
+        border-radius: 7px 7px 0 0;
+        padding: 20px 20px 8px;
+    }
+    .shipping-ticket .auth-message-slot {
+        min-height: 59px;
+    }
+    .shipping-ticket .auth-feedback {
+        font-size: 12px;
+    }
+    .shipping-stub {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+        column-gap: 18%;
+        padding: 15px 20px;
+        border: 0;
+        border-top: 2px dashed var(--og-border-strong);
+        border-radius: 0 0 7px 7px;
+        mask: none;
+    }
+    .shipping-stub strong,
+    .shipping-stub-label {
+        display: none;
+    }
+    .shipping-barcode {
+        height: 27px;
+    }
+    .shipping-serial {
+        font-size: 10px;
+    }
+    .shipping-login .app-footer-credit a {
+        min-height: 24px;
+    }
+}
+@media (max-width: 600px) {
+    .shipping-cartons {
+        --pile-width: clamp(106px, 34vw, 144px);
+    }
+    .shipping-login .shipping-main {
+        padding-block: 8px clamp(12px, calc(100dvh - 700px), 100px);
+    }
+    .shipping-ticket .auth-card-heading {
+        padding-right: 42px;
+    }
+    .shipping-ticket .auth-feedback {
+        padding-block: 2px;
+    }
+}
+@media (max-width: 380px) {
+    .shipping-login .auth-header-content {
+        padding-inline: 10px;
+        gap: 4px;
+    }
+    .shipping-wordmark {
+        width: clamp(94px, 29vw, 112px);
+    }
+    .shipping-login .auth-header-actions {
+        gap: 2px;
+    }
+    .shipping-brand {
+        gap: 8px;
+    }
+    .shipping-brand strong {
+        padding-left: 8px;
+    }
+}
+@media (max-height: 700px) and (max-width: 600px) {
+    .shipping-login .shipping-main {
+        padding-block: 3px 10px;
+    }
+    .shipping-ticket .auth-login-card {
+        padding-block: 13px 3px;
+    }
+    .shipping-stub {
+        padding-block: 12px;
+    }
+}
+@media (max-width: 600px) and (max-height: 700px) {
+    .shipping-cartons {
+        --pile-width: 80px;
+    }
+    .shipping-ticket .auth-card-heading::before {
+        margin-bottom: 8px;
+    }
+    .shipping-ticket .auth-login-card form {
+        gap: 8px;
+    }
+}
+@media (min-width: 601px) and (max-width: 800px) {
+    .shipping-login .shipping-main {
+        padding-bottom: 86px;
+    }
+    .shipping-cartons {
+        --pile-width: 150px;
+    }
+}

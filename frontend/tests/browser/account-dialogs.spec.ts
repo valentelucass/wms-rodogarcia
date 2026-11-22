@@ -24,6 +24,16 @@ async function intercept(page: Page, password?: (route: Route) => void) {
         if (url.origin !== origin) return route.abort("blockedbyclient");
         if (!url.pathname.startsWith("/api/")) return route.continue();
         if (await fulfillOverviewRead(route)) return;
+        if (
+            route.request().method() === "GET" &&
+            url.pathname === "/api/v1/tarefas-coletor/disponibilidade"
+        )
+            return route.fulfill({
+                json: {
+                    disponivel: false,
+                    mensagem: "As tarefas aguardam ativação neste ambiente.",
+                },
+            });
         if (url.pathname === "/api/auth/csrf")
             return route.fulfill({
                 json: { token: "csrf-fixture", header: "X-XSRF-TOKEN" },

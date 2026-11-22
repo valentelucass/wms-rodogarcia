@@ -79,7 +79,7 @@ for (const width of [320, 390, 768, 1024, 1440]) {
         for (const theme of ["light", "dark"] as const) {
             await chooseTheme(page, theme);
             const modules = [
-                { id: "inicio", title: "Início da operação" },
+                { id: "inicio", title: "Início" },
                 ...journeys,
                 { id: "coletor", title: "Coletor" },
             ];
@@ -88,7 +88,7 @@ for (const width of [320, 390, 768, 1024, 1440]) {
                 await expect(
                     page
                         .getByRole("heading", {
-                            name: module.title,
+                            name: module.id === "cobranca" ? "Fechamento de Fatura" : module.title,
                             exact: true,
                         })
                         .first(),
@@ -102,7 +102,7 @@ for (const width of [320, 390, 768, 1024, 1440]) {
                 if (module.id === "cadastros") {
                     if (width >= 1024) {
                         const form = await page
-                            .locator(".stage-panel")
+                            .getByRole("region", { name: "Clientes", exact: true })
                             .boundingBox();
                         const nav = await page
                             .locator(".journey-navigation")
@@ -131,9 +131,9 @@ test("FE02-DS03 confirmação central, Escape e referência consultada sem deslo
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/#cadastros");
     await page
-        .getByRole("button", { name: "Novo registro", exact: true })
+        .getByRole("button", { name: "Novo cliente", exact: true })
         .click();
-    await page.getByLabel("Código *", { exact: true }).fill("DS03");
+    await expect(page.getByText("O código será gerado automaticamente ao confirmar.")).toBeVisible();
     await page
         .getByLabel("Nome *", { exact: true })
         .fill("Cliente de conferência visual");
@@ -160,24 +160,38 @@ test("FE02-DS03 confirmação central, Escape e referência consultada sem deslo
         ).toBe(true);
     }
     await page.screenshot({ path: info.outputPath("confirmacao.png") });
-    await page.keyboard.press("Escape");
-    await expect(dialog).toHaveCount(0);
-    await expect(trigger).toBeFocused();
+    const discard = page.waitForEvent("dialog");
+    const cancel = page.keyboard.press("Escape");
+    const prompt = await discard;
+    expect(prompt.message()).toContain("Descartar");
+    await prompt.dismiss();
+    await cancel;
+    await expect(dialog.getByRole("button", { name: "Confirmar agora" })).toBeVisible();
+    await dialog.getByRole("button", { name: "Voltar à conferência" }).click();
+    await expect(dialog.getByRole("button", { name: "Confirmar agora" })).toHaveCount(0);
+    await expect(dialog.getByRole("heading", { name: "Novo cliente" })).toBeVisible();
+    await expect(trigger).toBeEnabled();
     await expect(page.getByLabel("Nome *", { exact: true })).toHaveValue(
         "Cliente de conferência visual",
     );
+    page.once("dialog", (prompt) => prompt.accept());
+    await page.keyboard.press("Escape");
+    await expect(dialog).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Novo cliente", exact: true })).toBeFocused();
     await page.goto("/#entrada");
-    const operation = page.locator(".stage-panel");
+    await page.getByRole("button", { name: "Novo pedido", exact: true }).click();
+    await page.getByRole("button", { name: "Criar manualmente", exact: true }).click();
+    const operation = page.getByRole("group", { name: "Dados da operação" });
     const before = await operation.boundingBox();
     await page
         .getByRole("region", { name: "Consultar referências para a tarefa" })
         .getByRole("button")
         .first()
         .click();
-    const refs = page.getByRole("dialog", { name: "Referências consultadas" });
+    const refs = page.getByRole("region", { name: "Referências consultadas" });
     await expect(refs).toBeVisible();
     await page.screenshot({ path: info.outputPath("referencias.png") });
-    await page.keyboard.press("Escape");
+    await refs.getByRole("button", { name: "Fechar referências" }).click();
     await expect(refs).toHaveCount(0);
     const after = await operation.boundingBox();
     expect(Math.abs(after!.y - before!.y)).toBeLessThan(1);

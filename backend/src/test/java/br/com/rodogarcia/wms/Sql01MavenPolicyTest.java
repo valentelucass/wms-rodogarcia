@@ -57,7 +57,8 @@ class Sql01MavenPolicyTest {
                         "FiscalNfePreparacaoServiceTest",
                         "FiscalNfeTransacaoServiceTest",
                         "FiscalNfeServiceTest",
-                        "FiscalRegularizacaoServiceTest");
+                        "FiscalRegularizacaoServiceTest",
+                        "TarefaColetorServiceTest");
         assertThat(
                         text(
                                 pom,

@@ -13,7 +13,7 @@ function currentFixture() {
     const runId = "00000000-0000-4000-8000-000000000001";
     const directory = join(
         base.root,
-        "orchestracao/.runtime/be02-dev-fonte01/prumo/runs",
+        ".runtime/dev/runs",
         runId,
     );
     const guard = {

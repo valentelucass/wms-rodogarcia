@@ -25,7 +25,7 @@ foreach($source in @(@{file='infra/dev02/guarda-wmsdev.ps1';name='Compare-Dev02R
 }
 foreach($source in @('DEV','PROD')) {
     if($source -ceq 'DEV') {
-        $baseline=Get-Content -LiteralPath (Join-Path $root 'orchestracao/.runtime/d29-farol-retomada-preflight.json') -Raw -Encoding UTF8 | ConvertFrom-Json
+        $baseline=Get-Content -LiteralPath (Join-Path $root 'database/contratos/contrato-dev.json') -Raw -Encoding UTF8 | ConvertFrom-Json
         $baseline=Add-WmsAuthExpectedContract $baseline ($devMigrations | Where-Object version -ceq '11')
         $migrations=@($devMigrations | Where-Object {[int]$_.version -le 12})
     } else {

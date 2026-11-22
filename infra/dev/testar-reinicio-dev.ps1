@@ -2,7 +2,7 @@
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'reiniciar-instancia.ps1')
 $project = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
-$run = Join-Path $project ('orchestracao/.runtime/reinicio-dev/' + [guid]::NewGuid().ToString('N'))
+$run = Join-Path $project ('.runtime/testes/reinicio-dev/' + [guid]::NewGuid().ToString('N'))
 $repo = Join-Path $run 'projeto ficticio'
 $runs = Join-Path $repo 'orchestracao/.runtime/frontend-integracao-dev-runs'
 $fixture = Join-Path $runs 'anterior/launcher.json'

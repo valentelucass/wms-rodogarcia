@@ -2,10 +2,10 @@
 $ErrorActionPreference='Stop'
 . (Join-Path $PSScriptRoot 'pm2-common.ps1')
 $root=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
-$fixture=Join-Path $root ('orchestracao/.runtime/pm2-selection-tests/'+[guid]::NewGuid().ToString('N'))
+$fixture=Join-Path $root ('.runtime/testes/pm2-selection-tests/'+[guid]::NewGuid().ToString('N'))
 $runId='0123456789abcdef0123456789abcdef'
-$run=Join-Path $fixture ('orchestracao/.runtime/launcher-producao/runs/'+$runId)
-$area=Join-Path $fixture 'orchestracao/.runtime/launcher-producao/pm2'
+$run=Join-Path $fixture ('.runtime/prod/runs/'+$runId)
+$area=Join-Path $fixture '.runtime/prod/pm2'
 $manifest=Join-Path $run 'candidate/frontend/dist/build-manifest.json'
 $config=Join-Path $fixture 'infra/prod/producao.json'
 foreach($dir in @($area,(Split-Path $manifest),(Split-Path $config))){$null=New-Item -ItemType Directory -Path $dir -Force}

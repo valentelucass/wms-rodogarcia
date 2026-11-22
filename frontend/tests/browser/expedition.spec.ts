@@ -9,26 +9,14 @@ import {
 } from "./support";
 import type { Page } from "@playwright/test";
 async function separated(page: Page) {
-    await page.goto("/#saida");
-    await consult(page);
-    await page
-        .getByRole("button", { name: "Selecionar registro 1", exact: true })
-        .first()
-        .click();
-    await page
-        .getByRole("button", { name: "Fiscal e retirada", exact: true })
-        .click();
-    await consult(page);
+    await page.goto("/#fiscal");
+    await page.getByRole("button", { name: "DEMO-01", exact: true }).click();
     await expect(
-        page.getByRole("region", {
-            name: "Fiscal e físico do pedido selecionado",
-        }),
-    ).toContainText("Retirada física: não registrada");
+        page.getByText("Retirada física ainda não confirmada."),
+    ).toBeVisible();
+    await page.getByText("Documentos já registrados", { exact: true }).click();
     await page
-        .getByRole("button", {
-            name: "Registrar documento existente",
-            exact: true,
-        })
+        .getByRole("button", { name: "Registrar nota existente" })
         .click();
 }
 async function document(page: Page, symbolic = false) {
@@ -60,11 +48,12 @@ async function document(page: Page, symbolic = false) {
     expect(exact(coverage.notaOrigemId)).toBe("301");
     expect(coverage.sku).toBeTruthy();
     expect(exact(coverage.quantidade)).toBe("10.000000");
+    await page
+        .getByRole("button", { name: "Voltar à lista", exact: true })
+        .click();
     await expect(
-        page.getByRole("region", {
-            name: "Fiscal e físico do pedido selecionado",
-        }),
-    ).toContainText("Retirada física: não registrada");
+        page.getByText("Retirada física ainda não confirmada."),
+    ).toBeVisible();
 }
 async function destination(page: Page, field: string) {
     await page
@@ -86,7 +75,7 @@ test("FE10 retirada integral e devolucao ligada a baixa", async ({ page }) => {
     await document(page);
     await page
         .getByRole("button", {
-            name: "Confirmar retirada física com comprovantes",
+            name: "Confirmar retirada física",
             exact: true,
         })
         .click();
@@ -116,20 +105,19 @@ test("FE10 retirada integral e devolucao ligada a baixa", async ({ page }) => {
         exact((rem.destinos as Record<string, unknown>[])[0].enderecoId),
     ).toBe("81");
     await page
-        .getByRole("button", {
-            name: "Conferir retirada física, baixas e documentos",
-            exact: true,
-        })
+        .getByRole("button", { name: "Voltar à lista", exact: true })
         .click();
-    await consult(page);
-    await expect(
-        page.getByRole("region", {
-            name: "Fiscal e físico do pedido selecionado",
-        }),
-    ).toContainText("2026-10-08T12:30:00.123456Z");
-    await expect(
-        page.getByRole("cell", { name: "490.000000", exact: true }).first(),
-    ).toBeVisible();
+    await expect(page.getByText(/Retirada registrada em/)).toBeVisible();
+    const physical = command({
+        wire: (await recorded(page, "ExpedicaoController.consultar", "receipt"))
+            .raw!,
+    });
+    expect(physical.retiradaEm).toBe("2026-10-08T12:30:00.123456Z");
+    expect(
+        exact(
+            (physical.fatos as Record<string, unknown>[])[0].quantidadeDepois,
+        ),
+    ).toBe("490.000000");
     // A nova revisão é recebida da etiqueta após a retirada parcial do pallet.
     await page
         .getByRole("button", { name: "Unidades e etiquetas", exact: true })
@@ -139,6 +127,9 @@ test("FE10 retirada integral e devolucao ligada a baixa", async ({ page }) => {
             name: "3. Ler e reimprimir etiqueta",
             exact: true,
         })
+        .click();
+    await page
+        .getByRole("button", { name: "Ver detalhes", exact: true })
         .click();
     await page
         .getByRole("button", {
@@ -205,19 +196,11 @@ test("FE10 retirada integral e devolucao ligada a baixa", async ({ page }) => {
     await page
         .getByRole("button", { name: "Fiscal e retirada", exact: true })
         .click();
-    await consult(page);
+    await page.getByRole("button", { name: "DEMO-01", exact: true }).click();
+    await page.getByText("Retorno e devolução", { exact: true }).click();
     await page
-        .getByRole("button", { name: "3. Retorno e devolução", exact: true })
+        .getByRole("button", { name: "Registrar chegada da devolução" })
         .click();
-    await page
-        .getByRole("button", {
-            name: "Registrar devolução / nova entrada",
-            exact: true,
-        })
-        .click();
-    await page
-        .getByLabel("Referência *", { exact: true })
-        .fill("DEV-FICTICIA-601");
     await page
         .getByLabel("Chegada Real *", { exact: true })
         .fill("2026-10-08T10:00:00.123");
@@ -241,9 +224,11 @@ test("FE10 retirada integral e devolucao ligada a baixa", async ({ page }) => {
         "1701",
     );
     expect(exact(d.versao)).toBe("5");
-    await expect(
-        page.getByRole("table", { name: /Devoluções ligadas às baixas/ }),
-    ).toContainText("202");
+    const returnedReceipt = command({
+        wire: (await recorded(page, "ExpedicaoController.devolver", "receipt"))
+            .raw!,
+    });
+    expect(exact(returnedReceipt.pedidoEntradaId)).toBe("102");
     await page
         .getByRole("button", {
             name: "Consultar a nova entrada ligada à devolução",
@@ -254,41 +239,35 @@ test("FE10 retirada integral e devolucao ligada a baixa", async ({ page }) => {
         page.getByLabel("Identificador *", { exact: true }),
     ).toHaveValue("102");
     await consult(page);
-    expect(
-        (await recorded(page, "PedidoEntradaController.consultar")).params?.id,
-    ).toBe("102");
     await expect(
-        page.getByText("DEV-FICTICIA-601", { exact: true }).first(),
+        page.getByRole("dialog").getByText("DEV-102", { exact: true }).first(),
     ).toBeVisible();
-    await expect(
-        page.getByText("EFETIVADO", { exact: true }).first(),
-    ).toBeVisible();
-    const returned = command({
-        wire: (
-            await recorded(page, "PedidoEntradaController.consultar", "receipt")
-        ).raw!,
+    const detailId = "PedidoEntradaController.consultar";
+    const request = await recorded(
+        page,
+        detailId,
+        "request",
+        (event) => event.params?.id === "102",
+    );
+    const receipt = await recorded(page, detailId, "receipt", (event) => {
+        const detail = command({ wire: event.raw });
+        return (
+            exact((detail.pedido as Record<string, unknown>).id) ===
+            request.params?.id
+        );
     });
+    const returned = command({ wire: receipt.raw });
     const returnedPedido = returned.pedido as Record<string, unknown>;
+    expect(returnedPedido.situacao).toBe("EFETIVADO");
     expect(returnedPedido.efetivadoEm).toBe("2026-10-08T13:01:00.123456Z");
+    await page.getByRole("button", { name: "Histórico", exact: true }).click();
     await page
-        .getByRole("button", {
-            name: "4. Divergência e efetivação",
-            exact: true,
-        })
-        .click();
-    await page
-        .getByRole("button", {
-            name: "Consultar entradas conferidas",
-            exact: true,
-        })
+        .getByRole("button", { name: "Consultar entradas conferidas" })
         .click();
     await consult(page);
     expect(
         (await recorded(page, "PedidoEntradaController.entradas")).params?.id,
     ).toBe("102");
-    await expect(
-        page.getByRole("cell", { name: "202", exact: true }).first(),
-    ).toBeVisible();
     const entries = command({
         wire: (
             await recorded(page, "PedidoEntradaController.entradas", "receipt")
@@ -297,14 +276,8 @@ test("FE10 retirada integral e devolucao ligada a baixa", async ({ page }) => {
     const entry = (entries.itens as Record<string, unknown>[])[0];
     expect(entry.chegadaReal).toBe("2026-10-08T13:00:00.123Z");
     expect(entry.efetivadaEm).toBe("2026-10-08T13:01:00.123456Z");
-    await expect(
-        page
-            .getByRole("cell", {
-                name: "2026-10-07T12:00:00.123456Z",
-                exact: true,
-            })
-            .first(),
-    ).toBeVisible();
+    expect(exact(entry.id)).toBe("202");
+    expect(entry.dataFifo).toBe("2026-10-07T12:00:00.123456Z");
 });
 test("FE10 documento simbolico cancelamento e retorno interno distintos", async ({
     page,
@@ -312,17 +285,16 @@ test("FE10 documento simbolico cancelamento e retorno interno distintos", async 
     await separated(page);
     await document(page, true);
     await page
-        .getByRole("button", {
-            name: "1. Documento de mercadoria",
-            exact: true,
-        })
+        .getByRole("button", { name: "Registrar nota existente" })
         .click();
     await page
-        .getByRole("button", { name: "Registrar cancelamento", exact: true })
+        .locator("summary")
+        .filter({ hasText: "Outras operações" })
         .click();
-    await expect(
-        page.getByLabel("Documento Id *", { exact: true }),
-    ).toHaveValue("1601");
+    await page.getByRole("button", { name: /cancelamento/i }).click();
+    await expect(page.getByLabel("Documento *", { exact: true })).toHaveValue(
+        "1601",
+    );
     await page
         .getByLabel("Motivo / justificativa *", { exact: true })
         .fill("Cancelamento fiscal fictício antes de retorno");
@@ -330,21 +302,16 @@ test("FE10 documento simbolico cancelamento e retorno interno distintos", async 
     const c = await recorded(page, "ExpedicaoController.cancelar");
     expect(c.params?.documentoId).toBe("1601");
     expect(exact(command(c).versao)).toBe("4");
-    await expect(
-        page.getByRole("region", {
-            name: "Fiscal e físico do pedido selecionado",
-        }),
-    ).toContainText("Retirada física: não registrada");
-    await expect(
-        page.getByRole("region", {
-            name: "Fiscal e físico do pedido selecionado",
-        }),
-    ).toContainText("CANCELADO");
     await page
-        .getByRole("button", {
-            name: "Conferir destinos para retorno interno (ação física distinta)",
-            exact: true,
-        })
+        .getByRole("button", { name: "Voltar à lista", exact: true })
+        .click();
+    await expect(
+        page.getByText("Retirada física ainda não confirmada."),
+    ).toBeVisible();
+    await expect(page.getByText("Cancelado", { exact: true })).toBeVisible();
+    await page.getByText("Retorno e devolução", { exact: true }).click();
+    await page
+        .getByRole("button", { name: "Reendereçar mercadoria separada" })
         .click();
     await destination(page, "Unidades");
     await page
@@ -358,13 +325,18 @@ test("FE10 documento simbolico cancelamento e retorno interno distintos", async 
         exact((command(r).unidades as Record<string, unknown>[])[0].reservaId),
     ).toBe("701");
     await page
-        .getByRole("button", {
-            name: "Conferir fatos do retorno interno",
-            exact: true,
-        })
+        .getByRole("button", { name: "Voltar à lista", exact: true })
         .click();
-    await consult(page);
-    await expect(
-        page.getByRole("cell", { name: "RETORNO_INTERNO", exact: true }),
-    ).toBeVisible();
+    await expect
+        .poll(
+            async () =>
+                (
+                    await recorded(
+                        page,
+                        "ExpedicaoController.consultar",
+                        "receipt",
+                    )
+                ).raw,
+        )
+        .toContain("RETORNO_INTERNO");
 });

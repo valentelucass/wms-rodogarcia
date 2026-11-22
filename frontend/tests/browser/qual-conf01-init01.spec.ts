@@ -1,4 +1,5 @@
 import { test, expect, type Page, type TestInfo } from "@playwright/test";
+import { journeyWorkspace, offlineRelease } from "./release-fixture";
 import { readFileSync } from "node:fs";
 import { resolve, sep } from "node:path";
 import { stringify } from "lossless-json";
@@ -92,6 +93,8 @@ async function offline(
             unknown.push(url.pathname);
             return route.abort();
         }
+        if (url.pathname === "/__wms/release" && request.method() === "GET")
+            return route.fulfill({ json: offlineRelease(build) });
         if (!url.pathname.startsWith("/api/")) {
             const target = resolve(
                 build,
@@ -564,9 +567,9 @@ test("INIT01 doze hashes de jornada entram diretamente sem montar Início", asyn
     for (const journey of prepared.journeys) {
         await page.goto("/#" + journey.id);
         await expect(
-            page.getByRole("heading", { name: journey.title, exact: true }),
+            page.getByRole("heading", { name: journey.id === "cobranca" ? "Fechamento de Fatura" : journey.title, exact: true }),
         ).toBeVisible();
-        await expect(page.locator(".record-workspace")).toBeVisible();
+        await expect(journeyWorkspace(page, journey.id)).toBeVisible();
         await expect(
             page.locator(
                 ".home-header,.warehouse-overview,.operation-dashboard",

@@ -15,7 +15,8 @@ try {
     $be=Get-CimInstance Win32_Process -Filter ('ProcessId='+$beListener[0].OwningProcess)
     if($fe.CommandLine -notmatch '--manifest "([^"]+)"'){throw 'PROD_PM2_UNATTESTED_FRONTEND'}
     $manifest=[IO.Path]::GetFullPath($Matches[1])
-    $runs=Join-Path $root 'orchestracao/.runtime/launcher-producao/runs'
+    . (Join-Path $root 'backend/scripts/prod/start-backend-prod.ps1')
+    $runs=Join-Path (Get-WmsProductionRuntimeForPath $root $manifest) 'runs'
     $relative=$manifest.Substring($runs.Length)
     if(-not $manifest.StartsWith($runs+'\',[StringComparison]::OrdinalIgnoreCase) -or $relative -notmatch '^\\([a-f0-9]{32})\\candidate\\frontend\\dist\\build-manifest.json$'){throw 'PROD_PM2_FOREIGN_RUN'}
     $runId=$Matches[1];$run=Join-Path $runs $runId
@@ -41,7 +42,7 @@ try {
         $handles+=$p;$verified+=@{pid=$p.Id;startUtc=$entry.start;port=$entry.port}
     }
     if($InspectOnly){Write-Output 'PROD_PM2_STANDALONE_ATTESTED';exit 0}
-    $evidence=Join-Path $root ('orchestracao/.runtime/launcher-producao/pm2/transition-'+[guid]::NewGuid().ToString('N')+'.json')
+    $evidence=Join-Path $root ('.runtime/prod/pm2/transition-'+[guid]::NewGuid().ToString('N')+'.json')
     [IO.File]::WriteAllText($evidence,(@{previousRun=$runId;verified=$verified;authorizedScope='WMS PROD para PM2';observadoUtc=[DateTime]::UtcNow.ToString('o')}|ConvertTo-Json -Depth 8))
     foreach($p in $handles){if(-not $p.HasExited){$p.Kill();if(-not $p.WaitForExit(15000)){throw 'PROD_PM2_STOP_TIMEOUT'}}}
     Write-Output 'PROD_PM2_STANDALONE_STOPPED'

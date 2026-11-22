@@ -2,7 +2,7 @@ const path = require("node:path");
 
 // PM2 principal: operar com pm2-wms.bat no mesmo contexto administrativo do daemon.
 const root = __dirname;
-const logs = path.join(root, "orchestracao", ".runtime", "pm2", "logs");
+const logs = path.join(root, ".runtime", "prod", "logs");
 module.exports = {
   apps: [
     { name: "wms-api-25590", component: "api" },

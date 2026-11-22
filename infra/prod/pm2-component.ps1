@@ -5,9 +5,9 @@ param([Parameter(Mandatory=$true)][ValidateSet('api','ui')][string]$Component,
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
 $root=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
-$area=Join-Path $root 'orchestracao/.runtime/launcher-producao/pm2'
 . (Join-Path $PSScriptRoot 'launcher-common.ps1')
 . (Join-Path $PSScriptRoot 'pm2-common.ps1')
+$area=Join-Path (Get-WmsPm2ActiveRuntime $root) 'pm2'
 . (Join-Path $root 'backend/scripts/prod/start-backend-prod.ps1')
 $backend=$null;$frontend=$null;$frontendStarted=$false;$credential=$null;$bootstrap=$null;$parent=$null
 $ready=$false;$exitCode=20

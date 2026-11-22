@@ -2,6 +2,7 @@ import { test, expect, type Page } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import { stringify, LosslessNumber } from "lossless-json";
 import type { Endpoint, Values } from "../../src/contracts/runtime";
+import { journeyWorkspace } from "./release-fixture";
 import type { RecordPage } from "../../src/domain/recordPages";
 const prepared = JSON.parse(
     readFileSync("evidencias/record-pages-browser-fixtures.json", "utf8"),
@@ -142,6 +143,7 @@ async function isolatedApi(page: Page, perfil = "GESTOR") {
                 ...clientTemplate,
                 ...body,
                 id: "77",
+                codigo: "CLI-C",
                 versao: "0",
                 situacao: "ATIVO",
             };
@@ -227,7 +229,23 @@ for (const [width, height, theme] of [
             await page.evaluate((id) => {
                 location.hash = id;
             }, journey.id);
-            await expect(page.locator(".record-workspace")).toBeVisible();
+            const workspace = journeyWorkspace(page, journey.id);
+            await expect(workspace).toBeVisible();
+            if (["fiscal", "cobranca", "fechamento", "contagem"].includes(journey.id)) {
+                if (journey.id === "fiscal") {
+                    await expect(workspace.getByLabel("Pedido", { exact: true })).toBeVisible();
+                    await expect(workspace.getByLabel("Situação da NF-e")).toBeVisible();
+                } else if (journey.id === "contagem") {
+                    await expect(workspace.getByRole("heading", { name: "Visão geral do inventário" })).toBeVisible();
+                    await expect(workspace.getByRole("combobox", { name: "Cliente *" })).toBeVisible();
+                } else {
+                    await expect(workspace.getByRole("button", { name: "Aplicar filtros" })).toBeVisible();
+                    await expect(workspace.getByRole("heading", { name: "Últimos fechamentos" })).toBeVisible();
+                }
+                expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+                await page.screenshot({ path: info.outputPath(journey.id + "-" + theme + ".png"), fullPage: true });
+                continue;
+            }
             const views =
                 journey.id === "entrada" ? [0] : journey.steps.map((_, i) => i);
             for (const i of views) {
@@ -332,6 +350,7 @@ for (const [width, height, theme] of [
                 "Operação confirmada pelo servidor. Lista em atualização.",
             ),
         ).toBeVisible();
+        await dialog.locator("summary").filter({ hasText: "Outras operações" }).click();
         await dialog
             .getByRole("button", { name: "Solicitar desativação de cliente" })
             .click();
@@ -342,6 +361,10 @@ for (const [width, height, theme] of [
             .getByRole("button", { name: "Conferir e confirmar" })
             .click();
         await dialog.getByRole("button", { name: "Confirmar agora" }).click();
+        await expect(
+            row.locator(".record-status"),
+        ).toHaveText("Encerramento pendente");
+        await dialog.locator("summary").filter({ hasText: "Outras operações" }).click();
         await expect(
             dialog.getByRole("button", { name: "Reativar cliente" }),
         ).toBeVisible();
@@ -360,7 +383,7 @@ for (const [width, height, theme] of [
         await expect(row.locator(".record-status")).toHaveText("Ativo");
         await page.getByLabel("Buscar nos registros desta página").fill("Alfa");
         await page.getByRole("button", { name: "Novo cliente" }).click();
-        await dialog.getByLabel("Código *", { exact: true }).fill("CLI-C");
+        await expect(dialog.getByText("O código será gerado automaticamente ao confirmar.")).toBeVisible();
         await dialog.getByLabel("Nome *", { exact: true }).fill("Cliente Gama");
         await dialog
             .getByLabel("CPF / CNPJ *", { exact: true })

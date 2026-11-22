@@ -114,12 +114,8 @@ test("Recebimento integral: nota → chegada → efetivação → unidade → et
     page,
 }) => {
     await page.goto("/#entrada");
-    await page
-        .getByRole("button", { name: "Novo registro", exact: true })
-        .click();
-    await page
-        .getByLabel("Referência *", { exact: true })
-        .fill("DEMO-RECEBIMENTO");
+    await continueTo(page, "Novo pedido");
+    await continueTo(page, "Criar manualmente");
     await confirm(page);
     const created = value(
         await recorded(page, "PedidoEntradaController.criar", "receipt"),
@@ -150,7 +146,7 @@ test("Recebimento integral: nota → chegada → efetivação → unidade → et
         .getByLabel("Itens / Item 1 / Numero Item *", { exact: true })
         .fill("1");
     await expect(
-        page.getByLabel("Itens / Item 1 / Produto / SKU (ID) *", {
+        page.getByLabel("Itens / Item 1 / Produto / SKU *", {
             exact: true,
         }),
     ).toHaveValue("11");
@@ -167,9 +163,8 @@ test("Recebimento integral: nota → chegada → efetivação → unidade → et
     await expect(
         page.getByText(/Resposta FICTÍCIA de exercício recebida/),
     ).toBeVisible();
-    await page
-        .getByRole("button", { name: "3. Conferência e chegadas", exact: true })
-        .click();
+    await continueTo(page, "Fechar diálogo");
+    await continueTo(page, "Iniciar conferência");
     await expect(
         page.getByLabel("Revisão atual *", { exact: true }),
     ).toHaveValue("1");
@@ -177,17 +172,16 @@ test("Recebimento integral: nota → chegada → efetivação → unidade → et
         .getByLabel("Motivo / justificativa *", { exact: true })
         .fill("Iniciar conferência fictícia");
     await confirm(page);
-    await expect(
-        page.getByRole("region", {
-            name: "Referências confirmadas da jornada",
-        }),
-    ).toContainText("EM_CONFERENCIA");
+    expect(
+        (await recorded(page, "PedidoEntradaController.iniciar", "receipt"))
+            .raw,
+    ).toContain("EM_CONFERENCIA");
     await continueTo(page, "Registrar chegada dos itens consultados");
     await expect(
         page.getByLabel("Revisão atual *", { exact: true }),
     ).toHaveValue("2");
     await expect(
-        page.getByLabel("Itens / Item 1 / Item da nota (ID) *", {
+        page.getByLabel("Itens / Item 1 / Item da nota *", {
             exact: true,
         }),
     ).toHaveValue("401");
@@ -212,11 +206,14 @@ test("Recebimento integral: nota → chegada → efetivação → unidade → et
     await expect(
         page.getByText(/Resposta FICTÍCIA de exercício recebida/),
     ).toBeVisible();
+    await page.getByRole("button", { name: "Fechar diálogo" }).click();
+    await continueTo(page, "Continuar conferência");
     await page
-        .getByRole("button", {
-            name: "4. Divergência e efetivação",
-            exact: true,
-        })
+        .locator("summary")
+        .filter({ hasText: "Outras operações" })
+        .click();
+    await page
+        .getByRole("button", { name: "Efetivar carga integral", exact: true })
         .click();
     await expect(
         page.getByLabel("Revisão atual *", { exact: true }),
@@ -225,35 +222,34 @@ test("Recebimento integral: nota → chegada → efetivação → unidade → et
         .getByLabel("Motivo / justificativa *", { exact: true })
         .fill("Efetivação fictícia integral");
     await confirm(page);
-    await expect(
-        page.getByRole("region", {
-            name: "Referências confirmadas da jornada",
-        }),
-    ).toContainText("EFETIVADO");
+    expect(
+        (await recorded(page, "PedidoEntradaController.efetivar", "receipt"))
+            .raw,
+    ).toContain("EFETIVADO");
     await continueTo(page, "Consultar entradas efetivadas para unitização");
     await page.getByRole("button", { name: "Consultar", exact: true }).click();
     await expect(
         page.getByText(/Resposta FICTÍCIA de exercício recebida/),
     ).toBeVisible();
-    await expect(
-        page.getByRole("region", {
-            name: "Referências confirmadas da jornada",
-        }),
-    ).toContainText("Entrada conferida: 201");
-    await continueTo(page, "Unitizar a entrada conferida selecionada");
-    await expect(page.getByLabel("Pedido (ID) *", { exact: true })).toHaveValue(
-        "101",
+    const entries = value(
+        await recorded(page, "PedidoEntradaController.entradas", "receipt"),
     );
-    await expect(
-        page.getByLabel("Entrada conferida (ID) *", { exact: true }),
-    ).toHaveValue("201");
-    await expect(
-        page.getByLabel("Versao Pedido *", { exact: true }),
-    ).toHaveValue("4");
+    expect(exact((entries.itens as Record<string, unknown>[])[0].id)).toBe(
+        "201",
+    );
+    await continueTo(page, "Unitizar a entrada conferida selecionada");
     await page
+        .getByRole("button", { name: "Selecionar Item 1 · DEMO-CAIXA" })
+        .click();
+    await expect(
+        page.getByLabel("Entrada conferida *", { exact: true }),
+    ).toHaveValue("201");
+    await page
+        .getByRole("dialog")
         .getByRole("button", { name: "Consultar embalagens deste SKU" })
         .click();
     await page
+        .getByRole("dialog")
         .getByRole("region", { name: "Consultar referências para a tarefa" })
         .getByRole("button", { name: "Selecionar registro 1" })
         .click();
@@ -261,7 +257,7 @@ test("Recebimento integral: nota → chegada → efetivação → unidade → et
         .getByRole("button", { name: "Adicionar Unidades", exact: true })
         .click();
     await expect(
-        page.getByLabel("Unidades / Item 1 / Embalagem / DUN (ID) *", {
+        page.getByLabel("Unidades / Item 1 / Embalagem / DUN *", {
             exact: true,
         }),
     ).toHaveValue("21");
@@ -320,29 +316,32 @@ test("Recebimento integral: nota → chegada → efetivação → unidade → et
 test("Saída integral: pedido → FIFO → reserva → etiqueta → leitura → separação conserva identidades e revisões", async ({
     page,
 }) => {
-    await page.goto("/#saida");
+    await page.goto("/#unidades");
+    await continueTo(page, "3. Ler e reimprimir etiqueta");
     await page
-        .getByRole("button", { name: "Novo registro", exact: true })
+        .getByRole("button", { name: "Ver detalhes de " + code, exact: true })
         .click();
-    // Consulted product choice, without copying an ID from a different entity.
-    await page.getByRole("button", { name: "Cadastros", exact: true }).click();
-    await page
-        .getByRole("button", { name: "Produtos / SKU", exact: true })
-        .click();
-    await page.getByRole("button", { name: "Consultar", exact: true }).click();
-    await page.getByRole("button", { name: "Selecionar registro 1" }).click();
-    await page
-        .getByRole("button", { name: "Saída, FIFO e reserva", exact: true })
-        .click();
-    await page
-        .getByRole("button", { name: "Novo registro", exact: true })
-        .click();
+    await continueTo(page, "Consultar / reimprimir etiqueta");
+    await continueTo(page, "Consultar");
+    await expect(
+        page.getByText(/Resposta FICTÍCIA de exercício recebida/),
+    ).toBeVisible();
+    const label = value(
+        await recorded(page, "UnidadeLogisticaController.etiqueta", "receipt"),
+    );
+    expect(label.codigoLeitura).toBe(code);
+    await continueTo(page, "Fechar diálogo");
+    await continueTo(page, "Saída, FIFO e reserva");
+    await continueTo(page, "Nova saída");
     await page
         .getByLabel("Justificativa do pedido *", { exact: true })
         .fill("Pedido fictício integral");
     await page
         .getByRole("button", { name: "Adicionar item", exact: true })
         .click();
+    await page
+        .getByLabel("Produto / SKU *", { exact: true })
+        .selectOption({ label: "DEMO-CAIXA · Mercadoria fictícia" });
     await expect(
         page.getByLabel("Produto / SKU *", {
             exact: true,
@@ -374,40 +373,15 @@ test("Saída integral: pedido → FIFO → reserva → etiqueta → leitura → 
             name: "Referências confirmadas da jornada",
         }),
     ).toContainText("RESERVADO");
-    await continueTo(page, "Ler a etiqueta da reserva confirmada");
+    await continueTo(page, "Abrir tarefa no Coletor");
+    const task = page.getByRole("combobox", { name: "Tarefa", exact: true });
+    const scanner = page.getByLabel("1. Leia o UUID da unidade");
+    await task.selectOption("ler");
+    await scanner.fill(code);
+    await scanner.press("Enter");
     await page
-        .getByRole("button", {
-            name: "Consultar etiqueta da unidade",
-            exact: true,
-        })
-        .click();
-    await expect(
-        page.getByRole("region", {
-            name: "Consultar referências para a tarefa",
-        }),
-    ).toContainText(code);
-    await page
-        .getByRole("dialog", { name: "Referências consultadas" })
-        .getByRole("button", { name: "Fechar diálogo" })
-        .click();
-    await page
-        .getByRole("button", {
-            name: "Usar referências consultadas no formulário (descarta edição atual)",
-            exact: true,
-        })
-        .click();
-    await expect(
-        page.getByLabel("Identificador *", { exact: true }),
-    ).toHaveValue("601");
-    await expect(
-        page.getByLabel("Reserva (ID) *", { exact: true }),
-    ).toHaveValue("701");
-    await expect(
-        page.getByLabel("Revisão atual *", { exact: true }),
-    ).toHaveValue("1");
-    await expect(
-        page.getByLabel("Revisão do conteúdo da etiqueta *", { exact: true }),
-    ).toHaveValue("7");
+        .getByLabel("Revisão do conteúdo da etiqueta *", { exact: true })
+        .fill(String(exact(label.versaoConteudo)));
     await page
         .getByLabel("Motivo / justificativa *", { exact: true })
         .fill("Leitura fictícia da etiqueta");
@@ -419,32 +393,21 @@ test("Saída integral: pedido → FIFO → reserva → etiqueta → leitura → 
     expect(exact(rb.versao)).toBe("1");
     expect(exact(rb.revisaoConteudo)).toBe("7");
     expect(rb.codigoLido).toBe(code);
-    await continueTo(page, "Confirmar destino da reserva lida");
+    await task.selectOption("separar");
+    await scanner.fill(code);
+    await scanner.press("Enter");
+    await continueTo(page, "Adicionar Posições de destino");
     await page
-        .getByRole("button", { name: "Consultar posições para separação" })
-        .click();
-    await page
-        .getByRole("region", { name: "Consultar referências para a tarefa" })
-        .getByRole("button", { name: "Selecionar registro 1" })
-        .click();
-    await page
-        .getByRole("button", {
-            name: "Usar referências consultadas no formulário (descarta edição atual)",
+        .getByLabel("Destinacao / Posições de destino / Item 1 / Endereço *", {
             exact: true,
         })
-        .click();
-    await expect(
-        page.getByLabel("Revisão atual *", { exact: true }),
-    ).toHaveValue("2");
-    await expect(
-        page.getByLabel("Destinacao / Reserva (ID) *", { exact: true }),
-    ).toHaveValue("701");
-    await expect(
-        page.getByLabel(
-            "Destinacao / Posições de destino / Item 1 / Endereço (ID) *",
+        .selectOption("81");
+    await page
+        .getByLabel(
+            "Destinacao / Posições de destino / Item 1 / Código lido *",
             { exact: true },
-        ),
-    ).toHaveValue("81");
+        )
+        .fill("A101");
     await page
         .getByLabel("Motivo / justificativa *", { exact: true })
         .fill("Separação fictícia integral");
@@ -454,11 +417,9 @@ test("Saída integral: pedido → FIFO → reserva → etiqueta → leitura → 
     expect(exact(command(separated).versao)).toBe("2");
     expect(separated.wire).toContain('"reservaId":701');
     expect(separated.wire).toContain('"enderecoId":81');
-    await expect(
-        page.getByRole("region", {
-            name: "Referências confirmadas da jornada",
-        }),
-    ).toContainText("SEPARADO");
+    expect(
+        (await recorded(page, "ExpedicaoController.separar", "receipt")).raw,
+    ).toContain("SEPARADO");
     await page.screenshot({
         path: "evidencias/marco02-r05-browser-saida-completa.png",
         fullPage: true,
@@ -469,15 +430,7 @@ test("Financeiro: cálculo → fechamento → memória → aprovação → entre
     page,
 }) => {
     await page.goto("/#cobranca");
-    await page
-        .getByRole("button", { name: "3. Memória do servidor", exact: true })
-        .click();
-    await page
-        .getByRole("button", {
-            name: "Solicitar cálculo ao servidor",
-            exact: true,
-        })
-        .click();
+    await continueTo(page, "Novo fechamento");
     await page
         .getByLabel("Início do período *", { exact: true })
         .fill("2026-10-01");
@@ -495,23 +448,33 @@ test("Financeiro: cálculo → fechamento → memória → aprovação → entre
     expect(exact(calculation.total)).toBe("10.000000");
     await expect(page.locator(".results")).toContainText("10.000000");
     await continueTo(page, "Preparar fechamento com este cálculo");
-    await expect(page.getByLabel("Calculo Id *", { exact: true })).toHaveValue(
+    await expect(page.getByLabel("Calculo *", { exact: true })).toHaveValue(
         "801",
     );
     await page
         .getByLabel("Motivo / justificativa *", { exact: true })
         .fill("Preparar ciclo fictício");
-    await confirm(page);
+    await page.getByRole("button", { name: "Conferir e confirmar" }).click();
+    await page.getByRole("button", { name: "Confirmar agora" }).click();
+    await expect(
+        page.getByRole("button", { name: "Fechar detalhes" }),
+    ).toBeVisible();
     const prepare = await recorded(
         page,
         "FechamentoCobrancaController.preparar",
     );
     expect(exact(command(prepare).calculoId)).toBe("801");
-    await continueTo(page, "Conferir memória e hash da versão preparada");
-    await expect(
-        page.getByLabel("Identificador *", { exact: true }),
-    ).toHaveValue("901");
-    await page.getByRole("button", { name: "Consultar", exact: true }).click();
+    const actions = page
+        .locator("summary")
+        .filter({ hasText: /Operações deste registro/ });
+    if (
+        !(await actions.evaluate(
+            (el) => (el.parentElement as HTMLDetailsElement).open,
+        ))
+    )
+        await actions.click();
+    await continueTo(page, "Consultar versão e hash");
+    await continueTo(page, "Consultar");
     await expect(
         page.getByText(/Resposta FICTÍCIA de exercício recebida/),
     ).toBeVisible();
@@ -554,11 +517,15 @@ test("Financeiro: cálculo → fechamento → memória → aprovação → entre
         .getByLabel("Motivo / justificativa *", { exact: true })
         .fill("Aprovação fictícia integral");
     await confirm(page);
-    await expect(
-        page.getByRole("region", {
-            name: "Referências confirmadas da jornada",
-        }),
-    ).toContainText(/aprovado/i);
+    expect(
+        (
+            await recorded(
+                page,
+                "FechamentoCobrancaController.aprovar",
+                "receipt",
+            )
+        ).raw,
+    ).toContain("APROVADO");
     await continueTo(page, "Registrar entrega manual desta versão");
     await expect(
         page.getByLabel("Arquivo Hash *", { exact: true }),
@@ -583,6 +550,10 @@ test("Financeiro: cálculo → fechamento → memória → aprovação → entre
     expect(delivery.params?.id).toBe("901");
     expect(exact(command(delivery).versao)).toBe("1");
     expect(command(delivery).arquivoHash).toBe(String(version.conteudoHash));
+    await page
+        .locator("summary")
+        .filter({ hasText: "Outras operações" })
+        .click();
     await page
         .getByRole("button", {
             name: "Registrar referência NFS-e",
@@ -617,11 +588,15 @@ test("Financeiro: cálculo → fechamento → memória → aprovação → entre
                 })
                 .click();
     }
-    await expect(
-        page.getByRole("region", {
-            name: "Referências confirmadas da jornada",
-        }),
-    ).toContainText("CONFLITO_EXTERNO");
+    expect(
+        (
+            await recorded(
+                page,
+                "FechamentoCobrancaController.registrarNfse",
+                "receipt",
+            )
+        ).raw,
+    ).toContain("CONFLITO_EXTERNO");
     await continueTo(page, "Consultar referências e conflitos externos");
     await page.getByRole("button", { name: "Consultar", exact: true }).click();
     await expect(
@@ -635,12 +610,12 @@ test("Financeiro: cálculo → fechamento → memória → aprovação → entre
         page.getByLabel("Revisão atual *", { exact: true }),
     ).toHaveValue("4");
     await expect(
-        page.getByLabel("Referencias / Item 1 / Referencia Id *", {
+        page.getByLabel("Referencias / Item 1 / Referencia *", {
             exact: true,
         }),
     ).toHaveValue("1101");
     await expect(
-        page.getByLabel("Referencias / Item 2 / Referencia Id *", {
+        page.getByLabel("Referencias / Item 2 / Referencia *", {
             exact: true,
         }),
     ).toHaveValue("1102");
@@ -683,16 +658,15 @@ test("Financeiro: cálculo → fechamento → memória → aprovação → entre
     await expect(
         page.getByText(/Resposta FICTÍCIA de exercício recebida/),
     ).toBeVisible();
-    await expect(
-        page.getByRole("region", {
-            name: "Referências confirmadas da jornada",
-        }),
-    ).toContainText(/aprovado/i);
-    await expect(
-        page.getByRole("region", {
-            name: "Referências confirmadas da jornada",
-        }),
-    ).toContainText("Revisão 5");
+    const closure = value(
+        await recorded(
+            page,
+            "FechamentoCobrancaController.consultar",
+            "receipt",
+        ),
+    );
+    expect(closure.situacao).toBe("APROVADO");
+    expect(exact(closure.versao)).toBe("5");
     await page.screenshot({
         path: "evidencias/marco02-r05-browser-financeiro-completo.png",
         fullPage: true,
@@ -703,10 +677,7 @@ test("Desktop: cliente, entrada manual, consulta e perfil", async ({
 }) => {
     await page.goto("/");
     await page.getByRole("button", { name: "Cadastros", exact: true }).click();
-    await page
-        .getByRole("button", { name: "Novo registro", exact: true })
-        .click();
-    await page.getByLabel("Código *", { exact: true }).fill("DEMO-TESTE");
+    await continueTo(page, "Novo cliente");
     await page
         .getByLabel("Nome *", { exact: true })
         .fill("Cliente fictício do browser");
@@ -716,16 +687,26 @@ test("Desktop: cliente, entrada manual, consulta e perfil", async ({
     await page.getByRole("button", { name: "Conferir e confirmar" }).click();
     await page.getByRole("button", { name: "Confirmar agora" }).dblclick();
     await expect(page.getByText(/Resposta FICTÍCIA/)).toBeVisible();
+    await continueTo(page, "Voltar à lista");
+    await continueTo(page, "Entrada e conferência");
+    await continueTo(page, "Novo pedido");
+    await continueTo(page, "Criar manualmente");
+    await confirm(page);
+    const created = value(
+        await recorded(page, "PedidoEntradaController.criar", "receipt"),
+    );
+    expect(created.referencia).toBeTruthy();
+    await continueTo(page, "Voltar à lista");
     await page
-        .getByRole("button", { name: "Entrada e conferência", exact: true })
+        .getByRole("button", {
+            name: "Ver detalhes de " + created.referencia,
+            exact: true,
+        })
         .click();
-    await page
-        .getByRole("button", { name: "Novo registro", exact: true })
-        .click();
-    await page.getByLabel("Referência *", { exact: true }).fill("DEMO-ENTRADA");
-    await page.getByRole("button", { name: "Conferir e confirmar" }).click();
-    await page.getByRole("button", { name: "Confirmar agora" }).click();
-    await expect(page.getByText("DEMO-ENTRADA", { exact: true })).toBeVisible();
+    expect(
+        (await recorded(page, "PedidoEntradaController.consultar")).params?.id,
+    ).toBe(exact(created.id));
+    await continueTo(page, "Fechar diálogo");
     await page.screenshot({
         path: "evidencias/marco02-r05-browser-desktop.png",
         fullPage: true,
@@ -735,7 +716,7 @@ test("Desktop: cliente, entrada manual, consulta e perfil", async ({
         .selectOption("OPERACAO");
     await page.getByRole("button", { name: "Cadastros", exact: true }).click();
     await expect(
-        page.getByRole("button", { name: "Novo registro", exact: true }),
+        page.getByRole("button", { name: "Novo cliente", exact: true }),
     ).toHaveCount(0);
 });
 test("Coletor 390px: teclado, UUID, leitura posição e movimento", async ({
@@ -773,19 +754,29 @@ test("Conflito, vazio e indisponibilidade são distintos", async ({ page }) => {
     await page
         .getByLabel("Resposta do exercício fictício")
         .selectOption("conflito");
-    await page.getByRole("button", { name: "Consultar", exact: true }).click();
-    await expect(page.getByRole("alert")).toContainText("CONFLITO_CONCORRENTE");
+    await page
+        .getByRole("button", { name: "Atualizar lista", exact: true })
+        .click();
+    await expect(page.getByRole("alert")).toContainText(/revisão mudou/);
     await page
         .getByLabel("Resposta do exercício fictício")
         .selectOption("vazio");
-    await page.getByRole("button", { name: "Consultar", exact: true }).click();
-    await expect(page.getByText("Nenhum registro encontrado.")).toBeVisible();
+    await page
+        .getByRole("button", { name: "Atualizar lista", exact: true })
+        .click();
+    await expect(
+        page.getByText("Ainda não há pedidos de entrada neste contexto."),
+    ).toBeVisible();
     await page
         .getByLabel("Resposta do exercício fictício")
         .selectOption("falha");
-    await page.getByRole("button", { name: "Consultar", exact: true }).click();
-    await expect(page.getByRole("alert")).toContainText("INDISPONIVEL");
-    await expect(page.getByText("Nenhum registro encontrado.")).toHaveCount(0);
+    await page
+        .getByRole("button", { name: "Atualizar lista", exact: true })
+        .click();
+    await expect(page.getByRole("alert")).toContainText(/serviço indisponível/);
+    await expect(
+        page.getByText("Ainda não há pedidos de entrada neste contexto."),
+    ).toHaveCount(0);
 });
 test("Navega todos módulos em 768px e 1440px sem erro de página", async ({
     page,
@@ -868,7 +859,13 @@ test("Teclado: página composta conserva foco ao navegar, voltar, avançar e tro
         "Saída, FIFO e reserva",
     );
     await expect(page.locator("#conteudo")).toBeFocused();
-    await page.getByLabel("Cliente fictício (ID)").fill("2");
+    const picker = page.getByRole("combobox", {
+        name: "Cliente fictício",
+        exact: true,
+    });
+    await picker.click();
+    await picker.fill("2");
+    await picker.press("Enter");
     await page
         .getByRole("button", { name: "Aplicar contexto", exact: true })
         .focus();

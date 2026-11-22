@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { fulfillOverviewRead } from "./overview-fixture";
 import { writeFileSync } from "node:fs";
 
 const user = {
@@ -33,6 +34,10 @@ async function mockSession(page: Page) {
         }
         if (!url.pathname.startsWith("/api/")) {
             await route.continue();
+            return;
+        }
+        if (req.method() === "GET" && ["/api/v1/clientes", "/api/v1/armazens"].includes(url.pathname)) {
+            await fulfillOverviewRead(route);
             return;
         }
         let status = 200,
@@ -149,8 +154,11 @@ test("006 Tab Enter e clique conservam jornada/contexto/foco no shell atual", as
     const mock = await mockSession(page);
     await ready(page);
     await page.getByRole("button", { name: "Cadastros", exact: true }).click();
-    await page.getByLabel("Cliente (ID)").fill("1");
-    await page.getByLabel("Armazém (ID)").fill("1");
+    const context = page.getByRole("form", { name: "Contexto operacional" });
+    for (const name of ["Cliente", "Armazém"]) {
+        await context.getByRole("combobox", { name, exact: true }).click();
+        await page.getByRole("option", { name: new RegExp(name + " de teste") }).click();
+    }
     await page.getByRole("button", { name: "Aplicar contexto" }).click();
     const before = page.url();
     for (const action of ["Enter", "click"]) {
@@ -200,7 +208,7 @@ test("007 403 recupera,002 edicao Long exato,003 incerto sem sucesso/replay", as
     await expect(
         page.getByText("Pessoa sintetica", { exact: true }).last(),
     ).toBeVisible();
-    await expect(page.getByText(/9223372036854775807 usuários/)).toBeVisible();
+    await expect(page.getByRole("navigation", { name: "Paginação dos resultados" }).getByText(/9223372036854775807 registros/)).toBeVisible();
     await page.getByRole("button", { name: "Editar", exact: true }).click();
     await page.getByRole("button", { name: "Salvar usuário" }).click();
     await expect(

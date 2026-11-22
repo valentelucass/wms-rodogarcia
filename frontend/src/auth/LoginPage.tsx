@@ -61,81 +61,12 @@ export function LoginPage({
         }
     }
     return (
-        <AuthLayout wide>
-            <section className="auth-intro" aria-labelledby="intro-title">
-                <p className="auth-eyebrow">
-                    <span aria-hidden="true" /> GESTÃO DE ARMAZÉM
-                </p>
-                <h2 id="intro-title">
-                    Sua operação,
-                    <br />
-                    <span>em um só lugar.</span>
-                </h2>
-                <p className="auth-intro-description">
-                    Do recebimento à expedição, acompanhe cada etapa com
-                    organização, rastreabilidade e controle.
-                </p>
-                <ol
-                    className="auth-flow"
-                    aria-label="Etapas da operação no WMS"
-                >
-                    <li>
-                        <span className="auth-flow-icon">
-                            <Icon name="entrada" />
-                        </span>
-                        <div>
-                            <strong>Recebimento</strong>
-                            <span>
-                                Conferência e identificação da mercadoria.
-                            </span>
-                        </div>
-                        <span className="auth-flow-number" aria-hidden="true">
-                            01
-                        </span>
-                    </li>
-                    <li>
-                        <span className="auth-flow-icon">
-                            <Icon name="estoque" />
-                        </span>
-                        <div>
-                            <strong>Armazenagem</strong>
-                            <span>
-                                Localização, estoque e reservas organizados.
-                            </span>
-                        </div>
-                        <span className="auth-flow-number" aria-hidden="true">
-                            02
-                        </span>
-                    </li>
-                    <li>
-                        <span className="auth-flow-icon">
-                            <Icon name="saida" />
-                        </span>
-                        <div>
-                            <strong>Expedição</strong>
-                            <span>
-                                Separação e saída com histórico preservado.
-                            </span>
-                        </div>
-                        <span className="auth-flow-number" aria-hidden="true">
-                            03
-                        </span>
-                    </li>
-                </ol>
-                <p className="auth-profile-note">
-                    <Icon name="usuarios" />
-                    As funções disponíveis seguem seu perfil de acesso.
-                </p>
-            </section>
+        <AuthLayout shippingLabel>
             <section
                 className="auth-card auth-login-card"
                 aria-labelledby="login-title"
             >
                 <div className="auth-card-heading">
-                    <span className="auth-card-icon">
-                        <Icon name="senha" />
-                    </span>
-                    <p className="auth-eyebrow">ACESSO AO SISTEMA</p>
                     <h1 id="login-title">Entrar no WMS</h1>
                 </div>
                 <div className="auth-message-slot">
@@ -144,9 +75,7 @@ export function LoginPage({
                         role={error ? "alert" : message ? "status" : undefined}
                         className={`auth-feedback${error ? " error" : message ? "" : " auth-feedback--hint"}`}
                     >
-                        {error ||
-                            message ||
-                            "Bem-vindo de volta. Use seu e-mail e sua senha para continuar."}
+                        {error || message || "Entre com sua conta corporativa."}
                     </p>
                 </div>
                 <form
@@ -156,7 +85,6 @@ export function LoginPage({
                     <div className="auth-field">
                         <label htmlFor="login-email">E-mail</label>
                         <div className="auth-input-wrap">
-                            <Icon name="mail" />
                             <input
                                 id="login-email"
                                 name="email"
@@ -175,7 +103,6 @@ export function LoginPage({
                     <div className="auth-field">
                         <label htmlFor="login-password">Senha</label>
                         <div className="auth-input-wrap auth-input-wrap--password">
-                            <Icon name="senha" />
                             <input
                                 id="login-password"
                                 name="senha"
@@ -279,6 +206,28 @@ export function LoginPage({
                     </button>
                 </dialog>
             </section>
+            <div className="shipping-stub" aria-hidden="true">
+                <strong>RODOGARCIA</strong>
+                <span className="shipping-stub-label">Via de acesso</span>
+                <span className="shipping-barcode">
+                    <svg
+                        className="reader-frame"
+                        viewBox="0 0 200 80"
+                        preserveAspectRatio="none"
+                        focusable="false"
+                    >
+                        <path d="M1 10V1h10m178 0h10v9m0 60v9h-10M11 79H1v-9" />
+                    </svg>
+                    <span className="reader-ink">
+                        <i />
+                        <i />
+                        <i />
+                        <i />
+                    </span>
+                    <span className="reader-head" />
+                </span>
+                <span className="shipping-serial">RG / 000 026</span>
+            </div>
         </AuthLayout>
     );
 }

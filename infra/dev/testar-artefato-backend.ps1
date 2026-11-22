@@ -2,7 +2,7 @@
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'artefato-backend.ps1')
 $root = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
-$run = Join-Path $root ('orchestracao/.runtime/acesso-visao-a01/fixtures/' + [guid]::NewGuid().ToString('N'))
+$run = Join-Path $root ('.runtime/testes/acesso-visao-a01/fixtures/' + [guid]::NewGuid().ToString('N'))
 $null = New-Item -ItemType Directory -Path $run
 Add-Type -AssemblyName System.IO.Compression
 Add-Type -AssemblyName System.IO.Compression.FileSystem

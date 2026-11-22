@@ -92,10 +92,10 @@ function Invoke-WmsDev02Guard {
     }
     try {
         . (Join-Path $script:WmsDev02Root 'database/scripts/d26-credencial-aplicacao.ps1')
-        $baselinePath=Join-Path $script:WmsDev02Root 'orchestracao/.runtime/d29-farol-retomada-preflight.json'
-        Assert-Dev02 'oraculo historico imutavel; nunca substitui leitura atual' ((Get-FileHash -LiteralPath $baselinePath -Algorithm SHA256).Hash -ceq 'C22AABF54F839D4B6E139A598A8478530F92F8911FEEE46BB2F92BC85313EA90')
+        $baselinePath=Join-Path $script:WmsDev02Root 'database/contratos/contrato-dev.json'
+        Assert-Dev02 'oraculo historico imutavel; nunca substitui leitura atual' ((Get-FileHash -LiteralPath $baselinePath -Algorithm SHA256).Hash -ceq '4B9243E2B40A9AC608192404BF634FBB040599BEB2E7D8E5018FA5DC5039151B')
         $baseline=Get-Content -LiteralPath $baselinePath -Encoding UTF8 -Raw|ConvertFrom-Json
-        $report.oraculo=[ordered]@{arquivo='orchestracao/.runtime/d29-farol-retomada-preflight.json';sha256=(Get-FileHash -LiteralPath $baselinePath -Algorithm SHA256).Hash;observadoEm=$baseline.observadoEm;uso='comparacao de direitos/catalogo/historico apos SELECTs atuais'}
+        $report.oraculo=[ordered]@{arquivo='database/contratos/contrato-dev.json';sha256=(Get-FileHash -LiteralPath $baselinePath -Algorithm SHA256).Hash;observadoEm=$baseline.observadoEm;uso='comparacao de direitos/catalogo/historico apos SELECTs atuais'}
         $migrations=@(Get-WmsDev02Migrations)
         # D32 estende o esperado em memoria. Baseline e fontes V1-V10 permanecem imutaveis.
         if (@($migrations | Where-Object { $_.version -ceq '11' }).Count -eq 1) {

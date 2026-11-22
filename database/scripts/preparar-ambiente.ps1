@@ -91,7 +91,7 @@ function Invoke-WmsEnvironmentPreparation {
 
 if($MyInvocation.InvocationName -ne '.'){
     $r=Invoke-WmsEnvironmentPreparation -Ambiente $Ambiente -Modo $Modo
-    $area=Join-Path $WmsD21InicioRoot ('../orchestracao/.runtime/preparo-ambiente/'+[guid]::NewGuid().ToString('N'))
+    $area=Join-Path $WmsD21InicioRoot ('../.runtime/database/preparo/'+[guid]::NewGuid().ToString('N'))
     $null=New-Item -ItemType Directory -Path $area
     $r.recibo=[IO.Path]::GetFullPath((Join-Path $area 'resultado.json'))
     $json=$r|ConvertTo-Json -Depth 15

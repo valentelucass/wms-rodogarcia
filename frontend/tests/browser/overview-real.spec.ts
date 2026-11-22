@@ -178,6 +178,8 @@ test("três correções: nomes, mapa completo, detalhes e destino sem escrita au
             (await fulfillOverviewRead(route))
         )
             return;
+        if (route.request().method() === "GET" && url.pathname === "/api/v1/tarefas-coletor/disponibilidade")
+            return route.fulfill({ json: { disponivel: false, mensagem: "As tarefas aguardam ativação neste ambiente." } });
         unknown.push(url.pathname);
         return route.abort();
     });
@@ -281,7 +283,7 @@ test("três correções: nomes, mapa completo, detalhes e destino sem escrita au
     });
     failure = true;
     await overview.getByRole("button", { name: "Atualizar visão" }).click();
-    await expect(overview.getByRole("alert")).toContainText("Não foi possível");
+    await expect(overview.getByRole("alert").filter({ hasText: "Não foi possível consultar a visão da operação" })).toBeVisible();
     await expect(overview.locator(".overview-metric--0 strong")).toHaveText(
         "—",
     );

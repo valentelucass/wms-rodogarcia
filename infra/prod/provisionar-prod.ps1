@@ -6,7 +6,8 @@ $taskRoot=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 . (Join-Path $taskRoot 'backend/scripts/prod/credential-prod.ps1')
 . (Join-Path $PSScriptRoot 'guarda-wmsprod.ps1')
 $report=[ordered]@{natureza='PROD_PROVISIONAMENTO_AUTORIZADO';modo=$Mode;inicioUtc=[DateTime]::UtcNow.ToString('o');estado='PREPARO';fase='TLS_LOCAL';aberturas=0;alteracoes=@();DEVAlterado=$false;outrosAcessosAlterados=$false}
-$output=Join-Path $taskRoot ('orchestracao/.runtime/prod-provisionamento-'+[Guid]::NewGuid().ToString('N')+'.json')
+$output=Join-Path $taskRoot ('.runtime/database/prod-provisionamento-'+[Guid]::NewGuid().ToString('N')+'.json')
+$null=New-Item -ItemType Directory -Force -Path (Split-Path $output)
 $connection=$null;$credential=$null;$certificate=$null;$transaction=$null
 function Assert-Provision([bool]$Ok,[string]$Code){if(-not $Ok){throw ('PROD_PROVISION_'+$Code)}}
 function Read-Provision([string]$Sql){
@@ -87,7 +88,7 @@ try{
             . (Join-Path $taskRoot 'database/scripts/d21-flyway.ps1')
             $env:JAVA_HOME='C:/Users/suporte/AppData/Local/Programs/Eclipse Adoptium/jdk-21'
             Assert-WmsD21Ferramentas (Join-Path $taskRoot 'database')
-            $staging=Join-Path $taskRoot ('orchestracao/.runtime/prod-migrations-'+[Guid]::NewGuid().ToString('N'))
+            $staging=Join-Path $taskRoot ('.runtime/database/prod-migrations-'+[Guid]::NewGuid().ToString('N'))
             $null=New-Item -ItemType Directory -Path $staging
             foreach($m in $migrations){
                 $folder=if($m.version -ceq '10'){'database/migrations-prod'}else{'database/migrations'}

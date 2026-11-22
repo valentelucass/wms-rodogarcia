@@ -99,6 +99,10 @@ async function mockApi(page: Page, perfil = "GESTOR") {
             );
         else if (url.pathname === "/api/v1/armazens")
             data = JSON.parse(prepared.fixtures["ArmazemController.listar"]);
+        else if (url.pathname === "/api/v1/produtos")
+            data = JSON.parse(prepared.fixtures["ProdutoController.listar"]);
+        else if (url.pathname === "/api/v1/enderecos")
+            data = JSON.parse(prepared.fixtures["EnderecoController.listar"]);
         else if (url.pathname === "/api/v1/pedidos-saida") {
             data = JSON.parse(
                 prepared.fixtures["PedidoSaidaController.listar"],

@@ -9,7 +9,7 @@ export class ExampleReturnedEntry {
     private arrived = "";
     respond(r: Request, body: Values, data: unknown): unknown {
         if (r.endpoint.id === "ExpedicaoController.devolver") {
-            this.reference = String(body.referencia);
+            this.reference = String(body.referencia || "DEV-102");
             this.arrived = String(body.chegadaReal);
         }
         if (!this.reference || r.params.id !== "102") return data;

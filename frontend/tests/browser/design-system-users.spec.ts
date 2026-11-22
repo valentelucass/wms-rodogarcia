@@ -152,7 +152,7 @@ for (const width of [390, 1024, 1440]) {
             .getByRole("button", { name: "Administrar usuários", exact: true })
             .click();
         await expect(
-            page.getByRole("cell", { name: /^Pessoa de teste pessoa@/ }),
+            page.getByRole("cell", { name: /^(Usuário )?Pessoa de teste pessoa@/ }),
         ).toBeVisible();
         const pagination = page.getByRole("navigation", {
             name: "Paginação dos resultados",
@@ -161,7 +161,7 @@ for (const width of [390, 1024, 1440]) {
         await pagination.getByRole("button", { name: "Próxima" }).click();
         await expect(
             page.getByRole("cell", {
-                name: /^Pessoa da próxima página pessoa@/,
+                name: /^(Usuário )?Pessoa da próxima página pessoa@/,
             }),
         ).toBeVisible();
         await expect(
@@ -169,7 +169,7 @@ for (const width of [390, 1024, 1440]) {
         ).toBeDisabled();
         await pagination.getByRole("button", { name: "Anterior" }).click();
         await expect(
-            page.getByRole("cell", { name: /^Pessoa de teste pessoa@/ }),
+            page.getByRole("cell", { name: /^(Usuário )?Pessoa de teste pessoa@/ }),
         ).toBeVisible();
         const create = page.getByRole("button", {
             name: "Criar usuário",

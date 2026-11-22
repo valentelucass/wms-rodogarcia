@@ -71,16 +71,18 @@ export async function recorded(
     page: Page,
     id: string,
     kind = "request",
+    matches: (event: Recorded) => boolean = () => true,
 ): Promise<Recorded> {
-    const found = await page.evaluate(
+    const events = await page.evaluate(
         ({ id, kind }) =>
             (
                 window as unknown as { __wmsOperationalTrace: Recorded[] }
-            ).__wmsOperationalTrace
-                .filter((x) => x.id === id && x.kind === kind)
-                .at(-1),
+            ).__wmsOperationalTrace.filter(
+                (x) => x.id === id && x.kind === kind,
+            ),
         { id, kind },
     );
+    const found = events.findLast(matches);
     expect(found).toBeDefined();
     return found!;
 }

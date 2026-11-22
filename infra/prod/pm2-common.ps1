@@ -6,12 +6,21 @@ function Save-WmsPm2Json {
     Move-Item -LiteralPath $temporary -Destination $Path -Force
 }
 
+function Get-WmsPm2ActiveRuntime([string]$Root) {
+    $preferred=Join-Path $Root '.runtime/prod'
+    $previous=Join-Path $Root 'orchestracao/.runtime/launcher-producao'
+    if (!(Test-Path -LiteralPath (Join-Path $preferred 'pm2/selected.json')) -and
+        (Test-Path -LiteralPath (Join-Path $previous 'pm2/selected.json'))) { return $previous }
+    return $preferred
+}
+
 function Get-WmsPm2Release {
     param([string]$Root)
-    $selectionPath=Join-Path $Root 'orchestracao/.runtime/launcher-producao/pm2/selected.json'
+    $runtime=Get-WmsPm2ActiveRuntime $Root
+    $selectionPath=Join-Path $runtime 'pm2/selected.json'
     $selection=[IO.File]::ReadAllText($selectionPath)|ConvertFrom-Json
     if($selection.runId -cnotmatch '^[a-f0-9]{32}$'){throw 'PROD_PM2_SELECTION_INVALID'}
-    $expected=Join-Path $Root ('orchestracao/.runtime/launcher-producao/runs/'+$selection.runId+'/release.json')
+    $expected=Join-Path $runtime ('runs/'+$selection.runId+'/release.json')
     if([IO.Path]::GetFullPath($selection.releasePath) -ine $expected -or
        (Get-FileHash -LiteralPath $expected).Hash -ine $selection.releaseSha256){throw 'PROD_PM2_RELEASE_HASH_INVALID'}
     $release=[IO.File]::ReadAllText($expected)|ConvertFrom-Json
@@ -28,10 +37,10 @@ function Get-WmsPm2Release {
 
 function Assert-WmsPm2Api {
     param([string]$Root, [object]$Release)
-    $current=[IO.File]::ReadAllText((Join-Path $Root 'orchestracao/.runtime/launcher-producao/pm2/api-current.json'))|ConvertFrom-Json
+    $current=[IO.File]::ReadAllText((Join-Path (Get-WmsPm2ActiveRuntime $Root) 'pm2/api-current.json'))|ConvertFrom-Json
     if($current.releaseRunId -cne $Release.runId -or $current.estado -cne 'READY'){throw 'PROD_PM2_API_NOT_READY'}
     $receiptPath=[IO.Path]::GetFullPath($current.receiptPath)
-    $scope=Join-Path $Root 'orchestracao/.runtime/launcher-producao/pm2/'
+    $scope=Join-Path (Get-WmsPm2ActiveRuntime $Root) 'pm2/'
     if(-not $receiptPath.StartsWith($scope,[StringComparison]::OrdinalIgnoreCase) -or
        (Get-FileHash -LiteralPath $receiptPath).Hash -ine $current.receiptSha256){throw 'PROD_PM2_API_RECEIPT_INVALID'}
     $b=[IO.File]::ReadAllText($receiptPath)|ConvertFrom-Json
@@ -39,7 +48,8 @@ function Assert-WmsPm2Api {
        $b.artifact.sha256 -ine $Release.backend.jar.sha256 -or $b.artifact.path -ine $Release.backend.jar.path){throw 'PROD_PM2_API_VERSION_MISMATCH'}
     $p=Get-Process -Id $b.backend.pid -ErrorAction Stop
     $ci=Get-CimInstance Win32_Process -Filter ('ProcessId='+$b.backend.pid)
-    if([Math]::Abs(($p.StartTime.ToUniversalTime()-[DateTime]::Parse($b.backend.startUtc).ToUniversalTime()).TotalMilliseconds) -gt 2 -or
+    $startedUtc=([DateTimeOffset]$b.backend.startUtc).UtcDateTime
+    if([Math]::Abs(($p.StartTime.ToUniversalTime()-$startedUtc).TotalMilliseconds) -gt 2 -or
        -not $ci.CommandLine.Contains($Release.backend.jar.path) -or -not $ci.CommandLine.Contains('--spring.profiles.active=sqlserver-prod')){throw 'PROD_PM2_API_OWNER_INVALID'}
     $listeners=@(Get-NetTCPConnection -State Listen -LocalPort 25590 -ErrorAction SilentlyContinue)
     if($listeners.Count -ne 1 -or $listeners[0].OwningProcess -ne $b.backend.pid -or $listeners[0].LocalAddress -cne '127.0.0.1'){throw 'PROD_PM2_API_LISTENER_INVALID'}

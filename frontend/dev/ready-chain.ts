@@ -376,10 +376,12 @@ export function validateReadyChain(
         join(root, "orchestracao/.runtime/frontend-integracao-dev-runs"),
         runDirectory,
     );
-    const currentRunId = relative(
-        join(root, "orchestracao/.runtime/be02-dev-fonte01/prumo/runs"),
-        runDirectory,
-    );
+    const currentRunId = [
+        ".runtime/dev/runs",
+        "orchestracao/.runtime/be02-dev-fonte01/prumo/runs",
+    ]
+        .map((base) => relative(join(root, base), runDirectory))
+        .find((id) => /^[a-f0-9-]{36}$/i.test(id)) ?? "";
     const currentRun = /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(
         currentRunId,
     );

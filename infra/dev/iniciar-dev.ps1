@@ -14,7 +14,7 @@ $repository = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 . (Join-Path $PSScriptRoot 'reiniciar-instancia.ps1')
 . (Join-Path $PSScriptRoot 'preparo-ambiente.ps1')
 $connectionWaitPolicy = Get-WmsDevConnectionWaitPolicy
-$runsRoot = Join-Path $repository 'orchestracao/.runtime/be02-dev-fonte01/prumo/runs'
+$runsRoot = Join-Path $repository '.runtime/dev/runs'
 $runId = [guid]::NewGuid().ToString('D')
 $runDirectory = Join-Path $runsRoot $runId
 $null = New-Item -ItemType Directory -Path $runDirectory

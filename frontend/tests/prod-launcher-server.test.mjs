@@ -24,7 +24,7 @@ const root = path.resolve(
 );
 const proofRoot = path.join(
     root,
-    "orchestracao/.runtime/launcher-producao/lume/harness",
+    ".runtime/prod/lume/harness",
 );
 const sha = (value) => createHash("sha256").update(value).digest("hex");
 const origin = "https://wms.rodogarcia.com.br";

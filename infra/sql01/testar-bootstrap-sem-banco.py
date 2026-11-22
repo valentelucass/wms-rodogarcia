@@ -20,7 +20,7 @@ parser.add_argument("--java", type=Path, required=True)
 options = parser.parse_args()
 root = Path(__file__).resolve().parents[2]
 run = root / "orchestracao/.runtime/qual-conf01/sql01/verificacao" / ("v" + uuid.uuid4().hex[:8])
-run.mkdir()
+run.mkdir(parents=True)
 env = {k: v for k, v in os.environ.items() if k.upper() in (
     "SYSTEMROOT", "WINDIR", "TEMP", "TMP", "USERPROFILE", "LOCALAPPDATA", "APPDATA")}
 
@@ -122,6 +122,8 @@ config_dir.mkdir()
 config = config_dir / "fixture.properties"
 config.write_text("fixture.only=true\n", encoding="utf-8")
 plan = {"run": str(diagnostic_dir), "runId": run_id, "observation": str(observation),
+        "runtimePath": str(observation.parent / "runtime-prumo.json"),
+        "localOrigin": "http://127.0.0.1:25584",
         "candidatePath": "FICTICIO_NO_CANDIDATE", "candidateSha256": "a" * 64,
         "sourceHash": "a" * 64, "jar": str(jar), "jarSha256": jar_hash,
         "java": str(options.java), "config": str(config),

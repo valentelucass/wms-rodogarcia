@@ -20,9 +20,10 @@ function Invoke-WmsD22InicioAutomatico {
     if($real){
         $Adaptadores=@{
             Ferramentas={
-                $tool=Get-Content -LiteralPath (Join-Path $WmsD21InicioRoot '../backend/evidencias/login-d32-preparo.json') -Raw -Encoding UTF8|ConvertFrom-Json
-                if((Get-FileHash -LiteralPath $tool.java.path).Hash -ine $tool.java.sha256){throw 'D21_JAVA_INTEGRIDADE_DIVERGENTE'}
-                $env:JAVA_HOME=Split-Path (Split-Path $tool.java.path -Parent) -Parent
+                $tool=Get-Content -LiteralPath (Join-Path $WmsD21InicioRoot 'config/java21.json') -Raw -Encoding UTF8|ConvertFrom-Json
+                $javaPath=[Environment]::ExpandEnvironmentVariables($tool.java.path)
+                if((Get-FileHash -LiteralPath $javaPath).Hash -ine $tool.java.sha256){throw 'D21_JAVA_INTEGRIDADE_DIVERGENTE'}
+                $env:JAVA_HOME=Split-Path (Split-Path $javaPath -Parent) -Parent
                 Assert-WmsD21Ferramentas $WmsD21InicioRoot
             }
             Fontes={Get-WmsD21Fontes $WmsD21InicioRoot}

@@ -4,7 +4,7 @@ param([Parameter(Mandatory=$true)][string]$EvidenceDirectory)
 $ErrorActionPreference='Stop'
 $root=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 $evidence=[IO.Path]::GetFullPath($EvidenceDirectory)
-if (-not $evidence.StartsWith((Join-Path $root 'orchestracao/.runtime/') , [StringComparison]::OrdinalIgnoreCase) -or (Test-Path -LiteralPath $evidence)) { throw 'PROD_TEST_NEW_OWN_PATH_REQUIRED' }
+if (-not $evidence.StartsWith((Join-Path $root '.runtime/testes/') , [StringComparison]::OrdinalIgnoreCase) -or (Test-Path -LiteralPath $evidence)) { throw 'PROD_TEST_NEW_OWN_PATH_REQUIRED' }
 $null=New-Item -ItemType Directory -Path $evidence
 . (Join-Path $root 'backend/scripts/prod/setup-prod.ps1')
 . (Join-Path $root 'backend/scripts/prod/credential-prod.ps1')

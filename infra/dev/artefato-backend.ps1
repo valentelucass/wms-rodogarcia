@@ -27,8 +27,8 @@ function Get-WmsDevInputFingerprint([string]$Repository) {
     foreach($path in @('backend/.mvn/maven.config','backend/.mvn/jvm.config','backend/.mvn/extensions.xml')){
         if(!(Test-Path -LiteralPath (Join-Path $root $path))){$records+=[pscustomobject]@{path=$path;sha256='ABSENT'}}
     }
-    $tool=Get-Content -LiteralPath (Join-Path $root 'backend/evidencias/login-d32-preparo.json') -Raw|ConvertFrom-Json
-    $taskJdkHome=Split-Path (Split-Path $tool.java.path -Parent) -Parent
+    $tool=Get-Content -LiteralPath (Join-Path $root 'database/config/java21.json') -Raw|ConvertFrom-Json
+    $taskJdkHome=Split-Path (Split-Path ([Environment]::ExpandEnvironmentVariables($tool.java.path)) -Parent) -Parent
     foreach($path in @('bin/java.exe','bin/javac.exe','release','lib/modules')){
         $records+=[pscustomobject]@{path=('JDK21/'+$path);sha256=(Get-FileHash -LiteralPath (Join-Path $taskJdkHome $path)).Hash.ToLowerInvariant()}
     }
@@ -86,7 +86,7 @@ function Get-WmsDevPackageMetadata([string]$Jar) {
 function Assert-WmsDevCurrentArtifact([string]$Repository,[string]$ReceiptPath,[string]$ReceiptSha256) {
     $root=[IO.Path]::GetFullPath($Repository)
     . (Join-Path $root 'infra/sql01/launcher-backend.ps1')
-    $area=Join-Path $root 'orchestracao/.runtime/be02-dev-fonte01/prumo/runs'
+    $area=Join-Path $root '.runtime/dev/runs'
     $path=Read-WmsSql01HashedFile @{path=$ReceiptPath;sha256=$ReceiptSha256} $area
     $a=Get-Content -LiteralPath $path -Raw -Encoding UTF8|ConvertFrom-Json
     if($a.id -cne 'BE02-DEV-FONTE01' -or $a.build.exit -ne 0 -or $a.build.scope -cne 'PURE_NO_DATABASE' -or
@@ -163,7 +163,7 @@ function Assert-WmsDevCurrentRuntime {
     . (Join-Path $root 'infra/sql01/launcher-backend.ps1')
     . (Join-Path $root 'infra/dev/reiniciar-instancia.ps1')
     . (Join-Path $root 'infra/dev/acesso-dev.ps1')
-    $area=Join-Path $root 'orchestracao/.runtime/be02-dev-fonte01/prumo/runs'
+    $area=Join-Path $root '.runtime/dev/runs'
     $path=Read-WmsSql01HashedFile @{path=$RuntimePath;sha256=$RuntimeSha256} $area
     $r=Get-Content -LiteralPath $path -Raw -Encoding UTF8|ConvertFrom-Json
     $run=Join-Path $area $r.runId

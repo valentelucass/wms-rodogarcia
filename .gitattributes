@@ -4,6 +4,7 @@
 *.xml text eol=lf
 *.yml text eol=lf
 *.properties text eol=lf
+database/contratos/contrato-dev.json text eol=lf
 mvnw text eol=lf
 *.cmd text eol=crlf
 graphify-out/graph.json merge=graphify

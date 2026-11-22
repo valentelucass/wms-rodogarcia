@@ -1,15 +1,24 @@
 # PROD-LAUNCH01. Dot-source sem efeitos; start explicito apenas apos preflights.
 . (Join-Path $PSScriptRoot 'identity-prod.ps1')
 
+function Get-WmsProductionRuntimeForPath([string]$Root, [string]$Path) {
+    $full = [IO.Path]::GetFullPath($Path)
+    foreach ($relative in @('.runtime/prod', 'orchestracao/.runtime/launcher-producao')) {
+        $base = [IO.Path]::GetFullPath((Join-Path $Root $relative))
+        if ($full.StartsWith($base + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase)) { return $base }
+    }
+    throw 'PROD_RUN_DIRECTORY_INVALID'
+}
+
 function Assert-WmsProductionOwnedDirectory {
     param([string]$Directory)
     $root = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../../..'))
-    $base = [IO.Path]::GetFullPath((Join-Path $root 'orchestracao/.runtime/launcher-producao'))
+    $base = Get-WmsProductionRuntimeForPath $root $Directory
     $directoryPath = [IO.Path]::GetFullPath($Directory)
     if (-not $directoryPath.StartsWith($base + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase) -or
         -not (Test-Path -LiteralPath $directoryPath -PathType Container)) { throw 'PROD_RUN_DIRECTORY_INVALID' }
     $walk = $directoryPath
-    while ($walk -and $walk.Length -ge $base.Length) {
+    while ($walk -and $walk.Length -ge $root.Length) {
         if ((Get-Item -LiteralPath $walk -Force).Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'PROD_RUN_DIRECTORY_REPARSE_REFUSED' }
         $walk = [IO.Path]::GetDirectoryName($walk)
     }
@@ -90,21 +99,26 @@ function Assert-WmsProductionArtifact {
     }
     if ($Artifact.sourceSha256 -ine $Artifact.sourceManifest.sha256) { throw 'PROD_SOURCE_HASH_INVALID' }
     $candidate = [IO.Path]::GetFullPath($Artifact.CandidateDirectory)
-    Assert-WmsProductionOwnedDirectory $candidate
     $root = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../../..'))
-    $base = [IO.Path]::GetFullPath((Join-Path $root 'orchestracao/.runtime/launcher-producao'))
+    Assert-WmsProductionOwnedDirectory $candidate
+    $legacy = (Get-WmsProductionRuntimeForPath $root $candidate) -ieq (Join-Path $root 'orchestracao/.runtime/launcher-producao')
+    $configFile = if ($legacy) { 'src/main/resources/application-frontend-prod.properties' } else { 'application-frontend-prod.properties' }
+    $schema = if ($legacy) { 'PROD_LAUNCH01_BACKEND_SOURCE_CAPTURE' } else { 'WMS_PROD_BACKEND_RELEASE' }
+    $base = Get-WmsProductionRuntimeForPath $root $Artifact.CandidateDirectory
     if (-not $candidate.StartsWith($base + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase) -or
         [IO.Path]::GetFullPath($Artifact.jar.path) -ine (Join-Path $candidate 'target/wms-backend-0.0.1-SNAPSHOT.jar') -or
-        [IO.Path]::GetFullPath($Artifact.config.path) -ine (Join-Path $candidate 'src/main/resources/application-frontend-prod.properties') -or
+        [IO.Path]::GetFullPath($Artifact.config.path) -ine (Join-Path $candidate $configFile) -or
         [IO.Path]::GetFullPath($Artifact.sourceManifest.path) -ine (Join-Path $candidate 'source-manifest.json')) {
         throw 'PROD_ARTIFACT_NOT_OWN_CANDIDATE'
     }
     $manifest = [IO.File]::ReadAllText($Artifact.sourceManifest.path) | ConvertFrom-Json
-    if ($manifest.natureza -cne 'PROD_LAUNCH01_BACKEND_SOURCE_CAPTURE' -or $manifest.root -ine $root -or @($manifest.files).Count -eq 0) {
+    if ($manifest.natureza -cne $schema -or $manifest.root -ine $root -or @($manifest.files).Count -eq 0) {
         throw 'PROD_SOURCE_MANIFEST_INVALID'
     }
     foreach ($file in $manifest.files) {
         if ($file.path -match '(^|/)\.\.(/|$)' -or [IO.Path]::IsPathRooted($file.path)) { throw 'PROD_SOURCE_MANIFEST_INVALID' }
+        if ($file.sha256 -notmatch '^[a-f0-9]{64}$') { throw 'PROD_SOURCE_MANIFEST_INVALID' }
+        if (-not $legacy) { continue }
         $copied = Join-Path $candidate $file.path
         if ((Get-FileHash -LiteralPath $copied -Algorithm SHA256).Hash -ine $file.sha256) { throw 'PROD_CANDIDATE_SOURCE_CHANGED' }
     }
@@ -164,7 +178,7 @@ function Start-WmsProductionBackend {
         [Security.SecureString]$BootstrapHash)
     $ErrorActionPreference = 'Stop'
     $root = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../../..'))
-    $base = [IO.Path]::GetFullPath((Join-Path $root 'orchestracao/.runtime/launcher-producao'))
+    $base = Get-WmsProductionRuntimeForPath $root $RunDirectory
     $directory = [IO.Path]::GetFullPath($RunDirectory)
     Assert-WmsProductionOwnedDirectory $directory
     if (-not $directory.StartsWith($base + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase) -or

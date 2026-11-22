@@ -6,7 +6,7 @@ $root=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 . (Join-Path $root 'infra/tipos-unidade/contrato-banco.ps1')
 . (Join-Path $root 'infra/tabelas/contrato-banco.ps1')
 $migrations=@(Get-WmsDev02Migrations)
-foreach($source in @('orchestracao/.runtime/d29-farol-retomada-preflight.json','infra/prod/contrato-aplicacao.json')) {
+foreach($source in @('database/contratos/contrato-dev.json','infra/prod/contrato-aplicacao.json')) {
     $baseline=Get-Content -LiteralPath (Join-Path $root $source) -Raw -Encoding UTF8 | ConvertFrom-Json
     if (@($baseline.historico | Where-Object version -ceq '11').Count -eq 0) {
         $baseline=Add-WmsAuthExpectedContract $baseline ($migrations | Where-Object version -ceq '11')

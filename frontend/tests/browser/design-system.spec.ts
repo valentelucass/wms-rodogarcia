@@ -125,12 +125,9 @@ test("FE02-DS01 menu desktop preserva nomes, seleção e formulário ao trocar t
 }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/#entrada");
-    await page
-        .getByRole("button", { name: "Novo registro", exact: true })
-        .click();
-    await page.getByLabel("Referência *", { exact: true }).fill("DS01-EDICAO");
+    await page.getByRole("searchbox", { name: "Pedido ou nota nesta página" }).fill("DS01-EDICAO");
     await chooseTheme(page, "dark");
-    await expect(page.getByLabel("Referência *", { exact: true })).toHaveValue(
+    await expect(page.getByRole("searchbox", { name: "Pedido ou nota nesta página" })).toHaveValue(
         "DS01-EDICAO",
     );
     await page
@@ -159,7 +156,7 @@ test("FE02-DS01 menu desktop preserva nomes, seleção e formulário ao trocar t
         .click();
     await expect(page.locator(".shell-sidebar")).toHaveCSS("width", "256px");
     await expect(page.locator(".main-nav .nav-label").first()).toBeVisible();
-    await expect(page.getByLabel("Referência *", { exact: true })).toHaveValue(
+    await expect(page.getByRole("searchbox", { name: "Pedido ou nota nesta página" })).toHaveValue(
         "DS01-EDICAO",
     );
 });

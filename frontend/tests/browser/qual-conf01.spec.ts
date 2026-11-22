@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { journeyWorkspace, offlineRelease } from "./release-fixture";
 import { readFileSync } from "node:fs";
 import { resolve, sep } from "node:path";
 import { stringify } from "lossless-json";
@@ -10,7 +11,8 @@ import type { Request } from "../../src/api/client";
 
 const origin = "https://1z8126n0-25581.brs.devtunnels.ms";
 const build = resolve(
-    "../orchestracao/.runtime/qual-conf01/lume/final-build-real",
+    process.env.WMS_INIT01_DIST_DIR ??
+        "../orchestracao/.runtime/qual-conf01/lume/final-build-real",
 );
 const prepared = JSON.parse(
     readFileSync("evidencias/record-pages-browser-fixtures.json", "utf8"),
@@ -42,6 +44,8 @@ async function offline(page: Page, perfil: Perfil = "GESTOR", loggedIn = true) {
             unknown.push(url.href);
             return route.abort();
         }
+        if (url.pathname === "/__wms/release" && request.method() === "GET")
+            return route.fulfill({ json: offlineRelease(build) });
         if (!url.pathname.startsWith("/api/")) {
             const target = resolve(
                 build,
@@ -223,7 +227,7 @@ for (const width of [1440, 768, 360]) {
                     hiddenDescription:
                         e.querySelector("strong+span")?.className,
                 })),
-                map: [...document.querySelectorAll(".map-position")]
+                map: [...document.querySelectorAll(".map-position:not([hidden])")]
                     .slice(0, 3)
                     .map((e) => ({
                         height: e.getBoundingClientRect().height,
@@ -239,8 +243,10 @@ for (const width of [1440, 768, 360]) {
             });
             if (width === 1440)
                 sizes.shortcuts.forEach((s) => expect(s.height).toBe(44));
+            expect(sizes.map.length).toBeGreaterThan(0);
             sizes.map.forEach((s) => {
-                expect(s.width).toBe(64);
+                expect(s.width).toBeGreaterThanOrEqual(144);
+                expect(s.width).toBeLessThanOrEqual(sizes.width);
                 // Etapa05/A06: até700px ou ponteiro de toque; este viewport usa mouse.
                 expect(s.height).toBe(width <= 700 ? 44 : 28);
             });
@@ -290,7 +296,7 @@ for (const width of [1440, 768, 360]) {
                 await page.evaluate((id) => {
                     location.hash = id;
                 }, journey.id);
-                await expect(page.locator(".record-workspace")).toBeVisible();
+                await expect(journeyWorkspace(page, journey.id)).toBeVisible();
                 await expect(
                     page.getByText(
                         /Carregando registros|Atualizando os registros apresentados/,

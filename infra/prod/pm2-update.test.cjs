@@ -14,7 +14,7 @@ async function scenario(command, fail = '', failure = {}) {
   const finished = new Promise(resolve => { finish = resolve; });
   const root = path.resolve(__dirname, '../..');
   const runId = '0123456789abcdef0123456789abcdef';
-  const releasePath = path.join(root, 'orchestracao/.runtime/launcher-producao/runs', runId, 'release.json');
+  const releasePath = path.join(root, '.runtime/prod/runs', runId, 'release.json');
   const hash = value => createHash('sha256').update(value).digest('hex');
   const source = Buffer.from(JSON.stringify({ files: [] }));
   const backend = { sourceManifest: { path: 'source', sha256: hash(source) } };
@@ -91,7 +91,7 @@ test('consulta de status nao aplica permissoes nem altera processos', async () =
 });
 
 test('recusa de migrations informa causa controlada e recibo do projeto sem parar producao', async () => {
-  const receipt = path.resolve(__dirname, '../../orchestracao/.runtime/preparo-ambiente/ficticio/resultado.json');
+  const receipt = path.resolve(__dirname, '../../.runtime/database/preparo/ficticio/resultado.json');
   const result = await scenario('atualizar', 'preparation', { recibo: receipt, codigo: 'D21_FONTE_PARSER_NAO_SUPORTADA', mensagem: 'NAO_PUBLICAR_DADO_BRUTO' });
   assert.deepEqual(result.calls, ['iniciar-prod.ps1','preparar-ambiente.ps1']);
   assert.equal(result.exitCode, 20);
@@ -110,6 +110,11 @@ test('guarda final recusada nao interrompe instancia', async () => {
   const r = await scenario('atualizar','guard');
   assert.deepEqual(r.calls,['iniciar-prod.ps1','preparar-ambiente.ps1','guarda-wmsprod.ps1']);
   assert.equal(r.exitCode,20);
+});
+test('publicacao exclusiva da aplicacao exige guarda integral e preserva banco e processos se recusada', async () => {
+  const result = await scenario('atualizar-aplicacao', 'guard');
+  assert.deepEqual(result.calls, ['iniciar-prod.ps1', 'guarda-wmsprod.ps1']);
+  assert.equal(result.exitCode, 20);
 });
 test('fonte alterada durante preparo impede parada', async () => {
   const r = await scenario('atualizar','source');

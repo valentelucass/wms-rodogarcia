@@ -187,7 +187,7 @@ function Get-WmsDevRestartPlan([string]$Repository, [int]$BackendPort, [int]$Fro
                 # Fixar o handle nativo antes da validacao impede encerrar um PID reutilizado.
                 $null = $process.Handle
                 $directories=@()
-                foreach($runs in @((Join-Path $Repository 'orchestracao/.runtime/frontend-integracao-dev-runs'),(Join-Path $Repository 'orchestracao/.runtime/be02-dev-fonte01/prumo/runs'))){
+                foreach($runs in @((Join-Path $Repository 'orchestracao/.runtime/frontend-integracao-dev-runs'),(Join-Path $Repository 'orchestracao/.runtime/be02-dev-fonte01/prumo/runs'),(Join-Path $Repository '.runtime/dev/runs'))){
                     if(!(Test-Path -LiteralPath $runs -PathType Container)){continue}
                     if ((Get-Item -LiteralPath $runs).Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'DEV_RESTART_OWNER_NOT_CONFIRMED' }
                     $directories+=@(Get-ChildItem -LiteralPath $runs -Directory -ErrorAction Stop)

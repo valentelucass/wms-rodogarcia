@@ -1,4 +1,5 @@
 import { expect, test, type Page, type TestInfo } from "@playwright/test";
+import { offlineRelease } from "./release-fixture";
 import { readFileSync } from "node:fs";
 import { resolve, sep } from "node:path";
 import { stringify } from "lossless-json";
@@ -36,6 +37,8 @@ async function offline(page: Page, initialRole: Perfil = "GESTOR") {
     await page.route("**/*", async route => {
         const request = route.request(), url = new URL(request.url());
         if (url.origin !== origin) { unknown.push(url.pathname); return route.abort(); }
+        if (url.pathname === "/__wms/release" && request.method() === "GET")
+            return route.fulfill({ json: offlineRelease(build) });
         if (!url.pathname.startsWith("/api/")) {
             const target = resolve(build, url.pathname === "/" ? "index.html" : "." + decodeURIComponent(url.pathname));
             if (!target.startsWith(build + sep)) { unknown.push(url.pathname); return route.abort(); }
@@ -50,7 +53,7 @@ async function offline(page: Page, initialRole: Perfil = "GESTOR") {
             usuario: { id: "synthetic-only", nome: "Pessoa fictícia", email: "perf@fixture.invalid", perfil: role, administrador: role === "GESTOR", principal: false, ativo: true, trocarSenha: false, clientes: scopeVersion ? ["2"] : [], armazens: scopeVersion ? ["2"] : [], versao: scopeVersion },
         } });
         if (request.method() !== "GET") { unknown.push(request.method() + " " + url.pathname); return route.abort(); }
-        if (denied && ["/api/v1/visao-operacao", "/api/v1/dashboard"].includes(url.pathname)) return route.fulfill({ status: 403, json: { codigo: "ACESSO_NEGADO", detail: "Recusa fictícia" } });
+        if (denied && ["/api/v1/visao-operacao", "/api/v1/visao-operacao/previsao-faturamento", "/api/v1/dashboard"].includes(url.pathname)) return route.fulfill({ status: 403, json: { codigo: "ACESSO_NEGADO", detail: "Recusa fictícia" } });
         if (url.pathname === "/api/v1/visao-operacao") return route.fulfill({ contentType: "application/json", body: stringify(overviewWire(overviewExample({ endpoint: endpoint("VisaoOperacaoController.consultar"), params: {}, query: Object.fromEntries(url.searchParams), signal: new AbortController().signal }, role, false)))! });
         if (await fulfillOverviewRead(route, role, scopeVersion ? "2" : "1", scopeVersion ? "2" : "1")) return;
         unknown.push(url.pathname); return route.abort();
@@ -76,7 +79,9 @@ test("PERF01 contexto: 4 leituras iniciais, 2 no novo contexto, atualização ex
     const initialUiWallMs = Date.now() - started;
     const catalogs = () => proof.calls.filter(c => ["/api/v1/clientes", "/api/v1/armazens"].includes(c.path)).length;
     expect(catalogs()).toBe(2);
-    expect(proof.calls.filter(c => c.path.startsWith("/api/v1/"))).toHaveLength(4);
+    const forecasts = () => proof.calls.filter(c => c.path === "/api/v1/visao-operacao/previsao-faturamento").length;
+    expect(forecasts()).toBe(1);
+    expect(proof.calls.filter(c => c.path.startsWith("/api/v1/"))).toHaveLength(5);
     for (const title of ["Cliente", "Armazém"]) {
         const input = page.getByRole("combobox", { name: title, exact: true });
         await input.click(); await input.fill(title === "Cliente" ? "Cliente de teste" : "Armazém de teste"); await input.press("Enter");
@@ -87,13 +92,16 @@ test("PERF01 contexto: 4 leituras iniciais, 2 no novo contexto, atualização ex
     await expect(page.getByRole("region", { name: "Gráficos da operação" })).toHaveAttribute("aria-busy", "false");
     const contextUiWallMs = Date.now() - contextStart;
     expect(catalogs()).toBe(2);
-    expect(proof.calls.filter(c => c.path.startsWith("/api/v1/"))).toHaveLength(6);
+    expect(forecasts()).toBe(2);
+    expect(proof.calls.filter(c => c.path.startsWith("/api/v1/"))).toHaveLength(8);
     await page.getByRole("button", { name: "Atualizar visão", exact: true }).click();
     await expect(page.getByRole("region", { name: "Visão geral da operação" })).toHaveAttribute("aria-busy", "false");
     expect(catalogs()).toBe(4);
     expect(proof.calls.filter(c => c.path === "/api/v1/visao-operacao")).toHaveLength(3);
     expect(proof.calls.filter(c => c.path === "/api/v1/dashboard")).toHaveLength(2);
-    await proof.proof(info, { initialUiWallMs, contextUiWallMs, dataReads: 9, catalogReads: 4 });
+    expect(forecasts()).toBe(3);
+    expect(proof.calls.filter(c => c.path.startsWith("/api/v1/"))).toHaveLength(12);
+    await proof.proof(info, { initialUiWallMs, contextUiWallMs, dataReads: 12, catalogReads: 4 });
 });
 
 test("PERF01 recusa 403 limpa valores/mapa e mantém sessão, sem replay", async ({ page }, info) => {

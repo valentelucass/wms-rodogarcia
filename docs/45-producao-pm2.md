@@ -8,6 +8,8 @@ Pedido de Lucas em 13/10/2026: gerenciar frontend e backend separadamente no PM2
 
 ## Uso
 
+Para publicar somente a API e a interface em um banco já compatível com o contrato da versão, execute `pm2-wms.bat atualizar-aplicacao`. Esse comando prepara a fonte atual e exige a guarda completa de identidade, permissões, catálogo e histórico em leitura. Uma divergência interrompe a publicação antes da parada dos serviços. O modo de atualização integrada com migrations e permissões continua disponível em `pm2-wms.bat atualizar`.
+
 Na raiz, executar como administrador, no mesmo usuário Windows que possui os canais DPAPI de produção e o PM2 principal:
 
 ```bat
@@ -24,7 +26,7 @@ pm2 save
 
 **PREPARO-AUTO01, pedido de Lucas em 15/10/2026:** `atualizar` e `iniciar` preparam a fonte atual e depois executam migrations/permissões, antes da guarda final e de parar os processos. Usam o bootstrap Flyway protegido existente, DEV completo antes de PROD, somente bancos WMS já existentes. Não é mais necessário executar o BAT de bancos à parte. O ajuste reconhece as 17 colunas cadastrais e seis adicionais da edição de tabelas, sem ampliar direitos fora do contrato. Direitos já presentes são preservados.
 
-O preparador valida contratos revisados, hashes e catálogo local antes de SQL. Flyway valida histórico, aplica somente pendentes e confere catálogo real; os helpers adequam permissões com guardas antes/depois. TLS privado deve corresponder ao processo SQL atual, sem recaptura ou bypass. DEV e PROD compartilham um mutex com o BAT de bancos: uma execução pode aguardar até180s pela liberação antes de qualquer SQL. Plan local não adquire essa trava. Se o limite vencer, o recibo informa tempo e PID observado quando disponível; nenhum processo é encerrado por isso. A espera local não repete conexão/migration e não altera a interrupção imediata após falha SQL. Falha interrompe sem alternativa e preserva processos ativos. Migrations/permissões concluídas permanecem registradas mesmo se uma etapa posterior falhar. Recibos em `orchestracao/.runtime/preparo-ambiente/`.
+O preparador valida contratos revisados, hashes e catálogo local antes de SQL. Flyway valida histórico, aplica somente pendentes e confere catálogo real; os helpers adequam permissões com guardas antes/depois. TLS privado deve corresponder ao processo SQL atual, sem recaptura ou bypass. DEV e PROD compartilham um mutex com o BAT de bancos: uma execução pode aguardar até180s pela liberação antes de qualquer SQL. Plan local não adquire essa trava. Se o limite vencer, o recibo informa tempo e PID observado quando disponível; nenhum processo é encerrado por isso. A espera local não repete conexão/migration e não altera a interrupção imediata após falha SQL. Falha interrompe sem alternativa e preserva processos ativos. Migrations/permissões concluídas permanecem registradas mesmo se uma etapa posterior falhar. Recibos em `.runtime/database/preparo/`.
 
 `iniciar` também prepara a fonte atual após parar ou reiniciar a máquina. A supervisão de um processo que cai usa o pacote atestado selecionado; não compila nem migra no reinício automático do PM2. `status`, `logs`, `parar` e `migrar` não preparam banco. Operações simultâneas são recusadas por `operation.lock`; após interrupção forçada, confira o PID antes de remover um arquivo residual.
 
@@ -41,7 +43,7 @@ Pode fechar o terminal depois da confirmação: os dois supervisores permanecem 
 
 Por correção expressa de Lucas, o controlador usa agora o PM2 principal (`%USERPROFILE%/.pm2`), onde `pm2 ls` lista também os dois WMS. Nenhum reinício do Windows ou daemon é necessário. `PROD_PM2_MAIN_ACCESS_REQUIRED` indica que a sessão não conseguiu acessar o daemon existente; abrir o terminal como administrador. O controlador verifica acesso ao pipe antes de chamar o PM2, sem tentar criar outro daemon quando há acesso negado.
 
-`pm2-wms.bat migrar` é a transferência única da instância isolada anterior: exige ausência de entradas WMS no principal, guarda atual, remove apenas as duas entradas atestadas do legado, salva sua lista vazia, inicia o pacote selecionado no principal e executa o equivalente a `pm2 save`. O preload `pm2-isolation.cjs` e o argumento interno `--isolado` permanecem apenas para retirar esse legado; não alteram arquivos instalados nem pipes do principal. Recibo em `orchestracao/.runtime/launcher-producao/pm2/main-migration.json`.
+`pm2-wms.bat migrar` é a transferência única da instância isolada anterior: exige ausência de entradas WMS no principal, guarda atual, remove apenas as duas entradas atestadas do legado, salva sua lista vazia, inicia o pacote selecionado no principal e executa o equivalente a `pm2 save`. O preload `pm2-isolation.cjs` e o argumento interno `--isolado` permanecem apenas para retirar esse legado; não alteram arquivos instalados nem pipes do principal. Recibo em `.runtime/prod/pm2/main-migration.json`.
 
 O helper principal atesta o PID servidor do pipe com `GetNamedPipeServerProcessId` e exige vínculo de pai com um processo vivo devolvido pela consulta PM2. Não pressupõe que um daemon iniciado por serviço contenha `Daemon.js` em sua linha de comando. A recusa informa a fase; falha anterior à guarda/parada preserva os WMS ativos.
 
@@ -49,7 +51,7 @@ API abre somente WMS_PROD com WMSPROD, TLS Mandatory e validação de certificad
 
 A UI aguarda o recibo e o processo API da mesma versão. Cada componente tem supervisor independente; queda após readiness permite reinício limitado, com nova guarda da API. Parada Windows usa mensagem `shutdown`, arquivo de controle e encerramento apenas dos handles filhos criados pelo supervisor. Se o wrapper desaparecer, o PowerShell observa a morte do pai e encerra seus filhos; nunca usa kill genérico por porta. PM2 tem uma instância por componente, sem cluster/watch ou repetição ilimitada de falhas iniciais.
 
-O rodapé continua mostrando a ativação bem-sucedida de frontend + backend. Reiniciar a mesma versão preserva o horário; publicar novo pacote cria novo horário. O identificador compilado permite avisar abas antigas. Recibos em `orchestracao/.runtime/launcher-producao/pm2/`, logs em `orchestracao/.runtime/pm2/logs/`.
+O rodapé continua mostrando a ativação bem-sucedida de frontend + backend. Reiniciar a mesma versão preserva o horário; publicar novo pacote cria novo horário. O identificador compilado permite avisar abas antigas. Recibos em `.runtime/prod/pm2/`, logs em `.runtime/prod/logs/`.
 
 Protocolo Windows e readiness seguem a [documentação oficial do PM2](https://pm2.keymetrics.io/docs/usage/signals-clean-restart/); recusa de reinício por código usa [stop_exit_codes](https://pm2.keymetrics.io/docs/usage/restart-strategies/). O isolamento de pipes foi conferido no código local da versão instalada.
 

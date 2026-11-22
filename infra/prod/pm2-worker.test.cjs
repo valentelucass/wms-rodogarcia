@@ -7,7 +7,7 @@ const { once } = require('node:events');
 const root = path.resolve(__dirname, '../..');
 
 async function fixture(body) {
-  const base = path.join(root, 'orchestracao/.runtime/pm2-worker-tests');
+  const base = path.join(root, '.runtime/testes/pm2-worker-tests');
   await fs.mkdir(base, { recursive: true });
   const dir = await fs.mkdtemp(path.join(base, 'case-'));
   const scripts = path.join(dir, 'infra/prod');
@@ -32,7 +32,7 @@ exit 0`);
     f.child.send('shutdown');
     const [code] = await exited;
     assert.equal(code, 0);
-    const runs = path.join(f.dir, 'orchestracao/.runtime/launcher-producao/pm2');
+    const runs = path.join(f.dir, '.runtime/prod/pm2');
     const [run] = await fs.readdir(runs);
     assert.equal(await fs.readFile(path.join(runs, run, 'stopped.txt'), 'utf8'), 'CLEANUP_FINISHED');
   } finally { if(f.child.exitCode === null) f.child.send('shutdown'); }

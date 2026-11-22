@@ -4,7 +4,7 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
 $repository=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 $evidence=[IO.Path]::GetFullPath($EvidenceDirectory)
-$allowed=Join-Path $repository 'orchestracao/.runtime'
+$allowed=Join-Path $repository '.runtime/testes'
 if (-not $evidence.StartsWith($allowed+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)) { throw 'HARNESS_PATH_OUTSIDE_OWN_EVIDENCE' }
 if (Test-Path -LiteralPath $evidence) { throw 'HARNESS_CREATE_ONLY' }
 $null=New-Item -ItemType Directory -Path $evidence
@@ -107,7 +107,7 @@ Check 'falha-build-literal-preserva-versao-anterior-e-nao-chega-guarda' {
     $child=[Diagnostics.Process]::new();$arguments='-NoProfile -File '+(ConvertTo-WmsProductionArgument (Join-Path $isolated 'infra/prod/iniciar-prod.ps1'))+' -PrepareOnly'
     $child.StartInfo=New-WmsProductionChildInfo (Join-Path $env:SystemRoot 'System32/WindowsPowerShell/v1.0/powershell.exe') $arguments $isolated;$started=$false
     try{$started=$child.Start();$out=$child.StandardOutput.ReadToEndAsync();$err=$child.StandardError.ReadToEndAsync();$child.WaitForExit();[IO.File]::WriteAllText((Join-Path $evidence 'literal-build-failure.log'),$out.Result+$err.Result);Need ($child.ExitCode -eq 30) 'LITERAL_BUILD_FAILURE_EXIT'}finally{Stop-WmsProductionChild $child $started}
-    $runs=@(Get-ChildItem -LiteralPath (Join-Path $isolated 'orchestracao/.runtime/launcher-producao/runs') -Directory)
+    $runs=@(Get-ChildItem -LiteralPath (Join-Path $isolated '.runtime/prod/runs') -Directory)
     Need ($runs.Count -eq 1) 'LITERAL_RUN_COUNT'
     $receipt=[IO.File]::ReadAllText((Join-Path $runs[0].FullName 'launcher.json'))|ConvertFrom-Json
     Need ($receipt.codigo -ceq 'PROD_BACKEND_BUILD_FAILED' -and -not $receipt.sqlGuardInvoked -and -not $receipt.backendStarted -and -not $receipt.frontendStarted) 'BUILD_FAILURE_ADVANCED_TO_RUNTIME'

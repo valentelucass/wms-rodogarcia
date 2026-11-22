@@ -1,4 +1,5 @@
 import { test, expect, type Page, type TestInfo } from "@playwright/test";
+import { offlineRelease } from "./release-fixture";
 import { readFileSync } from "node:fs";
 import { resolve, sep } from "node:path";
 import { fulfillOverviewRead, overviewWire } from "./overview-fixture";
@@ -111,6 +112,8 @@ async function offline(page: Page, dashboardError = false, allowWrite = false) {
             unknown.push(url.pathname);
             return route.abort();
         }
+        if (url.pathname === "/__wms/release" && request.method() === "GET")
+            return route.fulfill({ json: offlineRelease(build) });
         if (!url.pathname.startsWith("/api/")) {
             const path = resolve(
                 build,
@@ -314,14 +317,15 @@ test("CARGA01 primeira carga apresenta mapa sem gráficos nem catálogo lento e 
             .filter((c) => c.path === "/api/v1/clientes")
             .map((c) => c.page),
         positions: await page.locator(".map-position").count(),
-        graphBars: await page.locator(".dashboard-bar").count(),
+        charts: await page.locator(".dashboard-chart").count(),
         domNodes: await page.locator("*").count(),
     };
     proof.releaseTail();
     proof.releaseGraph();
     const client = page.getByRole("combobox", { name: "Cliente", exact: true });
     await expect(client).toBeEnabled();
-    await expect(page.locator(".dashboard-bar").first()).toBeVisible();
+    await expect(page.locator(".dashboard-chart")).toHaveCount(3);
+    await expect(page.locator(".dashboard-chart").first()).toBeVisible();
     await client.click();
     await expect(page.getByRole("option")).toHaveCount(401);
     const ready = {

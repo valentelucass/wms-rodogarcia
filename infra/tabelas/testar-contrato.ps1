@@ -17,7 +17,7 @@ $migrations=@(Get-WmsDev02Migrations)
 $v13=@($migrations | Where-Object version -ceq '13')[0]
 foreach($source in @('DEV','PROD')) {
     $inventory=if($source -ceq 'DEV'){$migrations}else{@(Get-WmsProdMigrations)}
-    $file=if($source -ceq 'DEV'){'orchestracao/.runtime/d29-farol-retomada-preflight.json'}else{'infra/prod/contrato-aplicacao.json'}
+    $file=if($source -ceq 'DEV'){'database/contratos/contrato-dev.json'}else{'infra/prod/contrato-aplicacao.json'}
     $baseline=Get-Content -LiteralPath (Join-Path $root $file) -Raw -Encoding UTF8 | ConvertFrom-Json
     if($source -ceq 'DEV'){$baseline=Add-WmsAuthExpectedContract $baseline ($migrations | Where-Object version -ceq '11')}
     $baseline=Add-WmsUnitTypesExpectedContract $baseline ($migrations | Where-Object version -ceq '12')
@@ -28,7 +28,9 @@ foreach($source in @('DEV','PROD')) {
     Check ($source+'_one_new_column') (@($expected.rights.columns).Count -eq @($baseline.rights.columns).Count+1 -and @($expected.rights.columns | Where-Object {$_.tabela -ceq 'item_tabela_cobranca' -and $_.coluna -ceq 'ativo' -and $_.permitido -eq 0}).Count -eq 1)
     Check ($source+'_catalog_exact_delta') ($expected.catalogo[0].colunas -eq $baseline.catalogo[0].colunas+1 -and $expected.catalogo[0].tabelas -eq $baseline.catalogo[0].tabelas)
     Check ($source+'_history_preserved') (($baseline.historico | ConvertTo-Json -Depth 8 -Compress) -ceq (@($expected.historico | Where-Object version -cne '13') | ConvertTo-Json -Depth 8 -Compress))
-    Check ($source+'_all_migrations_match') ((@($expected.historico | Where-Object type -ceq 'SQL' | Sort-Object {[int]$_.version} | ForEach-Object {$_.version+':'+$_.script+':'+$_.checksum}) -join ',') -ceq (@($inventory | ForEach-Object {$_.version+':'+$_.script+':'+$_.checksum}) -join ','))
+    $throughV13=@($inventory | Where-Object {[int]$_.version -le 13} | Sort-Object {[int]$_.version})
+    Check ($source+'_versions_1_through_13') (($throughV13.version -join ',') -ceq ((1..13) -join ','))
+    Check ($source+'_v13_history_matches_inventory') ((@($expected.historico | Where-Object type -ceq 'SQL' | Sort-Object {[int]$_.version} | ForEach-Object {$_.version+':'+$_.script+':'+$_.checksum}) -join ',') -ceq (@($throughV13 | ForEach-Object {$_.version+':'+$_.script+':'+$_.checksum}) -join ','))
     foreach($field in @('version','script','checksum','sha256')) {
         $changed=$v13 | ConvertTo-Json | ConvertFrom-Json
         $changed.$field=if($field -ceq 'checksum'){0}else{'ALTERADO'}

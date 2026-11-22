@@ -8,7 +8,7 @@ $repository = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 . (Join-Path $PSScriptRoot 'launcher-common.ps1')
 . (Join-Path $repository 'infra/dev/preparo-ambiente.ps1')
 $runId = [guid]::NewGuid().ToString('N')
-$runDirectory = Join-Path $repository ('orchestracao/.runtime/launcher-producao/runs/' + $runId)
+$runDirectory = Join-Path $repository ('.runtime/prod/runs/' + $runId)
 $null = New-Item -ItemType Directory -Path $runDirectory
 $candidate = Join-Path $runDirectory 'candidate'
 $null = New-Item -ItemType Directory -Path $candidate
@@ -111,7 +111,7 @@ try {
         $receipt['estado']='PREPARED_ONLY'; $receipt['codigo']='BUILDS_REAL_NO_DATABASE_OR_SERVERS'; $receipt['exitCode']=0
         Save-WmsProductionReceipt
         if ($PrepareForPm2) {
-            $selectionDirectory=Join-Path $repository 'orchestracao/.runtime/launcher-producao/pm2'
+            $selectionDirectory=Join-Path $repository '.runtime/prod/pm2'
             $null=New-Item -ItemType Directory -Path $selectionDirectory -Force
             $selection=@{runId=$runId;releasePath=$releasePath;releaseSha256=(Get-FileHash $releasePath).Hash}
             [IO.File]::WriteAllText((Join-Path $selectionDirectory 'prepared.json'),($selection|ConvertTo-Json),[Text.UTF8Encoding]::new($false))

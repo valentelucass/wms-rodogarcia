@@ -1,5 +1,11 @@
 # Estado e trilha de implementação do WMS Rodogarcia
 
+## PROD-ATUALIZA01 — regressão do simulador e publicação, 22/11/2026
+
+Os 11 cenários de navegador pendentes passaram após a correção das referências de separação no coletor, da ordem de abertura dos diálogos de inventário, dos dados fictícios de fiscalização e devolução e da navegação das provas. A rodada completa aprovou 41 cenários fictícios e 82 com a interface de produção, sem pulos ou repetição automática. Os testes de negócio foram locais.
+
+A versão `411baa1c668e44589e0a11f8974e1122` foi publicada pelo PM2 com `atualizar-aplicacao`. Às 15h24 de Brasília, o domínio público confirmou a versão, a API informou disponibilidade e o navegador conferiu a animação automática, a pausa e a retomada nos dois temas em desktop e celular. O preparo do banco em modo de escrita ficou fora da publicação.
+
 ## PROD-ATUALIZA01 — publicação integral solicitada, 03/11/2026
 
 **Status:** fonte/preparo concluídos; publicação ainda não executada por ausência de sessão administrativa acessível. Pedido expresso de Lucas: publicar todas as atualizações pelo BAT do PM2. Caminho correto `pm2-wms.bat atualizar`, sem commit/reset ou seleção de pacote por data. Estado atual e privilégios devem ser atestados; recibos de outubro permanecem históricos.

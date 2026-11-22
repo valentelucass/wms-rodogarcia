@@ -7,7 +7,7 @@ $root=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 . (Join-Path $root 'infra/dev02/guarda-wmsdev.ps1')
 . (Join-Path $root 'infra/auth/contrato-banco.ps1')
 . (Join-Path $PSScriptRoot 'contrato-edicao.ps1')
-$out=Join-Path $root ('orchestracao/.runtime/cadastros-etiqueta-20261014/ativacao-'+[Guid]::NewGuid().ToString('N'))
+$out=Join-Path $root ('.runtime/database/permissoes/dev-'+[Guid]::NewGuid().ToString('N'))
 $null=New-Item -ItemType Directory -Path $out
 $report=[ordered]@{demanda='CAD-EDIT01';modo=$Modo;inicioUtc=[DateTime]::UtcNow.ToString('o');estado='PREPARO';fase='FONTES';banco='WMS_DEV';loginAplicacao='WMSDEV';grantsAplicados=$false;colunas=23;adminAberturas=0;prod=$false;ddl=$false;dml=$false;recapturaTLS=$false}
 $connection=$null;$credential=$null;$transaction=$null;$builder=$null
@@ -39,8 +39,8 @@ $historyFields=@('installed_rank','version','type','script','checksum','success'
 $rightsFields=@('class_desc','esquema','objeto','minor_id','coluna','permission_name','state_desc')
 $catalogFields=@('tabelas','colunas','checksInvalidos','fksInvalidas','indicesDesabilitados')
 try {
-    $baselinePath=Join-Path $root 'orchestracao/.runtime/d29-farol-retomada-preflight.json'
-    Assert-Cad ((Get-FileHash -LiteralPath $baselinePath).Hash -ceq 'C22AABF54F839D4B6E139A598A8478530F92F8911FEEE46BB2F92BC85313EA90') 'BASELINE_DIVERGENTE'
+    $baselinePath=Join-Path $root 'database/contratos/contrato-dev.json'
+    Assert-Cad ((Get-FileHash -LiteralPath $baselinePath).Hash -ceq '4B9243E2B40A9AC608192404BF634FBB040599BEB2E7D8E5018FA5DC5039151B') 'BASELINE_DIVERGENTE'
     $baseline=Get-Content -LiteralPath $baselinePath -Raw -Encoding UTF8|ConvertFrom-Json
     $migrations=@(Get-WmsDev02Migrations)
     Assert-Cad ($migrations.Count -in @(11,12,13,14,15,16)) 'MIGRATIONS_INESPERADAS'

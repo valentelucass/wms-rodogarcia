@@ -1,11 +1,14 @@
 const { spawn } = require("node:child_process");
-const { mkdirSync, writeFileSync } = require("node:fs");
+const { mkdirSync, writeFileSync, existsSync } = require("node:fs");
 const path = require("node:path");
 const { randomUUID } = require("node:crypto");
 const root = path.resolve(__dirname, "../..");
 const component = process.argv[2];
 if (!["api", "ui"].includes(component)) process.exit(20);
-const control = path.join(root, "orchestracao/.runtime/launcher-producao/pm2", `${component}-${randomUUID()}`);
+const preferred = path.join(root, ".runtime/prod/pm2");
+const previous = path.join(root, "orchestracao/.runtime/launcher-producao/pm2");
+const active = !existsSync(path.join(preferred, "selected.json")) && existsSync(path.join(previous, "selected.json")) ? previous : preferred;
+const control = path.join(active, `${component}-${randomUUID()}`);
 mkdirSync(control, { recursive: true });
 const env = {};
 for (const key of ["PATH", "SystemRoot", "WINDIR", "TEMP", "TMP", "COMSPEC", "PATHEXT", "LOCALAPPDATA", "APPDATA", "USERPROFILE", "COMPUTERNAME", "NUMBER_OF_PROCESSORS", "PROCESSOR_ARCHITECTURE"])

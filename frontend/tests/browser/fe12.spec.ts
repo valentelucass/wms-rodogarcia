@@ -115,25 +115,20 @@ async function continueWith(page: Page, name: string) {
     await page.getByRole("button", { name, exact: true }).click();
 }
 const unit = "00000000-0000-4000-8000-000000000003";
-const instant = "2026-10-08T12:00:00.123Z";
+
 const localInstant = "2026-10-08T09:00:00.123";
 async function count(page: Page, value = "8.000000") {
     await page.goto(url + "/#contagem");
-    await fill(page, "Código *", unit);
-    await consult(page);
-    expect(
-        (await trace(page, "EstoqueController.consultar")).params?.codigo,
-    ).toBe(unit);
     await page
-        .getByRole("button", { name: "Contagem física", exact: true })
+        .locator("summary")
+        .filter({ hasText: "Ajustes e carga inicial" })
         .click();
-    await page
-        .getByRole("button", { name: "Registrar contagem física", exact: true })
-        .click();
+    await continueWith(page, "Contagens e ajustes anteriores");
+    await continueWith(page, "Nova contagem");
     await fill(page, "UUID da unidade *", unit);
     await fill(page, "Revisão atual da unidade *", "0");
     await fill(page, "Contado *", value);
-    await fill(page, "Observado Em *", instant);
+    await fill(page, "Observado Em *", localInstant);
     await fill(page, "Motivo / justificativa *", "Contagem fictícia FE12");
     await confirm(page);
 }
@@ -165,7 +160,9 @@ test("FE12 contagem consulta ajuste motivado consulta", async ({ page }) => {
     await page
         .getByRole("button", { name: "Adicionar Origens", exact: true })
         .click();
-    await fill(page, "Origens / Item 1 / Entrada conferida (ID) *", "201");
+    await page
+        .getByLabel("Origens / Item 1 / Entrada conferida *", { exact: true })
+        .selectOption("201");
     await fill(page, "Origens / Item 1 / Delta *", "-2.000000");
     await confirm(page);
     const applied = await body(page, "ContagemController.aplicar");
@@ -201,7 +198,9 @@ test("FE12 reserva recusa ajuste e conserva pendencia", async ({ page }) => {
     await page
         .getByRole("button", { name: "Adicionar Origens", exact: true })
         .click();
-    await fill(page, "Origens / Item 1 / Entrada conferida (ID) *", "201");
+    await page
+        .getByLabel("Origens / Item 1 / Entrada conferida *", { exact: true })
+        .selectOption("201");
     await fill(page, "Origens / Item 1 / Delta *", "-3.000000");
     await confirm(page, false);
     await expect(page.getByText(/ajuste recusado por reserva/)).toBeVisible();
@@ -214,15 +213,20 @@ test("FE12 carga pendente revisada preparada confirmada consulta", async ({
 }) => {
     await page.goto(url + "/#contagem");
     await page
+        .locator("summary")
+        .filter({ hasText: "Ajustes e carga inicial" })
+        .click();
+    await page
         .getByRole("button", { name: "Carga inicial excepcional", exact: true })
         .click();
     await page
-        .getByRole("button", { name: "Novo registro", exact: true })
+        .getByRole("button", { name: "Nova carga inicial", exact: true })
         .click();
-    await fill(page, "Produto / SKU (ID) *", "1");
-    await fill(page, "Referência *", "FE12-CARGA");
+    await page
+        .getByLabel("Produto / SKU *", { exact: true })
+        .selectOption({ label: "DEMO-CAIXA · Mercadoria fictícia" });
     await fill(page, "Etiqueta Fornecida", "FE12-L1");
-    await fill(page, "Quantidade *", "10.000000");
+    await fill(page, "Quantidade da carga *", "10.000000");
     await fill(
         page,
         "Motivo / justificativa *",
@@ -241,16 +245,10 @@ test("FE12 carga pendente revisada preparada confirmada consulta", async ({
         ),
     ).toBeVisible();
     await continueWith(page, "Revisar os dados levantados desta carga");
-    await fill(
-        page,
-        "Dados do fato de contingência / Entrada Existente Id",
-        "201",
-    );
-    await fill(
-        page,
-        "Dados do fato de contingência / Fonte",
-        "Entrada fictícia conhecida FE12",
-    );
+    await page
+        .getByLabel("Entrada Existente", { exact: true })
+        .selectOption("201");
+    await fill(page, "Fonte", "Entrada fictícia conhecida FE12");
     await fill(
         page,
         "Motivo / justificativa *",
@@ -301,9 +299,14 @@ test("FE12 carga pendente revisada preparada confirmada consulta", async ({
     ).toContain('"situacao":"REGULARIZADA"');
 });
 test("FE12 CHEGADA consulta modo prova concilia consulta", async ({ page }) => {
-    await page.goto(url + "/#contingencia");
+    await page.goto(url + "/#entrada");
+    await continueWith(page, "Ver pedido");
+    await continueWith(page, "Notas e itens");
+    await page.getByRole("button", { name: /Selecionar item 401/ }).click();
+    await continueWith(page, "Fechar diálogo");
+    await continueWith(page, "Contingência");
     await page
-        .getByRole("button", { name: "Registrar fato", exact: true })
+        .getByRole("button", { name: "Registrar ocorrência", exact: true })
         .click();
     await page.getByLabel("Tipo *", { exact: true }).selectOption("CHEGADA");
     await fill(page, "Instante real do fato *", localInstant);
@@ -311,14 +314,18 @@ test("FE12 CHEGADA consulta modo prova concilia consulta", async ({ page }) => {
     await page
         .getByLabel("Efeito já registrado no WMS *", { exact: true })
         .selectOption("true");
-    await fill(page, "Pedido *", "9007199254740993");
+    const order = page.getByLabel("Pedido *", { exact: true });
+    await order.selectOption({ label: "DEMO-01" });
+    const orderId = await order.inputValue();
     await fill(page, "Revisão atual *", "0");
     await fill(page, "Chegada física real *", localInstant);
     await fill(page, "Observacao *", "Chegada fictícia FE12");
     await page
         .getByRole("button", { name: "Adicionar Itens", exact: true })
         .click();
-    await fill(page, "Itens / Item 1 / Item da nota *", "401");
+    await page
+        .getByLabel("Itens / Item 1 / Item da nota *", { exact: true })
+        .selectOption("401");
     await fill(page, "Itens / Item 1 / Quantidade boa recebida *", "8.000001");
     await fill(page, "Itens / Item 1 / Quantidade avariada *", "0");
     await fill(page, "Justificativa do registro *", "Registro fictício FE12");
@@ -329,7 +336,7 @@ test("FE12 CHEGADA consulta modo prova concilia consulta", async ({ page }) => {
         "Registro manual na tela de contingência do WMS.",
     );
     expect(exact((registered.dados as Record<string, unknown>).pedidoId)).toBe(
-        "9007199254740993",
+        orderId,
     );
     await continueWith(page, "Consultar o fato manual registrado");
     await consult(page);
@@ -381,14 +388,15 @@ test("FE12 Operacao sem ajuste carga ou conciliacao", async ({ page }) => {
             })
             .count(),
     ).toBe(0);
-    await page
-        .getByRole("button", { name: "Carga inicial excepcional", exact: true })
-        .click();
     await expect(
-        page.getByText(
-            "Nenhuma ação desta etapa é apresentada ao perfil atual. Selecione outra etapa.",
-        ),
-    ).toBeVisible();
+        page.getByRole("button", {
+            name: "Carga inicial excepcional",
+            exact: true,
+        }),
+    ).toHaveCount(0);
+    await expect(
+        page.locator("summary").filter({ hasText: "Ajustes e carga inicial" }),
+    ).toHaveCount(0);
     await page
         .getByRole("button", { name: "Contingência", exact: true })
         .click();

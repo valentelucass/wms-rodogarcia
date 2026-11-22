@@ -1,4 +1,5 @@
-import { readFileSync } from "node:fs";
+import { fixture } from "../src/api/mock/fixtures";
+import { stringifyExact, toWire } from "../src/contracts/codec";
 import {
     act,
     fireEvent,
@@ -15,9 +16,12 @@ import { endpoints } from "../src/contracts/runtime";
 import { canLeavePage } from "../src/domain/pageLeave";
 import { FictitiousTransport } from "../src/api/fictitious";
 
-const prepared = JSON.parse(
-    readFileSync("evidencias/record-pages-browser-fixtures.json", "utf8"),
-) as { fixtures: Record<string, string> };
+const responses = Object.fromEntries(
+    endpoints.map(({ id, response }) => [
+        id,
+        stringifyExact(toWire(response, fixture(response))),
+    ]),
+);
 const initialUser: User = {
     id: "init01-local",
     nome: "Pessoa fictícia",
@@ -150,7 +154,7 @@ async function mounted() {
                     ).raw,
                 );
             const raw =
-                prepared.fixtures[
+                responses[
                     contract.id === "ClienteController.alterar"
                         ? "ClienteController.consultar"
                         : contract.id
