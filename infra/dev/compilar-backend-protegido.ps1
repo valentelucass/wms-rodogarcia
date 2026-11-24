@@ -11,7 +11,7 @@ if(-not $Executar){
     # Somente a compilacao entra no Job Object; os servidores permanentes ficam no launcher.
     $controller=[IO.Path]::GetFullPath((Join-Path $repository '../.runtime/memory-control/Executar-Batch.ps1'))
     if(!(Test-Path -LiteralPath $controller -PathType Leaf)){throw 'DEV_CURRENT_MEMORY_CONTROLLER_MISSING'}
-    & $controller -Executable (Join-Path $env:SystemRoot 'System32/WindowsPowerShell/v1.0/powershell.exe') -ArgumentList @('-NoProfile','-File',$PSCommandPath,'-RunDirectory',$run,'-Executar') -WorkingDirectory (Join-Path $repository 'backend') -ReceiptPath (Join-Path $run 'build-memory.json')
+    & $controller -Compilacao -Executable (Join-Path $env:SystemRoot 'System32/WindowsPowerShell/v1.0/powershell.exe') -ArgumentList @('-NoProfile','-File',$PSCommandPath,'-RunDirectory',$run,'-Executar') -WorkingDirectory (Join-Path $repository 'backend') -ReceiptPath (Join-Path $run 'build-memory.json')
     exit $LASTEXITCODE
 }
 $target=Join-Path $run 'target'
